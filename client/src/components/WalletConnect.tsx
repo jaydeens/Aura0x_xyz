@@ -48,10 +48,9 @@ export default function WalletConnect({ onConnect, showBalance = true }: WalletC
 
   const fetchBalance = async (walletAddress: string) => {
     try {
-      const response = await apiRequest(`/api/web3/balance/${walletAddress}`, {
-        method: "GET",
-      });
-      setBalance(response.balance);
+      const response = await fetch(`/api/web3/balance/${walletAddress}`);
+      const data = await response.json();
+      setBalance(data.balance);
     } catch (error) {
       console.error("Error fetching balance:", error);
     }

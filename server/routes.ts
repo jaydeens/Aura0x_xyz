@@ -32,6 +32,9 @@ const completeLessonSchema = z.object({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+  
+  // Twitter auth (optional - requires Twitter API keys)
+  // setupTwitterAuth(app);
 
   // Seed aura levels on startup
   await storage.seedAuraLevels();

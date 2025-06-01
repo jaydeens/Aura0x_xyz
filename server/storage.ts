@@ -76,9 +76,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
+    // For Twitter auth, create a unique ID if not provided
+    const userToInsert = {
+      ...userData,
+      id: userData.id || `twitter_${userData.twitterId}` || `user_${Date.now()}`,
+    };
+
     const [user] = await db
       .insert(users)
-      .values(userData)
+      .values(userToInsert)
       .onConflictDoUpdate({
         target: users.id,
         set: {
@@ -86,6 +92,9 @@ export class DatabaseStorage implements IStorage {
           firstName: userData.firstName,
           lastName: userData.lastName,
           profileImageUrl: userData.profileImageUrl,
+          twitterId: userData.twitterId,
+          twitterUsername: userData.twitterUsername,
+          isVerified: userData.isVerified,
           updatedAt: new Date(),
         },
       })
