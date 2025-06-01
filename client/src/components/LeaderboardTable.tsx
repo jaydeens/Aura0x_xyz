@@ -122,7 +122,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                     {topThree[0].totalBattlesWon} battles won
                   </div>
                   <Badge className="mt-2 bg-warning/20 text-warning border-warning/40">
-                    AURA KING
+                    AURA VADER
                   </Badge>
                 </div>
               )}
@@ -166,7 +166,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                 <TableHeader>
                   <TableRow className="border-primary/20 hover:bg-transparent">
                     <TableHead className="text-gray-400 font-medium">Rank</TableHead>
-                    <TableHead className="text-gray-400 font-medium">KOL</TableHead>
+                    <TableHead className="text-gray-400 font-medium">User</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Aura Points</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Win Rate</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Streak</TableHead>

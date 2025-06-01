@@ -374,12 +374,12 @@ export default function Landing() {
                       </div>
                     </div>
                     <h3 className="font-bold text-xl bg-gradient-to-r from-[#FFD700] to-[#FF8800] bg-clip-text text-transparent">
-                      AuraKing
+                      AuraVader
                     </h3>
                     <p className="text-[#FFD700] font-bold text-lg">23,892 Aura</p>
                     <div className="text-sm text-gray-300">73 battles won</div>
                     <Badge className="mt-2 bg-[#FFD700]/20 text-[#FFD700]">
-                      AURA KING
+                      AURA VADER
                     </Badge>
                   </div>
 
@@ -393,7 +393,7 @@ export default function Landing() {
                         <span className="text-white font-bold text-sm">3</span>
                       </div>
                     </div>
-                    <h3 className="font-bold text-lg">TokenMaster</h3>
+                    <h3 className="font-bold text-lg">CryptoFarmer</h3>
                     <p className="text-orange-400 font-semibold">12,156 Aura</p>
                     <div className="text-sm text-gray-400">31 battles won</div>
                   </div>
