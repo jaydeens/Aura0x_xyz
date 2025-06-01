@@ -80,7 +80,7 @@ Make this lesson valuable for crypto KOLs who want to build their expertise and 
       messages: [
         {
           role: "system",
-          content: "You are an expert Web3 educator. Create in-depth, practical lessons that KOLs can learn from and share."
+          content: "You are an expert Web3 educator. Create in-depth, practical lessons that Web3 users can learn from and share."
         },
         {
           role: "user",

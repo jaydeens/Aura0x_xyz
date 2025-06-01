@@ -223,7 +223,7 @@ export class Web3Service {
       defaultChain: POLYGON_TESTNET,
       walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID || "",
       appName: "Aura Battle Platform",
-      appDescription: "Web3 Aura Battle Platform for KOLs",
+      appDescription: "Web3 Aura Battle Platform for Web3 Users",
     };
   }
 }

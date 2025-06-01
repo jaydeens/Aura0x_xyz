@@ -340,7 +340,7 @@ export default function Landing() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
               Global Leaderboard
             </h2>
-            <p className="text-xl text-gray-300">The most influential KOLs in the Web3 space</p>
+            <p className="text-xl text-gray-300">The top Web3 users building their Aura reputation</p>
           </div>
 
           <Card className="bg-[#1A1A1B] border-[#8000FF]/20 max-w-4xl mx-auto">
@@ -427,7 +427,7 @@ export default function Landing() {
                   Aura
                 </span>
               </div>
-              <p className="text-gray-400 mb-4">The ultimate Web3 platform for KOL battles and Aura building.</p>
+              <p className="text-gray-400 mb-4">The ultimate Web3 platform for user battles and Aura farming.</p>
               <div className="flex space-x-4">
                 <a href="#" className="text-gray-400 hover:text-[#8000FF] transition-colors">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

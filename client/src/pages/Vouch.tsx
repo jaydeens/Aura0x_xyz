@@ -113,7 +113,7 @@ export default function Vouch() {
               Vouch with USDT
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Support your favorite KOLs by vouching with USDT. Your vouches convert to Aura Points with streak multipliers.
+              Support your favorite users by vouching with USDT. Your vouches convert to Aura Points with streak multipliers.
             </p>
           </div>
 
