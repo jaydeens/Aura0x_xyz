@@ -185,7 +185,7 @@
 }
 
 .card-battle-hover {
-  @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-warning/20;
+  @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/20;
 }
 
 /* Text effects */

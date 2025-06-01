@@ -123,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastDate.setHours(0, 0, 0, 0);
         
         if (lastDate.getTime() === yesterday.getTime()) {
-          newStreak = user.currentStreak + 1;
+          newStreak = (user.currentStreak || 0) + 1;
         }
       }
       
@@ -187,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has enough aura points
       const user = await storage.getUser(userId);
-      if (!user || user.auraPoints < stakeAmount) {
+      if (!user || (user.auraPoints || 0) < stakeAmount) {
         return res.status(400).json({ message: "Insufficient Aura Points" });
       }
       
@@ -229,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Calculate multiplier based on streak
-      const { multiplier } = web3Service.applyStreakMultiplier(10, user.currentStreak);
+      const { multiplier } = web3Service.applyStreakMultiplier(10, user.currentStreak || 0);
       
       // Create vote
       const vote = await storage.createBattleVote({
@@ -270,7 +270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate aura points with multiplier
       const basePoints = web3Service.calculateVouchDistribution(usdtAmount).auraPoints;
-      const { finalAuraPoints, multiplier } = web3Service.applyStreakMultiplier(basePoints, user.currentStreak);
+      const { finalAuraPoints, multiplier } = web3Service.applyStreakMultiplier(basePoints, user.currentStreak || 0);
       
       // Create vouch record
       const vouch = await storage.createVouch({
