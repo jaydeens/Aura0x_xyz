@@ -31,7 +31,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
     }
   };
 
-  const isTwitterConnected = user?.twitterId && user?.twitterHandle;
+  const isTwitterConnected = user?.twitterId && user?.twitterUsername;
 
   if (isTwitterConnected) {
     return (
@@ -42,7 +42,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
             Twitter Connected
           </CardTitle>
           <CardDescription>
-            @{user.twitterHandle}
+            @{user.twitterUsername}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -55,7 +55,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.open(`https://twitter.com/${user.twitterHandle}`, '_blank')}
+            onClick={() => window.open(`https://twitter.com/${user.twitterUsername}`, '_blank')}
             className="w-full"
           >
             <ExternalLink className="h-4 w-4 mr-2" />

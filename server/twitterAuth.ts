@@ -18,14 +18,13 @@ export function setupTwitterAuth(app: Express) {
     try {
       // Create or update user with Twitter data
       const user = await storage.upsertUser({
-        id: `twitter_${profile.id}`,
         email: profile.emails?.[0]?.value || null,
         firstName: profile.displayName?.split(' ')[0] || profile.username,
         lastName: profile.displayName?.split(' ').slice(1).join(' ') || null,
         profileImageUrl: profile.photos?.[0]?.value || null,
         username: profile.username,
         twitterId: profile.id,
-        twitterHandle: profile.username,
+        twitterUsername: profile.username,
         isVerified: profile.verified || false,
       });
       

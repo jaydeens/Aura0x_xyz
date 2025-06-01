@@ -37,6 +37,7 @@ export const users = pgTable("users", {
   walletAddress: varchar("wallet_address"),
   twitterId: varchar("twitter_id"),
   twitterUsername: varchar("twitter_username"),
+  isVerified: boolean("is_verified").default(false),
   auraPoints: integer("aura_points").default(0),
   currentStreak: integer("current_streak").default(0),
   lastLessonDate: timestamp("last_lesson_date"),
