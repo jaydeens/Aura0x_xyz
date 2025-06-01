@@ -86,14 +86,14 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const amount = parseFloat(usdtAmount) || 0;
   const baseAuraPoints = amount * 10; // 1 USDT = 10 Aura Points
   const finalAuraPoints = Math.floor(baseAuraPoints * userStreakLevel.multiplier);
-  const kolAmount = (amount * 0.6).toFixed(2);
+  const userAmount = (amount * 0.6).toFixed(2);
   const platformFee = (amount * 0.4).toFixed(2);
 
   const handleVouch = () => {
     if (!selectedUserId) {
       toast({
-        title: "Select a KOL",
-        description: "Please choose a KOL to vouch for",
+        title: "Select a User",
+        description: "Please choose a user to vouch for",
         variant: "destructive",
       });
       return;
@@ -143,34 +143,34 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* KOL Selection */}
+        {/* User Selection */}
         <div className="space-y-2">
-          <Label className="text-white font-medium">Select KOL to Vouch For</Label>
+          <Label className="text-white font-medium">Select User to Vouch For</Label>
           <Select value={selectedUserId} onValueChange={setSelectedUserId}>
             <SelectTrigger className="bg-background border-primary/30 focus:border-primary">
-              <SelectValue placeholder="Choose a KOL..." />
+              <SelectValue placeholder="Choose a user..." />
             </SelectTrigger>
             <SelectContent className="bg-card border-primary/20">
-              {leaderboard?.map((kolUser: any) => {
-                const level = getStreakLevel(kolUser.currentStreak);
+              {leaderboard?.map((targetUser: any) => {
+                const level = getStreakLevel(targetUser.currentStreak);
                 const LevelIcon = level.icon;
                 
                 return (
-                  <SelectItem key={kolUser.id} value={kolUser.id}>
+                  <SelectItem key={targetUser.id} value={targetUser.id}>
                     <div className="flex items-center space-x-3 py-1">
                       <Avatar className="w-8 h-8 border border-primary/20">
-                        <AvatarImage src={kolUser.profileImageUrl} />
+                        <AvatarImage src={targetUser.profileImageUrl} />
                         <AvatarFallback className="bg-primary/20 text-primary text-xs">
                           <User className="w-4 h-4" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <div className="font-medium text-white">
-                          {getUserDisplayName(kolUser)}
+                          {getUserDisplayName(targetUser)}
                         </div>
                         <div className="text-xs text-gray-400 flex items-center">
                           <LevelIcon className="w-3 h-3 mr-1" />
-                          {kolUser.auraPoints?.toLocaleString()} Aura • {level.name}
+                          {targetUser.auraPoints?.toLocaleString()} Aura • {level.name}
                         </div>
                       </div>
                     </div>
@@ -299,8 +299,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-400">USDT to KOL (60%):</span>
-                  <span className="text-white">${kolAmount}</span>
+                  <span className="text-gray-400">USDT to User (60%):</span>
+                  <span className="text-white">${userAmount}</span>
                 </div>
                 
                 <div className="flex justify-between">

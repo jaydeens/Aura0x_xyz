@@ -309,33 +309,33 @@ export default function Vouch() {
                 </Card>
               )}
 
-              {/* Top KOLs to Vouch */}
+              {/* Top Users to Vouch */}
               <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
                 <CardHeader>
                   <CardTitle className="text-lg font-bold text-white flex items-center">
                     <Users className="w-5 h-5 mr-2 text-[#00FF88]" />
-                    Popular KOLs
+                    Popular Users
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {leaderboard && leaderboard.length > 0 ? (
                     <div className="space-y-3">
-                      {leaderboard.slice(0, 5).map((kol: any, index: number) => (
-                        <div key={kol.id} className="flex items-center justify-between p-3 bg-[#0A0A0B] rounded-lg">
+                      {leaderboard.slice(0, 5).map((user: any, index: number) => (
+                        <div key={user.id} className="flex items-center justify-between p-3 bg-[#0A0A0B] rounded-lg">
                           <div className="flex items-center space-x-3">
                             <div className="text-sm font-bold text-gray-400">#{index + 1}</div>
                             <Avatar className="w-8 h-8 border border-[#8000FF]/20">
-                              <AvatarImage src={kol.profileImageUrl} />
+                              <AvatarImage src={user.profileImageUrl} />
                               <AvatarFallback className="bg-[#8000FF]/20 text-[#8000FF] text-xs">
                                 <User className="w-4 h-4" />
                               </AvatarFallback>
                             </Avatar>
                             <div>
                               <div className="font-medium text-white text-sm">
-                                {kol.firstName || kol.username || `User ${kol.id.slice(0, 6)}`}
+                                {user.firstName || user.username || `User ${user.id.slice(0, 6)}`}
                               </div>
                               <div className="text-xs text-gray-400">
-                                {kol.auraPoints?.toLocaleString()} Aura
+                                {user.auraPoints?.toLocaleString()} Aura
                               </div>
                             </div>
                           </div>
@@ -343,7 +343,7 @@ export default function Vouch() {
                             size="sm"
                             className="bg-[#00FF88]/20 text-[#00FF88] hover:bg-[#00FF88] hover:text-black text-xs"
                             onClick={() => {
-                              setPreselectedUserId(kol.id);
+                              setPreselectedUserId(user.id);
                               // Scroll to form
                               document.querySelector('.max-w-2xl')?.scrollIntoView({ behavior: 'smooth' });
                             }}
@@ -356,7 +356,7 @@ export default function Vouch() {
                   ) : (
                     <div className="text-center py-6">
                       <Users className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                      <p className="text-gray-500 text-sm">Loading KOLs...</p>
+                      <p className="text-gray-500 text-sm">Loading users...</p>
                     </div>
                   )}
                 </CardContent>

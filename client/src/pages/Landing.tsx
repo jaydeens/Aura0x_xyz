@@ -455,7 +455,7 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4">Community</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-[#8000FF] transition-colors">KOL Profiles</a></li>
+                <li><a href="#" className="hover:text-[#8000FF] transition-colors">User Profiles</a></li>
                 <li><a href="#" className="hover:text-[#8000FF] transition-colors">Vouching</a></li>
                 <li><a href="#" className="hover:text-[#8000FF] transition-colors">Support</a></li>
                 <li><a href="#" className="hover:text-[#8000FF] transition-colors">FAQ</a></li>
