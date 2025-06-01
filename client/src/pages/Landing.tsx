@@ -86,7 +86,7 @@ export default function Landing() {
               Build Your Aura
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
-              The ultimate Web3 platform where KOLs battle for dominance through daily lessons, USDT vouching, and epic 1v1 Aura Battles.
+              The ultimate Web3 platform where users build their reputation through daily lessons, USDT vouching, and epic 1v1 Aura Battles.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -111,7 +111,7 @@ export default function Landing() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold text-[#8000FF]">12,547</div>
-                <div className="text-sm text-gray-400">Active KOLs</div>
+                <div className="text-sm text-gray-400">Active Users</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-[#9933FF]">3,821</div>
@@ -138,7 +138,7 @@ export default function Landing() {
               How It Works
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Four core pillars that define your Aura journey and reputation in the Web3 space
+              Four core activities that help you farm Aura and build your Web3 reputation
             </p>
           </div>
 
@@ -150,7 +150,7 @@ export default function Landing() {
                   <Zap className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Daily Lessons</h3>
-                <p className="text-gray-400 mb-4">Complete AI-powered lessons and tweet your certification to earn Aura Points and maintain your streak.</p>
+                <p className="text-gray-400 mb-4">Complete AI-powered Web3 lessons and share your progress to earn Aura Points and maintain your learning streak.</p>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
@@ -180,7 +180,7 @@ export default function Landing() {
                   <Coins className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">USDT Vouching</h3>
-                <p className="text-gray-400 mb-4">Vouch for others with USDT. Higher streak levels provide multiplier bonuses for both giver and receiver.</p>
+                <p className="text-gray-400 mb-4">Support other users by vouching with USDT. Higher streak levels unlock multiplier bonuses for more Aura farming.</p>
                 
                 <div className="bg-[#0A0A0B] rounded-lg p-3">
                   <div className="text-xs text-gray-400 mb-2">1 USDT = 10 Base Aura Points</div>
@@ -205,7 +205,7 @@ export default function Landing() {
                   <Sword className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Aura Battles</h3>
-                <p className="text-gray-400 mb-4">Challenge others to 1v1 battles. Stake Aura Points and let the community vote on the winner.</p>
+                <p className="text-gray-400 mb-4">Challenge other users to 1v1 battles. Stake your Aura Points and let the community decide the winner.</p>
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center text-gray-400">
@@ -256,7 +256,7 @@ export default function Landing() {
               Aura Battles
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Challenge other KOLs to epic 1v1 battles and stake your Aura Points for victory
+              Challenge other users to epic 1v1 battles and stake your Aura Points for victory
             </p>
           </div>
 
@@ -282,7 +282,7 @@ export default function Landing() {
                       Grinder
                     </Badge>
                   </div>
-                  <h4 className="font-bold text-lg">CryptoKing</h4>
+                  <h4 className="font-bold text-lg">DefiMaster</h4>
                   <p className="text-sm text-gray-400">3,245 Aura</p>
                   <Badge variant="outline" className="mt-2 border-[#8000FF] text-[#8000FF]">
                     Staked: 500 Aura
@@ -358,7 +358,7 @@ export default function Landing() {
                         <span className="text-white font-bold text-sm">2</span>
                       </div>
                     </div>
-                    <h3 className="font-bold text-lg">CryptoQueen</h3>
+                    <h3 className="font-bold text-lg">AuraFarmer</h3>
                     <p className="text-[#9933FF] font-semibold">15,423 Aura</p>
                     <div className="text-sm text-gray-400">47 battles won</div>
                   </div>
