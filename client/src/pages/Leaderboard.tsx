@@ -111,7 +111,7 @@ export default function Leaderboard() {
               Global Leaderboard
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              The most influential KOLs in the Web3 space, ranked by Aura Points and battle prowess
+              The top Web3 users in the Aura ecosystem, ranked by Aura Points and battle prowess
             </p>
           </div>
 
@@ -121,7 +121,7 @@ export default function Leaderboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Total KOLs</p>
+                    <p className="text-gray-400 text-sm">Total Users</p>
                     <p className="text-2xl font-bold text-[#8000FF]">
                       {stats?.totalUsers?.toLocaleString() || "0"}
                     </p>
