@@ -167,6 +167,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's battles
+  app.get('/api/battles/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const battles = await storage.getUserBattles(userId);
+      res.json(battles);
+    } catch (error) {
+      console.error("Error fetching user battles:", error);
+      res.status(500).json({ message: "Failed to fetch battle" });
+    }
+  });
+
   app.get('/api/battles/:id', async (req, res) => {
     try {
       const battle = await storage.getBattle(req.params.id);
