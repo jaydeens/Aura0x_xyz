@@ -1,14 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Coins, Sword, Trophy, Zap, Clock, Flame, Star } from "lucide-react";
+import AuthModal from "@/components/AuthModal";
 
 export default function Landing() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function Landing() {
   }, [isAuthenticated, isLoading, toast]);
 
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    setShowAuthModal(true);
   };
 
   const handleWatchDemo = () => {
@@ -476,6 +478,9 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </div>
   );
 }
