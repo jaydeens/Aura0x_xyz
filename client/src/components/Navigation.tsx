@@ -1,0 +1,210 @@
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Link, useLocation } from "wouter";
+import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X } from "lucide-react";
+import { useState } from "react";
+
+export default function Navigation() {
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const [location] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
+  };
+
+  const handleWalletConnect = () => {
+    toast({
+      title: "Wallet Connect",
+      description: "Wallet connection feature coming soon!",
+    });
+  };
+
+  const navItems = [
+    { path: "/", label: "Dashboard", icon: Home },
+    { path: "/battles", label: "Battles", icon: Sword },
+    { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
+    { path: "/vouch", label: "Vouch", icon: Coins },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === "/" && location === "/") return true;
+    if (path !== "/" && location.startsWith(path)) return true;
+    return false;
+  };
+
+  return (
+    <nav className="fixed top-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-primary/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/">
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center animate-glow">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold gradient-text">Aura</span>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.path} href={item.path}>
+                  <div
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                      isActive(item.path)
+                        ? "text-primary bg-primary/10"
+                        : "text-gray-300 hover:text-primary hover:bg-primary/5"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* User Section */}
+          <div className="flex items-center space-x-4">
+            {/* Aura Points Display */}
+            {isAuthenticated && user && (
+              <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-primary/20">
+                <Coins className="w-4 h-4 text-warning" />
+                <span className="text-sm font-medium">
+                  {user.auraPoints?.toLocaleString() || "0"}
+                </span>
+                <span className="text-xs text-gray-400">Aura</span>
+              </div>
+            )}
+
+            {/* Wallet Connect Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex border-primary/50 text-primary hover:bg-primary hover:text-white"
+              onClick={handleWalletConnect}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Connect Wallet
+            </Button>
+
+            {/* User Menu */}
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20">
+                      <AvatarImage
+                        src={user.profileImageUrl || ""}
+                        alt={user.firstName || user.username || "User"}
+                      />
+                      <AvatarFallback className="bg-primary/20 text-primary">
+                        {(user.firstName?.[0] || user.username?.[0] || "U").toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-card border-primary/20" align="end">
+                  <DropdownMenuLabel className="text-white">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">
+                        {user.firstName || user.username || "User"}
+                      </p>
+                      <p className="text-xs text-gray-400">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-primary/20" />
+                  <DropdownMenuItem asChild>
+                    <Link href={`/profile/${user.id}`} className="cursor-pointer">
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-primary/20" />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-400">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
+                onClick={() => (window.location.href = "/api/login")}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Connect
+              </Button>
+            )}
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-primary/20">
+            <div className="space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link key={item.path} href={item.path}>
+                    <div
+                      className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors cursor-pointer ${
+                        isActive(item.path)
+                          ? "text-primary bg-primary/10"
+                          : "text-gray-300 hover:text-primary hover:bg-primary/5"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+              
+              {/* Mobile Wallet Connect */}
+              <Button
+                variant="outline"
+                className="w-full mt-4 border-primary/50 text-primary hover:bg-primary hover:text-white"
+                onClick={handleWalletConnect}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Connect Wallet
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+}
