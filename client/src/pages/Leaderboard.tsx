@@ -306,44 +306,50 @@ export default function Leaderboard() {
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {auraLevels.map((level: any) => (
-                    <div key={level.id} className="text-center p-4 rounded-lg border" 
-                         style={{ borderColor: `${level.color}40`, backgroundColor: `${level.color}10` }}>
-                      <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"
-                           style={{ backgroundColor: `${level.color}20` }}>
-                        <Crown className="w-6 h-6" style={{ color: level.color }} />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {auraLevels && auraLevels.length > 0 ? 
+                    [...new Map(auraLevels.map((level: any) => [level.name, level])).values()]
+                    .sort((a: any, b: any) => a.minDays - b.minDays)
+                    .map((level: any) => (
+                      <div key={level.name} className="text-center p-4 rounded-lg border" 
+                           style={{ borderColor: `${level.color}40`, backgroundColor: `${level.color}10` }}>
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"
+                             style={{ backgroundColor: `${level.color}20` }}>
+                          <Crown className="w-6 h-6" style={{ color: level.color }} />
+                        </div>
+                        <h4 className="font-bold mb-1" style={{ color: level.color }}>
+                          {level.name}
+                        </h4>
+                        <p className="text-sm text-gray-400 mb-2">
+                          {level.minDays}{level.maxDays ? `-${level.maxDays}` : '+'} days
+                        </p>
+                        <div className="space-y-1">
+                          <Badge 
+                            variant="outline" 
+                            style={{ 
+                              color: level.color, 
+                              borderColor: `${level.color}40`,
+                              backgroundColor: `${level.color}20`
+                            }}
+                            className="text-xs"
+                          >
+                            {level.multiplier}x aura
+                          </Badge>
+                          <br />
+                          <Badge 
+                            variant="outline" 
+                            style={{ 
+                              color: level.color, 
+                              borderColor: `${level.color}40`,
+                              backgroundColor: `${level.color}20`
+                            }}
+                            className="text-xs"
+                          >
+                            {level.vouchingMultiplier || level.multiplier}x vouch
+                          </Badge>
+                        </div>
                       </div>
-                      <h4 className="font-bold mb-1" style={{ color: level.color }}>
-                        {level.name}
-                      </h4>
-                      <p className="text-sm text-gray-400 mb-2">
-                        {level.minDays}{level.maxDays ? `-${level.maxDays}` : '+'} days
-                      </p>
-                      <div className="space-y-1">
-                        <Badge 
-                          variant="outline" 
-                          style={{ 
-                            color: level.color, 
-                            borderColor: `${level.color}40`,
-                            backgroundColor: `${level.color}20`
-                          }}
-                        >
-                          {level.multiplier}x aura
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          style={{ 
-                            color: level.color, 
-                            borderColor: `${level.color}40`,
-                            backgroundColor: `${level.color}20`
-                          }}
-                        >
-                          {level.vouchingMultiplier || level.multiplier}x vouch
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                    )) : null}
                 </div>
               </CardContent>
             </Card>
