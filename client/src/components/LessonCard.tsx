@@ -411,46 +411,33 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                             Copy Tweet Text
                           </Button>
                           <Button
-                            onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`)}`)}
+                            onClick={() => {
+                              // Open X post intent and automatically complete lesson
+                              window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`)}`);
+                              
+                              // Complete lesson automatically after opening post intent
+                              setTimeout(() => {
+                                completeLesson.mutate({
+                                  lessonId: lesson.id,
+                                  tweetUrl: "shared", // Simple flag instead of requiring URL
+                                });
+                              }, 1000);
+                            }}
                             size="sm"
                             className="bg-black hover:bg-gray-800 text-white"
+                            disabled={isCompleting}
                           >
                             <ExternalLink className="w-4 h-4 mr-1" />
-                            Post Now
+                            {isCompleting ? "Completing..." : "Post Now"}
                           </Button>
                         </div>
                       </div>
                       
-                      <div className="space-y-2">
-                        <Label htmlFor="tweet-url" className="text-slate-300">
-                          Paste your X post URL here:
-                        </Label>
-                        <Input
-                          id="tweet-url"
-                          value={tweetUrl}
-                          onChange={(e) => setTweetUrl(e.target.value)}
-                          placeholder="https://x.com/your_username/status/..."
-                          className="bg-slate-900/50 border-slate-700 text-white"
-                        />
+                      <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3">
+                        <p className="text-amber-300 text-sm text-center">
+                          💡 Click "Post Now" to share and automatically earn your aura points!
+                        </p>
                       </div>
-                      
-                      <Button
-                        onClick={handleCompleteLesson}
-                        disabled={!tweetUrl.trim() || isCompleting}
-                        className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
-                      >
-                        {isCompleting ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Completing...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Complete
-                          </>
-                        )}
-                      </Button>
                     </div>
                   </div>
                 )}
