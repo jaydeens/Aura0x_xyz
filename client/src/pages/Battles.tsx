@@ -32,8 +32,22 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 export default function Battles() {
+  const [location] = useLocation();
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const initialTab = urlParams.get('tab') || 'upcoming';
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
+  
+  // Update active tab when URL changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const tabFromUrl = urlParams.get('tab');
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [location, activeTab]);
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("live");
   const [showCreateBattle, setShowCreateBattle] = useState(false);
