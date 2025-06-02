@@ -29,7 +29,11 @@ const vouchSchema = z.object({
 
 const completeLessonSchema = z.object({
   lessonId: z.number(),
-  tweetUrl: z.string().url(),
+  tweetUrl: z.string().refine((url) => {
+    return url === "shared" || url.includes('twitter.com') || url.includes('x.com');
+  }, {
+    message: "Must be 'shared' or a valid Twitter/X URL"
+  }),
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
