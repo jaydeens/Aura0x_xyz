@@ -37,9 +37,14 @@ export default function Battles() {
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("live");
   const [showCreateBattle, setShowCreateBattle] = useState(false);
-  const [opponentUsername, setOpponentUsername] = useState("");
+  const [opponentSearch, setOpponentSearch] = useState("");
+  const [selectedOpponent, setSelectedOpponent] = useState<any>(null);
   const [stakeAmount, setStakeAmount] = useState("");
   const [battleDescription, setBattleDescription] = useState("");
+  const [battleDate, setBattleDate] = useState("");
+  const [battleDuration, setBattleDuration] = useState("4");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -78,9 +83,7 @@ export default function Battles() {
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
       setShowCreateBattle(false);
-      setOpponentUsername("");
-      setStakeAmount("");
-      setBattleDescription("");
+      resetBattleForm();
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
@@ -102,11 +105,31 @@ export default function Battles() {
     },
   });
 
+  // Search for opponents
+  const searchOpponents = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/users/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      const results = await response.json();
+      setSearchResults(results || []);
+    } catch (error) {
+      console.error("Search failed:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const handleCreateBattle = () => {
-    if (!opponentUsername.trim()) {
+    if (!selectedOpponent) {
       toast({
         title: "Error",
-        description: "Please enter an opponent's username.",
+        description: "Please select an opponent to challenge.",
         variant: "destructive",
       });
       return;
@@ -121,11 +144,42 @@ export default function Battles() {
       return;
     }
 
+    if (!battleDate) {
+      toast({
+        title: "Error",
+        description: "Please select a battle date.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const battleDateTime = new Date(`${battleDate}T12:00:00`);
+    if (battleDateTime <= new Date()) {
+      toast({
+        title: "Error",
+        description: "Battle date must be in the future.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     createBattle.mutate({
-      opponentUsername: opponentUsername.trim(),
+      opponentId: selectedOpponent.id,
       stakeAmount: parseFloat(stakeAmount),
       description: battleDescription.trim() || "A battle of Web3 aura and reputation!",
+      battleDate: battleDateTime.toISOString(),
+      duration: parseInt(battleDuration),
     });
+  };
+
+  const resetBattleForm = () => {
+    setOpponentSearch("");
+    setSelectedOpponent(null);
+    setStakeAmount("");
+    setBattleDescription("");
+    setBattleDate("");
+    setBattleDuration("4");
+    setSearchResults([]);
   };
 
   const getBattleStats = () => {
@@ -451,45 +505,138 @@ export default function Battles() {
           </TabsContent>
         </Tabs>
 
-        {/* Create Battle Dialog */}
-        <Dialog open={showCreateBattle} onOpenChange={setShowCreateBattle}>
-          <DialogContent className="bg-[#1A1A1B] border-[#8000FF]/20 text-white max-w-md">
+        {/* Enhanced Create Battle Dialog */}
+        <Dialog open={showCreateBattle} onOpenChange={(open) => {
+          setShowCreateBattle(open);
+          if (!open) resetBattleForm();
+        }}>
+          <DialogContent className="bg-gradient-to-br from-[#1A1A1B] to-[#0A0A0B] border-2 border-[#8000FF]/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-                Create Battle Challenge
+              <DialogTitle className="text-3xl font-black bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] bg-clip-text text-transparent">
+                ⚔️ INITIATE BATTLE CHALLENGE
               </DialogTitle>
             </DialogHeader>
             
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="opponent" className="text-white">Opponent Username</Label>
-                <Input
-                  id="opponent"
-                  placeholder="Enter username to challenge"
-                  value={opponentUsername}
-                  onChange={(e) => setOpponentUsername(e.target.value)}
-                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
-                />
+            <div className="space-y-6 py-4">
+              {/* Opponent Search */}
+              <div className="space-y-3">
+                <Label className="text-white font-semibold">Find Your Opponent</Label>
+                <div className="relative">
+                  <Input
+                    placeholder="Search by username or wallet address..."
+                    value={opponentSearch}
+                    onChange={(e) => {
+                      setOpponentSearch(e.target.value);
+                      searchOpponents(e.target.value);
+                    }}
+                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white pr-10"
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-[#8000FF]/30 border-t-[#8000FF] rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Search Results */}
+                {searchResults.length > 0 && (
+                  <div className="max-h-32 overflow-y-auto bg-[#0A0A0B] border border-[#8000FF]/20 rounded-lg">
+                    {searchResults.map((user) => (
+                      <div
+                        key={user.id}
+                        onClick={() => {
+                          setSelectedOpponent(user);
+                          setOpponentSearch(user.username || user.walletAddress);
+                          setSearchResults([]);
+                        }}
+                        className="p-3 hover:bg-[#8000FF]/10 cursor-pointer border-b border-[#8000FF]/10 last:border-b-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium">{user.username || 'Anonymous'}</p>
+                            <p className="text-gray-400 text-sm">{user.walletAddress}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[#8000FF] font-bold">{user.auraPoints || 0} AP</p>
+                            <p className="text-gray-400 text-sm">Streak: {user.currentStreak || 0}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Selected Opponent */}
+                {selectedOpponent && (
+                  <div className="bg-gradient-to-r from-[#8000FF]/10 to-[#9933FF]/10 border border-[#8000FF]/30 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-bold">Challenging: {selectedOpponent.username || 'Anonymous'}</p>
+                        <p className="text-gray-300 text-sm">{selectedOpponent.walletAddress}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedOpponent(null);
+                          setOpponentSearch("");
+                        }}
+                        className="border-[#FF3366]/50 text-[#FF3366] hover:bg-[#FF3366]/10"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Battle Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-white font-semibold">Battle Date</Label>
+                  <Input
+                    type="date"
+                    value={battleDate}
+                    onChange={(e) => setBattleDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-white font-semibold">Duration (Hours)</Label>
+                  <select
+                    value={battleDuration}
+                    onChange={(e) => setBattleDuration(e.target.value)}
+                    className="w-full bg-[#0A0A0B] border border-[#8000FF]/30 text-white rounded-md px-3 py-2"
+                  >
+                    <option value="3">3 Hours</option>
+                    <option value="4">4 Hours</option>
+                    <option value="5">5 Hours</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <Label htmlFor="stake" className="text-white">Stake Amount (USDT)</Label>
+                <Label className="text-white font-semibold">Stake Amount (Aura Points)</Label>
                 <Input
-                  id="stake"
                   type="number"
                   min="1"
-                  placeholder="0.00"
+                  max={user?.auraPoints || 0}
+                  placeholder="Enter stake amount"
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
                   className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
                 />
+                <p className="text-gray-400 text-sm mt-1">
+                  Available: {user?.auraPoints || 0} AP • Both players must stake the same amount
+                </p>
               </div>
 
               <div>
-                <Label htmlFor="description" className="text-white">Battle Description (Optional)</Label>
+                <Label className="text-white font-semibold">Battle Description (Optional)</Label>
                 <Textarea
-                  id="description"
-                  placeholder="Describe what this battle is about..."
+                  placeholder="Describe the challenge or add a message..."
                   value={battleDescription}
                   onChange={(e) => setBattleDescription(e.target.value)}
                   className="bg-[#0A0A0B] border-[#8000FF]/30 text-white resize-none"
@@ -507,10 +654,10 @@ export default function Battles() {
                 </Button>
                 <Button
                   onClick={handleCreateBattle}
-                  disabled={createBattle.isPending}
-                  className="flex-1 bg-gradient-to-r from-[#8000FF] to-[#9933FF] hover:from-[#8000FF]/80 hover:to-[#9933FF]/80"
+                  disabled={createBattle.isPending || !selectedOpponent}
+                  className="flex-1 bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/80 hover:via-[#9933FF]/80 hover:to-[#FF3366]/80 font-bold"
                 >
-                  {createBattle.isPending ? "Creating..." : "Send Challenge"}
+                  {createBattle.isPending ? "SENDING CHALLENGE..." : "SEND BATTLE REQUEST"}
                 </Button>
               </div>
             </div>

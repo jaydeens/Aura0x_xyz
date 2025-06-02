@@ -31,6 +31,12 @@ export interface IStorage {
   updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string }): Promise<User>;
   checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  searchUsers(query: string, excludeUserId?: string): Promise<User[]>;
+  
+  // Battle request operations
+  createBattleRequest(request: any): Promise<any>;
+  getBattleRequests(userId: string): Promise<any[]>;
+  updateBattleRequest(id: string, status: string): Promise<any>;
   
   // Lesson operations
   createLesson(lesson: InsertLesson): Promise<Lesson>;

@@ -639,16 +639,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/battles', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { opponentUsername, stakeAmount, description } = req.body;
+      const { opponentId, stakeAmount, description, battleDate, duration } = req.body;
 
-      if (!opponentUsername || !stakeAmount) {
-        return res.status(400).json({ message: "Opponent username and stake amount are required" });
+      if (!opponentId || !stakeAmount) {
+        return res.status(400).json({ message: "Opponent and stake amount are required" });
       }
 
-      // Find opponent by username
-      const opponent = await storage.getUserByUsername(opponentUsername);
+      // Find opponent
+      const opponent = await storage.getUser(opponentId);
       if (!opponent) {
-        return res.status(404).json({ message: "User not found with that username" });
+        return res.status(404).json({ message: "Opponent not found" });
       }
 
       if (opponent.id === userId) {
@@ -661,9 +661,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Insufficient Aura Points" });
       }
       
-      // Create battle
-      const votingEndsAt = new Date();
-      votingEndsAt.setHours(votingEndsAt.getHours() + 4); // 4 hour voting window
+      // Calculate battle dates
+      const battleStartDate = battleDate ? new Date(battleDate) : new Date();
+      const votingEndsAt = new Date(battleStartDate);
+      votingEndsAt.setHours(votingEndsAt.getHours() + (duration || 4));
       
       const battle = await storage.createBattle({
         challengerId: userId,
@@ -672,15 +673,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         opponentStake: stakeAmount,
         status: "pending",
         votingEndsAt,
-        description: description || "A battle of Web3 aura and reputation!",
         totalVotes: 0,
         challengerVotes: 0,
         opponentVotes: 0,
         totalVouchAmount: "0",
       });
       
-      // Deduct stake from challenger
-      await storage.updateUserAura(userId, -stakeAmount);
+      // Create battle request notification for opponent
+      await storage.createBattleRequest({
+        battleId: battle.id,
+        challengerId: userId,
+        opponentId: opponent.id,
+        stakeAmount,
+        description: description || "A battle of Web3 aura and reputation!",
+        battleDate: battleStartDate.toISOString(),
+        duration: duration || 4,
+        status: "pending",
+      });
       
       res.json(battle);
     } catch (error) {
