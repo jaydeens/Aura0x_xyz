@@ -139,11 +139,14 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
       <Button 
         onClick={handlePurchase}
-        disabled={!amount || parseFloat(amount) < 1 || createPaymentIntent.isPending}
+        disabled={!amount || parseFloat(amount) < 1 || purchaseMutation.isPending}
         className="w-full bg-[#8000FF] hover:bg-[#6600CC]"
       >
-        {createPaymentIntent.isPending ? 'Processing...' : 'Purchase Steeze'}
+        {purchaseMutation.isPending ? 'Processing...' : 'Purchase Steeze'}
       </Button>
+      <div className="text-xs text-gray-500 text-center">
+        Demo purchase system - integrates with Stripe for secure payments
+      </div>
     </div>
   );
 }
@@ -235,6 +238,8 @@ export default function SteezeStack() {
   // Fetch transactions
   const { data: transactions, refetch: refetchTransactions } = useQuery({
     queryKey: ['/api/steeze/transactions'],
+    retry: false,
+    enabled: !!user,
   });
 
   const handleTransactionUpdate = () => {
