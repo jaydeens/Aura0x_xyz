@@ -441,109 +441,15 @@ export default function BattleCard({ battle, featured = false, showResult = fals
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Button */}
         {battle.status === "active" && (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Dialog open={showVoteDialog} onOpenChange={setShowVoteDialog}>
-              <DialogTrigger asChild>
-                <Button className="flex-1 bg-gradient-to-r from-[#8000FF] to-[#FF6B00] hover:from-[#8000FF]/90 hover:to-[#FF6B00]/90 text-white font-semibold py-3 rounded-lg border border-[#8000FF]/30 shadow-lg">
-                  <Vote className="w-4 h-4 mr-2" />
-                  Gift Steeze
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-card border-primary/20">
-                <DialogHeader>
-                  <DialogTitle className="text-white">Gift Steeze Tokens</DialogTitle>
-                  <DialogDescription className="text-gray-400">
-                    Support your favorite participant with purchased Steeze tokens. Only purchased Steeze can be gifted.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="space-y-4 mt-6">
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-2">
-                      Choose Participant to Support
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        variant={selectedSide === battle.challengerId ? "default" : "outline"}
-                        className={`p-4 h-auto ${
-                          selectedSide === battle.challengerId 
-                            ? "bg-primary text-white" 
-                            : "border-primary/40 text-primary hover:bg-primary hover:text-white"
-                        }`}
-                        onClick={() => setSelectedSide(battle.challengerId)}
-                      >
-                        <div className="text-center">
-                          <div className="font-semibold">
-                            {battle.challenger?.firstName || "Challenger"}
-                          </div>
-                          <div className="text-xs opacity-75">
-                            {battle.challengerVotes} gifts
-                          </div>
-                        </div>
-                      </Button>
-                      
-                      <Button
-                        variant={selectedSide === battle.opponentId ? "default" : "outline"}
-                        className={`p-4 h-auto ${
-                          selectedSide === battle.opponentId 
-                            ? "bg-accent text-white" 
-                            : "border-accent/40 text-accent hover:bg-accent hover:text-white"
-                        }`}
-                        onClick={() => setSelectedSide(battle.opponentId)}
-                      >
-                        <div className="text-center">
-                          <div className="font-semibold">
-                            {battle.opponent?.firstName || "Opponent"}
-                          </div>
-                          <div className="text-xs opacity-75">
-                            {battle.opponentVotes} gifts
-                          </div>
-                        </div>
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-2">
-                      Gift Amount (Steeze)
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        placeholder="10"
-                        value={vouchAmount}
-                        onChange={(e) => setVouchAmount(e.target.value)}
-                        className="bg-background border-primary/30 focus:border-primary pr-16"
-                      />
-                      <span className="absolute right-4 top-3 text-gray-400">Steeze</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    onClick={handleVote}
-                    disabled={!selectedSide || !vouchAmount || voteMutation.isPending}
-                    className="w-full bg-gradient-to-r from-warning to-red-500 hover:from-warning/80 hover:to-red-500/80 text-black font-semibold"
-                  >
-                    {voteMutation.isPending ? (
-                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : (
-                      <Coins className="w-4 h-4 mr-2" />
-                    )}
-                    Send Gift
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            
+          <div className="mt-4">
             <Button 
-              variant="outline" 
-              className="border-primary/40 text-primary hover:bg-primary hover:text-white"
+              className="w-full bg-gradient-to-r from-[#8000FF] to-[#FF6B00] hover:from-[#8000FF]/90 hover:to-[#FF6B00]/90 text-white font-semibold py-3 rounded-lg border border-[#8000FF]/30 shadow-lg"
               onClick={() => window.location.href = `/battle/${battle.id}`}
             >
               <Target className="w-4 h-4 mr-2" />
-              View Details
+              Join Battle & Gift Steeze
             </Button>
           </div>
         )}
