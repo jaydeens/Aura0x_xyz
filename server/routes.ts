@@ -1265,6 +1265,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mark notification as read
+  app.post("/api/notifications/:id/read", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const notificationId = req.params.id;
+      console.log("Marking notification as read:", notificationId, "for user:", userId);
+      await storage.markNotificationAsRead(notificationId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
