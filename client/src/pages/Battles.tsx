@@ -225,7 +225,7 @@ export default function Battles() {
     
     const total = battles.length;
     const live = battles.filter((b: any) => b.status === 'active').length;
-    const upcoming = battles.filter((b: any) => b.status === 'pending').length;
+    const upcoming = battles.filter((b: any) => b.status === 'accepted' || b.status === 'pending').length;
     const completed = battles.filter((b: any) => b.status === 'completed').length;
     
     return { total, live, upcoming, completed };
@@ -234,7 +234,7 @@ export default function Battles() {
   const stats = getBattleStats();
 
   const liveBattles = battles?.filter((b: any) => b.status === 'active') || [];
-  const upcomingBattles = battles?.filter((b: any) => b.status === 'pending') || [];
+  const upcomingBattles = battles?.filter((b: any) => b.status === 'accepted' || b.status === 'pending') || [];
   const completedBattles = battles?.filter((b: any) => b.status === 'completed') || [];
 
   if (isLoading || !isAuthenticated) {
