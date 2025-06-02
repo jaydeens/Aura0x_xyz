@@ -239,6 +239,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User search endpoint  
+  app.get('/api/users/search', isAuthenticated, async (req: any, res) => {
+    try {
+      const query = req.query.q as string;
+      const currentUserId = req.user.claims.sub;
+      
+      if (!query || query.trim().length < 2) {
+        return res.json([]);
+      }
+
+      const users = await storage.searchUsers(query.trim(), currentUserId);
+      res.json(users);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      res.status(500).json({ message: "Failed to search users" });
+    }
+  });
+
   // Profile update routes
   app.post('/api/user/update-profile', async (req: any, res) => {
     try {

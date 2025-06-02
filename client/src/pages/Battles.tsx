@@ -42,6 +42,7 @@ export default function Battles() {
   const [stakeAmount, setStakeAmount] = useState("");
   const [battleDescription, setBattleDescription] = useState("");
   const [battleDate, setBattleDate] = useState("");
+  const [battleTime, setBattleTime] = useState("12:00");
   const [battleDuration, setBattleDuration] = useState("4");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -153,11 +154,11 @@ export default function Battles() {
       return;
     }
 
-    const battleDateTime = new Date(`${battleDate}T12:00:00`);
+    const battleDateTime = new Date(`${battleDate}T${battleTime}:00`);
     if (battleDateTime <= new Date()) {
       toast({
         title: "Error",
-        description: "Battle date must be in the future.",
+        description: "Battle date and time must be in the future.",
         variant: "destructive",
       });
       return;
@@ -178,6 +179,7 @@ export default function Battles() {
     setStakeAmount("");
     setBattleDescription("");
     setBattleDate("");
+    setBattleTime("12:00");
     setBattleDuration("4");
     setSearchResults([]);
   };
@@ -534,7 +536,7 @@ export default function Battles() {
                 
                 {/* Search Results */}
                 {searchResults.length > 0 && (
-                  <div className="max-h-32 overflow-y-auto bg-[#0A0A0B] border border-[#8000FF]/20 rounded-lg">
+                  <div className="max-h-40 overflow-y-auto bg-[#0A0A0B] border border-[#8000FF]/20 rounded-lg">
                     {searchResults.map((user) => (
                       <div
                         key={user.id}
@@ -543,12 +545,19 @@ export default function Battles() {
                           setOpponentSearch(user.username || user.walletAddress);
                           setSearchResults([]);
                         }}
-                        className="p-3 hover:bg-[#8000FF]/10 cursor-pointer border-b border-[#8000FF]/10 last:border-b-0"
+                        className="p-4 hover:bg-[#8000FF]/10 cursor-pointer border-b border-[#8000FF]/10 last:border-b-0 transition-colors"
                       >
                         <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white font-medium">{user.username || 'Anonymous'}</p>
-                            <p className="text-gray-400 text-sm">{user.walletAddress}</p>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-r from-[#8000FF] to-[#9933FF] rounded-full flex items-center justify-center">
+                              <span className="text-white font-bold text-sm">
+                                {(user.username || user.walletAddress)?.[0]?.toUpperCase() || 'A'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-white font-medium">{user.username || 'Anonymous'}</p>
+                              <p className="text-gray-400 text-sm">{user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}</p>
+                            </div>
                           </div>
                           <div className="text-right">
                             <p className="text-[#8000FF] font-bold">{user.auraPoints || 0} AP</p>
@@ -585,7 +594,7 @@ export default function Battles() {
               </div>
 
               {/* Battle Settings */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label className="text-white font-semibold">Battle Date</Label>
                   <Input
@@ -593,6 +602,16 @@ export default function Battles() {
                     value={battleDate}
                     onChange={(e) => setBattleDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
+                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-white font-semibold">Battle Time</Label>
+                  <Input
+                    type="time"
+                    value={battleTime}
+                    onChange={(e) => setBattleTime(e.target.value)}
                     className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
                   />
                 </div>
