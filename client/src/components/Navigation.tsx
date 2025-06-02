@@ -101,16 +101,6 @@ export default function Navigation() {
                   {currentUser.walletAddress.slice(0, 6)}...{currentUser.walletAddress.slice(-4)}
                 </span>
               </div>
-            ) : !isAuthenticated ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden sm:flex border-primary/50 text-primary hover:bg-primary hover:text-white"
-                onClick={handleWalletConnect}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Connect Wallet
-              </Button>
             ) : null}
 
             {/* User Menu */}

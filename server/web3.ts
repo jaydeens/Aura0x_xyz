@@ -43,7 +43,16 @@ export class Web3Service {
   private provider: ethers.JsonRpcProvider;
 
   constructor() {
-    this.provider = new ethers.JsonRpcProvider(POLYGON_TESTNET.rpcUrl);
+    // Initialize provider as null to avoid connection errors on startup
+    this.provider = null as any;
+  }
+
+  private initProvider() {
+    if (!this.provider) {
+      // Use a more reliable RPC endpoint
+      this.provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/polygon_mumbai");
+    }
+    return this.provider;
   }
 
   /**
@@ -58,7 +67,8 @@ export class Web3Service {
    */
   async getUSDTBalance(address: string): Promise<string> {
     try {
-      const contract = new ethers.Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, this.provider);
+      const provider = this.initProvider();
+      const contract = new ethers.Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
       const balance = await contract.balanceOf(address);
       const decimals = await contract.decimals();
       return ethers.formatUnits(balance, decimals);

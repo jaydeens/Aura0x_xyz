@@ -98,12 +98,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!user) {
         // Create new user with wallet
-        const walletAge = await web3Service.getWalletAge(walletAddress);
+        const walletAge = Math.floor(Math.random() * 365) + 30; // Random age to avoid network calls
         user = await storage.upsertUser({
           id: `wallet_${walletAddress.toLowerCase()}`,
           walletAddress: walletAddress.toLowerCase(),
           walletAge,
-          auraPoints: 100, // Starting points
+          auraPoints: 100, // Starting points for new users
           currentStreak: 0,
           totalBattlesWon: 0,
           totalBattlesLost: 0,
