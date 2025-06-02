@@ -321,11 +321,11 @@ export default function Leaderboard() {
                           {level.name}
                         </h4>
                         <p className="text-sm text-gray-400 mb-2">
-                          {level.name === 'Clout Chaser' ? 'Unlocked at 3 day streak' :
-                           level.name === 'Attention Seeker' ? 'Unlocked at 8 day streak' :
-                           level.name === 'Dedicated' ? 'Unlocked at 14 day streak' :
-                           level.name === 'Grinder' ? 'Unlocked at 21 day streak' :
-                           level.name === 'Aura Vader' ? 'Unlocked at 30 day streak' :
+                          {level.name === 'Clout Chaser' ? 'Default level (0 days)' :
+                           level.name === 'Attention Seeker' ? '5-day streak' :
+                           level.name === 'Dedicated' ? '10-day streak' :
+                           level.name === 'Grinder' ? '15-day streak' :
+                           level.name === 'Aura Vader' ? '30-day streak' :
                            `${level.minDays}${level.maxDays ? `-${level.maxDays}` : '+'} days`}
                         </p>
                         <div className="text-center">
