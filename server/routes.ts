@@ -974,6 +974,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/battles/:id', async (req, res) => {
     try {
+      // Update battle statuses before returning single battle
+      await updateBattleStatuses();
+      
       const battle = await storage.getBattle(req.params.id);
       if (!battle) {
         return res.status(404).json({ message: "Battle not found" });
@@ -982,6 +985,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching battle:", error);
       res.status(500).json({ message: "Failed to fetch battle" });
+    }
+  });
+
+  // Gift Steeze to battle participants
+  app.post('/api/battles/gift', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { battleId, participantId, amount } = req.body;
+
+      if (!battleId || !participantId || !amount || amount <= 0) {
+        return res.status(400).json({ message: "Invalid gift parameters" });
+      }
+
+      // Get battle
+      const battle = await storage.getBattle(battleId);
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+
+      // Check if battle is active
+      if (battle.status !== 'active') {
+        return res.status(400).json({ message: "Can only gift during active battles" });
+      }
+
+      // Check if participant is valid
+      if (participantId !== battle.challengerId && participantId !== battle.opponentId) {
+        return res.status(400).json({ message: "Invalid participant" });
+      }
+
+      // Get user and check Steeze balance
+      const user = await storage.getUser(userId);
+      if (!user || (user.steezeBalance || 0) < amount) {
+        return res.status(400).json({ message: "Insufficient Steeze balance" });
+      }
+
+      // Create gift transaction (using battle vote structure for now)
+      await storage.createBattleVote({
+        battleId,
+        voterId: userId,
+        votedForId: participantId,
+        vouchAmount: amount.toString(),
+        multiplier: "1"
+      });
+
+      // Update user's Steeze balance
+      await storage.updateUserSteezeBalance(userId, -amount);
+
+      // Update battle vote counts
+      const voteField = participantId === battle.challengerId ? 'challengerVotes' : 'opponentVotes';
+      const currentVotes = battle[voteField] || 0;
+      await storage.updateBattle(battleId, {
+        [voteField]: currentVotes + amount,
+        totalVotes: (battle.totalVotes || 0) + amount
+      });
+
+      res.json({ message: "Gift sent successfully" });
+    } catch (error) {
+      console.error("Error sending gift:", error);
+      res.status(500).json({ message: "Failed to send gift" });
     }
   });
 

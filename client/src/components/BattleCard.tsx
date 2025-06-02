@@ -277,10 +277,19 @@ export default function BattleCard({ battle, featured = false, showResult = fals
 
   const timeRemaining = getTimeRemaining();
 
+  const handleCardClick = () => {
+    if (battle.status === 'active') {
+      window.location.href = `/battle/${battle.id}`;
+    }
+  };
+
   return (
-    <Card className={`bg-card border-primary/20 transition-all duration-300 ${
-      featured ? "border-warning/40 bg-gradient-to-r from-card to-warning/5 animate-glow" : "hover:border-primary/40 card-hover"
-    }`}>
+    <Card 
+      className={`bg-card border-primary/20 transition-all duration-300 ${
+        featured ? "border-warning/40 bg-gradient-to-r from-card to-warning/5 animate-glow" : "hover:border-primary/40 card-hover"
+      } ${battle.status === 'active' ? 'cursor-pointer hover:scale-105' : ''}`}
+      onClick={handleCardClick}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold text-white flex items-center">
