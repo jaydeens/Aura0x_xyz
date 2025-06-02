@@ -298,15 +298,15 @@ export default function LiveBattle() {
             <CardContent className="p-6 relative z-10">
               <div className="text-center space-y-4">
                 <Avatar className="w-20 h-20 mx-auto border-2 border-red-400">
-                  <AvatarImage src={battle.opponent?.profileImageUrl} />
+                  <AvatarImage src={(battle as any).opponent?.profileImageUrl} />
                   <AvatarFallback className="bg-red-500/20 text-red-400 text-xl">
-                    {battle.opponent?.username?.[0]?.toUpperCase() || 'O'}
+                    {(battle as any).opponent?.username?.[0]?.toUpperCase() || 'O'}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div>
                   <h3 className="text-xl font-bold text-white">
-                    {battle.opponent?.username || 'Opponent'}
+                    {(battle as any).opponent?.username || 'Opponent'}
                   </h3>
                   <Badge variant="secondary" className="mt-1">
                     Opponent
@@ -315,7 +315,7 @@ export default function LiveBattle() {
 
                 <div className="space-y-2">
                   <div className="text-3xl font-bold text-red-400">
-                    {battle.opponentVotes || 0}
+                    {(battle as any).opponentVotes || 0}
                   </div>
                   <div className="text-sm text-gray-400">gifts received</div>
                   
@@ -328,10 +328,10 @@ export default function LiveBattle() {
                   </div>
                 </div>
 
-                {battle.status === 'active' && isAuthenticated && (
+                {(battle as any).status === 'active' && isAuthenticated && (
                   <Button
                     onClick={() => {
-                      setSelectedParticipant(battle.opponentId);
+                      setSelectedParticipant((battle as any).opponentId);
                       setShowGiftDialog(true);
                     }}
                     className="w-full bg-red-500 hover:bg-red-600 text-white"
