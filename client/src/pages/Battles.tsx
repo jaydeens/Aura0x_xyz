@@ -337,13 +337,7 @@ export default function Battles() {
 
             <Button 
               className="bg-[#8000FF] hover:bg-[#8000FF]/80 text-white"
-              onClick={() => {
-                // TODO: Open create battle modal
-                toast({
-                  title: "Coming Soon",
-                  description: "Battle creation feature is being developed.",
-                });
-              }}
+              onClick={() => setShowCreateBattle(true)}
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Battle
