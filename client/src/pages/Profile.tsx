@@ -13,6 +13,7 @@ import {
   Target, 
   Calendar, 
   Star,
+  Edit2,
   Crown,
   Camera,
   Edit3,
@@ -43,6 +44,8 @@ export default function Profile() {
   const [username, setUsername] = useState("");
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [usernameMessage, setUsernameMessage] = useState("");
+  const [twitterUsername, setTwitterUsername] = useState("");
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   
   // Get user ID from URL
   const urlPath = window.location.pathname;
@@ -116,10 +119,11 @@ export default function Profile() {
     },
   });
 
-  // Initialize username state when profile user data loads
+  // Initialize form states when profile user data loads
   useEffect(() => {
     if (userData && viewingOwnProfile) {
       setUsername(userData.username || userData.firstName || "");
+      setTwitterUsername(userData.twitterUsername || "");
     }
   }, [userData, viewingOwnProfile]);
 
@@ -367,7 +371,7 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {viewingOwnProfile && (
+                  {viewingOwnProfile && !isEditingProfile && (
                     <div className="flex items-center gap-2">
                       <Input
                         value={username}
@@ -388,6 +392,15 @@ export default function Profile() {
                           <Check className="w-4 h-4" />
                         )}
                       </Button>
+                      <Button
+                        onClick={() => setIsEditingProfile(true)}
+                        variant="outline"
+                        size="sm"
+                        className="border-[#8000FF]/20 text-[#8000FF] hover:bg-[#8000FF]/10"
+                      >
+                        <Edit3 className="w-4 h-4 mr-1" />
+                        Edit Profile
+                      </Button>
                     </div>
                   )}
                   
@@ -400,6 +413,154 @@ export default function Profile() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Enhanced Profile Editing Section */}
+          {viewingOwnProfile && isEditingProfile && (
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Edit3 className="w-5 h-5 text-[#8000FF]" />
+                    Edit Profile
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingProfile(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Profile Picture Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Profile Picture
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#8000FF] to-[#6000CC] flex items-center justify-center text-white font-bold text-2xl border-2 border-[#8000FF]/30">
+                        {userData?.username?.[0]?.toUpperCase() || userData?.firstName?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                      <Button
+                        size="sm"
+                        className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#8000FF] hover:bg-[#7000E6] p-0"
+                      >
+                        <Camera className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="flex-1">
+                      <Button variant="outline" className="border-[#8000FF]/20 text-white hover:bg-[#8000FF]/10 mb-2">
+                        Upload New Picture
+                      </Button>
+                      <p className="text-xs text-gray-400">
+                        JPG, PNG or GIF. Max size 2MB. Square images work best.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Username Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Username
+                  </label>
+                  <Input
+                    value={username}
+                    onChange={handleUsernameChange}
+                    placeholder="Enter your username"
+                    className="bg-[#0A0A0B] border-[#8000FF]/20 text-white placeholder:text-gray-500"
+                  />
+                  {usernameMessage && (
+                    <p className={`text-xs mt-1 ${isUsernameValid ? 'text-green-400' : 'text-red-400'}`}>
+                      {usernameMessage}
+                    </p>
+                  )}
+                </div>
+
+                {/* X (Twitter) Account Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    X (Twitter) Account
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">@</span>
+                        <Input
+                          value={twitterUsername}
+                          onChange={(e) => setTwitterUsername(e.target.value)}
+                          placeholder="username"
+                          className="pl-8 bg-[#0A0A0B] border-[#8000FF]/20 text-white placeholder:text-gray-500"
+                        />
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => window.open('/api/auth/twitter', '_blank')}
+                        className="border-[#8000FF]/20 text-[#8000FF] hover:bg-[#8000FF]/10"
+                      >
+                        Connect X
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Connect your X account to display it on your profile and verify your identity
+                    </p>
+                  </div>
+                </div>
+
+                {/* Wallet Address Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Wallet Address
+                  </label>
+                  <div className="flex items-center gap-2 p-3 bg-[#0A0A0B] rounded-lg border border-[#8000FF]/20">
+                    <span className="text-sm text-gray-400 font-mono break-all flex-1">
+                      {userData?.walletAddress || 'No wallet connected'}
+                    </span>
+                    {userData?.walletAddress && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(userData.walletAddress);
+                          toast({ title: "Wallet address copied to clipboard" });
+                        }}
+                        className="border-[#8000FF]/20 text-[#8000FF] hover:bg-[#8000FF]/10 shrink-0"
+                      >
+                        Copy
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Your wallet address is used for transactions and cannot be changed
+                  </p>
+                </div>
+
+                {/* Save Actions */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-[#8000FF]/20">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditingProfile(false)}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleUpdateProfile}
+                    disabled={updateProfileMutation.isPending || !isUsernameValid || !username.trim()}
+                    className="bg-[#8000FF] hover:bg-[#7000E6] text-white"
+                  >
+                    {updateProfileMutation.isPending ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                    ) : null}
+                    {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Stats Grid */}
           <div className="grid lg:grid-cols-3 gap-6">
