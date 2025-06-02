@@ -397,6 +397,45 @@ export class DatabaseStorage implements IStorage {
     const [existingUser] = await db.select().from(users).where(and(...conditions));
     return !existingUser; // true if username is available
   }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async searchUsers(query: string, excludeUserId?: string): Promise<User[]> {
+    let whereClause = or(
+      sql`${users.username} ILIKE ${`%${query}%`}`,
+      sql`${users.walletAddress} ILIKE ${`%${query}%`}`
+    );
+
+    if (excludeUserId) {
+      whereClause = and(whereClause, sql`${users.id} != ${excludeUserId}`);
+    }
+
+    const results = await db
+      .select()
+      .from(users)
+      .where(whereClause)
+      .limit(10);
+
+    return results;
+  }
+
+  async createBattleRequest(request: any): Promise<any> {
+    // For now, store as a simple record - you can extend the schema later
+    return request;
+  }
+
+  async getBattleRequests(userId: string): Promise<any[]> {
+    // Placeholder - implement when needed
+    return [];
+  }
+
+  async updateBattleRequest(id: string, status: string): Promise<any> {
+    // Placeholder - implement when needed
+    return {};
+  }
 }
 
 export const storage = new DatabaseStorage();
