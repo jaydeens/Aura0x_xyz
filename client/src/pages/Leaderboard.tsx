@@ -313,11 +313,31 @@ export default function Leaderboard() {
                     .map((level: any) => (
                       <div key={level.name} className="text-center p-4 rounded-lg border" 
                            style={{ borderColor: `${level.color}40`, backgroundColor: `${level.color}10` }}>
-                        <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"
-                             style={{ backgroundColor: `${level.color}20` }}>
-                          <Crown className="w-6 h-6" style={{ color: level.color }} />
+                        <div className={cn(
+                          "w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center",
+                          level.name === 'Clout Chaser' && 'bg-[#9CA3AF]/20',
+                          level.name === 'Attention Seeker' && 'bg-[#F97316]/20',
+                          level.name === 'Dedicated' && 'bg-[#34D399]/20',
+                          level.name === 'Grinder' && 'bg-[#3B82F6]/20',
+                          level.name === 'Aura Vader' && 'bg-[#8B5CF6]/20'
+                        )}>
+                          <Crown className={cn(
+                            "w-6 h-6",
+                            level.name === 'Clout Chaser' && 'text-[#9CA3AF]',
+                            level.name === 'Attention Seeker' && 'text-[#F97316]',
+                            level.name === 'Dedicated' && 'text-[#34D399]',
+                            level.name === 'Grinder' && 'text-[#3B82F6]',
+                            level.name === 'Aura Vader' && 'text-[#8B5CF6]'
+                          )} />
                         </div>
-                        <h4 className="font-bold mb-1" style={{ color: level.color }}>
+                        <h4 className={cn(
+                          "font-bold mb-1",
+                          level.name === 'Clout Chaser' && 'text-[#9CA3AF]',
+                          level.name === 'Attention Seeker' && 'text-[#F97316]',
+                          level.name === 'Dedicated' && 'text-[#34D399]',
+                          level.name === 'Grinder' && 'text-[#3B82F6]',
+                          level.name === 'Aura Vader' && 'text-[#8B5CF6]'
+                        )}>
                           {level.name}
                         </h4>
                         <p className="text-sm text-gray-400 mb-2">
@@ -331,12 +351,14 @@ export default function Leaderboard() {
                         <div className="text-center">
                           <Badge 
                             variant="outline" 
-                            style={{ 
-                              color: level.color, 
-                              borderColor: `${level.color}40`,
-                              backgroundColor: `${level.color}20`
-                            }}
-                            className="text-xs"
+                            className={cn(
+                              "text-xs",
+                              level.name === 'Clout Chaser' && 'text-[#9CA3AF] border-[#9CA3AF]/40 bg-[#9CA3AF]/20',
+                              level.name === 'Attention Seeker' && 'text-[#F97316] border-[#F97316]/40 bg-[#F97316]/20',
+                              level.name === 'Dedicated' && 'text-[#34D399] border-[#34D399]/40 bg-[#34D399]/20',
+                              level.name === 'Grinder' && 'text-[#3B82F6] border-[#3B82F6]/40 bg-[#3B82F6]/20',
+                              level.name === 'Aura Vader' && 'text-[#8B5CF6] border-[#8B5CF6]/40 bg-[#8B5CF6]/20'
+                            )}
                           >
                             {level.name === 'Clout Chaser' ? 'No vouch bonus' : 
                              level.name === 'Attention Seeker' ? '1.3x vouching' :

@@ -25,6 +25,14 @@
   --radius: 0.75rem;
   --success: 152 100% 50%; /* #00FF88 */
   --warning: 45 100% 50%; /* #FFD700 */
+  
+  /* Aura Level Colors */
+  --clout-chaser: 220 9% 64%; /* #9CA3AF */
+  --attention-seeker: 24 95% 53%; /* #F97316 */
+  --dedicated: 162 73% 46%; /* #34D399 */
+  --grinder: 217 91% 60%; /* #3B82F6 */
+  --aura-vader: 259 54% 59%; /* #8B5CF6 */
+  
   --chart-1: 271 100% 50%; /* #8000FF */
   --chart-2: 271 91% 65%; /* #9933FF */
   --chart-3: 152 100% 50%; /* #00FF88 */
