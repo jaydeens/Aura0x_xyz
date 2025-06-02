@@ -446,7 +446,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
           <div className="flex flex-col sm:flex-row gap-3">
             <Dialog open={showVoteDialog} onOpenChange={setShowVoteDialog}>
               <DialogTrigger asChild>
-                <Button className="flex-1 bg-gradient-to-r from-warning to-red-500 hover:from-warning/80 hover:to-red-500/80 text-black font-semibold">
+                <Button className="flex-1 bg-gradient-to-r from-[#8000FF] to-[#FF6B00] hover:from-[#8000FF]/90 hover:to-[#FF6B00]/90 text-white font-semibold py-3 rounded-lg border border-[#8000FF]/30 shadow-lg">
                   <Vote className="w-4 h-4 mr-2" />
                   Gift Steeze
                 </Button>
