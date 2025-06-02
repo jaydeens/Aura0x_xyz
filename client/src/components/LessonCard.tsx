@@ -58,10 +58,18 @@ export default function LessonCard({ lesson }: LessonCardProps) {
     onSuccess: (data) => {
       if (data.correct) {
         setQuizCompleted(true);
+        setShowQuiz(false); // Hide quiz form
         setQuizFeedback({ correct: true, explanation: data.explanation });
         toast({
           title: "Quiz Completed!",
+          description: "You can now share your achievement on X to complete the lesson.",
+        });
+      } else {
+        setQuizFeedback({ correct: false, explanation: data.explanation });
+        toast({
+          title: "Incorrect Answer",
           description: data.message,
+          variant: "destructive",
         });
       }
     },
