@@ -250,6 +250,54 @@ export default function Profile() {
     }
   };
 
+  // Function to crop image to square and resize
+  const cropImageToSquare = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      img.onload = () => {
+        // Calculate square dimensions (use the smaller dimension)
+        const size = Math.min(img.width, img.height);
+        const startX = (img.width - size) / 2;
+        const startY = (img.height - size) / 2;
+
+        // Set canvas to desired output size (400x400 for good quality)
+        const outputSize = 400;
+        canvas.width = outputSize;
+        canvas.height = outputSize;
+
+        if (ctx) {
+          // Draw cropped and resized image
+          ctx.drawImage(
+            img,
+            startX, startY, size, size, // Source rectangle (square crop)
+            0, 0, outputSize, outputSize // Destination rectangle
+          );
+
+          // Convert to blob with good quality
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Failed to process image'));
+              }
+            },
+            'image/jpeg',
+            0.9 // High quality
+          );
+        } else {
+          reject(new Error('Canvas context not available'));
+        }
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   // Handle profile picture upload
   const handleProfilePictureUpload = () => {
     const input = document.createElement('input');
@@ -258,7 +306,7 @@ export default function Profile() {
     input.onchange = async (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
-        // Check file size (max 5MB)
+        // Check file size (max 5MB for original)
         if (file.size > 5 * 1024 * 1024) {
           toast({
             title: "File Too Large",
@@ -279,8 +327,16 @@ export default function Profile() {
         }
 
         try {
+          toast({
+            title: "Processing Image",
+            description: "Cropping and optimizing your profile picture...",
+          });
+
+          // Crop image to square and optimize
+          const croppedBlob = await cropImageToSquare(file);
+          
           const formData = new FormData();
-          formData.append('profileImage', file);
+          formData.append('profileImage', croppedBlob, 'profile.jpg');
 
           const response = await fetch('/api/user/upload-profile-image', {
             method: 'POST',
@@ -298,14 +354,14 @@ export default function Profile() {
           updateProfileMutation.mutate({ profileImageUrl: result.imageUrl });
           
           toast({
-            title: "Image Uploaded",
-            description: "Your profile picture has been updated successfully.",
+            title: "Profile Picture Updated",
+            description: "Your profile picture has been cropped and uploaded successfully.",
           });
         } catch (error) {
           console.error('Upload error:', error);
           toast({
             title: "Upload Failed",
-            description: error instanceof Error ? error.message : "Failed to upload image. Please try again.",
+            description: error instanceof Error ? error.message : "Failed to process and upload image. Please try again.",
             variant: "destructive",
           });
         }
