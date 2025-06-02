@@ -961,7 +961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { opponentId, stakeAmount, description, battleDate, duration } = req.body;
+      const { title, opponentId, stakeAmount, description, battleDate, duration } = req.body;
 
       if (!opponentId || !stakeAmount) {
         return res.status(400).json({ message: "Opponent and stake amount are required" });
@@ -989,6 +989,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       votingEndsAt.setHours(votingEndsAt.getHours() + (duration || 4));
       
       const battle = await storage.createBattle({
+        title: title || null,
         challengerId: userId,
         opponentId: opponent.id,
         challengerStake: stakeAmount,
