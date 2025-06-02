@@ -130,6 +130,18 @@ export const auraLevels = pgTable("aura_levels", {
   description: text("description"),
 });
 
+// Notifications table
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().notNull(),
+  userId: varchar("user_id").notNull(),
+  type: varchar("type").notNull(), // battle_challenge, battle_accepted, battle_completed, etc.
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  relatedId: varchar("related_id"), // ID of related battle/lesson/etc
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   userLessons: many(userLessons),
@@ -244,6 +256,10 @@ export const insertVouchSchema = createInsertSchema(vouches).omit({
 
 export const insertAuraLevelSchema = createInsertSchema(auraLevels).omit({
   id: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  createdAt: true,
 });
 
 export type UpsertUser = z.infer<typeof insertUserSchema>;
