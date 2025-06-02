@@ -83,6 +83,7 @@ export const userLessons = pgTable("user_lessons", {
 
 export const battles = pgTable("battles", {
   id: uuid("id").primaryKey().defaultRandom(),
+  title: varchar("title", { length: 20 }),
   challengerId: varchar("challenger_id").notNull().references(() => users.id),
   opponentId: varchar("opponent_id").notNull().references(() => users.id),
   challengerStake: integer("challenger_stake").notNull(),
