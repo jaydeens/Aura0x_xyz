@@ -46,7 +46,7 @@ export default function LiveBattle() {
 
   // Fetch battle data
   const { data: battle, isLoading } = useQuery({
-    queryKey: ["/api/battles", battleId],
+    queryKey: [`/api/battles/${battleId}`],
     enabled: !!battleId,
     refetchInterval: 5000, // Refresh every 5 seconds for live updates
   });
@@ -358,20 +358,20 @@ export default function LiveBattle() {
               <div className="space-y-2">
                 <span className="text-gray-400 text-sm">Started At</span>
                 <p className="text-white">
-                  {new Date(battle.battleStartsAt || battle.createdAt).toLocaleDateString()} at{' '}
-                  {new Date(battle.battleStartsAt || battle.createdAt).toLocaleTimeString([], {
+                  {new Date((battle as any).battleStartsAt || (battle as any).createdAt).toLocaleDateString()} at{' '}
+                  {new Date((battle as any).battleStartsAt || (battle as any).createdAt).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
                 </p>
               </div>
               
-              {battle.votingEndsAt && (
+              {(battle as any).votingEndsAt && (
                 <div className="space-y-2">
                   <span className="text-gray-400 text-sm">Ends At</span>
                   <p className="text-white">
-                    {new Date(battle.votingEndsAt).toLocaleDateString()} at{' '}
-                    {new Date(battle.votingEndsAt).toLocaleTimeString([], {
+                    {new Date((battle as any).votingEndsAt).toLocaleDateString()} at{' '}
+                    {new Date((battle as any).votingEndsAt).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit'
                     })}
@@ -408,7 +408,7 @@ export default function LiveBattle() {
                 className="bg-[#0A0A0B] border-primary/30 text-white mt-1"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Only purchased Steeze can be gifted • Available: {user?.steezeBalance || 0} Steeze
+                Only purchased Steeze can be gifted • Available: {(user as any)?.steezeBalance || 0} Steeze
               </p>
             </div>
             
