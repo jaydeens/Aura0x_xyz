@@ -40,6 +40,12 @@ interface LessonCardProps {
   lesson: Lesson;
 }
 
+interface LessonStatus {
+  completed: boolean;
+  quizCompleted: boolean;
+  auraEarned: number;
+}
+
 export default function LessonCard({ lesson }: LessonCardProps) {
   const [tweetUrl, setTweetUrl] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
@@ -349,11 +355,22 @@ Building my crypto reputation daily with strategic learning.
                         ))}
                       </RadioGroup>
 
-                      {quizFeedback && (
-                        <div className={`p-3 rounded-lg ${quizFeedback.correct ? 'bg-green-500/20 border border-green-500/40' : 'bg-red-500/20 border border-red-500/40'}`}>
-                          <p className={`text-sm ${quizFeedback.correct ? 'text-green-400' : 'text-red-400'}`}>
+                      {quizFeedback && !quizFeedback.correct && (
+                        <div className="bg-red-500/20 border border-red-500/40 rounded-lg p-4 space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                              <X className="w-3 h-3 text-white" />
+                            </div>
+                            <h4 className="font-semibold text-red-400">Incorrect Answer</h4>
+                          </div>
+                          <p className="text-sm text-red-300">
                             {quizFeedback.explanation}
                           </p>
+                          <div className="bg-red-500/10 border border-red-500/30 rounded p-2">
+                            <p className="text-xs text-red-200">
+                              💡 Tip: Review the lesson content above and try again. The correct answer demonstrates deep Web3 knowledge.
+                            </p>
+                          </div>
                         </div>
                       )}
 
@@ -426,8 +443,28 @@ Building my crypto reputation daily with strategic learning.
                   </div>
                 )}
 
-                {/* Show button to start quiz if lesson has no quiz section shown yet */}
-                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && !showQuiz && (
+                {/* Show lesson completion status */}
+                {lessonStatus?.completed && (
+                  <div className="bg-green-500/20 border border-green-500/40 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-semibold text-green-400">Lesson Completed!</h4>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-green-300">+{lessonStatus.auraEarned} Aura Points</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-green-300">
+                      You've successfully completed today's lesson and shared it on X. Come back tomorrow for your next Web3 aura building lesson!
+                    </p>
+                  </div>
+                )}
+
+                {/* Show button to start quiz if lesson has no quiz section shown yet and not completed */}
+                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && !showQuiz && !lessonStatus?.completed && (
                   <div className="text-center">
                     <Button
                       onClick={() => setShowQuiz(true)}
