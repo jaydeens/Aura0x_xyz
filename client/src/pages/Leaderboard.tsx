@@ -339,8 +339,11 @@ export default function Leaderboard() {
                             className="text-xs"
                           >
                             {level.name === 'Clout Chaser' ? 'No vouch bonus' : 
-                             level.vouchingMultiplier ? `${level.vouchingMultiplier}x vouching` : 
-                             `${level.multiplier}x vouching`}
+                             level.name === 'Attention Seeker' ? '1.3x vouching' :
+                             level.name === 'Dedicated' ? '1.5x vouching' :
+                             level.name === 'Grinder' ? '2.0x vouching' :
+                             level.name === 'Aura Vader' ? '3.0x vouching' : 
+                             'No bonus'}
                           </Badge>
                         </div>
                       </div>
