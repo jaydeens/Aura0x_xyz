@@ -18,8 +18,13 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
   const connectTwitter = async () => {
     setIsConnecting(true);
     try {
-      // Redirect to Twitter OAuth
-      window.location.href = "/api/auth/twitter";
+      // For now, show a message that Twitter linking will be available soon
+      toast({
+        title: "Twitter Linking",
+        description: "Twitter account linking will be available soon. Stay tuned!",
+        variant: "default",
+      });
+      setIsConnecting(false);
     } catch (error) {
       console.error("Error connecting Twitter:", error);
       toast({

@@ -466,6 +466,7 @@ export default function Profile() {
                           ) : (
                             <WalletConnect 
                               showBalance={false}
+                              linkMode={true}
                               onConnect={(address) => {
                                 toast({
                                   title: "Wallet Connected",

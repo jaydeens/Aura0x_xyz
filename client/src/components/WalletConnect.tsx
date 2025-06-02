@@ -29,7 +29,8 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
 
   const authenticateWallet = useMutation({
     mutationFn: async (walletAddress: string) => {
-      const response = await fetch("/api/auth/wallet", {
+      const endpoint = linkMode ? "/api/auth/link-wallet" : "/api/auth/wallet";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ walletAddress }),
@@ -37,27 +38,32 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       });
       
       if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `${response.status}: ${response.statusText}`);
       }
       
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    onSuccess: (data) => {
       toast({
-        title: "Authentication Successful",
-        description: "You're now logged in with your wallet!",
+        title: linkMode ? "Wallet Linked" : "Wallet Connected",
+        description: linkMode 
+          ? "Successfully linked your wallet to your account."
+          : "Successfully authenticated with your wallet.",
       });
-      // Reload to trigger redirect to dashboard
-      setTimeout(() => {
+      onConnect?.(address);
+      if (!linkMode) {
+        // Only refresh for authentication, not linking
         window.location.reload();
-      }, 1000);
+      }
     },
     onError: (error) => {
-      console.error("Wallet authentication error:", error);
+      console.error("Wallet operation error:", error);
       toast({
-        title: "Authentication Failed",
-        description: "Failed to authenticate with your wallet. Please try again.",
+        title: linkMode ? "Linking Failed" : "Authentication Failed",
+        description: error.message || (linkMode 
+          ? "Failed to link wallet. Please try again."
+          : "Failed to authenticate wallet. Please try again."),
         variant: "destructive",
       });
     },
