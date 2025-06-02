@@ -290,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only the challenged user can accept this battle" });
       }
       
-      if (battle.status !== 'challenge_sent') {
+      if (battle.status !== 'challenge_sent' && battle.status !== 'pending') {
         return res.status(400).json({ message: "Battle cannot be accepted" });
       }
 
