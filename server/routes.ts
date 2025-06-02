@@ -189,19 +189,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current user route (works for both wallet and OAuth)
   app.get('/api/auth/user', async (req: any, res) => {
     try {
+      // Set no-cache headers to prevent browser caching
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+
+      let userId: string | null = null;
+
       // Check for wallet authentication in session
-      if (req.session?.user) {
-        return res.json(req.session.user);
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
       }
-
       // Check for OAuth authentication
-      if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
-        const userId = req.user.claims.sub;
-        const user = await storage.getUser(userId);
-        return res.json(user);
+      else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
       }
 
-      return res.status(401).json({ message: "Unauthorized" });
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Always fetch fresh data from database, never return session data
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
