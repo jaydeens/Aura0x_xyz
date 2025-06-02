@@ -76,7 +76,8 @@ export default function Battles() {
 
   const createBattle = useMutation({
     mutationFn: async (battleData: any) => {
-      return await apiRequest("/api/battles", battleData);
+      const response = await apiRequest('POST', '/api/battles', battleData);
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -186,7 +187,7 @@ export default function Battles() {
 
     createBattle.mutate({
       opponentId: selectedOpponent.id,
-      stakeAmount: parseFloat(stakeAmount),
+      stakeAmount: stakeAmountNum,
       description: battleDescription.trim() || "A battle of Web3 aura and reputation!",
       battleDate: battleDateTime.toISOString(),
       duration: parseInt(battleDuration),
