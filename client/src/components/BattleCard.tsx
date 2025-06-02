@@ -27,7 +27,8 @@ import {
   Target, 
   Vote,
   Zap,
-  Users
+  Users,
+  Calendar
 } from "lucide-react";
 
 interface Battle {
