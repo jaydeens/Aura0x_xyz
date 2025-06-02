@@ -33,6 +33,7 @@ import {
 
 interface Battle {
   id: string;
+  title?: string;
   challengerId: string;
   opponentId: string;
   challengerStake: number;
@@ -284,7 +285,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold text-white flex items-center">
             <Sword className="w-5 h-5 mr-2 text-primary" />
-            Battle #{battle.id.slice(0, 8)}
+            {battle.title || `Battle #${battle.id.slice(0, 8)}`}
           </CardTitle>
           {getStatusBadge()}
         </div>
