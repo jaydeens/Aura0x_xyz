@@ -491,22 +491,50 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-card border-border">
-                <CardContent className="p-16 text-center">
-                  <Sword className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
-                  <h3 className="text-2xl font-bold text-foreground mb-4">No Live Battles</h3>
-                  <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                    No warriors are currently battling. Step into the arena and prove your aura dominance!
-                  </p>
-                  <Button 
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    onClick={() => setShowCreateBattle(true)}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Battle
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="relative">
+                <Card className="bg-gradient-to-br from-[#1A1A1B] via-[#2A1A2A] to-[#1A1A1B] border-primary/20 shadow-xl">
+                  <CardContent className="p-20 text-center relative overflow-hidden">
+                    {/* Background decoration */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"></div>
+                    <div className="absolute top-8 left-8 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-8 right-8 w-24 h-24 bg-primary/15 rounded-full blur-2xl"></div>
+                    
+                    {/* Content */}
+                    <div className="relative z-10">
+                      <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/30 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg">
+                        <Sword className="w-12 h-12 text-primary" />
+                      </div>
+                      <h3 className="text-3xl font-bold text-white mb-4">No Live Battles</h3>
+                      <p className="text-gray-300 mb-10 max-w-lg mx-auto text-lg leading-relaxed">
+                        The arena awaits a champion. Step forward and prove your aura dominance in epic Web3 battles!
+                      </p>
+                      <div className="space-y-4">
+                        <Button 
+                          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                          onClick={() => setShowCreateBattle(true)}
+                        >
+                          <Plus className="w-5 h-5 mr-2" />
+                          Create Your First Battle
+                        </Button>
+                        <div className="flex items-center justify-center space-x-6 text-sm text-gray-400 mt-6">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Stake Aura Points</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Challenge Warriors</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Win Rewards</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </TabsContent>
 

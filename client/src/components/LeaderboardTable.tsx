@@ -70,81 +70,87 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
               {/* 2nd Place */}
               {topThree[1] && (
                 <div className="text-center order-2 md:order-1">
-                  <div className="relative mx-auto w-20 h-20 mb-4">
-                    <Avatar className="w-20 h-20 border-4 border-gray-400">
-                      <AvatarImage src={topThree[1].profileImageUrl} />
-                      <AvatarFallback className="bg-gray-400/20 text-gray-400">
-                        <Star className="w-8 h-8" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">2</span>
+                  <Link href={`/profile/${topThree[1].id}`} className="block cursor-pointer hover:scale-105 transition-transform duration-300">
+                    <div className="relative mx-auto w-20 h-20 mb-4">
+                      <Avatar className="w-20 h-20 border-4 border-gray-400">
+                        <AvatarImage src={topThree[1].profileImageUrl} />
+                        <AvatarFallback className="bg-gray-400/20 text-gray-400">
+                          <Star className="w-8 h-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">2</span>
+                      </div>
                     </div>
-                  </div>
-                  <h4 className="font-bold text-lg text-white">
-                    {getUserDisplayName(topThree[1])}
-                  </h4>
-                  <p className="text-accent font-semibold text-xl">
-                    {topThree[1].auraPoints.toLocaleString()}
-                  </p>
-                  <div className="text-sm text-gray-400">
-                    {topThree[1].totalBattlesWon} battles won
-                  </div>
+                    <h4 className="font-bold text-lg text-white">
+                      {getUserDisplayName(topThree[1])}
+                    </h4>
+                    <p className="text-accent font-semibold text-xl">
+                      {topThree[1].auraPoints.toLocaleString()}
+                    </p>
+                    <div className="text-sm text-gray-400">
+                      {topThree[1].totalBattlesWon} battles won
+                    </div>
+                  </Link>
                 </div>
               )}
 
               {/* 1st Place */}
               {topThree[0] && (
                 <div className="text-center order-1 md:order-2">
-                  <div className="relative mx-auto w-28 h-28 mb-4">
-                    <Avatar className="w-28 h-28 border-4 border-warning crown-effect">
-                      <AvatarImage src={topThree[0].profileImageUrl} />
-                      <AvatarFallback className="bg-warning/20 text-warning">
-                        <Crown className="w-10 h-10" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -top-3 -right-3 w-10 h-10 bg-warning rounded-full flex items-center justify-center animate-pulse">
-                      <Crown className="w-5 h-5 text-black" />
+                  <Link href={`/profile/${topThree[0].id}`} className="block cursor-pointer hover:scale-105 transition-transform duration-300">
+                    <div className="relative mx-auto w-28 h-28 mb-4">
+                      <Avatar className="w-28 h-28 border-4 border-primary">
+                        <AvatarImage src={topThree[0].profileImageUrl} />
+                        <AvatarFallback className="bg-primary/20 text-primary">
+                          <Crown className="w-10 h-10" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center animate-pulse shadow-lg shadow-primary/50">
+                        <Crown className="w-5 h-5 text-white drop-shadow-[0_0_8px_rgba(128,0,255,0.8)]" />
+                      </div>
                     </div>
-                  </div>
-                  <h4 className="font-bold text-xl gradient-text">
-                    {getUserDisplayName(topThree[0])}
-                  </h4>
-                  <p className="text-warning font-bold text-2xl">
-                    {topThree[0].auraPoints.toLocaleString()}
-                  </p>
-                  <div className="text-sm text-gray-300">
-                    {topThree[0].totalBattlesWon} battles won
-                  </div>
-                  <Badge className="mt-2 bg-warning/20 text-warning border-warning/40">
-                    AURA VADER
-                  </Badge>
+                    <h4 className="font-bold text-xl text-primary">
+                      {getUserDisplayName(topThree[0])}
+                    </h4>
+                    <p className="text-primary font-bold text-2xl">
+                      {topThree[0].auraPoints.toLocaleString()}
+                    </p>
+                    <div className="text-sm text-gray-300">
+                      {topThree[0].totalBattlesWon} battles won
+                    </div>
+                    <Badge className="mt-2 bg-primary/20 text-primary border-primary/40">
+                      AURA VADER
+                    </Badge>
+                  </Link>
                 </div>
               )}
 
               {/* 3rd Place */}
               {topThree[2] && (
                 <div className="text-center order-3">
-                  <div className="relative mx-auto w-20 h-20 mb-4">
-                    <Avatar className="w-20 h-20 border-4 border-orange-600">
-                      <AvatarImage src={topThree[2].profileImageUrl} />
-                      <AvatarFallback className="bg-orange-600/20 text-orange-400">
-                        <Trophy className="w-8 h-8" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">3</span>
+                  <Link href={`/profile/${topThree[2].id}`} className="block cursor-pointer hover:scale-105 transition-transform duration-300">
+                    <div className="relative mx-auto w-20 h-20 mb-4">
+                      <Avatar className="w-20 h-20 border-4 border-orange-600">
+                        <AvatarImage src={topThree[2].profileImageUrl} />
+                        <AvatarFallback className="bg-orange-600/20 text-orange-400">
+                          <Trophy className="w-8 h-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">3</span>
+                      </div>
                     </div>
-                  </div>
-                  <h4 className="font-bold text-lg text-white">
-                    {getUserDisplayName(topThree[2])}
-                  </h4>
-                  <p className="text-orange-400 font-semibold text-xl">
-                    {topThree[2].auraPoints.toLocaleString()}
-                  </p>
-                  <div className="text-sm text-gray-400">
-                    {topThree[2].totalBattlesWon} battles won
-                  </div>
+                    <h4 className="font-bold text-lg text-white">
+                      {getUserDisplayName(topThree[2])}
+                    </h4>
+                    <p className="text-orange-400 font-semibold text-xl">
+                      {topThree[2].auraPoints.toLocaleString()}
+                    </p>
+                    <div className="text-sm text-gray-400">
+                      {topThree[2].totalBattlesWon} battles won
+                    </div>
+                  </Link>
                 </div>
               )}
             </div>
@@ -178,29 +184,30 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                     return (
                       <TableRow 
                         key={user.id} 
-                        className="border-gray-700/50 hover:bg-primary/5 transition-colors"
+                        className="border-gray-700/50 hover:bg-primary/10 transition-all duration-300 cursor-pointer group"
+                        onClick={() => window.location.href = `/profile/${user.id}`}
                       >
                         <TableCell>
-                          <span className="font-semibold text-gray-300">
+                          <span className="font-semibold text-gray-300 group-hover:text-primary transition-colors">
                             #{rank}
                           </span>
                         </TableCell>
                         
                         <TableCell>
                           <div className="flex items-center space-x-3">
-                            <Avatar className="w-10 h-10 border border-primary/20">
+                            <Avatar className="w-10 h-10 border border-primary/20 group-hover:border-primary/50 transition-all duration-300">
                               <AvatarImage src={user.profileImageUrl} />
                               <AvatarFallback className="bg-primary/20 text-primary">
                                 <User className="w-5 h-5" />
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-semibold text-white">
+                              <div className="font-semibold text-white group-hover:text-primary transition-colors">
                                 {getUserDisplayName(user)}
                               </div>
                               <Badge 
                                 variant="outline" 
-                                className="text-xs"
+                                className="text-xs transition-all duration-300"
                                 style={{ 
                                   color: streakLevel.color, 
                                   borderColor: `${streakLevel.color}40`,
