@@ -145,6 +145,19 @@ export default function Battles() {
       return;
     }
 
+    const stakeAmountNum = parseFloat(stakeAmount);
+    const opponentBalance = selectedOpponent.auraPoints || 0;
+
+    // Check if opponent has enough balance
+    if (stakeAmountNum > opponentBalance) {
+      toast({
+        title: "Why are you trying to rob this farmer of all their Aura?",
+        description: "This user does not have enough balance to join this battle",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!battleDate) {
       toast({
         title: "Error",
