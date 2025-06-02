@@ -212,15 +212,22 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Conversion Note */}
+                {/* Token Information */}
                 <div className="mt-6 p-4 bg-[#8000FF]/10 border border-[#8000FF]/20 rounded-lg">
-                  <div className="flex items-center text-sm text-gray-300">
+                  <div className="flex items-center text-sm text-gray-300 mb-3">
                     <Info className="w-4 h-4 mr-2 text-[#8000FF]" />
-                    <span>
-                      <strong>Conversion Rate:</strong> 1 USDT = 10 Aura Points (base) • 
-                      Streak multipliers apply to vouching • 
-                      Battle Aura Points can be converted to USDT
-                    </span>
+                    <span className="font-semibold">Token System</span>
+                  </div>
+                  <div className="space-y-2 text-sm text-gray-300">
+                    <div>
+                      <strong className="text-[#8000FF]">Aura Points:</strong> Main ranking token for leaderboard position
+                    </div>
+                    <div>
+                      <strong className="text-[#9933FF]">Vouching:</strong> 1 USDT = 10 Aura Points (base) • Streak multipliers apply
+                    </div>
+                    <div>
+                      <strong className="text-[#00FF88]">Battle Support:</strong> Purchase Steeze tokens (1 Steeze = 0.01 USDT) to help friends win battles
+                    </div>
                   </div>
                 </div>
               </CardContent>

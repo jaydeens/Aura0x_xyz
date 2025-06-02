@@ -53,6 +53,8 @@ export const users = pgTable("users", {
   auraFromBattles: integer("aura_from_battles").default(0),
   // USDT earnings tracking
   totalUsdtEarned: decimal("total_usdt_earned").default("0"),
+  // Steeze token balance
+  steezeBalance: integer("steeze_balance").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -147,6 +149,21 @@ export const notifications = pgTable("notifications", {
   message: text("message").notNull(),
   relatedId: varchar("related_id"), // ID of related battle/lesson/etc
   isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Steeze transactions table
+export const steezeTransactions = pgTable("steeze_transactions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: varchar("type").notNull(), // 'purchase', 'redeem', 'transfer', 'battle_support'
+  amount: integer("amount").notNull(), // Amount of Steeze tokens
+  usdtAmount: decimal("usdt_amount").notNull(), // USDT value involved
+  rate: decimal("rate").notNull(), // Exchange rate used (0.01 for purchase, 0.007 for redeem)
+  status: varchar("status").default("completed"), // 'pending', 'completed', 'failed'
+  transactionHash: text("transaction_hash"), // Blockchain transaction hash if applicable
+  recipientId: varchar("recipient_id").references(() => users.id), // For transfers or battle support
+  battleId: varchar("battle_id").references(() => battles.id), // For battle support transactions
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -270,6 +287,11 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
+export const insertSteezeTransactionSchema = createInsertSchema(steezeTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertLesson = z.infer<typeof insertLessonSchema>;
@@ -287,3 +309,5 @@ export type AuraLevel = typeof auraLevels.$inferSelect;
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
+export type InsertSteezeTransaction = z.infer<typeof insertSteezeTransactionSchema>;
+export type SteezeTransaction = typeof steezeTransactions.$inferSelect;
