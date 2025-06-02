@@ -666,16 +666,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const lessonId = parseInt(req.params.id);
-      const today = new Date();
       
-      // Check if user completed this lesson today
-      const userLesson = await storage.getUserLessonByDate(userId, today);
+      // Get all user lessons for this specific lesson
+      const userLessons = await storage.getUserLessons(userId);
+      const completedLesson = userLessons.find(ul => ul.lessonId === lessonId && ul.completed);
       
-      if (userLesson && userLesson.lessonId === lessonId && userLesson.completed) {
+      if (completedLesson) {
         return res.json({
           completed: true,
-          quizCompleted: userLesson.quizCompleted || false,
-          auraEarned: userLesson.auraEarned || 0
+          quizCompleted: completedLesson.quizCompleted || false,
+          auraEarned: completedLesson.auraEarned || 0
+        });
+      }
+      
+      // Check if quiz was completed but lesson not yet finished
+      const quizLesson = userLessons.find(ul => ul.lessonId === lessonId && ul.quizCompleted);
+      if (quizLesson) {
+        return res.json({
+          completed: false,
+          quizCompleted: true,
+          auraEarned: 0
         });
       }
       
