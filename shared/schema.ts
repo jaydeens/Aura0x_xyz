@@ -47,6 +47,12 @@ export const users = pgTable("users", {
   totalBattlesLost: integer("total_battles_lost").default(0),
   portfolioGrowth: decimal("portfolio_growth").default("0"),
   walletAge: integer("wallet_age").default(0),
+  // Aura points breakdown tracking
+  auraFromLessons: integer("aura_from_lessons").default(0),
+  auraFromVouching: integer("aura_from_vouching").default(0),
+  auraFromBattles: integer("aura_from_battles").default(0),
+  // USDT earnings tracking
+  totalUsdtEarned: decimal("total_usdt_earned").default("0"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

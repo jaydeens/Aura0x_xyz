@@ -80,8 +80,9 @@ export interface IStorage {
   seedAuraLevels(): Promise<void>;
   
   // User statistics
-  updateUserAura(userId: string, points: number): Promise<void>;
+  updateUserAura(userId: string, points: number, source?: 'lessons' | 'vouching' | 'battles'): Promise<void>;
   updateUserStreak(userId: string, streak: number): Promise<void>;
+  updateUserUsdtEarnings(userId: string, amount: number): Promise<void>;
   getUserByWallet(walletAddress: string): Promise<User | undefined>;
   getUserByTwitter(twitterId: string): Promise<User | undefined>;
 }
@@ -375,13 +376,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User statistics
-  async updateUserAura(userId: string, points: number): Promise<void> {
-    await db
-      .update(users)
-      .set({
+  async updateUserAura(userId: string, points: number, source: 'lessons' | 'vouching' | 'battles' = 'vouching'): Promise<void> {
+    const updateData: any = {
         auraPoints: sql`${users.auraPoints} + ${points}`,
         updatedAt: new Date()
-      })
+      };
+
+    // Track source of aura points
+    if (source === 'lessons') {
+      updateData.auraFromLessons = sql`${users.auraFromLessons} + ${points}`;
+    } else if (source === 'vouching') {
+      updateData.auraFromVouching = sql`${users.auraFromVouching} + ${points}`;
+    } else if (source === 'battles') {
+      updateData.auraFromBattles = sql`${users.auraFromBattles} + ${points}`;
+    }
+
+    await db
+      .update(users)
+      .set(updateData)
       .where(eq(users.id, userId));
   }
 
@@ -391,6 +403,17 @@ export class DatabaseStorage implements IStorage {
       .set({
         currentStreak: streak,
         lastLessonDate: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserUsdtEarnings(userId: string, amount: number): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        totalUsdtEarned: sql`${users.totalUsdtEarned} + ${amount}`,
+        totalVouchesReceived: sql`${users.totalVouchesReceived} + ${amount}`,
         updatedAt: new Date()
       })
       .where(eq(users.id, userId));
