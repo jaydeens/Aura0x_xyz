@@ -35,29 +35,29 @@ interface SteezeTransaction {
 }
 
 function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
-  const [amount, setAmount] = useState<number>(1000);
-  const [clientSecret, setClientSecret] = useState<string>('');
-  const [showPayment, setShowPayment] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
   const { toast } = useToast();
-  
+
   const stripe = useStripe();
   const elements = useElements();
 
-  const usdtCost = amount * 0.01;
-
-  const createPaymentMutation = useMutation({
-    mutationFn: () => apiRequest('POST', '/api/steeze/purchase', { amount }),
-    onSuccess: (data) => {
-      setClientSecret(data.clientSecret);
-      setShowPayment(true);
+  const createPaymentIntent = useMutation({
+    mutationFn: async (data: { amount: number }) => {
+      const response = await apiRequest('POST', '/api/create-payment-intent', data);
+      const result = await response.json();
+      return result.clientSecret;
+    },
+    onSuccess: (secret) => {
+      setClientSecret(secret);
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to create payment. Please try again.",
-        variant: "destructive"
+        description: "Failed to create payment intent",
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,151 +68,156 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.origin + '/steeze-stack?success=true'
-      }
+        return_url: window.location.origin + "/steeze-stack",
+      },
     });
 
     if (error) {
       toast({
         title: "Payment Failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
+      toast({
+        title: "Payment Successful",
+        description: "Steeze tokens purchased successfully!",
+      });
       onSuccess();
-      setShowPayment(false);
+      setAmount('');
       setClientSecret('');
     }
   };
 
-  if (showPayment && clientSecret) {
+  const handlePurchase = () => {
+    const purchaseAmount = parseFloat(amount);
+    if (purchaseAmount < 1) {
+      toast({
+        title: "Invalid Amount",
+        description: "Minimum purchase is $1.00",
+        variant: "destructive",
+      });
+      return;
+    }
+    createPaymentIntent.mutate({ amount: purchaseAmount });
+  };
+
+  if (clientSecret) {
     return (
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="text-center mb-6">
-          <h3 className="text-lg font-semibold text-white">
-            Purchase {amount.toLocaleString()} Steeze
-          </h3>
-          <p className="text-gray-400">
-            Total: ${usdtCost.toFixed(2)} USD
-          </p>
-        </div>
-        
-        <PaymentElement />
-        
-        <div className="flex space-x-3">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => setShowPayment(false)}
-            className="flex-1"
-          >
-            Cancel
-          </Button>
+      <Elements stripe={stripePromise} options={{ clientSecret }}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <PaymentElement />
           <Button 
             type="submit" 
             disabled={!stripe}
-            className="flex-1 bg-gradient-to-r from-[#00FF88] to-[#8000FF] hover:from-[#00FF88]/80 hover:to-[#8000FF]/80"
+            className="w-full bg-[#8000FF] hover:bg-[#6600CC]"
           >
             Complete Purchase
           </Button>
-        </div>
-      </form>
+        </form>
+      </Elements>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <Label htmlFor="amount" className="text-white">Steeze Amount</Label>
+        <Label htmlFor="amount" className="text-gray-300">Amount (USD)</Label>
         <Input
           id="amount"
           type="number"
-          value={amount}
-          onChange={(e) => setAmount(parseInt(e.target.value) || 0)}
+          step="0.01"
           min="1"
-          className="mt-2 bg-[#0A0A0B] border-[#8000FF]/20 text-white"
-          placeholder="Enter amount to purchase"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Enter amount in USD"
+          className="bg-[#2A2A2B] border-[#8000FF]/30 text-white"
         />
         <p className="text-sm text-gray-400 mt-1">
-          Cost: ${usdtCost.toFixed(2)} USD (1 Steeze = $0.01)
+          You'll receive {amount ? Math.floor(parseFloat(amount) * 100) : 0} Steeze tokens
         </p>
       </div>
-
       <Button 
-        onClick={() => createPaymentMutation.mutate()}
-        disabled={amount <= 0 || createPaymentMutation.isPending}
-        className="w-full bg-gradient-to-r from-[#00FF88] to-[#8000FF] hover:from-[#00FF88]/80 hover:to-[#8000FF]/80 text-white font-semibold"
+        onClick={handlePurchase}
+        disabled={!amount || parseFloat(amount) < 1 || createPaymentIntent.isPending}
+        className="w-full bg-[#8000FF] hover:bg-[#6600CC]"
       >
-        {createPaymentMutation.isPending ? "Creating Payment..." : "Purchase Steeze"}
+        {createPaymentIntent.isPending ? 'Processing...' : 'Purchase Steeze'}
       </Button>
     </div>
   );
 }
 
 function RedeemForm({ userBalance, onSuccess }: { userBalance: number; onSuccess: () => void }) {
-  const [amount, setAmount] = useState<number>(100);
+  const [amount, setAmount] = useState('');
   const { toast } = useToast();
 
-  const usdtValue = amount * 0.007;
-
   const redeemMutation = useMutation({
-    mutationFn: () => apiRequest('POST', '/api/steeze/redeem', { amount }),
+    mutationFn: async (data: { amount: number }) => {
+      return apiRequest('POST', '/api/steeze/redeem', data);
+    },
     onSuccess: () => {
       toast({
         title: "Redemption Successful",
-        description: `Redeemed ${amount} Steeze for $${usdtValue.toFixed(3)} USD`,
+        description: "Steeze tokens redeemed successfully!",
       });
       onSuccess();
+      setAmount('');
     },
-    onError: (error: any) => {
+    onError: () => {
       toast({
         title: "Redemption Failed",
-        description: error.message || "Failed to redeem Steeze",
-        variant: "destructive"
+        description: "Failed to redeem tokens",
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const handleRedeem = () => {
-    if (amount > userBalance) {
+    const redeemAmount = parseInt(amount);
+    if (redeemAmount < 1) {
       toast({
-        title: "Insufficient Balance",
-        description: "You don't have enough Steeze to redeem",
-        variant: "destructive"
+        title: "Invalid Amount",
+        description: "Minimum redemption is 1 Steeze token",
+        variant: "destructive",
       });
       return;
     }
-    redeemMutation.mutate();
+    if (redeemAmount > userBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: "You don't have enough Steeze tokens",
+        variant: "destructive",
+      });
+      return;
+    }
+    redeemMutation.mutate({ amount: redeemAmount });
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <Label htmlFor="redeem-amount" className="text-white">Steeze Amount to Redeem</Label>
+        <Label htmlFor="redeem-amount" className="text-gray-300">Steeze Amount</Label>
         <Input
           id="redeem-amount"
           type="number"
-          value={amount}
-          onChange={(e) => setAmount(parseInt(e.target.value) || 0)}
           min="1"
           max={userBalance}
-          className="mt-2 bg-[#0A0A0B] border-[#8000FF]/20 text-white"
-          placeholder="Enter amount to redeem"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Enter Steeze tokens to redeem"
+          className="bg-[#2A2A2B] border-[#8000FF]/30 text-white"
         />
         <p className="text-sm text-gray-400 mt-1">
-          You'll receive: ${usdtValue.toFixed(3)} USD (1 Steeze = $0.007)
-        </p>
-        <p className="text-xs text-gray-500">
-          Available balance: {userBalance.toLocaleString()} Steeze
+          You'll receive ${amount ? (parseInt(amount) * 0.007).toFixed(3) : '0.000'} USD
         </p>
       </div>
-
       <Button 
         onClick={handleRedeem}
-        disabled={amount <= 0 || amount > userBalance || redeemMutation.isPending}
-        className="w-full bg-gradient-to-r from-[#FF8800] to-[#FFD700] hover:from-[#FF8800]/80 hover:to-[#FFD700]/80 text-black font-semibold"
+        disabled={!amount || parseInt(amount) < 1 || parseInt(amount) > userBalance || redeemMutation.isPending}
+        className="w-full bg-[#FF6B6B] hover:bg-[#FF5252]"
       >
-        {redeemMutation.isPending ? "Processing..." : "Redeem Steeze"}
+        {redeemMutation.isPending ? 'Processing...' : 'Redeem Steeze'}
       </Button>
     </div>
   );
@@ -220,6 +225,7 @@ function RedeemForm({ userBalance, onSuccess }: { userBalance: number; onSuccess
 
 export default function SteezeStack() {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'purchase' | 'redeem'>('purchase');
 
   // Fetch user data
   const { data: user, refetch: refetchUser } = useQuery({
@@ -240,174 +246,167 @@ export default function SteezeStack() {
   const recentTransactions = transactions?.slice(0, 5) || [];
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
       <Navigation />
-      <div className="min-h-screen bg-[#0A0A0B] text-white pt-16">
-        <main className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#00FF88] to-[#8000FF] bg-clip-text text-transparent">
-            Steeze Stack
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Purchase and trade Steeze tokens to support your friends in battles
-          </p>
-        </div>
+      
+      <main className="pt-20 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
+              Steeze Stack
+            </h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Purchase and trade Steeze tokens to support your friends in battles
+            </p>
+          </div>
 
-        {/* Balance & Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Steeze Balance</CardTitle>
-              <Wallet className="h-4 w-4 text-[#00FF88]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#00FF88]">
-                {steezeBalance.toLocaleString()}
-              </div>
-              <p className="text-xs text-gray-400">
-                ≈ ${(steezeBalance * 0.007).toFixed(2)} USD value
-              </p>
-            </CardContent>
-          </Card>
+          {/* Balance & Stats */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-400">Steeze Balance</CardTitle>
+                <Wallet className="h-4 w-4 text-[#8000FF]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-[#8000FF]">{steezeBalance.toLocaleString()}</div>
+                <p className="text-xs text-gray-500">Steeze tokens</p>
+              </CardContent>
+            </Card>
 
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-400">Purchase Rate</CardTitle>
+                <TrendingUp className="h-4 w-4 text-[#00FF88]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-[#00FF88]">$0.01</div>
+                <p className="text-xs text-gray-500">per Steeze token</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-400">Redeem Rate</CardTitle>
+                <DollarSign className="h-4 w-4 text-[#FF6B6B]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-[#FF6B6B]">$0.007</div>
+                <p className="text-xs text-gray-500">per Steeze token</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Trading Interface */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            {/* Purchase/Redeem Form */}
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader>
+                <div className="flex space-x-1 bg-[#2A2A2B] p-1 rounded-lg">
+                  <Button
+                    variant={activeTab === 'purchase' ? 'default' : 'ghost'}
+                    className={`flex-1 ${activeTab === 'purchase' ? 'bg-[#8000FF] text-white' : 'text-gray-400'}`}
+                    onClick={() => setActiveTab('purchase')}
+                  >
+                    <ArrowUpRight className="w-4 h-4 mr-2" />
+                    Purchase
+                  </Button>
+                  <Button
+                    variant={activeTab === 'redeem' ? 'default' : 'ghost'}
+                    className={`flex-1 ${activeTab === 'redeem' ? 'bg-[#FF6B6B] text-white' : 'text-gray-400'}`}
+                    onClick={() => setActiveTab('redeem')}
+                  >
+                    <ArrowDownLeft className="w-4 h-4 mr-2" />
+                    Redeem
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {activeTab === 'purchase' ? (
+                  <PurchaseForm onSuccess={handleTransactionUpdate} />
+                ) : (
+                  <RedeemForm userBalance={steezeBalance} onSuccess={handleTransactionUpdate} />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Info Card */}
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-[#8000FF]">
+                  <Info className="w-5 h-5" />
+                  How It Works
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-gray-300">
+                <div>
+                  <h4 className="font-semibold text-[#00FF88] mb-2">Purchase Steeze</h4>
+                  <p className="text-sm">Buy Steeze tokens at $0.01 each to support friends in battles or trade later.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-[#FF6B6B] mb-2">Redeem Steeze</h4>
+                  <p className="text-sm">Convert your Steeze tokens back to USD at $0.007 each (30% platform fee).</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-[#8000FF] mb-2">Battle Support</h4>
+                  <p className="text-sm">Use Steeze tokens to support friends in battles and help them win more Aura points.</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Transactions */}
           <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Purchase Rate</CardTitle>
-              <ArrowUpRight className="h-4 w-4 text-[#8000FF]" />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Clock className="w-5 h-5" />
+                Recent Transactions
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#8000FF]">$0.01</div>
-              <p className="text-xs text-gray-400">per Steeze token</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[#1A1A1B] border-[#FF8800]/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Redeem Rate</CardTitle>
-              <ArrowDownLeft className="h-4 w-4 text-[#FF8800]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[#FF8800]">$0.007</div>
-              <p className="text-xs text-gray-400">per Steeze token</p>
+              {recentTransactions.length > 0 ? (
+                <div className="space-y-3">
+                  {recentTransactions.map((transaction: SteezeTransaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-[#2A2A2B] rounded-lg border border-[#8000FF]/10">
+                      <div className="flex items-center gap-3">
+                        {transaction.type === 'purchase' ? (
+                          <ArrowUpRight className="w-4 h-4 text-[#00FF88]" />
+                        ) : (
+                          <ArrowDownLeft className="w-4 h-4 text-[#FF6B6B]" />
+                        )}
+                        <div>
+                          <p className="font-medium text-white capitalize">{transaction.type}</p>
+                          <p className="text-sm text-gray-400">{new Date(transaction.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-white">{transaction.amount} Steeze</p>
+                        <p className="text-sm text-gray-400">${transaction.usdtAmount}</p>
+                      </div>
+                      <Badge 
+                        variant={transaction.status === 'completed' ? 'default' : 'secondary'}
+                        className={transaction.status === 'completed' ? 'bg-[#00FF88]/20 text-[#00FF88]' : ''}
+                      >
+                        {transaction.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                  <Coins className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">
+                    No transactions yet
+                  </h3>
+                  <p className="text-gray-500">
+                    Start by purchasing your first Steeze tokens!
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Trading Interface */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          {/* Purchase Section */}
-          <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-white flex items-center">
-                <Coins className="w-5 h-5 mr-2 text-[#00FF88]" />
-                Purchase Steeze
-              </CardTitle>
-              <p className="text-gray-400">
-                Buy Steeze tokens to support friends in battles
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Elements stripe={stripePromise}>
-                <PurchaseForm onSuccess={handleTransactionUpdate} />
-              </Elements>
-            </CardContent>
-          </Card>
-
-          {/* Redeem Section */}
-          <Card className="bg-[#1A1A1B] border-[#FF8800]/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-white flex items-center">
-                <DollarSign className="w-5 h-5 mr-2 text-[#FF8800]" />
-                Redeem Steeze
-              </CardTitle>
-              <p className="text-gray-400">
-                Convert your Steeze tokens back to USD
-              </p>
-            </CardHeader>
-            <CardContent>
-              <RedeemForm userBalance={steezeBalance} onSuccess={handleTransactionUpdate} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Rate Information */}
-        <Card className="bg-[#1A1A1B] border-[#8000FF]/20 mb-8">
-          <CardContent className="pt-6">
-            <div className="flex items-center text-sm text-gray-300 mb-3">
-              <Info className="w-4 h-4 mr-2 text-[#8000FF]" />
-              <span className="font-semibold">Trading Rates & Platform Economics</span>
-            </div>
-            <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-300">
-              <div>
-                <strong className="text-[#00FF88]">Purchase:</strong> 1 Steeze = $0.01 USD
-              </div>
-              <div>
-                <strong className="text-[#FF8800]">Redeem:</strong> 1 Steeze = $0.007 USD
-              </div>
-              <div>
-                <strong className="text-[#8000FF]">Platform Fee:</strong> 30% on redemption
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Transactions */}
-        <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-          <CardHeader>
-            <CardTitle className="text-xl text-white flex items-center">
-              <Clock className="w-5 h-5 mr-2 text-[#8000FF]" />
-              Recent Transactions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentTransactions.length > 0 ? (
-              <div className="space-y-3">
-                {recentTransactions.map((transaction: SteezeTransaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 bg-[#0A0A0B] rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      {transaction.type === 'purchase' ? (
-                        <ArrowUpRight className="w-4 h-4 text-[#00FF88]" />
-                      ) : (
-                        <ArrowDownLeft className="w-4 h-4 text-[#FF8800]" />
-                      )}
-                      <div>
-                        <div className="font-medium text-white capitalize">
-                          {transaction.type}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          {new Date(transaction.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-white">
-                        {transaction.amount.toLocaleString()} Steeze
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        ${parseFloat(transaction.usdtAmount).toFixed(3)} USD
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="bg-green-500/20 text-green-400">
-                      {transaction.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <TrendingUp className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                  No transactions yet
-                </h3>
-                <p className="text-gray-500">
-                  Start by purchasing your first Steeze tokens!
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        </main>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
