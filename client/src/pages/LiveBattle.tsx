@@ -241,6 +241,10 @@ export default function LiveBattle() {
     );
   }
 
+  // Extract participant data
+  const challenger = (battle as any).challenger;
+  const opponent = (battle as any).opponent;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] relative overflow-hidden">
       {/* Animated Background Effects */}
@@ -451,18 +455,18 @@ export default function LiveBattle() {
                     {/* Opponent */}
                     <div className="text-center space-y-4">
                       <Avatar className="w-24 h-24 mx-auto border-4 border-red-500 animate-pulse">
-                        <AvatarImage src={(battle as any)?.opponentAvatar} />
+                        <AvatarImage src={opponent?.profileImageUrl} />
                         <AvatarFallback className="bg-red-500/20 text-red-400 text-2xl font-bold">
-                          {((battle as any)?.opponentName || 'O').charAt(0)}
+                          {(opponent?.username || 'O').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div>
                         <h3 className="text-xl font-bold text-red-400">
-                          {(battle as any)?.opponentName || 'Opponent'}
+                          {opponent?.username || 'Opponent'}
                         </h3>
                         <p className="text-red-300 text-sm">
-                          @{(battle as any)?.opponentUsername || 'opponent'}
+                          @{opponent?.username || 'opponent'}
                         </p>
                         <Badge variant="secondary" className="mt-2 bg-red-500/20 text-red-400 border-red-500/30">
                           Opponent
