@@ -3,42 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --background: 240 10% 3%; /* #080808 */
-  --foreground: 0 0% 98%;
-  --muted: 240 5% 12%; /* #1F1F23 */
-  --muted-foreground: 240 5% 64%;
-  --popover: 240 10% 3%; /* #080808 */
-  --popover-foreground: 0 0% 98%;
-  --card: 240 4% 9%; /* #171719 */
-  --card-foreground: 0 0% 98%;
-  --border: 240 5% 20%; /* #333338 */
-  --input: 240 4% 12%; /* #1F1F23 */
-  --primary: 258 100% 67%; /* #6366F1 */
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4% 16%; /* #292929 */
-  --secondary-foreground: 0 0% 98%;
-  --accent: 258 100% 67%; /* #6366F1 */
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 98%;
-  --ring: 258 100% 67%; /* #6366F1 */
+  --background: 0 0% 8%; /* #141414 - Black */
+  --foreground: 0 0% 98%; /* White */
+  --muted: 0 0% 15%; /* #262626 - Dark Grey */
+  --muted-foreground: 0 0% 60%; /* Light Grey */
+  --popover: 0 0% 8%; /* #141414 - Black */
+  --popover-foreground: 0 0% 98%; /* White */
+  --card: 0 0% 12%; /* #1F1F1F - Dark Grey */
+  --card-foreground: 0 0% 98%; /* White */
+  --border: 0 0% 20%; /* Grey */
+  --input: 0 0% 15%; /* Dark Grey */
+  --primary: 270 100% 67%; /* #8B5CF6 - Purple */
+  --primary-foreground: 0 0% 98%; /* White */
+  --secondary: 0 0% 15%; /* Dark Grey */
+  --secondary-foreground: 0 0% 98%; /* White */
+  --accent: 270 100% 67%; /* Purple */
+  --accent-foreground: 0 0% 98%; /* White */
+  --destructive: 0 0% 40%; /* Dark Grey for destructive */
+  --destructive-foreground: 0 0% 98%; /* White */
+  --ring: 270 100% 67%; /* Purple */
   --radius: 0.5rem;
-  --success: 142 76% 36%;
-  --warning: 48 96% 53%;
-  
-  /* Simplified status colors */
-  --status-pending: 48 96% 53%;
-  --status-accepted: 258 100% 67%;
-  --status-completed: 142 76% 36%;
-  --status-cancelled: 0 72% 51%;
-  --status-withdrawn: 240 5% 64%;
-  
-  /* Chart colors - limited palette */
-  --chart-1: 258 100% 67%;
-  --chart-2: 142 76% 36%;
-  --chart-3: 48 96% 53%;
-  --chart-4: 0 72% 51%;
-  --chart-5: 240 5% 64%;
+  --success: 270 100% 67%; /* Purple instead of green */
+  --warning: 0 0% 60%; /* Grey instead of yellow */
 }
 
 .dark {

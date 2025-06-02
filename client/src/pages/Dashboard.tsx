@@ -51,12 +51,8 @@ export default function Dashboard() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#8000FF] to-[#9933FF] rounded-2xl flex items-center justify-center">
-            <Zap className="w-8 h-8 text-white" />
-          </div>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -83,75 +79,75 @@ export default function Dashboard() {
     ((user?.currentStreak || 0) / nextLevel.minDays) * 100 : 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <main className="pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Welcome Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className="text-4xl font-bold text-foreground mb-2">
               Welcome back, {user?.firstName || user?.username || "Aura Warrior"}! 
             </h1>
-            <p className="text-gray-400 text-lg">
+            <p className="text-muted-foreground text-lg">
               Continue building your Aura and dominate the leaderboard
             </p>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+            <Card className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Aura Points</p>
-                    <p className="text-2xl font-bold text-[#8000FF]">
+                    <p className="text-muted-foreground text-sm">Aura Points</p>
+                    <p className="text-2xl font-bold text-primary">
                       {user?.auraPoints?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <Coins className="w-8 h-8 text-[#8000FF]" />
+                  <Coins className="w-8 h-8 text-primary" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
+            <Card className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Current Streak</p>
-                    <p className="text-2xl font-bold text-[#FFD700]">
+                    <p className="text-muted-foreground text-sm">Current Streak</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {user?.currentStreak || 0} days
                     </p>
                   </div>
-                  <Flame className="w-8 h-8 text-[#FFD700]" />
+                  <Flame className="w-8 h-8 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
+            <Card className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Battles Won</p>
-                    <p className="text-2xl font-bold text-[#00FF88]">
+                    <p className="text-muted-foreground text-sm">Battles Won</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {user?.totalBattlesWon || 0}
                     </p>
                   </div>
-                  <Trophy className="w-8 h-8 text-[#00FF88]" />
+                  <Trophy className="w-8 h-8 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
+            <Card className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">USDT Earned</p>
-                    <p className="text-2xl font-bold text-[#9933FF]">
+                    <p className="text-muted-foreground text-sm">USDT Earned</p>
+                    <p className="text-2xl font-bold text-foreground">
                       ${parseFloat(user?.totalUsdtEarned || "0").toFixed(2)}
                     </p>
                   </div>
-                  <Coins className="w-8 h-8 text-[#9933FF]" />
+                  <Coins className="w-8 h-8 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
@@ -159,68 +155,68 @@ export default function Dashboard() {
 
           {/* Aura Points Breakdown */}
           <div className="mb-8">
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-xl font-bold text-white flex items-center">
-                  <Zap className="w-5 h-5 mr-2 text-[#8000FF]" />
+                <CardTitle className="text-xl font-bold text-foreground flex items-center">
+                  <Zap className="w-5 h-5 mr-2 text-primary" />
                   Aura Points Breakdown
                 </CardTitle>
-                <p className="text-gray-400">Track where your Aura Points come from</p>
+                <p className="text-muted-foreground">Track where your Aura Points come from</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Daily Lessons */}
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center mx-auto mb-3">
-                      <BookOpen className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                      <BookOpen className="w-8 h-8 text-primary-foreground" />
                     </div>
-                    <div className="text-2xl font-bold text-[#FFD700] mb-1">
+                    <div className="text-2xl font-bold text-primary mb-1">
                       {user?.auraFromLessons?.toLocaleString() || "0"}
                     </div>
-                    <div className="text-gray-400 text-sm">From Daily Lessons</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-muted-foreground text-sm">From Daily Lessons</div>
+                    <div className="text-xs text-muted-foreground mt-1">
                       {user?.auraPoints ? Math.round(((user?.auraFromLessons || 0) / user.auraPoints) * 100) : 0}% of total
                     </div>
                   </div>
 
                   {/* Vouching */}
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#9933FF] to-[#8000FF] rounded-full flex items-center justify-center mx-auto mb-3">
-                      <HandHeart className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                      <HandHeart className="w-8 h-8 text-foreground" />
                     </div>
-                    <div className="text-2xl font-bold text-[#9933FF] mb-1">
+                    <div className="text-2xl font-bold text-foreground mb-1">
                       {user?.auraFromVouching?.toLocaleString() || "0"}
                     </div>
-                    <div className="text-gray-400 text-sm">From Vouching</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-muted-foreground text-sm">From Vouching</div>
+                    <div className="text-xs text-muted-foreground mt-1">
                       {user?.auraPoints ? Math.round(((user?.auraFromVouching || 0) / user.auraPoints) * 100) : 0}% of total
                     </div>
                   </div>
 
                   {/* Battles */}
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#00FF88] to-[#00D4FF] rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Swords className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Swords className="w-8 h-8 text-foreground" />
                     </div>
-                    <div className="text-2xl font-bold text-[#00FF88] mb-1">
+                    <div className="text-2xl font-bold text-foreground mb-1">
                       {user?.auraFromBattles?.toLocaleString() || "0"}
                     </div>
-                    <div className="text-gray-400 text-sm">From Battles</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-muted-foreground text-sm">From Battles</div>
+                    <div className="text-xs text-muted-foreground mt-1">
                       {user?.auraPoints ? Math.round(((user?.auraFromBattles || 0) / user.auraPoints) * 100) : 0}% of total
                     </div>
                   </div>
                 </div>
 
                 {/* Token Information */}
-                <div className="mt-6 p-4 bg-[#8000FF]/10 border border-[#8000FF]/20 rounded-lg">
-                  <div className="flex items-center text-sm text-gray-300 mb-3">
-                    <Info className="w-4 h-4 mr-2 text-[#8000FF]" />
+                <div className="mt-6 p-4 bg-muted border border-border rounded-lg">
+                  <div className="flex items-center text-sm text-foreground mb-3">
+                    <Info className="w-4 h-4 mr-2 text-primary" />
                     <span className="font-semibold">Token System</span>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-300">
+                  <div className="space-y-2 text-sm text-muted-foreground">
                     <div>
-                      <strong className="text-[#8000FF]">Aura Points:</strong> Main ranking token for leaderboard position
+                      <strong className="text-primary">Aura Points:</strong> Main ranking token for leaderboard position
                     </div>
                     <div>
                       <strong className="text-[#9933FF]">Vouching:</strong> 1 USDT = 10 Aura Points (base) • Streak multipliers apply
