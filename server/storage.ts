@@ -6,6 +6,7 @@ import {
   battleVotes,
   vouches,
   auraLevels,
+  notifications,
   type User,
   type UpsertUser,
   type InsertLesson,
@@ -20,6 +21,8 @@ import {
   type Vouch,
   type InsertAuraLevel,
   type AuraLevel,
+  type Notification,
+  type InsertNotification,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and, or, sql, gt, lt, gte, lte, isNotNull } from "drizzle-orm";
