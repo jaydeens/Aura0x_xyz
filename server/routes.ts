@@ -385,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only the challenger can withdraw this battle" });
       }
 
-      if (battle.status !== 'challenge_sent') {
+      if (battle.status !== 'challenge_sent' && battle.status !== 'pending') {
         return res.status(400).json({ message: "Can only withdraw pending challenges" });
       }
 
