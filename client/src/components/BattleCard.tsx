@@ -63,6 +63,21 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Battle management states
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [isRequestingCancellation, setIsRequestingCancellation] = useState(false);
+  const [isApprovingCancellation, setIsApprovingCancellation] = useState(false);
+  
+  // User role checks
+  const isChallenger = user?.id === battle.challengerId;
+  const isOpponent = user?.id === battle.opponentId;
+  const canWithdraw = isChallenger && battle.status === 'challenge_sent';
+  const canAcceptReject = isOpponent && battle.status === 'challenge_sent';
+  const canRequestCancellation = (isChallenger || isOpponent) && battle.status === 'accepted';
+  const canApproveCancellation = (isChallenger || isOpponent) && battle.status === 'cancellation_requested';
 
   const voteMutation = useMutation({
     mutationFn: async (data: { battleId: string; votedForId: string; vouchAmount: number }) => {
@@ -401,7 +416,66 @@ export default function BattleCard({ battle, featured = false, showResult = fals
           </div>
         )}
 
-        {battle.status === "pending" && (
+        {/* Battle Management Actions */}
+        {canAcceptReject && (
+          <div className="flex gap-2 mt-4">
+            <Button 
+              onClick={handleAcceptChallenge}
+              disabled={isAccepting}
+              className="flex-1 bg-[#00FF88] hover:bg-[#00FF88]/80 text-black font-semibold"
+            >
+              {isAccepting ? "Accepting..." : "Accept Challenge"}
+            </Button>
+            <Button 
+              onClick={handleRejectChallenge}
+              disabled={isRejecting}
+              variant="outline"
+              className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+            >
+              {isRejecting ? "Rejecting..." : "Reject"}
+            </Button>
+          </div>
+        )}
+
+        {canWithdraw && (
+          <div className="mt-4">
+            <Button 
+              onClick={handleWithdrawChallenge}
+              disabled={isWithdrawing}
+              variant="outline"
+              className="w-full border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black"
+            >
+              {isWithdrawing ? "Withdrawing..." : "Withdraw Challenge"}
+            </Button>
+          </div>
+        )}
+
+        {canRequestCancellation && (
+          <div className="mt-4">
+            <Button 
+              onClick={handleRequestCancellation}
+              disabled={isRequestingCancellation}
+              variant="outline"
+              className="w-full border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black"
+            >
+              {isRequestingCancellation ? "Requesting..." : "Request Cancellation"}
+            </Button>
+          </div>
+        )}
+
+        {canApproveCancellation && (
+          <div className="mt-4">
+            <Button 
+              onClick={handleApproveCancellation}
+              disabled={isApprovingCancellation}
+              className="w-full bg-red-500 hover:bg-red-600 text-white"
+            >
+              {isApprovingCancellation ? "Approving..." : "Approve Cancellation"}
+            </Button>
+          </div>
+        )}
+
+        {battle.status === "pending" && !canWithdraw && !canAcceptReject && (
           <div className="text-center py-4">
             <Clock className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
             <p className="text-sm text-gray-400">
