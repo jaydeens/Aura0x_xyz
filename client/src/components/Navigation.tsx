@@ -26,12 +26,7 @@ export default function Navigation() {
     window.location.href = "/api/logout";
   };
 
-  const handleWalletConnect = () => {
-    toast({
-      title: "Wallet Connect",
-      description: "Wallet connection feature coming soon!",
-    });
-  };
+
 
   const navItems = [
     { path: "/", label: "Dashboard", icon: Home },
@@ -191,15 +186,17 @@ export default function Navigation() {
                 );
               })}
               
-              {/* Mobile Wallet Connect */}
-              <Button
-                variant="outline"
-                className="w-full mt-4 border-primary/50 text-primary hover:bg-primary hover:text-white"
-                onClick={handleWalletConnect}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Connect Wallet
-              </Button>
+              {/* Mobile Wallet Connect - only show if not authenticated */}
+              {!isAuthenticated && !currentUser && (
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 border-primary/50 text-primary hover:bg-primary hover:text-white"
+                  onClick={() => window.location.href = '/auth'}
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Connect Wallet
+                </Button>
+              )}
             </div>
           </div>
         )}
