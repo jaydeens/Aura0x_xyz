@@ -1,41 +1,23 @@
-<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Gradient definitions for aura rings -->
-    <radialGradient id="auraGradient1" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#9CA3AF;stop-opacity:0.8"/>
+    <!-- Main aura gradient -->
+    <radialGradient id="mainAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1"/>
+      <stop offset="30%" style="stop-color:#3B82F6;stop-opacity:0.8"/>
+      <stop offset="60%" style="stop-color:#34D399;stop-opacity:0.6"/>
+      <stop offset="80%" style="stop-color:#F97316;stop-opacity:0.4"/>
       <stop offset="100%" style="stop-color:#9CA3AF;stop-opacity:0.2"/>
     </radialGradient>
     
-    <radialGradient id="auraGradient2" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#F97316;stop-opacity:0.7"/>
-      <stop offset="100%" style="stop-color:#F97316;stop-opacity:0.1"/>
-    </radialGradient>
-    
-    <radialGradient id="auraGradient3" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#34D399;stop-opacity:0.6"/>
-      <stop offset="100%" style="stop-color:#34D399;stop-opacity:0.1"/>
-    </radialGradient>
-    
-    <radialGradient id="auraGradient4" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.5"/>
-      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0.1"/>
-    </radialGradient>
-    
-    <radialGradient id="auraGradient5" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:0.4"/>
-      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:0.1"/>
-    </radialGradient>
-    
     <!-- Human silhouette gradient -->
-    <linearGradient id="humanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:0.9"/>
-      <stop offset="50%" style="stop-color:#3B82F6;stop-opacity:0.8"/>
-      <stop offset="100%" style="stop-color:#34D399;stop-opacity:0.7"/>
+    <linearGradient id="humanFigure" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:0.9"/>
     </linearGradient>
     
-    <!-- Glow filter -->
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+    <!-- Strong glow filter -->
+    <filter id="strongGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
       <feMerge> 
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -43,52 +25,38 @@
     </filter>
   </defs>
   
-  <!-- Dark background -->
-  <rect width="200" height="200" fill="#0A0A0B"/>
+  <!-- Background circle -->
+  <circle cx="20" cy="20" r="19" fill="url(#mainAura)" filter="url(#strongGlow)"/>
   
-  <!-- Outermost aura ring - Royal Purple -->
-  <circle cx="100" cy="100" r="95" fill="none" stroke="url(#auraGradient5)" stroke-width="2" opacity="0.3" filter="url(#glow)"/>
+  <!-- Inner energy ring -->
+  <circle cx="20" cy="20" r="15" fill="none" stroke="#8B5CF6" stroke-width="1" opacity="0.6">
+    <animate attributeName="r" values="15;18;15" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
   
-  <!-- Fourth aura ring - Electric Blue -->
-  <circle cx="100" cy="100" r="78" fill="none" stroke="url(#auraGradient4)" stroke-width="2" opacity="0.4" filter="url(#glow)"/>
+  <!-- Outer energy ring -->
+  <circle cx="20" cy="20" r="12" fill="none" stroke="#3B82F6" stroke-width="1" opacity="0.4">
+    <animate attributeName="r" values="12;14;12" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite"/>
+  </circle>
   
-  <!-- Third aura ring - Mint Green -->
-  <circle cx="100" cy="100" r="62" fill="none" stroke="url(#auraGradient3)" stroke-width="2" opacity="0.5" filter="url(#glow)"/>
-  
-  <!-- Second aura ring - Orange -->
-  <circle cx="100" cy="100" r="48" fill="none" stroke="url(#auraGradient2)" stroke-width="2" opacity="0.6" filter="url(#glow)"/>
-  
-  <!-- Inner aura ring - Gray -->
-  <circle cx="100" cy="100" r="36" fill="none" stroke="url(#auraGradient1)" stroke-width="2" opacity="0.7" filter="url(#glow)"/>
-  
-  <!-- Human silhouette - centered, upright pose -->
-  <g transform="translate(100, 100)">
+  <!-- Human silhouette - more visible and centered -->
+  <g transform="translate(20, 20)">
     <!-- Head -->
-    <circle cx="0" cy="-15" r="8" fill="url(#humanGradient)" filter="url(#glow)"/>
+    <circle cx="0" cy="-6" r="3" fill="url(#humanFigure)" filter="url(#strongGlow)"/>
     
     <!-- Body -->
-    <rect x="-4" y="-7" width="8" height="20" rx="2" fill="url(#humanGradient)" filter="url(#glow)"/>
+    <rect x="-1.5" y="-3" width="3" height="8" rx="1" fill="url(#humanFigure)" filter="url(#strongGlow)"/>
     
-    <!-- Arms -->
-    <rect x="-10" y="-5" width="6" height="2" rx="1" fill="url(#humanGradient)" filter="url(#glow)"/>
-    <rect x="4" y="-5" width="6" height="2" rx="1" fill="url(#humanGradient)" filter="url(#glow)"/>
+    <!-- Arms spread -->
+    <rect x="-4" y="-2" width="2.5" height="1" rx="0.5" fill="url(#humanFigure)" filter="url(#strongGlow)"/>
+    <rect x="1.5" y="-2" width="2.5" height="1" rx="0.5" fill="url(#humanFigure)" filter="url(#strongGlow)"/>
     
     <!-- Legs -->
-    <rect x="-3" y="13" width="2" height="12" rx="1" fill="url(#humanGradient)" filter="url(#glow)"/>
-    <rect x="1" y="13" width="2" height="12" rx="1" fill="url(#humanGradient)" filter="url(#glow)"/>
+    <rect x="-1" y="5" width="0.8" height="4" rx="0.4" fill="url(#humanFigure)" filter="url(#strongGlow)"/>
+    <rect x="0.2" y="5" width="0.8" height="4" rx="0.4" fill="url(#humanFigure)" filter="url(#strongGlow)"/>
   </g>
   
-  <!-- Central spiritual glow -->
-  <circle cx="100" cy="100" r="25" fill="url(#auraGradient5)" opacity="0.1" filter="url(#glow)"/>
-  
-  <!-- Animated pulse rings -->
-  <circle cx="100" cy="100" r="30" fill="none" stroke="#8B5CF6" stroke-width="1" opacity="0.2">
-    <animate attributeName="r" values="30;40;30" dur="3s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="0.2;0.05;0.2" dur="3s" repeatCount="indefinite"/>
-  </circle>
-  
-  <circle cx="100" cy="100" r="45" fill="none" stroke="#3B82F6" stroke-width="1" opacity="0.15">
-    <animate attributeName="r" values="45;55;45" dur="4s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="0.15;0.03;0.15" dur="4s" repeatCount="indefinite"/>
-  </circle>
+  <!-- Central bright spot -->
+  <circle cx="20" cy="20" r="8" fill="url(#mainAura)" opacity="0.3" filter="url(#strongGlow)"/>
 </svg>
