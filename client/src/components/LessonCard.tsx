@@ -92,6 +92,8 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           description: "You can now share your achievement on X to complete the lesson.",
         });
       } else {
+        // For incorrect answers, clear the selection so user can try again
+        setQuizAnswer(null);
         setQuizFeedback({ correct: false, explanation: data.explanation || data.message });
         toast({
           title: "Incorrect Answer",
@@ -382,12 +384,12 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   </div>
                 )}
 
-                {/* Twitter Sharing Section */}
+                {/* X (Twitter) Sharing Section */}
                 {quizCompleted && !lessonStatus?.completed && (
                   <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-6 space-y-4">
                     <h3 className="font-semibold text-white flex items-center gap-2">
                       <X className="w-5 h-5 text-blue-400" />
-                      Share on X (Twitter)
+                      Share on X
                     </h3>
                     
                     <div className="space-y-4">
@@ -407,23 +409,23 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                           <Button
                             onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`)}`)}
                             size="sm"
-                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                            className="bg-black hover:bg-gray-800 text-white"
                           >
                             <ExternalLink className="w-4 h-4 mr-1" />
-                            Tweet Now
+                            Post Now
                           </Button>
                         </div>
                       </div>
                       
                       <div className="space-y-2">
                         <Label htmlFor="tweet-url" className="text-slate-300">
-                          Paste your tweet URL here:
+                          Paste your X post URL here:
                         </Label>
                         <Input
                           id="tweet-url"
                           value={tweetUrl}
                           onChange={(e) => setTweetUrl(e.target.value)}
-                          placeholder="https://twitter.com/your_username/status/..."
+                          placeholder="https://x.com/your_username/status/..."
                           className="bg-slate-900/50 border-slate-700 text-white"
                         />
                       </div>
