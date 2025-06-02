@@ -388,7 +388,7 @@ export default function Battles() {
                     onClick={() => setShowCreateBattle(true)}
                   >
                     <Plus className="w-6 h-6 mr-3" />
-                    ENTER THE ARENA
+                    CREATE BATTLE
                   </Button>
                 </CardContent>
               </Card>
@@ -497,7 +497,7 @@ export default function Battles() {
                     onClick={() => setShowCreateBattle(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Battle
+                    CREATE BATTLE
                   </Button>
                 </CardContent>
               </Card>
