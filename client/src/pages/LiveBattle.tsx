@@ -222,8 +222,11 @@ export default function LiveBattle() {
                 
                 <div>
                   <h3 className="text-xl font-bold text-white">
-                    {(battle as any).challenger?.username || 'Challenger'}
+                    {(battle as any).challenger?.firstName || (battle as any).challenger?.username || `User ${(battle as any).challengerId?.slice(0, 6)}`}
                   </h3>
+                  <p className="text-sm text-gray-400">
+                    @{(battle as any).challenger?.username || `user_${(battle as any).challengerId?.slice(0, 6)}`}
+                  </p>
                   <Badge variant="secondary" className="mt-1">
                     Challenger
                   </Badge>
@@ -319,8 +322,11 @@ export default function LiveBattle() {
                 
                 <div>
                   <h3 className="text-xl font-bold text-white">
-                    {(battle as any).opponent?.username || 'Opponent'}
+                    {(battle as any).opponent?.firstName || (battle as any).opponent?.username || `User ${(battle as any).opponentId?.slice(0, 6)}`}
                   </h3>
+                  <p className="text-sm text-gray-400">
+                    @{(battle as any).opponent?.username || `user_${(battle as any).opponentId?.slice(0, 6)}`}
+                  </p>
                   <Badge variant="secondary" className="mt-1">
                     Opponent
                   </Badge>
