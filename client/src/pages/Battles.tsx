@@ -202,6 +202,7 @@ export default function Battles() {
     }
 
     createBattle.mutate({
+      title: battleTitle.trim() || null,
       opponentId: selectedOpponent.id,
       stakeAmount: stakeAmountNum,
       description: battleDescription.trim() || "A battle of Web3 aura and reputation!",
@@ -214,6 +215,7 @@ export default function Battles() {
     setOpponentSearch("");
     setSelectedOpponent(null);
     setStakeAmount("");
+    setBattleTitle("");
     setBattleDescription("");
     setBattleDate("");
     setBattleTime("12:00");
@@ -547,6 +549,22 @@ export default function Battles() {
             </DialogHeader>
             
             <div className="space-y-6 py-4">
+              {/* Battle Title */}
+              <div className="space-y-3">
+                <Label className="text-white font-semibold">Battle Title (Optional)</Label>
+                <Input
+                  type="text"
+                  placeholder="Epic Showdown, Final Face-off..."
+                  value={battleTitle}
+                  onChange={(e) => setBattleTitle(e.target.value.slice(0, 20))}
+                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                  maxLength={20}
+                />
+                <p className="text-gray-400 text-sm">
+                  {battleTitle.length}/20 characters
+                </p>
+              </div>
+
               {/* Opponent Search */}
               <div className="space-y-3">
                 <Label className="text-white font-semibold">Find Your Opponent</Label>
