@@ -24,41 +24,11 @@ import {
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-interface SteezeTransaction {
-  id: string;
-  type: string;
-  amount: number;
-  usdtAmount: string;
-  rate: string;
-  status: string;
-  createdAt: string;
-}
-
-function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
-  const [amount, setAmount] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
-  const { toast } = useToast();
-
+// Stripe Payment Form Component
+function StripePaymentForm({ onSuccess }: { onSuccess: () => void }) {
   const stripe = useStripe();
   const elements = useElements();
-
-  const createPaymentIntent = useMutation({
-    mutationFn: async (data: { amount: number }) => {
-      const response = await apiRequest('POST', '/api/create-payment-intent', data);
-      const result = await response.json();
-      return result.clientSecret;
-    },
-    onSuccess: (secret) => {
-      setClientSecret(secret);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create payment intent",
-        variant: "destructive",
-      });
-    },
-  });
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,10 +54,57 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
         description: "Steeze tokens purchased successfully!",
       });
       onSuccess();
-      setAmount('');
-      setClientSecret('');
     }
   };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <PaymentElement />
+      <Button 
+        type="submit" 
+        disabled={!stripe}
+        className="w-full bg-[#8000FF] hover:bg-[#6600CC]"
+      >
+        Complete Purchase
+      </Button>
+    </form>
+  );
+}
+
+interface SteezeTransaction {
+  id: string;
+  type: string;
+  amount: number;
+  usdtAmount: string;
+  rate: string;
+  status: string;
+  createdAt: string;
+}
+
+function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
+  const [amount, setAmount] = useState('');
+  const { toast } = useToast();
+
+  const purchaseMutation = useMutation({
+    mutationFn: async (data: { amount: number }) => {
+      return apiRequest('POST', '/api/steeze/purchase', data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Purchase Successful",
+        description: "Steeze tokens purchased successfully!",
+      });
+      onSuccess();
+      setAmount('');
+    },
+    onError: () => {
+      toast({
+        title: "Purchase Failed",
+        description: "Failed to purchase tokens",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handlePurchase = () => {
     const purchaseAmount = parseFloat(amount);
@@ -99,25 +116,8 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
       });
       return;
     }
-    createPaymentIntent.mutate({ amount: purchaseAmount });
+    purchaseMutation.mutate({ amount: purchaseAmount });
   };
-
-  if (clientSecret) {
-    return (
-      <Elements stripe={stripePromise} options={{ clientSecret }}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <PaymentElement />
-          <Button 
-            type="submit" 
-            disabled={!stripe}
-            className="w-full bg-[#8000FF] hover:bg-[#6600CC]"
-          >
-            Complete Purchase
-          </Button>
-        </form>
-      </Elements>
-    );
-  }
 
   return (
     <div className="space-y-4">
