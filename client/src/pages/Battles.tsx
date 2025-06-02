@@ -288,74 +288,96 @@ export default function Battles() {
     <div className="min-h-screen bg-background">
       <Navigation />
       <div className="container mx-auto px-4 py-8 pt-24">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center mb-6 gap-4">
-            <Sword className="w-12 h-12 text-primary" />
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground">
-              Battle Arena
-            </h1>
-            <Zap className="w-12 h-12 text-primary" />
+        {/* Enhanced Header */}
+        <div className="text-center mb-20 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-[3rem] blur-3xl"></div>
+          <div className="relative z-10 py-12">
+            <div className="flex items-center justify-center mb-8 gap-6">
+              <div className="relative">
+                <Sword className="w-16 h-16 text-primary animate-pulse" />
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-lg"></div>
+              </div>
+              <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                Battle Arena
+              </h1>
+              <div className="relative">
+                <Zap className="w-16 h-16 text-primary animate-pulse" />
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-lg"></div>
+              </div>
+            </div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+              Enter the ultimate proving ground where warriors stake their aura and clash for dominance
+            </p>
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Stake your aura, challenge opponents, and prove your dominance in the arena.
-          </p>
         </div>
 
-        {/* Battle Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <Card className="bg-card border-border hover:border-primary/50 transition-colors">
+        {/* Enhanced Battle Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Total Battles</p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-muted-foreground text-sm font-medium mb-2">Total Battles</p>
+                  <p className="text-4xl font-black text-foreground group-hover:text-primary transition-colors">
                     {stats.total}
                   </p>
                 </div>
-                <Sword className="w-8 h-8 text-primary" />
+                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
+                  <Sword className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border">
+          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm">Live Battles</p>
-                  <p className="text-3xl font-bold text-primary">
+                  <p className="text-muted-foreground text-sm font-medium mb-2">Live Battles</p>
+                  <p className="text-4xl font-black text-primary group-hover:scale-105 transition-transform">
                     {stats.live}
                   </p>
                 </div>
-                <Zap className="w-8 h-8 text-primary" />
+                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
+                  <Zap className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border">
+          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm">Upcoming</p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-muted-foreground text-sm font-medium mb-2">Upcoming</p>
+                  <p className="text-4xl font-black text-foreground group-hover:text-primary transition-colors">
                     {stats.upcoming}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-muted-foreground" />
+                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
+                  <Clock className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border">
+          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm">Completed</p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-muted-foreground text-sm font-medium mb-2">Completed</p>
+                  <p className="text-4xl font-black text-foreground group-hover:text-primary transition-colors">
                     {stats.completed}
                   </p>
                 </div>
-                <Trophy className="w-8 h-8 text-muted-foreground" />
+                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
+                  <Trophy className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -363,31 +385,45 @@ export default function Battles() {
 
         {/* Battle Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <TabsList className="grid w-full sm:w-auto grid-cols-4 bg-muted border border-border">
-              <TabsTrigger value="live" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Zap className="w-4 h-4 mr-2" />
-                Live
-              </TabsTrigger>
-              <TabsTrigger value="upcoming" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Clock className="w-4 h-4 mr-2" />
-                Upcoming
-              </TabsTrigger>
-              <TabsTrigger value="completed" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Trophy className="w-4 h-4 mr-2" />
-                Completed
-              </TabsTrigger>
-              <TabsTrigger value="my-battles" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Target className="w-4 h-4 mr-2" />
-                My Battles
-              </TabsTrigger>
-            </TabsList>
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div className="flex justify-center w-full lg:w-auto">
+              <TabsList className="grid grid-cols-4 bg-card/50 border border-border/50 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
+                <TabsTrigger 
+                  value="live" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Live ({stats.live})
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="upcoming" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Upcoming ({stats.upcoming})
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="completed" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
+                >
+                  <Trophy className="w-4 h-4 mr-2" />
+                  Completed ({stats.completed})
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="my-battles" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  My Battles
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 px-6 py-3 rounded-xl font-semibold"
               onClick={() => setShowCreateBattle(true)}
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-5 h-5 mr-2" />
               Create Battle
             </Button>
           </div>
