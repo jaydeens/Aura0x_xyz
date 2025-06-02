@@ -602,7 +602,7 @@ export default function Battles() {
                     value={battleDate}
                     onChange={(e) => setBattleDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
 
@@ -612,7 +612,7 @@ export default function Battles() {
                     type="time"
                     value={battleTime}
                     onChange={(e) => setBattleTime(e.target.value)}
-                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
 

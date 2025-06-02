@@ -256,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentUserId = req.user.claims.sub;
       }
 
-      const users = await storage.searchUsers(query.trim(), currentUserId);
+      const users = await storage.searchUsers(query.trim(), currentUserId || undefined);
       res.json(users);
     } catch (error) {
       console.error("Error searching users:", error);
