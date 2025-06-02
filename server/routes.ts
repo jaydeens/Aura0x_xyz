@@ -210,17 +210,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let lessons = await storage.getDailyLessons(today);
       
-      // If no lessons for today OR force refresh requested, generate new ones
-      if (lessons.length === 0 || forceRefresh) {
-        if (forceRefresh) {
-          console.log("Force refreshing daily lessons...");
-          // Delete existing lessons for today before generating new ones
-          for (const lesson of lessons) {
-            await db.delete(lessonsTable).where(eq(lessonsTable.id, lesson.id));
-          }
-        } else {
-          console.log("Generating daily lessons...");
-        }
+      // If no lessons for today, generate new ones
+      if (lessons.length === 0) {
+        console.log("Generating daily lessons...");
         
         const generatedLessons = await generateDailyLessons(1);
         
@@ -667,6 +659,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error verifying transaction:", error);
       res.status(500).json({ message: "Failed to verify transaction" });
+    }
+  });
+
+  // Generate a new lesson manually (for testing improved lesson generation)
+  app.post('/api/lessons/generate-new', async (req, res) => {
+    try {
+      console.log("Generating new improved lesson...");
+      const generatedLessons = await generateDailyLessons(1);
+      
+      for (const lessonData of generatedLessons) {
+        // Generate quiz for each lesson
+        const quiz = await generateLessonQuiz(lessonData.title, lessonData.content);
+        
+        const newLesson = await storage.createLesson({
+          title: lessonData.title,
+          content: lessonData.content,
+          keyTakeaways: lessonData.keyTakeaways,
+          difficulty: lessonData.difficulty,
+          estimatedReadTime: lessonData.estimatedReadTime,
+          auraReward: 100,
+          isActive: true,
+          quizQuestion: quiz.question,
+          quizOptions: quiz.options,
+          quizCorrectAnswer: quiz.correctAnswer,
+          quizExplanation: quiz.explanation,
+        });
+        
+        res.json(newLesson);
+        return;
+      }
+    } catch (error) {
+      console.error("Error generating new lesson:", error);
+      res.status(500).json({ message: "Failed to generate new lesson" });
     }
   });
 

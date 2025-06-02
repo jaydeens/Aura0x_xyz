@@ -15,21 +15,21 @@ export interface DailyLesson {
 
 export async function generateDailyLessons(count: number = 1): Promise<DailyLesson[]> {
   try {
-    const prompt = `Generate ${count} short, practical Web3 aura-building tip focused on specific actions someone can take today to improve their Web3 reputation. Keep it simple and actionable. Return JSON in this exact format:
+    const prompt = `Generate ${count} comprehensive Web3 aura-building lesson that teaches users practical strategies for building their reputation and credibility in the Web3 space. Return JSON in this exact format:
 
 {
   "lessons": [
     {
-      "title": "Simple, actionable tip title (e.g., 'Share Your DeFi Wins on Twitter')",
-      "content": "1-2 paragraphs with specific, actionable advice. Focus on WHAT to do and HOW to do it, not theoretical explanations. Include concrete examples.",
-      "keyTakeaways": ["specific action 1", "specific action 2", "specific action 3"],
-      "difficulty": "beginner",
-      "estimatedReadTime": 5
+      "title": "Clear, educational title about building Web3 aura/reputation",
+      "content": "3-4 detailed paragraphs that actually teach something valuable. Include:\n- Specific strategies and tactics\n- Real examples and case studies\n- Step-by-step guidance\n- Common mistakes to avoid\n- Practical tips users can implement immediately\nMake this educational content that users will genuinely learn from and want to share.",
+      "keyTakeaways": ["specific actionable insight 1", "specific actionable insight 2", "specific actionable insight 3", "specific actionable insight 4"],
+      "difficulty": "intermediate",
+      "estimatedReadTime": 15
     }
   ]
 }
 
-Focus on simple, daily actions like: posting about successful trades, sharing market insights, engaging with crypto Twitter, participating in Discord communities, documenting your learning journey, helping newcomers, sharing useful tools/resources, or building in public. Make it practical and immediately actionable.`;
+Focus on topics like: Building authentic relationships in Web3 communities, Creating valuable content that establishes expertise, Networking strategies for Web3 professionals, Building trust through consistent helpful actions, Developing thought leadership in crypto spaces, Supporting others to build your own reputation, or Long-term reputation building strategies. Make each lesson genuinely educational and valuable.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -63,17 +63,17 @@ Focus on simple, daily actions like: posting about successful trades, sharing ma
 
 export async function generateLessonAnalysis(topic: string): Promise<DailyLesson> {
   try {
-    const prompt = `Create a detailed Web3 lesson about: "${topic}". Return JSON in this exact format:
+    const prompt = `Create a comprehensive Web3 aura-building lesson about: "${topic}". Return JSON in this exact format:
 
 {
-  "title": "Specific lesson title",
-  "content": "Comprehensive lesson content (3-4 paragraphs with real examples and actionable insights)",
-  "keyTakeaways": ["key point 1", "key point 2", "key point 3", "key point 4"],
-  "difficulty": "beginner|intermediate|advanced",
-  "estimatedReadTime": 20
+  "title": "Educational title that clearly explains what the lesson teaches",
+  "content": "4-5 detailed paragraphs that provide genuine educational value. Include:\n- Clear explanations of concepts\n- Specific examples and real-world applications\n- Step-by-step strategies users can follow\n- Common pitfalls and how to avoid them\n- Concrete actions readers can take immediately\n- Why these strategies work for building Web3 reputation\nMake this content that users will actually learn from and find valuable enough to share.",
+  "keyTakeaways": ["specific actionable strategy 1", "specific actionable strategy 2", "specific actionable strategy 3", "specific actionable strategy 4"],
+  "difficulty": "intermediate",
+  "estimatedReadTime": 15
 }
 
-Make this lesson valuable for crypto KOLs who want to build their expertise and share knowledge with their audience.`;
+Focus on practical reputation-building strategies in the Web3 space. Make this educational content that teaches real skills and knowledge.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -119,7 +119,7 @@ export async function generateLessonQuiz(lessonTitle: string, lessonContent: str
       messages: [
         {
           role: "system",
-          content: "You are an expert quiz creator for Web3 aura-building lessons. Create simple multiple-choice questions about which actions build aura vs which actions reduce aura."
+          content: "You are an expert quiz creator for Web3 aura-building lessons. Create engaging multiple-choice questions that test understanding of what builds vs what reduces Web3 aura and reputation."
         },
         {
           role: "user",
@@ -128,14 +128,21 @@ export async function generateLessonQuiz(lessonTitle: string, lessonContent: str
           Title: "${lessonTitle}"
           Content: "${lessonContent}"
           
-          Create a simple multiple-choice question asking which action will INCREASE someone's Web3 aura. Include 3 aura-reducing actions and 1 aura-building action as options.
+          Create an engaging multiple-choice question about Web3 aura building. Use one of these question formats:
+          
+          1. "Which of the following actions will INCREASE your Web3 aura?"
+          2. "Which of the following behaviors will DECREASE your Web3 aura?"
+          3. "Which approach is BEST for building long-term Web3 reputation?"
+          4. "Which mistake should you AVOID when building Web3 aura?"
+          
+          Include 4 options: 3 wrong answers and 1 correct answer. Make the options realistic scenarios that Web3 users actually face.
           
           Respond in JSON format:
           {
-            "question": "Which of the following actions will INCREASE your Web3 aura?",
-            "options": ["aura-reducing action 1", "aura-reducing action 2", "CORRECT: aura-building action", "aura-reducing action 3"],
-            "correctAnswer": 2,
-            "explanation": "Brief explanation of why this action builds aura and why the others don't"
+            "question": "Your chosen question with clear wording",
+            "options": ["option 1", "option 2", "option 3", "option 4"],
+            "correctAnswer": 0,
+            "explanation": "Clear explanation of why the correct answer builds/protects aura and why the wrong options reduce aura or credibility"
           }`
         }
       ],
