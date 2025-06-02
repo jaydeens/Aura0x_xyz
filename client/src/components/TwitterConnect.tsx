@@ -16,7 +16,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const connectTwitter = async () => {
+  const connectX = async () => {
     setIsConnecting(true);
     try {
       // For now, show a message that X linking will be available soon
@@ -27,7 +27,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
       });
       setIsConnecting(false);
     } catch (error) {
-      console.error("Error connecting Twitter:", error);
+      console.error("Error connecting X:", error);
       toast({
         title: "Connection Failed",
         description: "Failed to connect X. Please try again.",
