@@ -492,32 +492,71 @@ export default function Profile() {
                     </CardContent>
                   </Card>
 
-                  {/* Account Security */}
+                  {/* Profile Settings */}
                   <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center">
-                        <Settings className="w-5 h-5 mr-2 text-[#FFD700]" />
-                        Account Security
+                        <Edit className="w-5 h-5 mr-2 text-[#FFD700]" />
+                        Profile Settings
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      {/* Profile Picture */}
+                      <div className="space-y-3">
+                        <h4 className="text-white font-medium flex items-center">
+                          <Camera className="w-4 h-4 mr-2" />
+                          Profile Picture
+                        </h4>
+                        <div className="flex items-center space-x-4">
+                          <Avatar className="w-16 h-16 border-2 border-[#8000FF]/30">
+                            <AvatarImage src={profileUser.profileImageUrl || ""} />
+                            <AvatarFallback className="bg-gradient-to-br from-[#8000FF] to-[#9933FF] text-white">
+                              {(profileUser.firstName?.[0] || profileUser.username?.[0] || "U").toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <Button variant="outline" size="sm" className="border-[#8000FF]/30 text-[#8000FF] hover:bg-[#8000FF]/10">
+                            Change Picture
+                          </Button>
+                        </div>
+                      </div>
+
+                      <Separator className="bg-[#8000FF]/20" />
+
+                      {/* Username */}
+                      <div className="space-y-3">
+                        <h4 className="text-white font-medium flex items-center">
+                          <Edit className="w-4 h-4 mr-2" />
+                          Display Name
+                        </h4>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              placeholder="Enter username"
+                              defaultValue={profileUser.username || profileUser.firstName || ""}
+                              className="w-full px-3 py-2 bg-[#0A0A0B] border border-[#8000FF]/30 rounded-lg text-white placeholder-gray-400 focus:border-[#8000FF] focus:outline-none"
+                            />
+                          </div>
+                          <Button size="sm" className="bg-[#8000FF] hover:bg-[#8000FF]/80">
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+
+                      <Separator className="bg-[#8000FF]/20" />
+
+                      {/* Account Info */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-gray-400">Account Type:</span>
                           <Badge className="bg-[#8000FF]/20 text-[#8000FF]">
-                            {profileUser.id?.startsWith('wallet_') ? 'Wallet Login' : 'Twitter Login'}
+                            {profileUser.id?.startsWith('wallet_') ? 'Wallet Login' : 'X Login'}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-gray-400">Account Created:</span>
                           <span className="text-white text-sm">
                             {new Date(profileUser.createdAt || Date.now()).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400">Last Updated:</span>
-                          <span className="text-white text-sm">
-                            {new Date(profileUser.updatedAt || Date.now()).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -528,15 +567,7 @@ export default function Profile() {
                         <h4 className="text-white font-medium">Verification Status</h4>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-400 text-sm">Email Verified:</span>
-                            {profileUser.email ? (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-yellow-500" />
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-gray-400 text-sm">Twitter Verified:</span>
+                            <span className="text-gray-400 text-sm">X Verified:</span>
                             {profileUser.twitterId ? (
                               <CheckCircle className="w-4 h-4 text-green-500" />
                             ) : (
