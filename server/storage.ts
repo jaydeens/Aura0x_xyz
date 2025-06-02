@@ -29,6 +29,11 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and, or, sql, gt, lt, gte, lte, isNotNull } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+
+// Create aliases for user table joins
+const challengerAlias = alias(users, 'challenger');
+const opponentAlias = alias(users, 'opponent');
 
 export interface IStorage {
   // User operations - mandatory for Replit Auth
@@ -243,8 +248,43 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBattle(id: string): Promise<Battle | undefined> {
-    const [battle] = await db.select().from(battles).where(eq(battles.id, id));
-    return battle;
+    const [battle] = await db
+      .select({
+        id: battles.id,
+        title: battles.title,
+        challengerId: battles.challengerId,
+        opponentId: battles.opponentId,
+        challengerStake: battles.challengerStake,
+        opponentStake: battles.opponentStake,
+        totalVotes: battles.totalVotes,
+        challengerVotes: battles.challengerVotes,
+        opponentVotes: battles.opponentVotes,
+        totalVouchAmount: battles.totalVouchAmount,
+        status: battles.status,
+        winnerId: battles.winnerId,
+        battleStartsAt: battles.battleStartsAt,
+        votingEndsAt: battles.votingEndsAt,
+        createdAt: battles.createdAt,
+        updatedAt: battles.updatedAt,
+        challenger: {
+          id: challengerAlias.id,
+          username: challengerAlias.username,
+          firstName: challengerAlias.firstName,
+          profileImageUrl: challengerAlias.profileImageUrl
+        },
+        opponent: {
+          id: opponentAlias.id,
+          username: opponentAlias.username,
+          firstName: opponentAlias.firstName,
+          profileImageUrl: opponentAlias.profileImageUrl
+        }
+      })
+      .from(battles)
+      .leftJoin(challengerAlias, eq(battles.challengerId, challengerAlias.id))
+      .leftJoin(opponentAlias, eq(battles.opponentId, opponentAlias.id))
+      .where(eq(battles.id, id));
+    
+    return battle as any;
   }
 
   async updateBattle(id: string, updates: Partial<Battle>): Promise<Battle> {
