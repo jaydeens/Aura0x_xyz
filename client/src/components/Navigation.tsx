@@ -20,6 +20,7 @@ export default function Navigation() {
   const { toast } = useToast();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const currentUser = user as any;
 
   const handleLogout = () => {
     window.location.href = "/api/logout";
@@ -83,22 +84,22 @@ export default function Navigation() {
           {/* User Section */}
           <div className="flex items-center space-x-4">
             {/* Aura Points Display */}
-            {isAuthenticated && user && (
+            {isAuthenticated && currentUser && (
               <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-primary/20">
                 <Coins className="w-4 h-4 text-warning" />
                 <span className="text-sm font-medium">
-                  {user.auraPoints?.toLocaleString() || "0"}
+                  {currentUser.auraPoints?.toLocaleString() || "0"}
                 </span>
                 <span className="text-xs text-gray-400">Aura</span>
               </div>
             )}
 
             {/* Wallet Status */}
-            {isAuthenticated && user?.walletAddress ? (
+            {isAuthenticated && currentUser?.walletAddress ? (
               <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-green-500/30">
                 <Zap className="w-4 h-4 text-green-500" />
                 <span className="text-sm font-medium text-green-500">
-                  {user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}
+                  {currentUser.walletAddress.slice(0, 6)}...{currentUser.walletAddress.slice(-4)}
                 </span>
               </div>
             ) : !isAuthenticated ? (
@@ -114,17 +115,17 @@ export default function Navigation() {
             ) : null}
 
             {/* User Menu */}
-            {isAuthenticated && user ? (
+            {isAuthenticated && currentUser ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
                       <AvatarImage
-                        src={user.profileImageUrl || ""}
-                        alt={user.firstName || user.username || "User"}
+                        src={currentUser.profileImageUrl || ""}
+                        alt={currentUser.firstName || currentUser.username || "User"}
                       />
                       <AvatarFallback className="bg-primary/20 text-primary">
-                        {(user.firstName?.[0] || user.username?.[0] || "U").toUpperCase()}
+                        {(currentUser.firstName?.[0] || currentUser.username?.[0] || "U").toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -133,14 +134,14 @@ export default function Navigation() {
                   <DropdownMenuLabel className="text-white">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium">
-                        {user.firstName || user.username || "User"}
+                        {currentUser.firstName || currentUser.username || "User"}
                       </p>
-                      <p className="text-xs text-gray-400">{user.email}</p>
+                      <p className="text-xs text-gray-400">{currentUser.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-primary/20" />
                   <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user.id}`} className="cursor-pointer">
+                    <Link href={`/profile/${currentUser.id}`} className="cursor-pointer">
                       <User className="w-4 h-4 mr-2" />
                       Profile
                     </Link>
