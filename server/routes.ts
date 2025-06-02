@@ -185,6 +185,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile update routes
+  app.post('/api/user/update-profile', async (req: any, res) => {
+    try {
+      let userId: string;
+      
+      // Get user ID from wallet session or OAuth
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { username, profileImageUrl } = req.body;
+      
+      // Validate username if provided
+      if (username) {
+        if (username.length < 3 || username.length > 20) {
+          return res.status(400).json({ message: "Username must be between 3 and 20 characters" });
+        }
+        
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          return res.status(400).json({ message: "Username can only contain letters, numbers, and underscores" });
+        }
+        
+        const isAvailable = await storage.checkUsernameAvailability(username, userId);
+        if (!isAvailable) {
+          return res.status(400).json({ message: "Username is already taken" });
+        }
+      }
+
+      const updatedUser = await storage.updateUserProfile(userId, { username, profileImageUrl });
+      
+      // Update session if using wallet auth
+      if (req.session?.user) {
+        req.session.user = updatedUser;
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  app.get('/api/user/check-username/:username', async (req: any, res) => {
+    try {
+      let userId: string | undefined;
+      
+      // Get user ID if authenticated
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+
+      const { username } = req.params;
+      const isAvailable = await storage.checkUsernameAvailability(username, userId);
+      res.json({ available: isAvailable });
+    } catch (error) {
+      console.error("Error checking username:", error);
+      res.status(500).json({ message: "Failed to check username availability" });
+    }
+  });
+
   // Lesson routes
   app.get('/api/lessons', async (req, res) => {
     try {
