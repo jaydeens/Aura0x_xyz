@@ -329,41 +329,43 @@ export default function Profile() {
                   </div>
 
                   {/* Social Connections */}
-                  <div className="flex flex-wrap gap-3 mb-4">
-                    {profileUser?.walletAddress && (
-                      <div className="flex items-center gap-2 bg-[#0A0A0B] px-3 py-1.5 rounded-lg border border-[#8000FF]/20">
-                        <Wallet className="w-4 h-4 text-[#8000FF]" />
-                        <span className="text-sm text-white font-mono">
-                          {profileUser.walletAddress.slice(0, 6)}...{profileUser.walletAddress.slice(-4)}
-                        </span>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(profileUser.walletAddress)}
-                          className="ml-1 p-1 hover:bg-[#8000FF]/10 rounded transition-colors"
-                          title="Copy wallet address"
-                        >
-                          <ExternalLink className="w-3 h-3 text-[#999]" />
-                        </button>
-                      </div>
-                    )}
-                    
-                    {profileUser?.twitterUsername && (
-                      <div className="flex items-center gap-2 bg-[#0A0A0B] px-3 py-1.5 rounded-lg border border-[#8000FF]/20">
-                        <svg className="w-4 h-4 text-[#8000FF]" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                        </svg>
-                        <span className="text-sm text-white">@{profileUser.twitterUsername}</span>
-                        <a
-                          href={`https://x.com/${profileUser.twitterUsername}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-1 p-1 hover:bg-[#8000FF]/10 rounded transition-colors"
-                          title="View X profile"
-                        >
-                          <ExternalLink className="w-3 h-3 text-[#999]" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
+                  {(profileUser?.walletAddress || profileUser?.twitterUsername) && (
+                    <div className="flex flex-wrap gap-3 mb-4">
+                      {profileUser?.walletAddress && (
+                        <div className="flex items-center gap-2 bg-[#0A0A0B] px-3 py-1.5 rounded-lg border border-[#8000FF]/20">
+                          <Wallet className="w-4 h-4 text-[#8000FF]" />
+                          <span className="text-sm text-white font-mono">
+                            {profileUser.walletAddress.slice(0, 6)}...{profileUser.walletAddress.slice(-4)}
+                          </span>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(profileUser.walletAddress)}
+                            className="ml-1 p-1 hover:bg-[#8000FF]/10 rounded transition-colors"
+                            title="Copy wallet address"
+                          >
+                            <ExternalLink className="w-3 h-3 text-[#999]" />
+                          </button>
+                        </div>
+                      )}
+                      
+                      {profileUser?.twitterUsername && (
+                        <div className="flex items-center gap-2 bg-[#0A0A0B] px-3 py-1.5 rounded-lg border border-[#8000FF]/20">
+                          <svg className="w-4 h-4 text-[#8000FF]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          </svg>
+                          <span className="text-sm text-white">@{profileUser.twitterUsername}</span>
+                          <a
+                            href={`https://x.com/${profileUser.twitterUsername}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-1 p-1 hover:bg-[#8000FF]/10 rounded transition-colors"
+                            title="View X profile"
+                          >
+                            <ExternalLink className="w-3 h-3 text-[#999]" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {viewingOwnProfile && (
                     <div className="flex items-center gap-2">
