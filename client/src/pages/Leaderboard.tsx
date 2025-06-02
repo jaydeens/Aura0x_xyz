@@ -207,23 +207,15 @@ export default function Leaderboard() {
           )}
 
           {/* Leaderboard Tabs */}
-          <Tabs defaultValue="aura" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-[#1A1A1B] border border-[#8000FF]/20">
-              <TabsTrigger value="aura" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
-                <Zap className="w-4 h-4 mr-2" />
-                By Aura
-              </TabsTrigger>
-              <TabsTrigger value="battles" className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2 bg-[#1A1A1B] border border-[#8000FF]/20">
+              <TabsTrigger value="all-time" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
                 <Trophy className="w-4 h-4 mr-2" />
-                By Battles
+                All Time
               </TabsTrigger>
-              <TabsTrigger value="streak" className="data-[state=active]:bg-[#00FF88] data-[state=active]:text-black">
-                <Crown className="w-4 h-4 mr-2" />
-                By Streak
-              </TabsTrigger>
-              <TabsTrigger value="growth" className="data-[state=active]:bg-[#9933FF] data-[state=active]:text-white">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                By Growth
+              <TabsTrigger value="weekly" className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black">
+                <Zap className="w-4 h-4 mr-2" />
+                Weekly
               </TabsTrigger>
             </TabsList>
 

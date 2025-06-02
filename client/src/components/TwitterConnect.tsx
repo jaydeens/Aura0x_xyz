@@ -76,11 +76,11 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Twitter className="h-5 w-5 text-blue-500" />
-          Connect Twitter
+          <SiX className="h-5 w-5 text-white" />
+          Connect X
         </CardTitle>
         <CardDescription>
-          Connect your Twitter account to participate in the Aura platform
+          Connect your X account to participate in the Aura platform
         </CardDescription>
       </CardHeader>
       <CardContent>
