@@ -175,8 +175,10 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(userLessons.userId, userId),
-          gt(userLessons.createdAt, startOfDay),
-          lt(userLessons.createdAt, endOfDay)
+          eq(userLessons.completed, true),
+          isNotNull(userLessons.completedAt),
+          gte(userLessons.completedAt, startOfDay),
+          lte(userLessons.completedAt, endOfDay)
         )
       );
     return userLesson;
