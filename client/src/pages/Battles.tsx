@@ -680,10 +680,10 @@ export default function Battles() {
                 </Button>
                 <Button
                   onClick={handleCreateBattle}
-                  disabled={createBattle.isPending || !selectedOpponent}
+                  disabled={!selectedOpponent}
                   className="flex-1 bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/80 hover:via-[#9933FF]/80 hover:to-[#FF3366]/80 font-bold"
                 >
-                  {createBattle.isPending ? "SENDING CHALLENGE..." : "SEND BATTLE REQUEST"}
+                  SEND BATTLE REQUEST
                 </Button>
               </div>
             </div>
