@@ -33,7 +33,7 @@ export default function Navigation() {
     { path: "/", label: "Dashboard", icon: Home },
     { path: "/battles", label: "Battles", icon: Sword },
     { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
-    { path: "/vouch", label: "Vouch", icon: Coins },
+    { path: "/steeze-stack", label: "Steeze Stack", icon: Coins },
   ];
 
   const isActive = (path: string) => {

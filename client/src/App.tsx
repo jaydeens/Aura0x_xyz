@@ -9,7 +9,7 @@ import Dashboard from "@/pages/Dashboard";
 import Battles from "@/pages/Battles";
 import Leaderboard from "@/pages/Leaderboard";
 import Profile from "@/pages/Profile";
-import Vouch from "@/pages/Vouch";
+import SteezeStack from "@/pages/SteezeStack";
 import NotFound from "@/pages/not-found";
 
 function Router() {

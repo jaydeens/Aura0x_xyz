@@ -12,6 +12,13 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import express from "express";
+import Stripe from "stripe";
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Validation schemas
 const createBattleSchema = z.object({
@@ -1116,6 +1123,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid request data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create vouch" });
+    }
+  });
+
+  // Steeze Stack API routes
+  app.post("/api/steeze/purchase", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { amount } = req.body;
+      const purchaseRate = 0.01; // 1 Steeze = 0.01 USDT
+      const usdtAmount = amount * purchaseRate;
+      
+      // Create payment intent with Stripe
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(usdtAmount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          userId: userId,
+          steezeAmount: amount.toString(),
+          type: "steeze_purchase"
+        }
+      });
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        usdtAmount,
+        steezeAmount: amount
+      });
+    } catch (error: any) {
+      console.error("Error creating Steeze purchase:", error);
+      res.status(500).json({ message: "Failed to create payment intent" });
+    }
+  });
+
+  app.post("/api/steeze/confirm-purchase", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { paymentIntentId } = req.body;
+      
+      // Verify payment with Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ message: "Payment not completed" });
+      }
+
+      const amount = parseInt(paymentIntent.metadata.steezeAmount);
+      const usdtAmount = amount * 0.01;
+
+      // Create transaction record
+      const transaction = await storage.createSteezeTransaction({
+        userId: req.user.id,
+        type: "purchase",
+        amount,
+        usdtAmount: usdtAmount.toString(),
+        rate: "0.01",
+        status: "completed"
+      });
+
+      // Update user's Steeze balance
+      const user = await storage.getUser(req.user.id);
+      const currentBalance = user?.steezeBalance || 0;
+      await storage.updateUserSteezeBalance(req.user.id, currentBalance + amount);
+
+      res.json({ transaction, newBalance: currentBalance + amount });
+    } catch (error: any) {
+      console.error("Error confirming Steeze purchase:", error);
+      res.status(500).json({ message: "Failed to confirm purchase" });
+    }
+  });
+
+  app.post("/api/steeze/redeem", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { amount } = req.body;
+      const redeemRate = 0.007; // 1 Steeze = 0.007 USDT
+      const usdtAmount = amount * redeemRate;
+      
+      // Get current user and check balance
+      const user = await storage.getUser(req.user.id);
+      const currentBalance = user?.steezeBalance || 0;
+      
+      if (currentBalance < amount) {
+        return res.status(400).json({ message: "Insufficient Steeze balance" });
+      }
+
+      // Create redeem transaction
+      const transaction = await storage.createSteezeTransaction({
+        userId: req.user.id,
+        type: "redeem",
+        amount,
+        usdtAmount: usdtAmount.toString(),
+        rate: "0.007",
+        status: "completed"
+      });
+
+      // Update user's Steeze balance
+      await storage.updateUserSteezeBalance(req.user.id, currentBalance - amount);
+
+      res.json({ 
+        transaction, 
+        newBalance: currentBalance - amount,
+        usdtReceived: usdtAmount
+      });
+    } catch (error: any) {
+      console.error("Error redeeming Steeze:", error);
+      res.status(500).json({ message: "Failed to redeem Steeze" });
+    }
+  });
+
+  app.get("/api/steeze/transactions", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const transactions = await storage.getUserSteezeTransactions(req.user.id);
+      res.json(transactions);
+    } catch (error: any) {
+      console.error("Error fetching Steeze transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
     }
   });
 
