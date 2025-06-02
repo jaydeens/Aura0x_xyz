@@ -377,18 +377,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lessonId,
         completed: true,
         tweetUrl,
-        auraEarned: 10,
+        auraEarned: 100,
         completedAt: new Date(),
       });
       
       // Update user streak and aura points
       await storage.updateUserStreak(userId, newStreak);
-      await storage.updateUserAura(userId, 10);
+      await storage.updateUserAura(userId, 100);
       
       res.json({
         lesson: completedLesson,
         newStreak,
-        auraEarned: 10,
+        auraEarned: 100,
       });
     } catch (error) {
       console.error("Error completing lesson:", error);

@@ -56,7 +56,7 @@ export const lessons = pgTable("lessons", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   keyTakeaways: jsonb("key_takeaways").notNull(),
-  auraReward: integer("aura_reward").default(10),
+  auraReward: integer("aura_reward").default(100),
   difficulty: varchar("difficulty").default("beginner"),
   estimatedReadTime: integer("estimated_read_time").default(15),
   isActive: boolean("is_active").default(true),
