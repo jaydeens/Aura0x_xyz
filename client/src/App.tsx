@@ -26,7 +26,7 @@ function Router() {
         <Route path="/arena" component={Battles} />
           <Route path="/leaderboard" component={Leaderboard} />
           <Route path="/profile/:id" component={Profile} />
-          <Route path="/vouch" component={Vouch} />
+          <Route path="/steeze-stack" component={SteezeStack} />
         </>
       )}
       <Route component={NotFound} />

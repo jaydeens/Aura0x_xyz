@@ -393,10 +393,10 @@ export default function Dashboard() {
                   <Button 
                     variant="outline" 
                     className="w-full border-[#8000FF] text-[#8000FF] hover:bg-[#8000FF] hover:text-white"
-                    onClick={() => window.location.href = "/vouch"}
+                    onClick={() => window.location.href = "/steeze-stack"}
                   >
                     <Coins className="w-4 h-4 mr-2" />
-                    Vouch for Friend
+                    Steeze Stack
                   </Button>
                   
                   <Button 
