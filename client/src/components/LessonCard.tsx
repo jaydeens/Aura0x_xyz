@@ -125,8 +125,10 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       });
       
       if (!response.ok) {
+        const errorData = await response.json();
         setIsCompleting(false);
-        throw new Error("Failed to complete lesson");
+        console.error("Lesson completion error:", errorData);
+        throw new Error(errorData.message || "Failed to complete lesson");
       }
       
       const result = await response.json();
@@ -146,17 +148,10 @@ export default function LessonCard({ lesson }: LessonCardProps) {
     },
     onError: (error: any) => {
       setIsCompleting(false);
-      let message = "Failed to complete lesson";
-      try {
-        const errorData = JSON.parse(error.message);
-        message = errorData.message || message;
-      } catch (e) {
-        // Use default message
-      }
-      
+      console.error("Complete lesson error:", error);
       toast({
         title: "Error",
-        description: message,
+        description: error.message || "Failed to complete lesson",
         variant: "destructive",
       });
     },
