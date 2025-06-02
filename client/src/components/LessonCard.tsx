@@ -285,7 +285,7 @@ Building my crypto reputation daily with strategic learning.
                 )}
 
                 {/* Quiz Section */}
-                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && (
+                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && showQuiz && (
                   <div className="bg-muted/50 border border-primary/20 rounded-lg p-4 space-y-4">
                     <h4 className="font-bold text-white flex items-center">
                       <HelpCircle className="w-4 h-4 mr-2" />
@@ -390,8 +390,8 @@ Building my crypto reputation daily with strategic learning.
                   </div>
                 )}
 
-                {/* Show button to start quiz if not started */}
-                {lesson.quizQuestion && !showQuiz && !quizCompleted && (
+                {/* Show button to start quiz if lesson has no quiz section shown yet */}
+                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && !showQuiz && (
                   <div className="text-center">
                     <Button
                       onClick={() => setShowQuiz(true)}

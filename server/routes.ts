@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { lessons as lessonsTable } from "../shared/schema";
+import { eq } from "drizzle-orm";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { generateDailyLessons, generateLessonAnalysis, generateLessonQuiz, validateTweetContent } from "./openai";
 import { web3Service } from "./web3";
@@ -220,6 +223,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         lessons = await storage.getDailyLessons(today);
       }
+      
+      // If existing lessons don't have quiz data, add it
+      for (const lesson of lessons) {
+        if (!lesson.quizQuestion) {
+          console.log(`Adding quiz to lesson: ${lesson.title}`);
+          const quiz = await generateLessonQuiz(lesson.title, lesson.content);
+          
+          await db.update(lessonsTable)
+            .set({
+              quizQuestion: quiz.question,
+              quizOptions: quiz.options,
+              quizCorrectAnswer: quiz.correctAnswer,
+              quizExplanation: quiz.explanation,
+            })
+            .where(eq(lessonsTable.id, lesson.id));
+        }
+      }
+      
+      // Refresh lessons with quiz data
+      lessons = await storage.getDailyLessons(today);
       
       // Always return only 1 lesson per day
       const dailyLesson = lessons.slice(0, 1);
