@@ -139,12 +139,19 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       setIsCompleting(false);
       toast({
         title: "Lesson Completed!",
-        description: `You earned ${data.auraEarned} aura points!`,
+        description: `You earned ${data.auraEarned} aura points! Streak: ${data.newStreak} day${data.newStreak !== 1 ? 's' : ''}`,
       });
       // Invalidate queries to refresh user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/lessons"] });
       queryClient.invalidateQueries({ queryKey: ["/api/lessons/daily"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lesson.id}/status`] });
+      
+      // Force a complete refresh of the page to ensure all data is updated
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
       setShowFullLesson(false);
     },
     onError: (error: any) => {
