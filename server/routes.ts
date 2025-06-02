@@ -906,9 +906,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Helper function to update battle statuses based on time
+  const updateBattleStatuses = async () => {
+    try {
+      const battles = await storage.getBattles();
+      const now = new Date();
+
+      for (const battle of battles) {
+        if (battle.status === 'accepted' && battle.battleStartsAt && battle.votingEndsAt) {
+          const startTime = new Date(battle.battleStartsAt);
+          const endTime = new Date(battle.votingEndsAt);
+
+          if (now >= startTime && now < endTime) {
+            // Battle should be active
+            await storage.updateBattle(battle.id, { status: 'active' });
+          } else if (now >= endTime) {
+            // Battle should be completed
+            await storage.updateBattle(battle.id, { status: 'completed' });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error updating battle statuses:", error);
+    }
+  };
+
   // Battle routes
   app.get('/api/battles', async (req, res) => {
     try {
+      // Update battle statuses before returning data
+      await updateBattleStatuses();
+      
       const status = req.query.status as string;
       const battles = await storage.getBattles(status);
       res.json(battles);
@@ -932,6 +960,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
+
+      // Update battle statuses before returning user battles
+      await updateBattleStatuses();
 
       const battles = await storage.getUserBattles(userId);
       res.json(battles);
