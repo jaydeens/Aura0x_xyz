@@ -388,7 +388,7 @@ export default function Dashboard() {
                 <CardContent className="space-y-3">
                   <Button 
                     variant="outline" 
-                    className="w-full border-[#8000FF] text-[#8000FF] hover:bg-[#8000FF] hover:text-white"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     onClick={() => window.location.href = "/steeze-stack"}
                   >
                     <Coins className="w-4 h-4 mr-2" />
@@ -397,7 +397,7 @@ export default function Dashboard() {
                   
                   <Button 
                     variant="outline" 
-                    className="w-full border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     onClick={() => window.location.href = "/leaderboard"}
                   >
                     <Trophy className="w-4 h-4 mr-2" />
@@ -406,7 +406,7 @@ export default function Dashboard() {
                   
                   <Button 
                     variant="outline" 
-                    className="w-full border-[#00FF88] text-[#00FF88] hover:bg-[#00FF88] hover:text-black"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     onClick={() => window.location.href = `/profile/${user?.id}`}
                   >
                     <Target className="w-4 h-4 mr-2" />

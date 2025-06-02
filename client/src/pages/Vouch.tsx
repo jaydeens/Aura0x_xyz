@@ -372,7 +372,7 @@ export default function Vouch() {
                 <CardContent className="space-y-3">
                   <Button 
                     variant="outline" 
-                    className="w-full border-[#8000FF] text-[#8000FF] hover:bg-[#8000FF] hover:text-white"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     onClick={() => window.location.href = "/leaderboard"}
                   >
                     <Trophy className="w-4 h-4 mr-2" />
@@ -381,7 +381,7 @@ export default function Vouch() {
                   
                   <Button 
                     variant="outline" 
-                    className="w-full border-[#9933FF] text-[#9933FF] hover:bg-[#9933FF] hover:text-white"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     onClick={() => window.location.href = "/battles"}
                   >
                     <Target className="w-4 h-4 mr-2" />
@@ -390,7 +390,7 @@ export default function Vouch() {
                   
                   <Button 
                     variant="outline" 
-                    className="w-full border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     onClick={() => window.open("https://mumbai.polygonscan.com/", "_blank")}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
