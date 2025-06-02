@@ -312,8 +312,14 @@ export default function Leaderboard() {
                     [...new Map(auraLevels.map((level: any) => [level.name, level])).values()]
                     .sort((a: any, b: any) => a.minDays - b.minDays)
                     .map((level: any) => (
-                      <div key={level.name} className="text-center p-4 rounded-lg border" 
-                           style={{ borderColor: `${level.color}40`, backgroundColor: `${level.color}10` }}>
+                      <div key={level.name} className={cn(
+                        "text-center p-4 rounded-lg border",
+                        level.name === 'Clout Chaser' && 'border-[#9CA3AF]/40 bg-[#9CA3AF]/10',
+                        level.name === 'Attention Seeker' && 'border-[#F97316]/40 bg-[#F97316]/10',
+                        level.name === 'Dedicated' && 'border-[#34D399]/40 bg-[#34D399]/10',
+                        level.name === 'Grinder' && 'border-[#3B82F6]/40 bg-[#3B82F6]/10',
+                        level.name === 'Aura Vader' && 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10'
+                      )}>
                         <div className={cn(
                           "w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center",
                           level.name === 'Clout Chaser' && 'bg-[#9CA3AF]/20',
