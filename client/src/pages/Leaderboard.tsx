@@ -30,8 +30,11 @@ export default function Leaderboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  const [selectedTab, setSelectedTab] = useState("all-time");
+
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery({
-    queryKey: ["/api/leaderboard"],
+    queryKey: ["/api/leaderboard", selectedTab],
+    queryFn: () => fetch(`/api/leaderboard?type=${selectedTab}`).then(res => res.json()),
     retry: false,
   });
 

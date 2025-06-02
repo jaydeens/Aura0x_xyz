@@ -250,11 +250,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Leaderboard operations
-  async getLeaderboard(limit = 100): Promise<User[]> {
+  async getLeaderboard(limit = 100, type: 'weekly' | 'all-time' = 'all-time'): Promise<User[]> {
+    if (type === 'weekly') {
+      // For weekly leaderboard, get users updated in the last 7 days
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      
+      return await db
+        .select()
+        .from(users)
+        .where(gte(users.updatedAt, oneWeekAgo))
+        .orderBy(desc(users.auraPoints), desc(users.currentStreak))
+        .limit(limit);
+    }
+    
     return await db
       .select()
       .from(users)
-      .orderBy(desc(users.auraPoints), desc(users.totalBattlesWon))
+      .orderBy(desc(users.auraPoints), desc(users.currentStreak))
       .limit(limit);
   }
 
