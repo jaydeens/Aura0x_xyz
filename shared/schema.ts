@@ -260,3 +260,6 @@ export type InsertVouch = z.infer<typeof insertVouchSchema>;
 export type Vouch = typeof vouches.$inferSelect;
 export type InsertAuraLevel = z.infer<typeof insertAuraLevelSchema>;
 export type AuraLevel = typeof auraLevels.$inferSelect;
+
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Notification = typeof notifications.$inferSelect;

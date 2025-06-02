@@ -38,6 +38,12 @@ export interface IStorage {
   getBattleRequests(userId: string): Promise<any[]>;
   updateBattleRequest(id: string, status: string): Promise<any>;
   
+  // Notification operations
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getUserNotifications(userId: string): Promise<Notification[]>;
+  markNotificationAsRead(id: string): Promise<void>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+  
   // Lesson operations
   createLesson(lesson: InsertLesson): Promise<Lesson>;
   getLessons(limit?: number): Promise<Lesson[]>;
@@ -435,6 +441,38 @@ export class DatabaseStorage implements IStorage {
   async updateBattleRequest(id: string, status: string): Promise<any> {
     // Placeholder - implement when needed
     return {};
+  }
+
+  // Notification operations
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [newNotification] = await db
+      .insert(notifications)
+      .values(notification)
+      .returning();
+    return newNotification;
+  }
+
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    return await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(50);
+  }
+
+  async markNotificationAsRead(id: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.id, id));
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.userId, userId));
   }
 }
 
