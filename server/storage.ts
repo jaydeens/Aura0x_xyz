@@ -206,10 +206,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBattles(status?: string): Promise<Battle[]> {
-    const query = db.select().from(battles);
+    let query = db.select().from(battles);
     
     if (status) {
-      return await query.where(eq(battles.status, status)).orderBy(desc(battles.createdAt));
+      query = query.where(eq(battles.status, status));
+    } else {
+      // Only show accepted and active battles by default, not pending challenges
+      query = query.where(sql`${battles.status} IN ('accepted', 'active', 'completed')`);
     }
     
     return await query.orderBy(desc(battles.createdAt));
