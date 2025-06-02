@@ -230,6 +230,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Submit quiz answer
+  app.post('/api/lessons/:id/quiz', isAuthenticated, async (req: any, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      const { answer } = req.body;
+
+      const lessons = await storage.getLessons();
+      const lesson = lessons.find(l => l.id === lessonId);
+      
+      if (!lesson || lesson.quizCorrectAnswer === null) {
+        return res.status(404).json({ message: "Lesson or quiz not found" });
+      }
+
+      const isCorrect = answer === lesson.quizCorrectAnswer;
+      
+      if (!isCorrect) {
+        return res.status(400).json({ 
+          correct: false,
+          message: "Incorrect answer. Try again!", 
+          explanation: lesson.quizExplanation 
+        });
+      }
+
+      // Mark quiz as completed
+      const existingUserLessons = await storage.getUserLessons(userId);
+      const existingUserLesson = existingUserLessons.find(ul => ul.lessonId === lessonId);
+
+      if (existingUserLesson) {
+        // Update quiz completion status
+        await storage.completeLesson({
+          ...existingUserLesson,
+          quizCompleted: true,
+          quizScore: 1
+        });
+      } else {
+        // Create new record
+        await storage.completeLesson({
+          userId,
+          lessonId,
+          quizCompleted: true,
+          quizScore: 1,
+          completed: false,
+          auraEarned: 0
+        });
+      }
+
+      res.json({ 
+        correct: true, 
+        explanation: lesson.quizExplanation,
+        message: "Quiz completed! You can now share your completion on X." 
+      });
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
+      res.status(500).json({ message: "Failed to submit quiz" });
+    }
+  });
+
   app.post('/api/lessons/complete', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

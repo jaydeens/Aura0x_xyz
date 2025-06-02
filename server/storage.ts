@@ -108,6 +108,15 @@ export class DatabaseStorage implements IStorage {
     return newLesson;
   }
 
+  async updateUserLesson(id: number, updates: Partial<UserLesson>): Promise<UserLesson> {
+    const [updatedLesson] = await db
+      .update(userLessons)
+      .set(updates)
+      .where(eq(userLessons.id, id))
+      .returning();
+    return updatedLesson;
+  }
+
   async getLessons(limit = 10): Promise<Lesson[]> {
     return await db
       .select()

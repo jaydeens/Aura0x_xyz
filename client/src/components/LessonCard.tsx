@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { 
   Dialog, 
   DialogContent, 
@@ -15,7 +17,8 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { Zap, Clock, BookOpen, Twitter, ExternalLink, CheckCircle } from "lucide-react";
+import { Zap, Clock, BookOpen, X, ExternalLink, CheckCircle, HelpCircle } from "lucide-react";
+// Using X icon instead of logo for now
 
 interface Lesson {
   id: number;
@@ -26,6 +29,10 @@ interface Lesson {
   difficulty: string;
   estimatedReadTime: number;
   isActive: boolean;
+  quizQuestion?: string;
+  quizOptions?: string[];
+  quizCorrectAnswer?: number;
+  quizExplanation?: string;
   createdAt: string;
 }
 
@@ -37,8 +44,36 @@ export default function LessonCard({ lesson }: LessonCardProps) {
   const [tweetUrl, setTweetUrl] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
   const [showFullLesson, setShowFullLesson] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizAnswer, setQuizAnswer] = useState("");
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizFeedback, setQuizFeedback] = useState<{correct: boolean; explanation: string} | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const submitQuizMutation = useMutation({
+    mutationFn: async (data: { lessonId: number; answer: number }) => {
+      return await apiRequest("POST", `/api/lessons/${data.lessonId}/quiz`, { answer: data.answer });
+    },
+    onSuccess: (data) => {
+      if (data.correct) {
+        setQuizCompleted(true);
+        setQuizFeedback({ correct: true, explanation: data.explanation });
+        toast({
+          title: "Quiz Completed!",
+          description: data.message,
+        });
+      }
+    },
+    onError: (error) => {
+      setQuizFeedback({ correct: false, explanation: error.message });
+      toast({
+        title: "Incorrect Answer",
+        description: "Try again! Review the lesson content.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const completeLessonMutation = useMutation({
     mutationFn: async (data: { lessonId: number; tweetUrl: string }) => {
@@ -54,6 +89,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       setIsCompleting(false);
       setTweetUrl("");
+      setShowFullLesson(false);
     },
     onError: (error) => {
       toast({
@@ -65,11 +101,36 @@ export default function LessonCard({ lesson }: LessonCardProps) {
     },
   });
 
+  const handleSubmitQuiz = () => {
+    if (!quizAnswer) {
+      toast({
+        title: "Select an Answer",
+        description: "Please choose an option before submitting",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    submitQuizMutation.mutate({
+      lessonId: lesson.id,
+      answer: parseInt(quizAnswer),
+    });
+  };
+
   const handleCompleteLesson = async () => {
+    if (!quizCompleted) {
+      toast({
+        title: "Complete Quiz First",
+        description: "You need to complete the quiz before sharing on X",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!tweetUrl.trim()) {
       toast({
-        title: "Tweet URL Required",
-        description: "Please provide a valid tweet URL to complete the lesson",
+        title: "X Post URL Required",
+        description: "Please provide a valid X post URL to complete the lesson",
         variant: "destructive",
       });
       return;
@@ -77,8 +138,8 @@ export default function LessonCard({ lesson }: LessonCardProps) {
 
     if (!tweetUrl.includes("twitter.com") && !tweetUrl.includes("x.com")) {
       toast({
-        title: "Invalid Tweet URL",
-        description: "Please provide a valid Twitter/X URL",
+        title: "Invalid X Post URL",
+        description: "Please provide a valid X (formerly Twitter) URL",
         variant: "destructive",
       });
       return;
@@ -91,8 +152,12 @@ export default function LessonCard({ lesson }: LessonCardProps) {
     });
   };
 
-  const generateTweetText = () => {
-    const text = `I just completed "${lesson.title}" on @AuraPlatform 💜 Building my crypto knowledge daily! #AuraCertified #Web3Learning #CryptoEducation`;
+  const generateXPostText = () => {
+    const text = `I just mastered "${lesson.title}" and boosted my Web3 aura! 💜 
+
+Building my crypto reputation daily with strategic learning.
+
+#AuraCertified #Web3Aura #CryptoLearning #DeFiEducation`;
     const encodedText = encodeURIComponent(text);
     return `https://twitter.com/intent/tweet?text=${encodedText}`;
   };
@@ -146,7 +211,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           
           {lesson.keyTakeaways && lesson.keyTakeaways.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-accent mb-2">Key Takeaways:</h4>
+              <h4 className="text-sm font-semibold text-accent mb-2">Key Aura-Building Strategies:</h4>
               <ul className="space-y-1">
                 {lesson.keyTakeaways.slice(0, 2).map((takeaway, index) => (
                   <li key={index} className="text-xs text-gray-400 flex items-start">
@@ -156,7 +221,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                 ))}
                 {lesson.keyTakeaways.length > 2 && (
                   <li className="text-xs text-gray-500">
-                    +{lesson.keyTakeaways.length - 2} more takeaways
+                    +{lesson.keyTakeaways.length - 2} more strategies
                   </li>
                 )}
               </ul>
@@ -206,7 +271,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                     <h4 className="font-bold mb-3 text-accent flex items-center">
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      Key Takeaways:
+                      Key Aura-Building Strategies:
                     </h4>
                     <ul className="space-y-2">
                       {lesson.keyTakeaways.map((takeaway, index) => (
@@ -219,51 +284,124 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   </div>
                 )}
 
-                {/* Complete Lesson Section */}
-                <div className="bg-muted/50 border border-primary/20 rounded-lg p-4 space-y-4">
-                  <h4 className="font-bold text-white">Complete This Lesson</h4>
-                  
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-400">
-                      1. First, tweet about completing this lesson to earn your certification:
-                    </p>
+                {/* Quiz Section */}
+                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && (
+                  <div className="bg-muted/50 border border-primary/20 rounded-lg p-4 space-y-4">
+                    <h4 className="font-bold text-white flex items-center">
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Knowledge Check
+                    </h4>
                     
-                    <Button
-                      className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                      onClick={() => window.open(generateTweetText(), "_blank")}
-                    >
-                      <Twitter className="w-4 h-4 mr-2" />
-                      Tweet Certification
-                    </Button>
-                    
-                    <p className="text-sm text-gray-400">
-                      2. Then paste your tweet URL here to complete the lesson:
-                    </p>
-                    
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="https://twitter.com/username/status/..."
-                        value={tweetUrl}
-                        onChange={(e) => setTweetUrl(e.target.value)}
-                        className="flex-1 bg-background border-primary/30 focus:border-primary"
-                      />
+                    <div className="space-y-4">
+                      <p className="text-gray-300">{lesson.quizQuestion}</p>
+                      
+                      <RadioGroup value={quizAnswer} onValueChange={setQuizAnswer}>
+                        {lesson.quizOptions.map((option, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <RadioGroupItem 
+                              value={index.toString()} 
+                              id={`option-${index}`}
+                              className="border-primary data-[state=checked]:bg-primary"
+                            />
+                            <Label 
+                              htmlFor={`option-${index}`} 
+                              className="text-gray-300 cursor-pointer"
+                            >
+                              {option}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+
+                      {quizFeedback && (
+                        <div className={`p-3 rounded-lg ${quizFeedback.correct ? 'bg-green-500/20 border border-green-500/40' : 'bg-red-500/20 border border-red-500/40'}`}>
+                          <p className={`text-sm ${quizFeedback.correct ? 'text-green-400' : 'text-red-400'}`}>
+                            {quizFeedback.explanation}
+                          </p>
+                        </div>
+                      )}
+
                       <Button
-                        onClick={handleCompleteLesson}
-                        disabled={!tweetUrl.trim() || isCompleting}
-                        className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
+                        onClick={handleSubmitQuiz}
+                        disabled={!quizAnswer || submitQuizMutation.isPending}
+                        className="w-full bg-primary hover:bg-primary/80"
                       >
-                        {isCompleting ? (
+                        {submitQuizMutation.isPending ? (
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         ) : (
                           <>
                             <CheckCircle className="w-4 h-4 mr-2" />
-                            Complete
+                            Submit Answer
                           </>
                         )}
                       </Button>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* Quiz Completed - Show X Sharing */}
+                {quizCompleted && (
+                  <div className="bg-muted/50 border border-primary/20 rounded-lg p-4 space-y-4">
+                    <h4 className="font-bold text-white flex items-center">
+                      <X className="w-4 h-4 mr-2" />
+                      Share Your Achievement on X
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-400">
+                        1. Share your Web3 aura progress on X to complete this lesson:
+                      </p>
+                      
+                      <Button
+                        className="w-full bg-black hover:bg-gray-800 text-white border border-gray-600"
+                        onClick={() => window.open(generateXPostText(), "_blank")}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Post on X
+                      </Button>
+                      
+                      <p className="text-sm text-gray-400">
+                        2. Paste your X post URL here to earn your aura points:
+                      </p>
+                      
+                      <div className="flex space-x-2">
+                        <Input
+                          placeholder="https://x.com/username/status/... or https://twitter.com/username/status/..."
+                          value={tweetUrl}
+                          onChange={(e) => setTweetUrl(e.target.value)}
+                          className="flex-1 bg-background border-primary/30 focus:border-primary"
+                        />
+                        <Button
+                          onClick={handleCompleteLesson}
+                          disabled={!tweetUrl.trim() || isCompleting}
+                          className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
+                        >
+                          {isCompleting ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Complete
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Show button to start quiz if not started */}
+                {lesson.quizQuestion && !showQuiz && !quizCompleted && (
+                  <div className="text-center">
+                    <Button
+                      onClick={() => setShowQuiz(true)}
+                      className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Take Knowledge Check
+                    </Button>
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -273,7 +411,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
             onClick={() => setShowFullLesson(true)}
           >
             <Zap className="w-4 h-4 mr-2" />
-            Start Learning
+            Build Aura
           </Button>
         </div>
       </CardContent>
