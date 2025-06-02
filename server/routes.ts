@@ -755,14 +755,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's battles
-  app.get('/api/battles/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/battles/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const battles = await storage.getUserBattles(userId);
       res.json(battles);
     } catch (error) {
       console.error("Error fetching user battles:", error);
-      res.status(500).json({ message: "Failed to fetch battle" });
+      res.status(500).json({ message: "Failed to fetch user battles" });
     }
   });
 
