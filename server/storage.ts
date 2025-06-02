@@ -23,6 +23,9 @@ import {
   type AuraLevel,
   type Notification,
   type InsertNotification,
+  auraHistory,
+  type AuraHistory,
+  type InsertAuraHistory,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and, or, sql, gt, lt, gte, lte, isNotNull } from "drizzle-orm";
