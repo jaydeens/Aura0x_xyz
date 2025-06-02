@@ -164,11 +164,16 @@ export default function Profile() {
   // Profile update mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: { username?: string; profileImageUrl?: string }) => {
-      return await apiRequest("/api/user/update-profile", {
+      const response = await fetch("/api/user/update-profile", {
         method: "POST",
         body: JSON.stringify(updates),
         headers: { "Content-Type": "application/json" },
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update profile");
+      }
+      return await response.json();
     },
     onSuccess: (updatedUser) => {
       toast({
