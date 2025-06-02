@@ -322,9 +322,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/lessons/complete', isAuthenticated, async (req: any, res) => {
+  app.post('/api/lessons/complete', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Check for wallet authentication in session (like other endpoints)
+      let userId;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
+        return res.status(401).json({ message: "Please log in to complete the lesson" });
+      }
+      
       const { lessonId, tweetUrl } = completeLessonSchema.parse(req.body);
       
       // Check if user already completed a lesson today
