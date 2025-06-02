@@ -309,8 +309,9 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               </AvatarFallback>
             </Avatar>
             <h4 className="font-bold text-white truncate">
-              {battle.challenger?.firstName || `User ${battle.challengerId.slice(0, 6)}`}
+              {battle.challenger?.firstName || battle.challenger?.username || `User ${battle.challengerId.slice(0, 6)}`}
             </h4>
+            <p className="text-xs text-primary font-medium">Challenger</p>
             <p className="text-sm text-gray-400">
               {battle.challenger?.auraPoints?.toLocaleString() || "0"} Aura
             </p>
@@ -357,8 +358,9 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               </AvatarFallback>
             </Avatar>
             <h4 className="font-bold text-white truncate">
-              {battle.opponent?.firstName || `User ${battle.opponentId.slice(0, 6)}`}
+              {battle.opponent?.firstName || battle.opponent?.username || `User ${battle.opponentId.slice(0, 6)}`}
             </h4>
+            <p className="text-xs text-accent font-medium">Opponent</p>
             <p className="text-sm text-gray-400">
               {battle.opponent?.auraPoints?.toLocaleString() || "0"} Aura
             </p>
