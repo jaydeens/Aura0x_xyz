@@ -133,9 +133,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   const handleAcceptChallenge = async () => {
     setIsAccepting(true);
     try {
-      await apiRequest(`/api/battles/${battle.id}/accept`, {
-        method: "POST",
-      });
+      await apiRequest("POST", `/api/battles/${battle.id}/accept`);
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
       toast({
@@ -156,9 +154,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   const handleRejectChallenge = async () => {
     setIsRejecting(true);
     try {
-      await apiRequest(`/api/battles/${battle.id}/reject`, {
-        method: "POST",
-      });
+      await apiRequest("POST", `/api/battles/${battle.id}/reject`);
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
       toast({
@@ -179,9 +175,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   const handleWithdrawChallenge = async () => {
     setIsWithdrawing(true);
     try {
-      await apiRequest(`/api/battles/${battle.id}/withdraw`, {
-        method: "POST",
-      });
+      await apiRequest("POST", `/api/battles/${battle.id}/withdraw`);
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
       toast({
@@ -202,9 +196,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   const handleRequestCancellation = async () => {
     setIsRequestingCancellation(true);
     try {
-      await apiRequest(`/api/battles/${battle.id}/request-cancellation`, {
-        method: "POST",
-      });
+      await apiRequest("POST", `/api/battles/${battle.id}/request-cancellation`);
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
       toast({
@@ -225,9 +217,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   const handleApproveCancellation = async () => {
     setIsApprovingCancellation(true);
     try {
-      await apiRequest(`/api/battles/${battle.id}/approve-cancellation`, {
-        method: "POST",
-      });
+      await apiRequest("POST", `/api/battles/${battle.id}/approve-cancellation`);
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
       toast({
