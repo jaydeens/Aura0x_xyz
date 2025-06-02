@@ -52,11 +52,10 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center space-x-2 cursor-pointer">
+            <div className="flex items-center cursor-pointer">
               <div className="h-10 flex items-center justify-center">
                 <img src="/logo.png" alt="Aura Logo" className="h-8" />
               </div>
-              <span className="text-2xl font-bold gradient-text">Aura</span>
             </div>
           </Link>
 
