@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,6 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { Zap, Clock, BookOpen, X, ExternalLink, CheckCircle, HelpCircle } from "lucide-react";
-// Using X icon instead of logo for now
 
 interface Lesson {
   id: number;
@@ -47,15 +46,21 @@ interface LessonStatus {
 }
 
 export default function LessonCard({ lesson }: LessonCardProps) {
-  const [tweetUrl, setTweetUrl] = useState("");
-  const [isCompleting, setIsCompleting] = useState(false);
   const [showFullLesson, setShowFullLesson] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [quizAnswer, setQuizAnswer] = useState("");
+  const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [tweetUrl, setTweetUrl] = useState("");
   const [quizFeedback, setQuizFeedback] = useState<{correct: boolean; explanation: string} | null>(null);
+  const [isCompleting, setIsCompleting] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check if lesson is already completed today
+  const { data: lessonStatus } = useQuery({
+    queryKey: [`/api/lessons/${lesson.id}/status`],
+    enabled: showFullLesson, // Only check when user opens the lesson
+  }) as { data: LessonStatus | undefined };
 
   const submitQuizMutation = useMutation({
     mutationFn: async (data: { lessonId: number; answer: number }) => {
@@ -97,57 +102,69 @@ export default function LessonCard({ lesson }: LessonCardProps) {
     },
     onError: (error: any) => {
       console.log("Quiz error:", error); // Debug log
-      // Handle 400 errors (incorrect answers) differently from other errors
-      if (error.message.includes('400:')) {
-        const errorData = JSON.parse(error.message.split('400: ')[1]);
-        setQuizFeedback({ correct: false, explanation: errorData.explanation || errorData.message });
-        toast({
-          title: "Incorrect Answer",
-          description: errorData.message || "Try again! Review the lesson content.",
-          variant: "destructive",
-        });
-      } else {
-        setQuizFeedback({ correct: false, explanation: error.message });
-        toast({
-          title: "Error",
-          description: "Something went wrong. Please try again.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Quiz Error",
+        description: "Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
-  const completeLessonMutation = useMutation({
+  const completeLesson = useMutation({
     mutationFn: async (data: { lessonId: number; tweetUrl: string }) => {
-      return await apiRequest("POST", "/api/lessons/complete", data);
+      setIsCompleting(true);
+      const response = await fetch("/api/lessons/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        setIsCompleting(false);
+        throw new Error("Failed to complete lesson");
+      }
+      
+      const result = await response.json();
+      setIsCompleting(false);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setIsCompleting(false);
       toast({
         title: "Lesson Completed!",
-        description: `You earned ${lesson.auraReward} Aura Points and extended your streak!`,
-        variant: "default",
+        description: `You earned ${data.auraEarned} aura points!`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/lessons/daily"] });
+      // Invalidate queries to refresh user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setIsCompleting(false);
-      setTweetUrl("");
+      queryClient.invalidateQueries({ queryKey: ["/api/lessons"] });
       setShowFullLesson(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      setIsCompleting(false);
+      let message = "Failed to complete lesson";
+      try {
+        const errorData = JSON.parse(error.message);
+        message = errorData.message || message;
+      } catch (e) {
+        // Use default message
+      }
+      
       toast({
-        title: "Failed to Complete Lesson",
-        description: error.message || "Please try again",
+        title: "Error",
+        description: message,
         variant: "destructive",
       });
-      setIsCompleting(false);
     },
   });
 
   const handleSubmitQuiz = () => {
-    if (!quizAnswer) {
+    if (quizAnswer === null || quizAnswer === undefined) {
       toast({
-        title: "Select an Answer",
-        description: "Please choose an option before submitting",
+        title: "Please select an answer",
+        description: "Choose one of the options before submitting.",
         variant: "destructive",
       });
       return;
@@ -155,293 +172,126 @@ export default function LessonCard({ lesson }: LessonCardProps) {
 
     submitQuizMutation.mutate({
       lessonId: lesson.id,
-      answer: parseInt(quizAnswer),
+      answer: Number(quizAnswer),
     });
   };
 
-  const handleCompleteLesson = async () => {
-    if (!quizCompleted) {
-      toast({
-        title: "Complete Quiz First",
-        description: "You need to complete the quiz before sharing on X",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleCompleteLesson = () => {
     if (!tweetUrl.trim()) {
       toast({
-        title: "X Post URL Required",
-        description: "Please provide a valid X post URL to complete the lesson",
+        title: "Tweet URL Required",
+        description: "Please paste the URL of your tweet to complete the lesson.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!tweetUrl.includes("twitter.com") && !tweetUrl.includes("x.com")) {
-      toast({
-        title: "Invalid X Post URL",
-        description: "Please provide a valid X (formerly Twitter) URL",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsCompleting(true);
-    completeLessonMutation.mutate({
+    completeLesson.mutate({
       lessonId: lesson.id,
       tweetUrl: tweetUrl.trim(),
     });
   };
 
-  const generateXPostText = () => {
-    const text = `I just mastered "${lesson.title}" and boosted my Web3 aura! 💜 
-
-Building my crypto reputation daily with strategic learning.
-
-#AuraCertified #Web3Aura #CryptoLearning #DeFiEducation`;
-    const encodedText = encodeURIComponent(text);
-    return `https://twitter.com/intent/tweet?text=${encodedText}`;
+  const copyTweetText = () => {
+    const tweetText = `Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`;
+    navigator.clipboard.writeText(tweetText);
+    toast({
+      title: "Copied!",
+      description: "Tweet text copied to clipboard.",
+    });
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case "beginner":
-        return "bg-green-500/20 text-green-400 border-green-500/40";
-      case "intermediate":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/40";
-      case "advanced":
-        return "bg-red-500/20 text-red-400 border-red-500/40";
+      case 'beginner':
+        return 'bg-green-500/20 text-green-400 border-green-500/40';
+      case 'intermediate':
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40';
+      case 'advanced':
+        return 'bg-red-500/20 text-red-400 border-red-500/40';
       default:
-        return "bg-primary/20 text-primary border-primary/40";
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/40';
     }
   };
 
   return (
-    <Card className="bg-card border-primary/20 hover:border-primary/40 transition-all duration-300 card-hover">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-bold text-white mb-2">
+    <Card className="bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50 hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-bold text-white mb-2 leading-tight">
               {lesson.title}
             </CardTitle>
-            <div className="flex items-center space-x-3 text-sm text-gray-400">
-              <div className="flex items-center">
-                <Clock className="w-4 h-4 mr-1" />
-                {lesson.estimatedReadTime} min read
+            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>{lesson.estimatedReadTime} min read</span>
               </div>
-              <Badge variant="outline" className={getDifficultyColor(lesson.difficulty)}>
+              <Badge variant="outline" className={`text-xs ${getDifficultyColor(lesson.difficulty)}`}>
                 {lesson.difficulty}
               </Badge>
             </div>
           </div>
-          <div className="flex items-center space-x-2 ml-4">
-            <Zap className="w-4 h-4 text-warning" />
-            <span className="text-sm font-medium text-warning">
-              {lesson.auraReward} Aura
-            </span>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="flex items-center gap-1 text-accent font-semibold">
+              <Zap className="w-4 h-4" />
+              <span>+{lesson.auraReward}</span>
+            </div>
           </div>
         </div>
       </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* Lesson Preview */}
-        <div className="space-y-3">
-          <p className="text-gray-300 text-sm line-clamp-3">
-            {lesson.content.substring(0, 200)}...
+      <CardContent className="pt-0">
+        <div className="space-y-4">
+          <p className="text-slate-300 text-sm leading-relaxed line-clamp-3">
+            {lesson.content.slice(0, 150)}...
           </p>
           
-          {lesson.keyTakeaways && lesson.keyTakeaways.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-accent mb-2">Key Aura-Building Strategies:</h4>
-              <ul className="space-y-1">
-                {lesson.keyTakeaways.slice(0, 2).map((takeaway, index) => (
-                  <li key={index} className="text-xs text-gray-400 flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    {takeaway}
-                  </li>
-                ))}
-                {lesson.keyTakeaways.length > 2 && (
-                  <li className="text-xs text-gray-500">
-                    +{lesson.keyTakeaways.length - 2} more strategies
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        <Separator className="bg-primary/20" />
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
           <Dialog open={showFullLesson} onOpenChange={setShowFullLesson}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1 border-primary/40 text-primary hover:bg-primary hover:text-white">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Read Full Lesson
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-card border-primary/20">
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-white">
+                <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-primary" />
                   {lesson.title}
                 </DialogTitle>
-                <DialogDescription className="flex items-center space-x-4 text-gray-400">
-                  <div className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {lesson.estimatedReadTime} min read
+                <div className="flex items-center gap-4 text-sm text-slate-400">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{lesson.estimatedReadTime} min read</span>
                   </div>
-                  <Badge variant="outline" className={getDifficultyColor(lesson.difficulty)}>
+                  <Badge variant="outline" className={`text-xs ${getDifficultyColor(lesson.difficulty)}`}>
                     {lesson.difficulty}
                   </Badge>
-                  <div className="flex items-center">
-                    <Zap className="w-4 h-4 mr-1 text-warning" />
-                    <span className="text-warning">{lesson.auraReward} Aura</span>
+                  <div className="flex items-center gap-1 text-accent font-semibold">
+                    <Zap className="w-4 h-4" />
+                    <span>+{lesson.auraReward} Aura Points</span>
                   </div>
-                </DialogDescription>
+                </div>
               </DialogHeader>
               
               <div className="space-y-6 mt-6">
                 <div className="prose prose-invert max-w-none">
-                  <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  <div className="text-slate-300 leading-relaxed whitespace-pre-line">
                     {lesson.content}
                   </div>
                 </div>
 
-                {lesson.keyTakeaways && lesson.keyTakeaways.length > 0 && (
-                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                    <h4 className="font-bold mb-3 text-accent flex items-center">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Key Aura-Building Strategies:
-                    </h4>
-                    <ul className="space-y-2">
-                      {lesson.keyTakeaways.map((takeaway, index) => (
-                        <li key={index} className="text-sm text-gray-300 flex items-start">
-                          <span className="text-primary mr-2 font-bold">•</span>
-                          {takeaway}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {/* Key Takeaways */}
+                <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-4">
+                  <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-accent" />
+                    Key Takeaways
+                  </h3>
+                  <ul className="space-y-2">
+                    {lesson.keyTakeaways.map((takeaway, index) => (
+                      <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
+                        <span className="text-accent font-bold mt-0.5">•</span>
+                        <span>{takeaway}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-                {/* Quiz Section */}
-                {lesson.quizQuestion && lesson.quizOptions && !quizCompleted && showQuiz && (
-                  <div className="bg-muted/50 border border-primary/20 rounded-lg p-4 space-y-4">
-                    <h4 className="font-bold text-white flex items-center">
-                      <HelpCircle className="w-4 h-4 mr-2" />
-                      Knowledge Check
-                    </h4>
-                    
-                    <div className="space-y-4">
-                      <p className="text-gray-300">{lesson.quizQuestion}</p>
-                      
-                      <RadioGroup value={quizAnswer} onValueChange={setQuizAnswer}>
-                        {lesson.quizOptions.map((option, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <RadioGroupItem 
-                              value={index.toString()} 
-                              id={`option-${index}`}
-                              className="border-primary data-[state=checked]:bg-primary"
-                            />
-                            <Label 
-                              htmlFor={`option-${index}`} 
-                              className="text-gray-300 cursor-pointer"
-                            >
-                              {option}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-
-                      {quizFeedback && !quizFeedback.correct && (
-                        <div className="bg-red-500/20 border border-red-500/40 rounded-lg p-4 space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                              <X className="w-3 h-3 text-white" />
-                            </div>
-                            <h4 className="font-semibold text-red-400">Incorrect Answer</h4>
-                          </div>
-                          <p className="text-sm text-red-300">
-                            {quizFeedback.explanation}
-                          </p>
-                          <div className="bg-red-500/10 border border-red-500/30 rounded p-2">
-                            <p className="text-xs text-red-200">
-                              💡 Tip: Review the lesson content above and try again. The correct answer demonstrates deep Web3 knowledge.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      <Button
-                        onClick={handleSubmitQuiz}
-                        disabled={!quizAnswer || submitQuizMutation.isPending}
-                        className="w-full bg-primary hover:bg-primary/80"
-                      >
-                        {submitQuizMutation.isPending ? (
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Submit Answer
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Quiz Completed - Show X Sharing */}
-                {quizCompleted && (
-                  <div className="bg-muted/50 border border-primary/20 rounded-lg p-4 space-y-4">
-                    <h4 className="font-bold text-white flex items-center">
-                      <X className="w-4 h-4 mr-2" />
-                      Share Your Achievement on X
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <p className="text-sm text-gray-400">
-                        1. Share your Web3 aura progress on X to complete this lesson:
-                      </p>
-                      
-                      <Button
-                        className="w-full bg-black hover:bg-gray-800 text-white border border-gray-600"
-                        onClick={() => window.open(generateXPostText(), "_blank")}
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Post on X
-                      </Button>
-                      
-                      <p className="text-sm text-gray-400">
-                        2. Paste your X post URL here to earn your aura points:
-                      </p>
-                      
-                      <div className="flex space-x-2">
-                        <Input
-                          placeholder="https://x.com/username/status/... or https://twitter.com/username/status/..."
-                          value={tweetUrl}
-                          onChange={(e) => setTweetUrl(e.target.value)}
-                          className="flex-1 bg-background border-primary/30 focus:border-primary"
-                        />
-                        <Button
-                          onClick={handleCompleteLesson}
-                          disabled={!tweetUrl.trim() || isCompleting}
-                          className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
-                        >
-                          {isCompleting ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <>
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Complete
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <Separator className="bg-slate-700" />
 
                 {/* Show lesson completion status */}
                 {lessonStatus?.completed && (
@@ -473,6 +323,129 @@ Building my crypto reputation daily with strategic learning.
                       <HelpCircle className="w-4 h-4 mr-2" />
                       Take Knowledge Check
                     </Button>
+                  </div>
+                )}
+
+                {/* Quiz Section */}
+                {showQuiz && lesson.quizQuestion && lesson.quizOptions && !quizCompleted && !lessonStatus?.completed && (
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 space-y-4">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                      <HelpCircle className="w-5 h-5 text-accent" />
+                      Knowledge Check
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <p className="text-slate-300 font-medium">{lesson.quizQuestion}</p>
+                      
+                      <RadioGroup 
+                        value={quizAnswer?.toString() || ""} 
+                        onValueChange={(value) => setQuizAnswer(Number(value))}
+                        className="space-y-3"
+                      >
+                        {lesson.quizOptions.map((option, index) => (
+                          <div key={index} className="flex items-center space-x-2 p-3 rounded-lg bg-slate-900/50 border border-slate-700 hover:border-slate-600 transition-colors">
+                            <RadioGroupItem value={index.toString()} id={`option-${index}`} className="text-accent" />
+                            <Label htmlFor={`option-${index}`} className="text-slate-300 cursor-pointer flex-1">
+                              {option}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+
+                      {quizFeedback && !quizFeedback.correct && (
+                        <div className="bg-red-500/20 border border-red-500/40 rounded-lg p-4 space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                              <X className="w-3 h-3 text-white" />
+                            </div>
+                            <h4 className="font-semibold text-red-400">Incorrect Answer</h4>
+                          </div>
+                          <p className="text-sm text-red-300">
+                            {quizFeedback.explanation}
+                          </p>
+                          <div className="bg-red-500/10 border border-red-500/30 rounded p-2">
+                            <p className="text-xs text-red-200">
+                              💡 Tip: Review the lesson content above and try again. The correct answer demonstrates deep Web3 knowledge.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <Button
+                        onClick={handleSubmitQuiz}
+                        disabled={!quizAnswer || submitQuizMutation.isPending}
+                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
+                      >
+                        {submitQuizMutation.isPending ? "Checking..." : "Submit Answer"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Twitter Sharing Section */}
+                {quizCompleted && !lessonStatus?.completed && (
+                  <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-6 space-y-4">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                      <X className="w-5 h-5 text-blue-400" />
+                      Share on X (Twitter)
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                        <p className="text-slate-300 text-sm mb-3">
+                          Share your completion on X to earn aura points:
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={copyTweetText}
+                            variant="outline"
+                            size="sm"
+                            className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                          >
+                            Copy Tweet Text
+                          </Button>
+                          <Button
+                            onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`)}`)}
+                            size="sm"
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                          >
+                            <ExternalLink className="w-4 h-4 mr-1" />
+                            Tweet Now
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="tweet-url" className="text-slate-300">
+                          Paste your tweet URL here:
+                        </Label>
+                        <Input
+                          id="tweet-url"
+                          value={tweetUrl}
+                          onChange={(e) => setTweetUrl(e.target.value)}
+                          placeholder="https://twitter.com/your_username/status/..."
+                          className="bg-slate-900/50 border-slate-700 text-white"
+                        />
+                      </div>
+                      
+                      <Button
+                        onClick={handleCompleteLesson}
+                        disabled={!tweetUrl.trim() || isCompleting}
+                        className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                      >
+                        {isCompleting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Completing...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Complete
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
