@@ -560,7 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { username, profileImageUrl } = req.body;
+      const { username, profileImageUrl, twitterUsername } = req.body;
       
       // Validate username if provided
       if (username) {

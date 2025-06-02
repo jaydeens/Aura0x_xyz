@@ -469,7 +469,12 @@ export default function Profile() {
                   </label>
                   <Input
                     value={username}
-                    onChange={handleUsernameChange}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (e.target.value.trim()) {
+                        validateUsername(e.target.value);
+                      }
+                    }}
                     placeholder="Enter your username"
                     className="bg-[#0A0A0B] border-[#8000FF]/20 text-white placeholder:text-gray-500"
                   />
@@ -548,7 +553,14 @@ export default function Profile() {
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleUpdateProfile}
+                    onClick={() => {
+                      if (!username.trim() || !isUsernameValid) return;
+                      updateProfileMutation.mutate({
+                        username: username.trim(),
+                        twitterUsername: twitterUsername.trim() || undefined,
+                      });
+                      setIsEditingProfile(false);
+                    }}
                     disabled={updateProfileMutation.isPending || !isUsernameValid || !username.trim()}
                     className="bg-[#8000FF] hover:bg-[#7000E6] text-white"
                   >
