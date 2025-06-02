@@ -30,6 +30,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string }): Promise<User>;
   checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   
   // Lesson operations
   createLesson(lesson: InsertLesson): Promise<Lesson>;

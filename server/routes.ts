@@ -639,7 +639,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/battles', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { opponentId, stakeAmount } = createBattleSchema.parse(req.body);
+      const { opponentUsername, stakeAmount, description } = req.body;
+
+      if (!opponentUsername || !stakeAmount) {
+        return res.status(400).json({ message: "Opponent username and stake amount are required" });
+      }
+
+      // Find opponent by username
+      const opponent = await storage.getUserByUsername(opponentUsername);
+      if (!opponent) {
+        return res.status(404).json({ message: "User not found with that username" });
+      }
+
+      if (opponent.id === userId) {
+        return res.status(400).json({ message: "You cannot challenge yourself" });
+      }
       
       // Check if user has enough aura points
       const user = await storage.getUser(userId);
@@ -653,11 +667,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const battle = await storage.createBattle({
         challengerId: userId,
-        opponentId,
+        opponentId: opponent.id,
         challengerStake: stakeAmount,
         opponentStake: stakeAmount,
         status: "pending",
         votingEndsAt,
+        description: description || "A battle of Web3 aura and reputation!",
+        totalVotes: 0,
+        challengerVotes: 0,
+        opponentVotes: 0,
+        totalVouchAmount: "0",
       });
       
       // Deduct stake from challenger
@@ -666,9 +685,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(battle);
     } catch (error) {
       console.error("Error creating battle:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
-      }
       res.status(500).json({ message: "Failed to create battle" });
     }
   });

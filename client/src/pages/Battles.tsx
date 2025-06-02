@@ -68,13 +68,7 @@ export default function Battles() {
 
   const createBattle = useMutation({
     mutationFn: async (battleData: any) => {
-      return await apiRequest("/api/battles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(battleData),
-      });
+      return await apiRequest("/api/battles", battleData);
     },
     onSuccess: () => {
       toast({
