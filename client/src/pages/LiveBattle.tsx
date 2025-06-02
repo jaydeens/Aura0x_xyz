@@ -45,7 +45,7 @@ export default function LiveBattle() {
   const [showGiftDialog, setShowGiftDialog] = useState(false);
 
   // Fetch battle data
-  const { data: battle, isLoading } = useQuery({
+  const { data: battle, isLoading, error } = useQuery({
     queryKey: [`/api/battles/${battleId}`],
     enabled: !!battleId,
     refetchInterval: 5000, // Refresh every 5 seconds for live updates
@@ -130,21 +130,34 @@ export default function LiveBattle() {
   const challengerPercentage = getVotePercentage((battle as any)?.challengerVotes || 0);
   const opponentPercentage = getVotePercentage((battle as any)?.opponentVotes || 0);
 
-  if (isLoading) {
+  // Show loading state while fetching data
+  if (isLoading || !battle) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8000FF]"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8000FF] mx-auto mb-4"></div>
+          <p className="text-white/80">Loading battle details...</p>
+        </div>
       </div>
     );
   }
 
-  if (!battle || !(battle as any).id) {
+  // Only show error if we explicitly have an error or confirmed empty response
+  if (error || (battle && !(battle as any).id)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
         <Card className="bg-[#1A1A1B] border-primary/20">
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-bold text-white mb-2">Battle Not Found</h2>
             <p className="text-gray-400">The battle you're looking for doesn't exist.</p>
+            <Button 
+              variant="outline" 
+              onClick={() => window.history.back()}
+              className="mt-4 border-primary/40 text-primary hover:bg-primary hover:text-white"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
           </CardContent>
         </Card>
       </div>
