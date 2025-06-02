@@ -661,9 +661,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/battles', isAuthenticated, async (req: any, res) => {
+  app.post('/api/battles', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const { opponentId, stakeAmount, description, battleDate, duration } = req.body;
 
       if (!opponentId || !stakeAmount) {
