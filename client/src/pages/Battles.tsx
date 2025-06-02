@@ -285,7 +285,7 @@ export default function Battles() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#8000FF]/20 via-[#1A1A1B] to-[#8000FF]/10">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
       <Navigation />
       <div className="container mx-auto px-4 py-8 pt-24">
         {/* Enhanced Header */}

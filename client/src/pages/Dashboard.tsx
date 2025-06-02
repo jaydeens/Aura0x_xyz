@@ -79,7 +79,7 @@ export default function Dashboard() {
     ((user?.currentStreak || 0) / nextLevel.minDays) * 100 : 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#8000FF]/20 via-[#1A1A1B] to-[#8000FF]/10 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
