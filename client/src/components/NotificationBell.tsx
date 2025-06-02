@@ -106,7 +106,7 @@ export default function NotificationBell() {
                   <div className="flex items-start gap-3">
                     {getNotificationIcon(notification.type)}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{notification.title}</p>
+                      <p className="font-medium text-sm text-[#5c5252]">{notification.title}</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         {notification.message}
                       </p>
