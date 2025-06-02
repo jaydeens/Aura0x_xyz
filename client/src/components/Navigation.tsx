@@ -53,8 +53,8 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center animate-glow">
-                <Zap className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+                <img src="/logo.svg" alt="Aura Logo" className="w-10 h-10" />
               </div>
               <span className="text-2xl font-bold gradient-text">Aura</span>
             </div>
