@@ -60,6 +60,10 @@ export const lessons = pgTable("lessons", {
   difficulty: varchar("difficulty").default("beginner"),
   estimatedReadTime: integer("estimated_read_time").default(15),
   isActive: boolean("is_active").default(true),
+  quizQuestion: text("quiz_question"),
+  quizOptions: jsonb("quiz_options"),
+  quizCorrectAnswer: integer("quiz_correct_answer"),
+  quizExplanation: text("quiz_explanation"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -68,7 +72,10 @@ export const userLessons = pgTable("user_lessons", {
   userId: varchar("user_id").notNull().references(() => users.id),
   lessonId: integer("lesson_id").notNull().references(() => lessons.id),
   completed: boolean("completed").default(false),
+  quizScore: integer("quiz_score").default(0),
+  quizCompleted: boolean("quiz_completed").default(false),
   tweetUrl: varchar("tweet_url"),
+  tweetId: varchar("tweet_id"),
   auraEarned: integer("aura_earned").default(0),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow(),

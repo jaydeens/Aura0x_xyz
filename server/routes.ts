@@ -200,6 +200,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const generatedLessons = await generateDailyLessons(1);
         
         for (const lessonData of generatedLessons) {
+          // Generate quiz for each lesson
+          const quiz = await generateLessonQuiz(lessonData.title, lessonData.content);
+          
           await storage.createLesson({
             title: lessonData.title,
             content: lessonData.content,
@@ -208,6 +211,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             estimatedReadTime: lessonData.estimatedReadTime,
             auraReward: 10,
             isActive: true,
+            quizQuestion: quiz.question,
+            quizOptions: quiz.options,
+            quizCorrectAnswer: quiz.correctAnswer,
+            quizExplanation: quiz.explanation,
           });
         }
         
