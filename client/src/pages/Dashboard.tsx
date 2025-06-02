@@ -320,16 +320,16 @@ export default function Dashboard() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Streak Progress */}
-              <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
+              <Card className="bg-[#1A1A1B] border-primary/20">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Flame className="w-5 h-5 mr-2 text-[#FFD700]" />
+                    <Flame className="w-5 h-5 mr-2 text-primary" />
                     Streak Progress
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center mb-6">
-                    <div className="text-4xl font-bold text-[#FFD700] mb-2">
+                    <div className="text-4xl font-bold text-primary mb-2">
                       {user?.currentStreak || 0}
                     </div>
                     <div className="text-gray-400">days in a row</div>
@@ -378,10 +378,10 @@ export default function Dashboard() {
               </Card>
 
               {/* Active Battles */}
-              <Card className="bg-[#1A1A1B] border-[#FF8800]/20">
+              <Card className="bg-[#1A1A1B] border-primary/20">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Trophy className="w-5 h-5 mr-2 text-[#FF8800]" />
+                    <Trophy className="w-5 h-5 mr-2 text-primary" />
                     Active Battles
                   </CardTitle>
                 </CardHeader>
@@ -412,7 +412,7 @@ export default function Dashboard() {
                   )}
                   
                   <Button 
-                    className="w-full mt-4 bg-gradient-to-r from-[#FF8800] to-[#FFD700] hover:from-[#FF8800]/80 hover:to-[#FFD700]/80 text-black font-semibold"
+                    className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                     onClick={() => window.location.href = "/battles"}
                   >
                     View All Battles
