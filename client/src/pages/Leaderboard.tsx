@@ -219,29 +219,7 @@ export default function Leaderboard() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Aura Points Leaderboard */}
-            <TabsContent value="aura" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Ranked by Aura Points</h2>
-                <Badge className="bg-[#8000FF]/20 text-[#8000FF]">
-                  Primary Ranking
-                </Badge>
-              </div>
 
-              {leaderboardLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3, 4, 5].map(i => (
-                    <Card key={i} className="bg-[#1A1A1B] border-[#8000FF]/20 animate-pulse">
-                      <CardContent className="p-6">
-                        <div className="h-16 bg-[#0A0A0B] rounded-lg"></div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <LeaderboardTable users={leaderboard || []} showTopPodium={true} />
-              )}
-            </TabsContent>
 
             {/* Battle Winners Leaderboard */}
             <TabsContent value="battles" className="space-y-6">

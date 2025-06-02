@@ -87,12 +87,12 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
         <Button 
           onClick={connectTwitter} 
           disabled={isConnecting}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+          className="w-full bg-black hover:bg-gray-800 text-white"
         >
-          {isConnecting ? "Connecting..." : "Connect with Twitter"}
+          {isConnecting ? "Connecting..." : "Connect with X"}
         </Button>
         <p className="text-xs text-muted-foreground mt-3 text-center">
-          We'll use your Twitter profile to verify your identity and reputation
+          We'll use your X profile to verify your identity and reputation
         </p>
       </CardContent>
     </Card>
