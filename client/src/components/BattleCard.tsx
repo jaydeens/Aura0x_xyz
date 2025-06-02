@@ -303,34 +303,34 @@ export default function BattleCard({ battle, featured = false, showResult = fals
         <div className="grid grid-cols-3 gap-4 items-center">
           {/* Challenger */}
           <div className="text-center">
-            <Avatar className="w-16 h-16 mx-auto mb-3 border-2 border-primary">
+            <Avatar className="w-16 h-16 mx-auto mb-3 border border-border">
               <AvatarImage src={battle.challenger?.profileImageUrl} />
-              <AvatarFallback className="bg-primary/20 text-primary">
+              <AvatarFallback className="bg-muted text-muted-foreground">
                 <Crown className="w-6 h-6" />
               </AvatarFallback>
             </Avatar>
-            <h4 className="font-bold text-white truncate">
+            <h4 className="font-bold text-foreground truncate">
               {battle.challenger?.firstName || battle.challenger?.username || `User ${battle.challengerId.slice(0, 6)}`}
             </h4>
-            <p className="text-xs text-primary font-medium">Challenger</p>
-            <p className="text-sm text-gray-400">
+            <p className="text-xs text-muted-foreground font-medium">Challenger</p>
+            <p className="text-sm text-muted-foreground">
               {battle.challenger?.auraPoints?.toLocaleString() || "0"} Aura
             </p>
-            <Badge variant="outline" className="mt-1 border-primary text-primary">
+            <Badge variant="outline" className="mt-1">
               Staked: {battle.challengerStake}
             </Badge>
           </div>
 
           {/* VS Section */}
           <div className="text-center">
-            <div className="text-3xl font-bold text-accent mb-2">VS</div>
-            <Card className="bg-muted/50 border-primary/20">
+            <div className="text-3xl font-bold text-foreground mb-2">VS</div>
+            <Card className="bg-muted border-border">
               <CardContent className="p-3">
-                <div className="text-sm text-gray-400 mb-1">Total Stakes</div>
-                <div className="text-xl font-bold text-warning">
+                <div className="text-sm text-muted-foreground mb-1">Total Stakes</div>
+                <div className="text-xl font-bold text-foreground">
                   {battle.challengerStake + battle.opponentStake} Aura
                 </div>
-                <div className="text-xs text-gray-500 flex items-center justify-center mb-2">
+                <div className="text-xs text-muted-foreground flex items-center justify-center mb-2">
                   <Users className="w-3 h-3 mr-1" />
                   {battle.totalVotes} votes
                 </div>

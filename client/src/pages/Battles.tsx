@@ -285,16 +285,9 @@ export default function Battles() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#1A1A1B] to-[#2A2A2B] relative overflow-hidden">
-      {/* Animated Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-[#8000FF]/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-48 h-48 bg-[#9933FF]/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-[#FF3366]/8 rounded-full blur-lg animate-pulse delay-500"></div>
-        <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-[#8000FF]/20 rounded-full blur-md animate-pulse delay-700"></div>
-      </div>
+    <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
+      <div className="container mx-auto px-4 py-8 pt-24">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-6 gap-4">
