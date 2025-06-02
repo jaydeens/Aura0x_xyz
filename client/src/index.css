@@ -3,41 +3,42 @@
 @tailwind utilities;
 
 :root {
-  --background: 240 10% 4%; /* #0A0A0B */
+  --background: 240 10% 3%; /* #080808 */
   --foreground: 0 0% 98%;
-  --muted: 240 4% 16%; /* #1A1A1B */
-  --muted-foreground: 240 5% 65%;
-  --popover: 240 10% 4%; /* #0A0A0B */
+  --muted: 240 5% 12%; /* #1F1F23 */
+  --muted-foreground: 240 5% 64%;
+  --popover: 240 10% 3%; /* #080808 */
   --popover-foreground: 0 0% 98%;
-  --card: 240 4% 10%; /* #1A1A1B */
+  --card: 240 4% 9%; /* #171719 */
   --card-foreground: 0 0% 98%;
-  --border: 271 91% 65%; /* #8000FF */
-  --input: 240 4% 16%; /* #1A1A1B */
-  --primary: 271 100% 50%; /* #8000FF */
+  --border: 240 5% 20%; /* #333338 */
+  --input: 240 4% 12%; /* #1F1F23 */
+  --primary: 258 100% 67%; /* #6366F1 */
   --primary-foreground: 0 0% 98%;
-  --secondary: 240 4% 16%; /* #1A1A1B */
+  --secondary: 240 4% 16%; /* #292929 */
   --secondary-foreground: 0 0% 98%;
-  --accent: 271 91% 65%; /* #9933FF */
+  --accent: 258 100% 67%; /* #6366F1 */
   --accent-foreground: 0 0% 98%;
-  --destructive: 0 84% 60%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 271 100% 50%; /* #8000FF */
-  --radius: 0.75rem;
-  --success: 152 100% 50%; /* #00FF88 */
-  --warning: 45 100% 50%; /* #FFD700 */
+  --ring: 258 100% 67%; /* #6366F1 */
+  --radius: 0.5rem;
+  --success: 142 76% 36%;
+  --warning: 48 96% 53%;
   
-  /* Aura Level Colors */
-  --clout-chaser: 220 9% 64%; /* #9CA3AF */
-  --attention-seeker: 24 95% 53%; /* #F97316 */
-  --dedicated: 162 73% 46%; /* #34D399 */
-  --grinder: 217 91% 60%; /* #3B82F6 */
-  --aura-vader: 259 54% 59%; /* #8B5CF6 */
+  /* Simplified status colors */
+  --status-pending: 48 96% 53%;
+  --status-accepted: 258 100% 67%;
+  --status-completed: 142 76% 36%;
+  --status-cancelled: 0 72% 51%;
+  --status-withdrawn: 240 5% 64%;
   
-  --chart-1: 271 100% 50%; /* #8000FF */
-  --chart-2: 271 91% 65%; /* #9933FF */
-  --chart-3: 152 100% 50%; /* #00FF88 */
-  --chart-4: 45 100% 50%; /* #FFD700 */
-  --chart-5: 22 100% 50%; /* #FF8800 */
+  /* Chart colors - limited palette */
+  --chart-1: 258 100% 67%;
+  --chart-2: 142 76% 36%;
+  --chart-3: 48 96% 53%;
+  --chart-4: 0 72% 51%;
+  --chart-5: 240 5% 64%;
 }
 
 .dark {

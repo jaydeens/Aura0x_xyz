@@ -295,94 +295,74 @@ export default function Battles() {
       </div>
       <Navigation />
       <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
-        {/* Epic Header */}
-        <div className="text-center mb-16 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8000FF]/5 to-transparent blur-3xl"></div>
-          <div className="relative">
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative">
-                <Sword className="w-16 h-16 text-[#8000FF] mr-6 animate-pulse drop-shadow-[0_0_15px_#8000FF]" />
-                <div className="absolute inset-0 bg-[#8000FF]/20 blur-md rounded-full animate-ping"></div>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] bg-clip-text text-transparent drop-shadow-2xl">
-                ⚔️ BATTLE ARENA
-              </h1>
-              <div className="relative">
-                <Zap className="w-16 h-16 text-[#FF3366] ml-6 animate-pulse drop-shadow-[0_0_15px_#FF3366]" />
-                <div className="absolute inset-0 bg-[#FF3366]/20 blur-md rounded-full animate-ping delay-300"></div>
-              </div>
-            </div>
-            <div className="relative">
-              <p className="text-xl text-gray-300 max-w-4xl mx-auto font-medium leading-relaxed">
-                <span className="text-[#8000FF] font-bold">Stake your aura.</span> 
-                <span className="text-[#9933FF] font-bold mx-2">Challenge the elite.</span> 
-                <span className="text-[#FF3366] font-bold">Dominate the arena.</span>
-              </p>
-              <div className="mt-4 flex justify-center">
-                <div className="h-1 w-32 bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] rounded-full animate-pulse"></div>
-              </div>
-            </div>
+        {/* Header */}
+        <div className="text-center mb-16">
+          <div className="flex items-center justify-center mb-6 gap-4">
+            <Sword className="w-12 h-12 text-primary" />
+            <h1 className="text-5xl md:text-7xl font-bold text-foreground">
+              Battle Arena
+            </h1>
+            <Zap className="w-12 h-12 text-primary" />
           </div>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Stake your aura, challenge opponents, and prove your dominance in the arena.
+          </p>
         </div>
 
-        {/* Epic Battle Stats */}
+        {/* Battle Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <Card className="bg-gradient-to-br from-[#1A1A1B] to-[#0A0A0B] border-2 border-[#8000FF]/30 hover:border-[#8000FF]/60 transition-all duration-300 hover:shadow-[0_0_20px_#8000FF40] relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8000FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative z-10">
+          <Card className="bg-card border-border hover:border-primary/50 transition-colors">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Battles</p>
-                  <p className="text-4xl font-black text-white drop-shadow-lg">
+                  <p className="text-muted-foreground text-sm font-medium">Total Battles</p>
+                  <p className="text-3xl font-bold text-foreground">
                     {stats.total}
                   </p>
                 </div>
-                <div className="relative">
-                  <Sword className="w-10 h-10 text-[#8000FF] drop-shadow-[0_0_10px_#8000FF]" />
-                  <div className="absolute inset-0 bg-[#8000FF]/20 blur-sm rounded-full animate-pulse"></div>
-                </div>
+                <Sword className="w-8 h-8 text-primary" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
+          <Card className="bg-card border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Live Battles</p>
-                  <p className="text-3xl font-bold text-[#00FF88]">
+                  <p className="text-muted-foreground text-sm">Live Battles</p>
+                  <p className="text-3xl font-bold text-primary">
                     {stats.live}
                   </p>
                 </div>
-                <Zap className="w-8 h-8 text-[#00FF88]" />
+                <Zap className="w-8 h-8 text-primary" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
+          <Card className="bg-card border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Upcoming</p>
-                  <p className="text-3xl font-bold text-[#9933FF]">
+                  <p className="text-muted-foreground text-sm">Upcoming</p>
+                  <p className="text-3xl font-bold text-foreground">
                     {stats.upcoming}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-[#9933FF]" />
+                <Clock className="w-8 h-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
+          <Card className="bg-card border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Completed</p>
-                  <p className="text-3xl font-bold text-[#FFD700]">
+                  <p className="text-muted-foreground text-sm">Completed</p>
+                  <p className="text-3xl font-bold text-foreground">
                     {stats.completed}
                   </p>
                 </div>
-                <Trophy className="w-8 h-8 text-[#FFD700]" />
+                <Trophy className="w-8 h-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -391,27 +371,27 @@ export default function Battles() {
         {/* Battle Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <TabsList className="grid w-full sm:w-auto grid-cols-4 bg-[#1A1A1B] border border-[#8000FF]/20">
-              <TabsTrigger value="live" className="data-[state=active]:bg-[#00FF88] data-[state=active]:text-black">
+            <TabsList className="grid w-full sm:w-auto grid-cols-4 bg-muted border border-border">
+              <TabsTrigger value="live" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Zap className="w-4 h-4 mr-2" />
                 Live
               </TabsTrigger>
-              <TabsTrigger value="upcoming" className="data-[state=active]:bg-[#9933FF] data-[state=active]:text-white">
+              <TabsTrigger value="upcoming" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Clock className="w-4 h-4 mr-2" />
                 Upcoming
               </TabsTrigger>
-              <TabsTrigger value="completed" className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black">
+              <TabsTrigger value="completed" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Trophy className="w-4 h-4 mr-2" />
                 Completed
               </TabsTrigger>
-              <TabsTrigger value="my-battles" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
+              <TabsTrigger value="my-battles" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Target className="w-4 h-4 mr-2" />
                 My Battles
               </TabsTrigger>
             </TabsList>
 
             <Button 
-              className="bg-[#8000FF] hover:bg-[#8000FF]/80 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={() => setShowCreateBattle(true)}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -419,44 +399,46 @@ export default function Battles() {
             </Button>
           </div>
 
-          {/* Status Filter */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-[#1A1A1B] border border-[#8000FF]/20 rounded-lg">
-            <div className="flex items-center gap-4">
-              <Label className="text-gray-300 font-medium">Filter by Status:</Label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-[#0A0A0B] border border-[#8000FF]/30 text-white rounded-md px-3 py-2 min-w-[150px] focus:border-[#8000FF] focus:outline-none"
-              >
-                <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="withdrawn">Withdrawn</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+          {/* Status Filter - Only show on My Battles tab */}
+          {selectedTab === 'my-battles' && (
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-card border border-border rounded-lg">
+              <div className="flex items-center gap-4">
+                <Label className="text-foreground font-medium">Filter by Status:</Label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="bg-input border border-border text-foreground rounded-md px-3 py-2 min-w-[150px] focus:border-primary focus:outline-none"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="withdrawn">Withdrawn</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-warning rounded-full"></div>
+                  <span className="text-muted-foreground">Pending: {stats.pending}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                  <span className="text-muted-foreground">Accepted: {stats.accepted}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+                  <span className="text-muted-foreground">Withdrawn: {stats.withdrawn}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-destructive rounded-full"></div>
+                  <span className="text-muted-foreground">Cancelled: {stats.cancelled}</span>
+                </div>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#FFD700] rounded-full"></div>
-                <span className="text-gray-400">Pending: {stats.pending}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#9933FF] rounded-full"></div>
-                <span className="text-gray-400">Accepted: {stats.accepted}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#FF6B6B] rounded-full"></div>
-                <span className="text-gray-400">Withdrawn: {stats.withdrawn}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#FF3366] rounded-full"></div>
-                <span className="text-gray-400">Cancelled: {stats.cancelled}</span>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Live Battles */}
           <TabsContent value="live" className="space-y-6">
