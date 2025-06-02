@@ -254,9 +254,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Submit quiz answer
-  app.post('/api/lessons/:id/quiz', isAuthenticated, async (req: any, res) => {
+  app.post('/api/lessons/:id/quiz', async (req: any, res) => {
     try {
       const lessonId = parseInt(req.params.id);
+      
+      // Check authentication
+      if (!req.isAuthenticated() || !req.user?.claims?.sub) {
+        return res.status(401).json({ message: "Please log in to take the quiz" });
+      }
+      
       const userId = req.user.claims.sub;
       const { answer } = req.body;
 
