@@ -340,11 +340,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { lessonId, tweetUrl } = completeLessonSchema.parse(req.body);
       
-      // Check if user already completed a lesson today
+      // Check if user already completed a lesson today (only check for completed lessons, not quiz-only records)
       const today = new Date();
-      const existingLesson = await storage.getUserLessonByDate(userId, today);
+      const existingCompletedLesson = await storage.getUserLessonByDate(userId, today);
       
-      if (existingLesson) {
+      if (existingCompletedLesson && existingCompletedLesson.completed) {
         return res.status(400).json({ message: "You have already completed a lesson today" });
       }
       
@@ -371,25 +371,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Complete the lesson
-      const completedLesson = await storage.completeLesson({
-        userId,
-        lessonId,
-        completed: true,
-        tweetUrl,
-        auraEarned: 100,
-        completedAt: new Date(),
-      });
-      
-      // Update user streak and aura points
-      await storage.updateUserStreak(userId, newStreak);
-      await storage.updateUserAura(userId, 100);
-      
-      res.json({
-        lesson: completedLesson,
-        newStreak,
-        auraEarned: 100,
-      });
+      // If there's an existing quiz record, update it to completed
+      if (existingCompletedLesson && !existingCompletedLesson.completed) {
+        const completedLesson = await storage.completeLesson({
+          userId,
+          lessonId,
+          completed: true,
+          tweetUrl,
+          auraEarned: 100,
+          completedAt: new Date(),
+        });
+        
+        // Update user streak and aura points
+        await storage.updateUserStreak(userId, newStreak);
+        await storage.updateUserAura(userId, 100);
+        
+        res.json({
+          lesson: completedLesson,
+          newStreak,
+          auraEarned: 100,
+        });
+      } else {
+        // Create new completion record
+        const completedLesson = await storage.completeLesson({
+          userId,
+          lessonId,
+          completed: true,
+          tweetUrl,
+          auraEarned: 100,
+          completedAt: new Date(),
+        });
+        
+        // Update user streak and aura points
+        await storage.updateUserStreak(userId, newStreak);
+        await storage.updateUserAura(userId, 100);
+        
+        res.json({
+          lesson: completedLesson,
+          newStreak,
+          auraEarned: 100,
+        });
+      }
     } catch (error) {
       console.error("Error completing lesson:", error);
       if (error instanceof z.ZodError) {
