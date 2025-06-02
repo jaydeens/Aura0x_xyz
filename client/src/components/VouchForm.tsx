@@ -135,10 +135,10 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-white flex items-center">
           <Coins className="w-6 h-6 mr-2 text-warning" />
-          Vouch for a KOL
+          Vouch for a Friend
         </CardTitle>
         <p className="text-gray-400">
-          Support your favorite KOLs with USDT and boost their Aura Points
+          Support your friends with USDT and boost their Aura Points
         </p>
       </CardHeader>
 
@@ -331,10 +331,10 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           <CardContent className="p-4">
             <h4 className="font-semibold text-accent mb-2">How to Vouch:</h4>
             <ol className="text-sm text-gray-400 space-y-1 list-decimal list-inside">
-              <li>Send USDT to the KOL's wallet address on Polygon Mumbai testnet</li>
+              <li>Send USDT to your friend's wallet address on Polygon Mumbai testnet</li>
               <li>Copy the transaction hash from the blockchain explorer</li>
               <li>Paste the transaction hash above and submit your vouch</li>
-              <li>The KOL will receive Aura Points with your streak multiplier applied</li>
+              <li>Your friend will receive Aura Points with your streak multiplier applied</li>
             </ol>
           </CardContent>
         </Card>

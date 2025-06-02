@@ -138,19 +138,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Portfolio Growth</p>
-                    <p className="text-2xl font-bold text-[#9933FF]">
-                      +{user?.portfolioGrowth || "0"}%
-                    </p>
-                  </div>
-                  <Target className="w-8 h-8 text-[#9933FF]" />
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -313,7 +301,7 @@ export default function Dashboard() {
                     onClick={() => window.location.href = "/vouch"}
                   >
                     <Coins className="w-4 h-4 mr-2" />
-                    Vouch for KOL
+                    Vouch for Friend
                   </Button>
                   
                   <Button 

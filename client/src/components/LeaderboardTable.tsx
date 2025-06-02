@@ -23,7 +23,7 @@ interface LeaderboardUser {
   currentStreak: number;
   totalBattlesWon: number;
   totalBattlesLost: number;
-  portfolioGrowth: string;
+
   totalVouchesReceived: string;
   walletAge: number;
 }
@@ -51,12 +51,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
     return ((user.totalBattlesWon / totalBattles) * 100).toFixed(1);
   };
 
-  const getPortfolioGrowthColor = (growth: string) => {
-    const numGrowth = parseFloat(growth);
-    if (numGrowth > 0) return "text-green-400";
-    if (numGrowth < 0) return "text-red-400";
-    return "text-gray-400";
-  };
+
 
   const topThree = users.slice(0, 3);
   const remainingUsers = users.slice(3);
