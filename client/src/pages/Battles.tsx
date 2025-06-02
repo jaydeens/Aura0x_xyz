@@ -254,9 +254,7 @@ export default function Battles() {
         <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-[#FF3366]/8 rounded-full blur-lg animate-pulse delay-500"></div>
         <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-[#8000FF]/20 rounded-full blur-md animate-pulse delay-700"></div>
       </div>
-      
       <Navigation />
-      
       <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
         {/* Epic Header */}
         <div className="text-center mb-16 relative">
@@ -544,9 +542,7 @@ export default function Battles() {
         }}>
           <DialogContent className="bg-gradient-to-br from-[#1A1A1B] to-[#0A0A0B] border-2 border-[#8000FF]/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-black bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] bg-clip-text text-transparent">
-                ⚔️ INITIATE BATTLE CHALLENGE
-              </DialogTitle>
+              <DialogTitle className="text-3xl font-black bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] bg-clip-text text-transparent">⚔️ INITIATE AURA CHALLENGE</DialogTitle>
             </DialogHeader>
             
             <div className="space-y-6 py-4">
