@@ -29,7 +29,11 @@ import {
   Flame,
   Zap,
   Target,
-  ArrowLeft
+  ArrowLeft,
+  Star,
+  Heart,
+  TrendingUp,
+  Radio
 } from "lucide-react";
 
 export default function LiveBattle() {
@@ -43,6 +47,37 @@ export default function LiveBattle() {
   const [giftAmount, setGiftAmount] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
   const [showGiftDialog, setShowGiftDialog] = useState(false);
+  const [radarPosition, setRadarPosition] = useState(50); // 0-100, 50 is center
+  const [giftAnimations, setGiftAnimations] = useState<Array<{id: number, type: string, participant: string}>>([]);
+  const [showTopGifters, setShowTopGifters] = useState(true);
+
+  // Mock top gifters data (simulating live gifting activity)
+  const topGifters = {
+    challenger: [
+      { username: "crypto_whale", amount: 1500, avatar: null },
+      { username: "aura_master", amount: 850, avatar: null },
+      { username: "steeze_king", amount: 720, avatar: null },
+      { username: "diamond_hands", amount: 650, avatar: null },
+      { username: "moon_rider", amount: 450, avatar: null },
+      { username: "hodl_strong", amount: 380, avatar: null },
+      { username: "defi_ninja", amount: 320, avatar: null },
+      { username: "yield_farmer", amount: 280, avatar: null },
+      { username: "nft_collector", amount: 240, avatar: null },
+      { username: "web3_builder", amount: 200, avatar: null }
+    ],
+    opponent: [
+      { username: "battle_legend", amount: 1200, avatar: null },
+      { username: "steeze_queen", amount: 900, avatar: null },
+      { username: "crypto_lord", amount: 750, avatar: null },
+      { username: "aura_beast", amount: 600, avatar: null },
+      { username: "chain_master", amount: 480, avatar: null },
+      { username: "token_hunter", amount: 420, avatar: null },
+      { username: "smart_trader", amount: 350, avatar: null },
+      { username: "gas_saver", amount: 300, avatar: null },
+      { username: "block_explorer", amount: 260, avatar: null },
+      { username: "degen_trader", amount: 220, avatar: null }
+    ]
+  };
 
   // Fetch battle data
   const { data: battle, isLoading, error } = useQuery({
@@ -130,6 +165,36 @@ export default function LiveBattle() {
   const challengerPercentage = getVotePercentage((battle as any)?.challengerVotes || 0);
   const opponentPercentage = getVotePercentage((battle as any)?.opponentVotes || 0);
 
+  // Dynamic radar animation based on battle performance
+  useEffect(() => {
+    const total = ((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0);
+    if (total > 0) {
+      const newPosition = challengerPercentage; // 0-100 scale
+      setRadarPosition(newPosition);
+    }
+  }, [challengerPercentage, battle]);
+
+  // Simulate gift animations for live feel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.7) { // 30% chance every 3 seconds
+        const newGift = {
+          id: Date.now(),
+          type: ['heart', 'star', 'flame', 'zap'][Math.floor(Math.random() * 4)],
+          participant: Math.random() > 0.5 ? 'challenger' : 'opponent'
+        };
+        setGiftAnimations(prev => [...prev, newGift]);
+        
+        // Remove after animation
+        setTimeout(() => {
+          setGiftAnimations(prev => prev.filter(g => g.id !== newGift.id));
+        }, 3000);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Show loading state while fetching data
   if (isLoading || !battle) {
     return (
@@ -165,8 +230,31 @@ export default function LiveBattle() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] relative overflow-hidden">
+      {/* Animated Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 animate-pulse"></div>
+        {giftAnimations.map((gift) => (
+          <div
+            key={gift.id}
+            className={`absolute animate-bounce ${
+              gift.participant === 'challenger' ? 'left-10' : 'right-10'
+            } top-1/2 transform -translate-y-1/2 text-3xl opacity-80`}
+            style={{
+              animation: 'float 3s ease-out forwards',
+              animationDelay: '0s'
+            }}
+          >
+            {gift.type === 'heart' && '💖'}
+            {gift.type === 'star' && '⭐'}
+            {gift.type === 'flame' && '🔥'}
+            {gift.type === 'zap' && '⚡'}
+          </div>
+        ))}
+      </div>
+
+      <div className="relative z-10 p-4">
+        <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <Button 
@@ -450,6 +538,8 @@ export default function LiveBattle() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
+      </div>
     </div>
   );
 }
