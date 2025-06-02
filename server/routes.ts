@@ -1276,12 +1276,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const battles = await storage.getUserBattles(req.params.id);
       const vouches = await storage.getUserVouches(req.params.id);
       
+      // Only count completed battles for statistics
+      const completedBattles = battles.filter(b => b.status === 'completed');
+      
       res.json({
         user,
         battleStats: {
-          total: battles.length,
-          won: battles.filter(b => b.winnerId === req.params.id).length,
-          lost: battles.filter(b => b.winnerId && b.winnerId !== req.params.id).length,
+          total: completedBattles.length,
+          won: completedBattles.filter(b => b.winnerId === req.params.id).length,
+          lost: completedBattles.filter(b => b.winnerId && b.winnerId !== req.params.id).length,
         },
         vouchStats: {
           received: vouches.filter(v => v.toUserId === req.params.id).length,
