@@ -238,7 +238,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="flex items-center gap-1 text-accent font-semibold">
               <Zap className="w-4 h-4" />
-              <span>+{lesson.auraReward}</span>
+              <span>+100</span>
             </div>
           </div>
         </div>
@@ -445,7 +445,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                           ) : (
                             <>
                               <Zap className="w-4 h-4 mr-2" />
-                              Claim +{lesson.auraReward} APs
+                              Claim +100 APs
                             </>
                           )}
                         </Button>
