@@ -302,7 +302,7 @@ export default function Leaderboard() {
                   Aura Level System
                 </CardTitle>
                 <p className="text-gray-400">
-                  Achieve higher levels through consistent daily lessons
+                  Achieve higher levels through daily lesson streaks. Unlock vouching multipliers!
                 </p>
               </CardHeader>
               <CardContent>
@@ -321,7 +321,12 @@ export default function Leaderboard() {
                           {level.name}
                         </h4>
                         <p className="text-sm text-gray-400 mb-2">
-                          {level.minDays}{level.maxDays ? `-${level.maxDays}` : '+'} days
+                          {level.name === 'Clout Chaser' ? 'Unlocked at 3 day streak' :
+                           level.name === 'Attention Seeker' ? 'Unlocked at 8 day streak' :
+                           level.name === 'Dedicated' ? 'Unlocked at 14 day streak' :
+                           level.name === 'Grinder' ? 'Unlocked at 21 day streak' :
+                           level.name === 'Aura Vader' ? 'Unlocked at 30 day streak' :
+                           `${level.minDays}${level.maxDays ? `-${level.maxDays}` : '+'} days`}
                         </p>
                         <div className="space-y-1">
                           <Badge 
@@ -345,7 +350,7 @@ export default function Leaderboard() {
                             }}
                             className="text-xs"
                           >
-                            {level.vouchingMultiplier || level.multiplier}x vouch
+                            {level.name === 'Clout Chaser' ? 'No vouch bonus' : `${level.vouchingMultiplier || level.multiplier}x vouch`}
                           </Badge>
                         </div>
                       </div>
