@@ -88,6 +88,21 @@ export default function Navigation() {
               </div>
             )}
 
+            {/* Notification Bell */}
+            {isAuthenticated && (
+              <Button variant="ghost" size="icon" className="relative">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5V3h0v14z" />
+                </svg>
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                >
+                  1
+                </Badge>
+              </Button>
+            )}
+
             {/* Wallet Status */}
             {isAuthenticated && currentUser?.walletAddress ? (
               <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-green-500/30">
