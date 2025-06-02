@@ -368,6 +368,28 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.twitterId, twitterId));
     return user;
   }
+
+  async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean> {
+    const conditions = [eq(users.username, username)];
+    if (excludeUserId) {
+      conditions.push(sql`${users.id} != ${excludeUserId}`);
+    }
+    
+    const [existingUser] = await db.select().from(users).where(and(...conditions));
+    return !existingUser; // true if username is available
+  }
 }
 
 export const storage = new DatabaseStorage();

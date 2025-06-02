@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Navigation from "@/components/Navigation";
 import VouchForm from "@/components/VouchForm";
@@ -45,6 +46,12 @@ interface ProfileParams {
 export default function Profile() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
+  const queryClient = useQueryClient();
+  
+  // Form states
+  const [username, setUsername] = useState("");
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [usernameMessage, setUsernameMessage] = useState("");
   
   // Get user ID from URL
   const urlPath = window.location.pathname;
@@ -146,6 +153,116 @@ export default function Profile() {
   const profileUser = userData;
   const battleStats = viewingOwnProfile ? { total: 0, won: 0, lost: 0 } : (profileData as any)?.battleStats || { total: 0, won: 0, lost: 0 };
   const vouchStats = viewingOwnProfile ? { received: 0, given: 0 } : (profileData as any)?.vouchStats || { received: 0, given: 0 };
+
+  // Initialize username state when profile user data loads
+  useEffect(() => {
+    if (profileUser && viewingOwnProfile) {
+      setUsername(profileUser.username || profileUser.firstName || "");
+    }
+  }, [profileUser, viewingOwnProfile]);
+
+  // Profile update mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updates: { username?: string; profileImageUrl?: string }) => {
+      return await apiRequest("/api/user/update-profile", {
+        method: "POST",
+        body: JSON.stringify(updates),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: (updatedUser) => {
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${urlUserId}`] });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Username validation
+  const validateUsername = async (usernameToCheck: string) => {
+    if (!usernameToCheck || usernameToCheck.length < 3) {
+      setIsUsernameValid(false);
+      setUsernameMessage("Username must be at least 3 characters long");
+      return false;
+    }
+    
+    if (usernameToCheck.length > 20) {
+      setIsUsernameValid(false);
+      setUsernameMessage("Username must be less than 20 characters");
+      return false;
+    }
+    
+    if (!/^[a-zA-Z0-9_]+$/.test(usernameToCheck)) {
+      setIsUsernameValid(false);
+      setUsernameMessage("Username can only contain letters, numbers, and underscores");
+      return false;
+    }
+
+    try {
+      const response = await fetch(`/api/user/check-username/${usernameToCheck}`);
+      const result = await response.json();
+      if (!result.available) {
+        setIsUsernameValid(false);
+        setUsernameMessage("Username is already taken");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error checking username:", error);
+    }
+
+    setIsUsernameValid(true);
+    setUsernameMessage("Username is available");
+    return true;
+  };
+
+  // Handle username save
+  const handleUsernameSave = async () => {
+    if (!username || !isUsernameValid) return;
+    
+    const isValid = await validateUsername(username);
+    if (isValid) {
+      updateProfileMutation.mutate({ username });
+    }
+  };
+
+  // Handle profile picture upload
+  const handleProfilePictureUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // For now, we'll show a message that image upload is coming soon
+        toast({
+          title: "Image Upload",
+          description: "Profile picture upload will be available soon. For now, you can use your Replit profile picture.",
+          variant: "default",
+        });
+      }
+    };
+    input.click();
+  };
 
   const getStreakLevel = (streak: number) => {
     if (!auraLevels) return { name: "Clout Chaser", color: "#8000FF", icon: Zap, multiplier: 1.0 };
@@ -514,7 +631,12 @@ export default function Profile() {
                               {(profileUser.firstName?.[0] || profileUser.username?.[0] || "U").toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          <Button variant="outline" size="sm" className="border-[#8000FF]/30 text-[#8000FF] hover:bg-[#8000FF]/10">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleProfilePictureUpload}
+                            className="border-[#8000FF]/30 text-[#8000FF] hover:bg-[#8000FF]/10"
+                          >
                             Change Picture
                           </Button>
                         </div>
@@ -526,20 +648,43 @@ export default function Profile() {
                       <div className="space-y-3">
                         <h4 className="text-white font-medium flex items-center">
                           <Edit className="w-4 h-4 mr-2" />
-                          Display Name
+                          Username
                         </h4>
-                        <div className="flex items-center space-x-3">
-                          <div className="flex-1">
-                            <input
-                              type="text"
-                              placeholder="Enter username"
-                              defaultValue={profileUser.username || profileUser.firstName || ""}
-                              className="w-full px-3 py-2 bg-[#0A0A0B] border border-[#8000FF]/30 rounded-lg text-white placeholder-gray-400 focus:border-[#8000FF] focus:outline-none"
-                            />
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-1">
+                              <input
+                                type="text"
+                                placeholder="Enter username"
+                                value={username}
+                                onChange={(e) => {
+                                  setUsername(e.target.value);
+                                  if (e.target.value) {
+                                    validateUsername(e.target.value);
+                                  }
+                                }}
+                                className={`w-full px-3 py-2 bg-[#0A0A0B] border rounded-lg text-white placeholder-gray-400 focus:outline-none ${
+                                  isUsernameValid ? 'border-[#8000FF]/30 focus:border-[#8000FF]' : 'border-red-500 focus:border-red-500'
+                                }`}
+                              />
+                            </div>
+                            <Button 
+                              size="sm" 
+                              onClick={handleUsernameSave}
+                              disabled={!username || !isUsernameValid || updateProfileMutation.isPending}
+                              className="bg-[#8000FF] hover:bg-[#8000FF]/80 disabled:opacity-50"
+                            >
+                              {updateProfileMutation.isPending ? "Saving..." : "Save"}
+                            </Button>
                           </div>
-                          <Button size="sm" className="bg-[#8000FF] hover:bg-[#8000FF]/80">
-                            Save
-                          </Button>
+                          {usernameMessage && (
+                            <p className={`text-xs ${isUsernameValid ? 'text-green-400' : 'text-red-400'}`}>
+                              {usernameMessage}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-400">
+                            Username must be 3-20 characters and can only contain letters, numbers, and underscores
+                          </p>
                         </div>
                       </div>
 
