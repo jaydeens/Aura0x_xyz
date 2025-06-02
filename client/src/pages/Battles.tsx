@@ -419,6 +419,45 @@ export default function Battles() {
             </Button>
           </div>
 
+          {/* Status Filter */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-[#1A1A1B] border border-[#8000FF]/20 rounded-lg">
+            <div className="flex items-center gap-4">
+              <Label className="text-gray-300 font-medium">Filter by Status:</Label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-[#0A0A0B] border border-[#8000FF]/30 text-white rounded-md px-3 py-2 min-w-[150px] focus:border-[#8000FF] focus:outline-none"
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="withdrawn">Withdrawn</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-[#FFD700] rounded-full"></div>
+                <span className="text-gray-400">Pending: {stats.pending}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-[#9933FF] rounded-full"></div>
+                <span className="text-gray-400">Accepted: {stats.accepted}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-[#FF6B6B] rounded-full"></div>
+                <span className="text-gray-400">Withdrawn: {stats.withdrawn}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-[#FF3366] rounded-full"></div>
+                <span className="text-gray-400">Cancelled: {stats.cancelled}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Live Battles */}
           <TabsContent value="live" className="space-y-6">
             <div className="flex items-center justify-between">
@@ -434,7 +473,7 @@ export default function Battles() {
                   <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
                 ))}
               </div>
-            ) : liveBattles.length > 0 ? (
+            ) : liveBattles && liveBattles.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {liveBattles.map((battle: any) => (
                   <BattleCard key={battle.id} battle={battle} />
@@ -479,7 +518,7 @@ export default function Battles() {
                   <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
                 ))}
               </div>
-            ) : upcomingBattles.length > 0 ? (
+            ) : upcomingBattles && upcomingBattles.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {upcomingBattles.map((battle: any) => (
                   <BattleCard key={battle.id} battle={battle} />
@@ -513,7 +552,7 @@ export default function Battles() {
                   <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
                 ))}
               </div>
-            ) : completedBattles.length > 0 ? (
+            ) : completedBattles && completedBattles.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {completedBattles.map((battle: any) => (
                   <BattleCard key={battle.id} battle={battle} showResult={true} />
@@ -547,9 +586,9 @@ export default function Battles() {
                   <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
                 ))}
               </div>
-            ) : userBattles && userBattles.length > 0 ? (
+            ) : getFilteredBattles('my-battles') && getFilteredBattles('my-battles').length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {userBattles.map((battle: any) => (
+                {getFilteredBattles('my-battles').map((battle: any) => (
                   <BattleCard key={battle.id} battle={battle} showResult={battle.status === 'completed'} />
                 ))}
               </div>
