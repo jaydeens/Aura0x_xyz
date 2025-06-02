@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { generateDailyLessons, generateLessonAnalysis, validateTweetContent } from "./openai";
+import { generateDailyLessons, generateLessonAnalysis, generateLessonQuiz, validateTweetContent } from "./openai";
 import { web3Service } from "./web3";
 import { z } from "zod";
 
