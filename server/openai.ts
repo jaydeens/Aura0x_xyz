@@ -13,7 +13,7 @@ export interface DailyLesson {
   estimatedReadTime: number;
 }
 
-export async function generateDailyLessons(count: number = 3): Promise<DailyLesson[]> {
+export async function generateDailyLessons(count: number = 1): Promise<DailyLesson[]> {
   try {
     const prompt = `Generate ${count} educational Web3/crypto lessons for KOLs and crypto enthusiasts. Each lesson should be comprehensive and actionable. Return JSON in this exact format:
 

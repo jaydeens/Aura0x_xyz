@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Twitter, CheckCircle, ExternalLink } from "lucide-react";
+import { CheckCircle, ExternalLink } from "lucide-react";
+import { SiX } from "react-icons/si";
 
 interface TwitterConnectProps {
   onConnect?: (twitterData: any) => void;
@@ -18,10 +19,10 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
   const connectTwitter = async () => {
     setIsConnecting(true);
     try {
-      // For now, show a message that Twitter linking will be available soon
+      // For now, show a message that X linking will be available soon
       toast({
-        title: "Twitter Linking",
-        description: "Twitter account linking will be available soon. Stay tuned!",
+        title: "X Account Linking",
+        description: "X account linking will be available soon. Stay tuned!",
         variant: "default",
       });
       setIsConnecting(false);
@@ -29,7 +30,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
       console.error("Error connecting Twitter:", error);
       toast({
         title: "Connection Failed",
-        description: "Failed to connect Twitter. Please try again.",
+        description: "Failed to connect X. Please try again.",
         variant: "destructive",
       });
       setIsConnecting(false);

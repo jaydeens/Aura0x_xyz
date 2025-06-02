@@ -55,7 +55,7 @@ export interface IStorage {
   getUserVouches(userId: string): Promise<Vouch[]>;
   
   // Leaderboard operations
-  getLeaderboard(limit?: number): Promise<User[]>;
+  getLeaderboard(limit?: number, type?: 'weekly' | 'all-time'): Promise<User[]>;
   
   // Aura level operations
   getAuraLevels(): Promise<AuraLevel[]>;

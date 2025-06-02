@@ -31,10 +31,12 @@ import {
   ExternalLink,
   Settings,
   Link2,
-  Twitter,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Edit,
+  Camera
 } from "lucide-react";
+import { SiX } from "react-icons/si";
 
 interface ProfileParams {
   id: string;
@@ -422,10 +424,10 @@ export default function Profile() {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <Twitter className="w-5 h-5 text-[#1DA1F2]" />
+                            <SiX className="w-5 h-5 text-white" />
                             <div>
-                              <p className="text-white font-medium">Twitter Account</p>
-                              <p className="text-sm text-gray-400">Connect your Twitter for verification</p>
+                              <p className="text-white font-medium">X Account</p>
+                              <p className="text-sm text-gray-400">Connect your X account for verification</p>
                             </div>
                           </div>
                           {profileUser.twitterId ? (
