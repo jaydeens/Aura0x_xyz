@@ -359,6 +359,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Withdraw challenge (for challenger to cancel their own challenge)
+  app.post('/api/battles/:id/withdraw', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      const battle = await storage.getBattle(battleId);
+      
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+      
+      if (battle.challengerId !== userId) {
+        return res.status(403).json({ message: "Only the challenger can withdraw this battle" });
+      }
+
+      if (battle.status !== 'challenge_sent') {
+        return res.status(400).json({ message: "Can only withdraw pending challenges" });
+      }
+
+      // Update battle status
+      const updatedBattle = await storage.updateBattle(battleId, { status: 'withdrawn' });
+      
+      // Create notification for opponent
+      await storage.createNotification({
+        id: `notif_${Date.now()}_${Math.random()}`,
+        userId: battle.opponentId,
+        type: "battle_withdrawn",
+        title: "Battle Challenge Withdrawn",
+        message: "A battle challenge directed to you has been withdrawn.",
+        relatedId: battleId,
+      });
+
+      res.json(updatedBattle);
+    } catch (error) {
+      console.error("Error withdrawing battle:", error);
+      res.status(500).json({ message: "Failed to withdraw battle" });
+    }
+  });
+
+  // Request cancellation for accepted battles
+  app.post('/api/battles/:id/request-cancellation', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      const battle = await storage.getBattle(battleId);
+      
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+      
+      if (battle.challengerId !== userId && battle.opponentId !== userId) {
+        return res.status(403).json({ message: "Only battle participants can request cancellation" });
+      }
+
+      if (battle.status !== 'accepted') {
+        return res.status(400).json({ message: "Can only request cancellation for accepted battles" });
+      }
+
+      // Update battle status
+      const updatedBattle = await storage.updateBattle(battleId, { status: 'cancellation_requested' });
+      
+      // Create notification for the other party
+      const otherUserId = battle.challengerId === userId ? battle.opponentId : battle.challengerId;
+      await storage.createNotification({
+        id: `notif_${Date.now()}_${Math.random()}`,
+        userId: otherUserId,
+        type: "battle_cancellation_requested",
+        title: "Battle Cancellation Requested",
+        message: "Your opponent has requested to cancel the accepted battle.",
+        relatedId: battleId,
+      });
+
+      res.json(updatedBattle);
+    } catch (error) {
+      console.error("Error requesting cancellation:", error);
+      res.status(500).json({ message: "Failed to request cancellation" });
+    }
+  });
+
+  // Approve cancellation
+  app.post('/api/battles/:id/approve-cancellation', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      const battle = await storage.getBattle(battleId);
+      
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+      
+      if (battle.challengerId !== userId && battle.opponentId !== userId) {
+        return res.status(403).json({ message: "Only battle participants can approve cancellation" });
+      }
+
+      if (battle.status !== 'cancellation_requested') {
+        return res.status(400).json({ message: "No cancellation request to approve" });
+      }
+
+      // Update battle status
+      const updatedBattle = await storage.updateBattle(battleId, { status: 'cancelled' });
+      
+      // Create notification for the other party
+      const otherUserId = battle.challengerId === userId ? battle.opponentId : battle.challengerId;
+      await storage.createNotification({
+        id: `notif_${Date.now()}_${Math.random()}`,
+        userId: otherUserId,
+        type: "battle_cancelled",
+        title: "Battle Cancelled",
+        message: "The battle has been cancelled by mutual agreement.",
+        relatedId: battleId,
+      });
+
+      res.json(updatedBattle);
+    } catch (error) {
+      console.error("Error approving cancellation:", error);
+      res.status(500).json({ message: "Failed to approve cancellation" });
+    }
+  });
+
   // Notification routes
   app.get('/api/notifications', async (req: any, res) => {
     try {

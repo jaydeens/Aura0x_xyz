@@ -33,7 +33,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function Battles() {
   const [location] = useLocation();
-  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const urlParams = new URLSearchParams(window.location.search);
   const initialTab = urlParams.get('tab') || 'upcoming';
   
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -42,7 +42,7 @@ export default function Battles() {
   
   // Update active tab when URL changes
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const urlParams = new URLSearchParams(window.location.search);
     const tabFromUrl = urlParams.get('tab');
     if (tabFromUrl && tabFromUrl !== activeTab) {
       setActiveTab(tabFromUrl);
