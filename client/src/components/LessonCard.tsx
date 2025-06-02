@@ -261,7 +261,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   </Badge>
                   <div className="flex items-center gap-1 text-accent font-semibold">
                     <Zap className="w-4 h-4" />
-                    <span>+{lesson.auraReward} Aura Points</span>
+                    <span>+100 Aura Points</span>
                   </div>
                 </div>
               </DialogHeader>
