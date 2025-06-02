@@ -151,7 +151,7 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-function RedeemForm({ userBalance, onSuccess }: { userBalance: number; onSuccess: () => void }) {
+function RedeemForm({ battleEarnedSteeze, onSuccess }: { battleEarnedSteeze: number; onSuccess: () => void }) {
   const [amount, setAmount] = useState('');
   const { toast } = useToast();
 
@@ -162,7 +162,7 @@ function RedeemForm({ userBalance, onSuccess }: { userBalance: number; onSuccess
     onSuccess: () => {
       toast({
         title: "Redemption Successful",
-        description: "Steeze tokens redeemed successfully!",
+        description: "Battle-earned Steeze redeemed successfully!",
       });
       onSuccess();
       setAmount('');
@@ -186,10 +186,10 @@ function RedeemForm({ userBalance, onSuccess }: { userBalance: number; onSuccess
       });
       return;
     }
-    if (redeemAmount > userBalance) {
+    if (redeemAmount > battleEarnedSteeze) {
       toast({
         title: "Insufficient Balance",
-        description: "You don't have enough Steeze tokens",
+        description: "You can only redeem Steeze earned from battles",
         variant: "destructive",
       });
       return;
@@ -200,28 +200,33 @@ function RedeemForm({ userBalance, onSuccess }: { userBalance: number; onSuccess
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="redeem-amount" className="text-gray-300">Steeze Amount</Label>
+        <Label htmlFor="redeem-amount" className="text-gray-300">Battle-Earned Steeze Amount</Label>
         <Input
           id="redeem-amount"
           type="number"
           min="1"
-          max={userBalance}
+          max={battleEarnedSteeze}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Enter Steeze tokens to redeem"
+          placeholder="Enter battle-earned Steeze to redeem"
           className="bg-[#2A2A2B] border-[#8000FF]/30 text-white"
         />
         <p className="text-sm text-gray-400 mt-1">
-          You'll receive ${amount ? (parseInt(amount) * 0.007).toFixed(3) : '0.000'} USD
+          Available to redeem: {battleEarnedSteeze} Steeze from battles
         </p>
       </div>
       <Button 
         onClick={handleRedeem}
-        disabled={!amount || parseInt(amount) < 1 || parseInt(amount) > userBalance || redeemMutation.isPending}
+        disabled={!amount || parseInt(amount) < 1 || parseInt(amount) > battleEarnedSteeze || redeemMutation.isPending}
         className="w-full bg-[#FF6B6B] hover:bg-[#FF5252]"
       >
-        {redeemMutation.isPending ? 'Processing...' : 'Redeem Steeze'}
+        {redeemMutation.isPending ? 'Processing...' : 'Redeem Battle Steeze'}
       </Button>
+      {battleEarnedSteeze === 0 && (
+        <div className="text-center text-gray-500 text-sm">
+          Win battles in the Arena to earn redeemable Steeze
+        </div>
+      )}
     </div>
   );
 }
@@ -247,7 +252,7 @@ export default function SteezeStack() {
     refetchTransactions();
   };
 
-  const steezeBalance = user?.steezeBalance || 0;
+  const steezeBalance = (user?.battleEarnedSteeze || 0) + (user?.purchasedSteeze || 0);
   const recentTransactions = transactions?.slice(0, 5) || [];
 
   return (
@@ -266,38 +271,38 @@ export default function SteezeStack() {
             </p>
           </div>
 
-          {/* Balance & Stats */}
+          {/* Balance Breakdown */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Steeze Balance</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-400">Total Steeze Balance</CardTitle>
                 <Wallet className="h-4 w-4 text-[#8000FF]" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-[#8000FF]">{steezeBalance.toLocaleString()}</div>
-                <p className="text-xs text-gray-500">Steeze tokens</p>
+                <p className="text-xs text-gray-500">Total Steeze tokens</p>
               </CardContent>
             </Card>
 
             <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Purchase Rate</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-400">Aura Challenge Steeze</CardTitle>
                 <TrendingUp className="h-4 w-4 text-[#00FF88]" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-[#00FF88]">$0.01</div>
-                <p className="text-xs text-gray-500">per Steeze token</p>
+                <div className="text-2xl font-bold text-[#00FF88]">{(user?.battleEarnedSteeze || 0).toLocaleString()}</div>
+                <p className="text-xs text-gray-500">Redeemable from battles</p>
               </CardContent>
             </Card>
 
             <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Redeem Rate</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-400">Purchased Steeze</CardTitle>
                 <DollarSign className="h-4 w-4 text-[#FF6B6B]" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-[#FF6B6B]">$0.007</div>
-                <p className="text-xs text-gray-500">per Steeze token</p>
+                <div className="text-2xl font-bold text-[#FF6B6B]">{(user?.purchasedSteeze || 0).toLocaleString()}</div>
+                <p className="text-xs text-gray-500">Non-redeemable</p>
               </CardContent>
             </Card>
           </div>
@@ -330,7 +335,7 @@ export default function SteezeStack() {
                 {activeTab === 'purchase' ? (
                   <PurchaseForm onSuccess={handleTransactionUpdate} />
                 ) : (
-                  <RedeemForm userBalance={steezeBalance} onSuccess={handleTransactionUpdate} />
+                  <RedeemForm battleEarnedSteeze={user?.battleEarnedSteeze || 0} onSuccess={handleTransactionUpdate} />
                 )}
               </CardContent>
             </Card>
@@ -346,15 +351,15 @@ export default function SteezeStack() {
               <CardContent className="space-y-4 text-gray-300">
                 <div>
                   <h4 className="font-semibold text-[#00FF88] mb-2">Purchase Steeze</h4>
-                  <p className="text-sm">Buy Steeze tokens at $0.01 each to support friends in battles or trade later.</p>
+                  <p className="text-sm">Buy Steeze tokens to support friends in battles (purchased tokens are non-redeemable).</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-[#FF6B6B] mb-2">Redeem Steeze</h4>
-                  <p className="text-sm">Convert your Steeze tokens back to USD at $0.007 each (30% platform fee).</p>
+                  <h4 className="font-semibold text-[#FF6B6B] mb-2">Earn Battle Steeze</h4>
+                  <p className="text-sm">Fight in Aura Challenges to earn redeemable Steeze that can be converted to USD.</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-[#8000FF] mb-2">Battle Support</h4>
-                  <p className="text-sm">Use Steeze tokens to support friends in battles and help them win more Aura points.</p>
+                  <h4 className="font-semibold text-[#8000FF] mb-2">Redeem Policy</h4>
+                  <p className="text-sm">Only Steeze earned from battles can be redeemed - purchased Steeze supports friends only.</p>
                 </div>
               </CardContent>
             </Card>

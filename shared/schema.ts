@@ -53,8 +53,10 @@ export const users = pgTable("users", {
   auraFromBattles: integer("aura_from_battles").default(0),
   // USDT earnings tracking
   totalUsdtEarned: decimal("total_usdt_earned").default("0"),
-  // Steeze token balance
+  // Steeze token balances
   steezeBalance: integer("steeze_balance").default(0),
+  battleEarnedSteeze: integer("battle_earned_steeze").default(0),
+  purchasedSteeze: integer("purchased_steeze").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
