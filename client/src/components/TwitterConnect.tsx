@@ -85,7 +85,7 @@ export default function TwitterConnect({ onConnect }: TwitterConnectProps) {
       </CardHeader>
       <CardContent>
         <Button 
-          onClick={connectTwitter} 
+          onClick={connectX} 
           disabled={isConnecting}
           className="w-full bg-black hover:bg-gray-800 text-white"
         >
