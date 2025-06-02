@@ -455,23 +455,19 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-gradient-to-br from-[#1A1A1B] via-[#0A0A0B] to-[#1A1A1B] border-2 border-[#8000FF]/30 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#8000FF]/5 via-transparent to-[#9933FF]/5"></div>
-                <CardContent className="p-16 text-center relative z-10">
-                  <div className="relative mb-8">
-                    <Sword className="w-24 h-24 text-[#8000FF]/60 mx-auto drop-shadow-[0_0_20px_#8000FF40]" />
-                    <div className="absolute inset-0 bg-[#8000FF]/20 blur-xl rounded-full animate-pulse"></div>
-                  </div>
-                  <h3 className="text-3xl font-black text-white mb-4 drop-shadow-lg">THE ARENA AWAITS</h3>
-                  <p className="text-gray-300 mb-8 text-lg font-medium max-w-md mx-auto">
-                    No warriors are currently battling. <span className="text-[#8000FF] font-bold">Step into the arena</span> and prove your aura dominance!
+              <Card className="bg-card border-border">
+                <CardContent className="p-16 text-center">
+                  <Sword className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+                  <h3 className="text-2xl font-bold text-foreground mb-4">No Live Battles</h3>
+                  <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                    No warriors are currently battling. Step into the arena and prove your aura dominance!
                   </p>
                   <Button 
-                    className="bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/90 hover:via-[#9933FF]/90 hover:to-[#FF3366]/90 text-white font-bold px-8 py-4 rounded-xl shadow-[0_0_25px_#8000FF50] hover:shadow-[0_0_35px_#8000FF70] transition-all duration-300 text-lg"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     onClick={() => setShowCreateBattle(true)}
                   >
-                    <Plus className="w-6 h-6 mr-3" />
-                    CREATE BATTLE
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Battle
                   </Button>
                 </CardContent>
               </Card>
@@ -500,11 +496,11 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <Card className="bg-card border-border">
                 <CardContent className="p-12 text-center">
-                  <Clock className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No Upcoming Battles</h3>
-                  <p className="text-gray-400">
+                  <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No Upcoming Battles</h3>
+                  <p className="text-muted-foreground">
                     No battles are scheduled yet.
                   </p>
                 </CardContent>
@@ -534,11 +530,11 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <Card className="bg-card border-border">
                 <CardContent className="p-12 text-center">
-                  <Trophy className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No Completed Battles</h3>
-                  <p className="text-gray-400">
+                  <Trophy className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No Completed Battles</h3>
+                  <p className="text-muted-foreground">
                     No battles have been completed yet.
                   </p>
                 </CardContent>
@@ -568,19 +564,19 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <Card className="bg-card border-border">
                 <CardContent className="p-12 text-center">
-                  <Target className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No Battles Yet</h3>
-                  <p className="text-gray-400 mb-6">
+                  <Target className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No Battles Yet</h3>
+                  <p className="text-muted-foreground mb-6">
                     You haven't participated in any battles yet. Start your journey!
                   </p>
                   <Button 
-                    className="bg-[#8000FF] hover:bg-[#8000FF]/80"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     onClick={() => setShowCreateBattle(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    CREATE BATTLE
+                    Create Battle
                   </Button>
                 </CardContent>
               </Card>
