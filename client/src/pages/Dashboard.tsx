@@ -31,11 +31,12 @@ export default function Dashboard() {
   }, [isAuthenticated, isLoading, toast]);
 
   const { data: dailyLessons, isLoading: lessonsLoading } = useQuery({
-    queryKey: ["/api/lessons/daily"],
+    queryKey: ["/api/lessons/daily", new Date().toDateString()],
     retry: false,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     staleTime: 0, // Always consider data stale to force refresh
+    cacheTime: 0, // Don't cache at all
   });
 
   const { data: auraLevels } = useQuery({
@@ -149,13 +150,28 @@ export default function Dashboard() {
             <div className="lg:col-span-2">
               <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-white flex items-center">
-                    <Zap className="w-6 h-6 mr-2 text-[#8000FF]" />
-                    Today's Lessons
-                  </CardTitle>
-                  <p className="text-gray-400">
-                    Complete your daily lessons to maintain your streak and earn Aura Points
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-white flex items-center">
+                        <Zap className="w-6 h-6 mr-2 text-[#8000FF]" />
+                        Today's Lessons
+                      </CardTitle>
+                      <p className="text-gray-400">
+                        Complete your daily lessons to maintain your streak and earn Aura Points
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-[#8000FF] text-[#8000FF] hover:bg-[#8000FF] hover:text-white"
+                      onClick={async () => {
+                        await fetch('/api/lessons/daily?force=true', { credentials: 'include' });
+                        window.location.reload();
+                      }}
+                    >
+                      Refresh
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {lessonsLoading ? (

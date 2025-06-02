@@ -198,12 +198,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/lessons/daily', async (req, res) => {
     try {
+      // Add no-cache headers to prevent browser caching
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+
       const today = new Date();
+      const forceRefresh = req.query.force === 'true';
+      
       let lessons = await storage.getDailyLessons(today);
       
-      // If no lessons for today, generate new ones
-      if (lessons.length === 0) {
-        console.log("Generating daily lessons...");
+      // If no lessons for today OR force refresh requested, generate new ones
+      if (lessons.length === 0 || forceRefresh) {
+        if (forceRefresh) {
+          console.log("Force refreshing daily lessons...");
+          // Delete existing lessons for today before generating new ones
+          for (const lesson of lessons) {
+            await db.delete(lessonsTable).where(eq(lessonsTable.id, lesson.id));
+          }
+        } else {
+          console.log("Generating daily lessons...");
+        }
+        
         const generatedLessons = await generateDailyLessons(1);
         
         for (const lessonData of generatedLessons) {
