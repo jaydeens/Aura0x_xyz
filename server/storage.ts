@@ -218,7 +218,19 @@ export class DatabaseStorage implements IStorage {
       query = query.where(sql`${battles.status} IN ('accepted', 'active', 'completed')`);
     }
     
-    return await query.orderBy(desc(battles.createdAt));
+    const battleResults = await query.orderBy(desc(battles.createdAt));
+    
+    // Add challenger and opponent user details
+    return await Promise.all(battleResults.map(async (battle) => {
+      const challenger = await this.getUser(battle.challengerId);
+      const opponent = await this.getUser(battle.opponentId);
+      
+      return {
+        ...battle,
+        challenger,
+        opponent
+      };
+    }));
   }
 
   async getBattle(id: string): Promise<Battle | undefined> {
@@ -236,7 +248,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserBattles(userId: string): Promise<Battle[]> {
-    return await db
+    const battleResults = await db
       .select()
       .from(battles)
       .where(
@@ -246,6 +258,18 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(desc(battles.createdAt));
+    
+    // Add challenger and opponent user details
+    return await Promise.all(battleResults.map(async (battle) => {
+      const challenger = await this.getUser(battle.challengerId);
+      const opponent = await this.getUser(battle.opponentId);
+      
+      return {
+        ...battle,
+        challenger,
+        opponent
+      };
+    }));
   }
 
   // Battle vote operations
