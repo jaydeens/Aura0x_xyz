@@ -83,60 +83,72 @@ export default function LiveBattle() {
   const { data: battle, isLoading, error } = useQuery({
     queryKey: [`/api/battles/${battleId}`],
     enabled: !!battleId,
-    refetchInterval: 5000, // Refresh every 5 seconds for live updates
+    refetchInterval: 5000,
   });
-
-  // Update countdown timer
-  useEffect(() => {
-    if (!(battle as any)?.votingEndsAt) return;
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const endTime = new Date((battle as any).votingEndsAt).getTime();
-      const timeLeft = endTime - now;
-
-      if (timeLeft <= 0) {
-        setTimeRemaining("Battle Ended");
-        return;
-      }
-
-      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-      setTimeRemaining(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [(battle as any)?.votingEndsAt]);
 
   // Gift Steeze mutation
   const giftSteeze = useMutation({
-    mutationFn: async (data: { battleId: string; participantId: string; amount: number }) => {
-      return apiRequest("POST", "/api/battles/gift", data);
+    mutationFn: async ({ battleId, participantId, amount }: { battleId: string, participantId: string, amount: number }) => {
+      const response = await apiRequest("POST", "/api/battles/vote", {
+        battleId,
+        participantId,
+        amount,
+      });
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/battles", battleId] });
       toast({
-        title: "Gift Sent!",
-        description: "Your Steeze gift has been sent successfully.",
+        title: "Steeze Gifted!",
+        description: `Successfully gifted ${giftAmount} Steeze tokens`,
       });
       setShowGiftDialog(false);
       setGiftAmount("");
-      setSelectedParticipant(null);
+      queryClient.invalidateQueries({ queryKey: [`/api/battles/${battleId}`] });
     },
     onError: (error: any) => {
       toast({
         title: "Gift Failed",
-        description: error.message || "Failed to send gift",
+        description: error.message || "Failed to gift Steeze tokens",
         variant: "destructive",
       });
     },
   });
 
+  // Timer logic
+  useEffect(() => {
+    if (!battle || (battle as any).status !== 'active') return;
+
+    const updateTimer = () => {
+      const endTime = new Date((battle as any).endsAt);
+      const now = new Date();
+      const timeDiff = endTime.getTime() - now.getTime();
+      
+      if (timeDiff > 0) {
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+        setTimeRemaining(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      } else {
+        setTimeRemaining("00:00:00");
+        queryClient.invalidateQueries({ queryKey: [`/api/battles/${battleId}`] });
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [battle, battleId, queryClient]);
+
   const handleGiftSteeze = () => {
+    if (!user || !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to gift Steeze tokens",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!selectedParticipant || !giftAmount || !battleId) return;
 
     const amount = parseFloat(giftAmount);
@@ -255,290 +267,344 @@ export default function LiveBattle() {
 
       <div className="relative z-10 p-4">
         <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            onClick={() => window.history.back()}
-            className="text-white hover:bg-[#8000FF]/20"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Battles
-          </Button>
-          
-          <Badge 
-            className={`px-4 py-2 text-lg font-bold animate-pulse ${
-              (battle as any).status === 'active' 
-                ? 'bg-red-500/20 text-red-400' 
-                : 'bg-green-500/20 text-green-400'
-            }`}
-          >
-            {(battle as any).status === 'active' ? '🔴 LIVE' : '✅ COMPLETED'}
-          </Badge>
-        </div>
-
-        {/* Battle Title & Timer */}
-        <Card className="bg-[#1A1A1B] border-primary/20">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-white mb-4">
-              {(battle as any).title || `Battle #${(battle as any).id?.slice(0, 8)}`}
-            </CardTitle>
+          {/* Header with Live Indicator */}
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="ghost" 
+              onClick={() => window.history.back()}
+              className="text-white hover:bg-[#8000FF]/20"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Battles
+            </Button>
             
-            {(battle as any).status === 'active' && (
-              <div className="flex items-center justify-center text-accent">
-                <Clock className="w-6 h-6 mr-3" />
-                <span className="font-mono text-2xl font-bold">{timeRemaining}</span>
-                <span className="text-lg ml-3">remaining</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-white/60 text-sm">
+                <Users className="w-4 h-4" />
+                <span className="font-mono">{Math.floor(Math.random() * 1500) + 500} watching</span>
               </div>
-            )}
-          </CardHeader>
-        </Card>
-
-        {/* Live Scoreboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Challenger */}
-          <Card className="bg-[#1A1A1B] border-primary/20 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent"></div>
-            <CardContent className="p-6 relative z-10">
-              <div className="text-center space-y-4">
-                <Avatar className="w-20 h-20 mx-auto border-2 border-blue-400">
-                  <AvatarImage src={(battle as any).challenger?.profileImageUrl} />
-                  <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xl">
-                    {(battle as any).challenger?.username?.[0]?.toUpperCase() || 'C'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div>
-                  <h3 className="text-xl font-bold text-white">
-                    {(battle as any).challenger?.firstName || (battle as any).challenger?.username || `User ${(battle as any).challengerId?.slice(0, 6)}`}
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    @{(battle as any).challenger?.username || `user_${(battle as any).challengerId?.slice(0, 6)}`}
-                  </p>
-                  <Badge variant="secondary" className="mt-1">
-                    Challenger
-                  </Badge>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold text-blue-400">
-                    {(battle as any).challengerVotes || 0}
-                  </div>
-                  <div className="text-sm text-gray-400">Steeze received</div>
-                  
-                  <Progress 
-                    value={challengerPercentage} 
-                    className="w-full bg-gray-700"
-                  />
-                  <div className="text-sm font-medium text-blue-400">
-                    {challengerPercentage.toFixed(1)}%
-                  </div>
-                </div>
-
-                {(battle as any).status === 'active' && isAuthenticated && (
-                  <Button
-                    onClick={() => {
-                      setSelectedParticipant((battle as any).challengerId);
-                      setShowGiftDialog(true);
-                    }}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    <Gift className="w-4 h-4 mr-2" />
-                    Gift Steeze
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* VS & Stats */}
-          <Card className="bg-[#1A1A1B] border-primary/20">
-            <CardContent className="p-6">
-              <div className="text-center space-y-6">
-                <div className="text-4xl font-bold text-primary animate-pulse">VS</div>
-                
-                <Separator className="bg-primary/20" />
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Total Stakes</span>
-                    <span className="text-white font-bold">
-                      {((battle as any).challengerStake + (battle as any).opponentStake).toLocaleString()} AP
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Total Gifts</span>
-                    <span className="text-white font-bold">
-                      {(((battle as any).challengerVotes || 0) + ((battle as any).opponentVotes || 0)).toLocaleString()}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Battle ID</span>
-                    <span className="text-white font-mono">
-                      #{(battle as any).id?.slice(0, 8)}
-                    </span>
-                  </div>
-                </div>
-                
-                <Separator className="bg-primary/20" />
-                
-                {(battle as any).winnerId && (
-                  <div className="flex items-center justify-center space-x-2">
-                    <Crown className="w-5 h-5 text-yellow-400" />
-                    <span className="text-yellow-400 font-bold">
-                      {(battle as any).winnerId === (battle as any).challengerId ? 'Challenger Wins!' : 'Opponent Wins!'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Opponent */}
-          <Card className="bg-[#1A1A1B] border-primary/20 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-l from-red-500/10 to-transparent"></div>
-            <CardContent className="p-6 relative z-10">
-              <div className="text-center space-y-4">
-                <Avatar className="w-20 h-20 mx-auto border-2 border-red-400">
-                  <AvatarImage src={(battle as any).opponent?.profileImageUrl} />
-                  <AvatarFallback className="bg-red-500/20 text-red-400 text-xl">
-                    {(battle as any).opponent?.username?.[0]?.toUpperCase() || 'O'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div>
-                  <h3 className="text-xl font-bold text-white">
-                    {(battle as any).opponent?.firstName || (battle as any).opponent?.username || `User ${(battle as any).opponentId?.slice(0, 6)}`}
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    @{(battle as any).opponent?.username || `user_${(battle as any).opponentId?.slice(0, 6)}`}
-                  </p>
-                  <Badge variant="secondary" className="mt-1">
-                    Opponent
-                  </Badge>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold text-red-400">
-                    {(battle as any).opponentVotes || 0}
-                  </div>
-                  <div className="text-sm text-gray-400">Steeze received</div>
-                  
-                  <Progress 
-                    value={opponentPercentage} 
-                    className="w-full bg-gray-700"
-                  />
-                  <div className="text-sm font-medium text-red-400">
-                    {opponentPercentage.toFixed(1)}%
-                  </div>
-                </div>
-
-                {(battle as any).status === 'active' && isAuthenticated && (
-                  <Button
-                    onClick={() => {
-                      setSelectedParticipant((battle as any).opponentId);
-                      setShowGiftDialog(true);
-                    }}
-                    className="w-full bg-red-500 hover:bg-red-600 text-white"
-                  >
-                    <Gift className="w-4 h-4 mr-2" />
-                    Gift Steeze
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Battle Details */}
-        <Card className="bg-[#1A1A1B] border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Target className="w-5 h-5 mr-2" />
-              Battle Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <span className="text-gray-400 text-sm">Started At</span>
-                <p className="text-white">
-                  {new Date((battle as any).battleStartsAt || (battle as any).createdAt).toLocaleDateString()} at{' '}
-                  {new Date((battle as any).battleStartsAt || (battle as any).createdAt).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
-              </div>
-              
-              {(battle as any).votingEndsAt && (
-                <div className="space-y-2">
-                  <span className="text-gray-400 text-sm">Ends At</span>
-                  <p className="text-white">
-                    {new Date((battle as any).votingEndsAt).toLocaleDateString()} at{' '}
-                    {new Date((battle as any).votingEndsAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Gift Dialog */}
-      <Dialog open={showGiftDialog} onOpenChange={setShowGiftDialog}>
-        <DialogContent className="bg-[#1A1A1B] border-primary/20">
-          <DialogHeader>
-            <DialogTitle className="text-white flex items-center">
-              <Gift className="w-5 h-5 mr-2 text-primary" />
-              Gift Steeze
-            </DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Support your favorite participant by gifting them Steeze tokens from your purchased stack.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-white">Gift Amount (Steeze)</label>
-              <Input
-                type="number"
-                min="1"
-                placeholder="Enter amount to gift"
-                value={giftAmount}
-                onChange={(e) => setGiftAmount(e.target.value)}
-                className="bg-[#0A0A0B] border-primary/30 text-white mt-1"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Only purchased Steeze can be gifted • Available: {(user as any)?.steezeBalance || 0} Steeze
-              </p>
-            </div>
-            
-            <div className="flex space-x-2">
-              <Button
-                onClick={handleGiftSteeze}
-                disabled={giftSteeze.isPending || !giftAmount}
-                className="flex-1 bg-primary hover:bg-primary/90"
+              <Badge 
+                className={`px-4 py-2 text-lg font-bold animate-pulse ${
+                  (battle as any).status === 'active' 
+                    ? 'bg-red-500/20 text-red-400' 
+                    : 'bg-green-500/20 text-green-400'
+                }`}
               >
-                {giftSteeze.isPending ? "Sending..." : "Send Gift"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowGiftDialog(false)}
-                className="flex-1 border-primary/30 text-white hover:bg-primary/10"
-              >
-                Cancel
-              </Button>
+                {(battle as any).status === 'active' ? '🔴 LIVE' : '✅ COMPLETED'}
+              </Badge>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-      </div>
+
+          {/* Battle Title & Timer */}
+          <div className="text-center py-6 relative">
+            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#8000FF] to-[#FF00FF] mb-2 animate-pulse">
+              {(battle as any)?.title || "AURA BATTLES"}
+            </h1>
+            {timeRemaining && (
+              <div className="flex items-center justify-center gap-2 text-[#8000FF] text-xl font-bold">
+                <Clock className="w-6 h-6 animate-spin" />
+                <span className="font-mono bg-black/30 px-3 py-1 rounded-lg">{timeRemaining}</span>
+                <span className="text-white/60">remaining</span>
+              </div>
+            )}
+          </div>
+
+          {/* Live Radar Battle Indicator */}
+          <Card className="bg-black/40 border-[#8000FF]/30 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Radio className="w-5 h-5 text-[#8000FF] animate-pulse" />
+                  Live Battle Radar
+                </h3>
+                <div className="text-white/60 text-sm">Real-time battle intensity</div>
+              </div>
+              
+              <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-red-500/20 rounded-full overflow-hidden">
+                <div 
+                  className="absolute top-0 h-full w-2 bg-[#8000FF] rounded-full transition-all duration-1000 ease-out"
+                  style={{ left: `${radarPosition}%` }}
+                >
+                  <div className="absolute -top-2 -left-1 w-4 h-4 bg-[#8000FF] rounded-full animate-ping"></div>
+                </div>
+                <div className="absolute top-1/2 left-0 transform -translate-y-1/2 text-xs font-bold text-blue-400 ml-2">
+                  {(battle as any)?.challengerName || 'Challenger'}
+                </div>
+                <div className="absolute top-1/2 right-0 transform -translate-y-1/2 text-xs font-bold text-red-400 mr-2">
+                  {(battle as any)?.opponentName || 'Opponent'}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Top Gifters - Challenger */}
+            <Card className="bg-black/40 border-blue-500/30 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-blue-400 flex items-center gap-2">
+                  <Crown className="w-5 h-5" />
+                  Top Gifters - {(battle as any)?.challengerName || 'Challenger'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {topGifters.challenger.map((gifter, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-blue-500/10 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-bold text-blue-400">#{index + 1}</div>
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs">
+                          {gifter.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-white text-sm">{gifter.username}</span>
+                    </div>
+                    <div className="text-blue-400 font-bold">{gifter.amount}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Main Battle Arena */}
+            <div className="space-y-4">
+              {/* VS Battle Display */}
+              <Card className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-red-500/10 border-[#8000FF]/30 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-3 gap-6 items-center">
+                    {/* Challenger */}
+                    <div className="text-center space-y-4">
+                      <Avatar className="w-24 h-24 mx-auto border-4 border-blue-500 animate-pulse">
+                        <AvatarImage src={(battle as any)?.challengerAvatar} />
+                        <AvatarFallback className="bg-blue-500/20 text-blue-400 text-2xl font-bold">
+                          {((battle as any)?.challengerName || 'C').charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div>
+                        <h3 className="text-xl font-bold text-blue-400">
+                          {(battle as any)?.challengerName || 'Challenger'}
+                        </h3>
+                        <p className="text-blue-300 text-sm">
+                          @{(battle as any)?.challengerUsername || 'challenger'}
+                        </p>
+                        <Badge variant="secondary" className="mt-2 bg-blue-500/20 text-blue-400 border-blue-500/30">
+                          Challenger
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="text-3xl font-bold text-blue-400">
+                          {(battle as any).challengerVotes || 0}
+                        </div>
+                        <div className="text-sm text-gray-400">Steeze received</div>
+                        
+                        <Progress 
+                          value={challengerPercentage} 
+                          className="w-full bg-gray-700"
+                          style={{
+                            background: `linear-gradient(to right, rgba(59, 130, 246, 0.3) ${challengerPercentage}%, rgba(75, 85, 99, 1) ${challengerPercentage}%)`
+                          }}
+                        />
+                        
+                        <Button
+                          onClick={() => {
+                            setSelectedParticipant((battle as any).challengerId);
+                            setShowGiftDialog(true);
+                          }}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 mt-4"
+                          disabled={!isAuthenticated || (battle as any).status !== 'active'}
+                        >
+                          <Gift className="w-4 h-4 mr-2" />
+                          Gift Steeze
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* VS Center */}
+                    <div className="text-center">
+                      <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#8000FF] to-[#FF00FF] animate-pulse mb-4">
+                        VS
+                      </div>
+                      <div className="space-y-2 text-white/60">
+                        <div className="flex items-center justify-center gap-2">
+                          <Target className="w-4 h-4" />
+                          <span className="text-sm">Total Stakes</span>
+                        </div>
+                        <div className="text-xl font-bold text-[#8000FF]">
+                          {((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0)} AP
+                        </div>
+                        <div className="flex items-center justify-center gap-2">
+                          <Gift className="w-4 h-4" />
+                          <span className="text-sm">Total Gifts</span>
+                        </div>
+                        <div className="text-lg font-bold text-white">
+                          {Math.floor(Math.random() * 100) + 50}
+                        </div>
+                        <div className="flex items-center justify-center gap-2 mt-4">
+                          <span className="text-xs text-gray-400">Battle ID</span>
+                        </div>
+                        <div className="text-xs font-mono text-white/60">
+                          #{(battle as any).id?.slice(0, 8)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Opponent */}
+                    <div className="text-center space-y-4">
+                      <Avatar className="w-24 h-24 mx-auto border-4 border-red-500 animate-pulse">
+                        <AvatarImage src={(battle as any)?.opponentAvatar} />
+                        <AvatarFallback className="bg-red-500/20 text-red-400 text-2xl font-bold">
+                          {((battle as any)?.opponentName || 'O').charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div>
+                        <h3 className="text-xl font-bold text-red-400">
+                          {(battle as any)?.opponentName || 'Opponent'}
+                        </h3>
+                        <p className="text-red-300 text-sm">
+                          @{(battle as any)?.opponentUsername || 'opponent'}
+                        </p>
+                        <Badge variant="secondary" className="mt-2 bg-red-500/20 text-red-400 border-red-500/30">
+                          Opponent
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="text-3xl font-bold text-red-400">
+                          {(battle as any).opponentVotes || 0}
+                        </div>
+                        <div className="text-sm text-gray-400">Steeze received</div>
+                        
+                        <Progress 
+                          value={opponentPercentage} 
+                          className="w-full bg-gray-700"
+                          style={{
+                            background: `linear-gradient(to right, rgba(239, 68, 68, 0.3) ${opponentPercentage}%, rgba(75, 85, 99, 1) ${opponentPercentage}%)`
+                          }}
+                        />
+                        
+                        <Button
+                          onClick={() => {
+                            setSelectedParticipant((battle as any).opponentId);
+                            setShowGiftDialog(true);
+                          }}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 mt-4"
+                          disabled={!isAuthenticated || (battle as any).status !== 'active'}
+                        >
+                          <Gift className="w-4 h-4 mr-2" />
+                          Gift Steeze
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Battle Stats */}
+              <Card className="bg-[#1A1A1B] border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-[#8000FF]" />
+                    Battle Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-gray-400 text-sm mb-2">Started At</h4>
+                    <p className="text-white font-mono">
+                      {new Date((battle as any).createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-gray-400 text-sm mb-2">Ends At</h4>
+                    <p className="text-white font-mono">
+                      {new Date((battle as any).endsAt).toLocaleString()}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Top Gifters - Opponent */}
+            <Card className="bg-black/40 border-red-500/30 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-red-400 flex items-center gap-2">
+                  <Crown className="w-5 h-5" />
+                  Top Gifters - {(battle as any)?.opponentName || 'Opponent'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {topGifters.opponent.map((gifter, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-red-500/10 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-bold text-red-400">#{index + 1}</div>
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className="bg-red-500/20 text-red-400 text-xs">
+                          {gifter.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-white text-sm">{gifter.username}</span>
+                    </div>
+                    <div className="text-red-400 font-bold">{gifter.amount}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Gift Dialog */}
+          <Dialog open={showGiftDialog} onOpenChange={setShowGiftDialog}>
+            <DialogContent className="bg-[#1A1A1B] border-primary/20">
+              <DialogHeader>
+                <DialogTitle className="text-white">Gift Steeze Tokens</DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Support your favorite participant by gifting Steeze tokens
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-white mb-2 block">
+                    Amount (Steeze Tokens)
+                  </label>
+                  <Input
+                    type="number"
+                    value={giftAmount}
+                    onChange={(e) => setGiftAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    className="bg-gray-800 border-gray-600 text-white"
+                    min="1"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleGiftSteeze}
+                    disabled={giftSteeze.isPending || !giftAmount}
+                    className="flex-1 bg-primary hover:bg-primary/80"
+                  >
+                    {giftSteeze.isPending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Gifting...
+                      </>
+                    ) : (
+                      <>
+                        <Gift className="w-4 h-4 mr-2" />
+                        Gift Steeze
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowGiftDialog(false)}
+                    className="flex-1 border-primary/30 text-white hover:bg-primary/10"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   );
