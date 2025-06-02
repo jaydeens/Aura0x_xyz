@@ -46,6 +46,8 @@ export default function Battles() {
   const [battleDuration, setBattleDuration] = useState("4");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showBalanceError, setShowBalanceError] = useState(false);
+  const [balanceErrorMessage, setBalanceErrorMessage] = useState("");
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -146,15 +148,20 @@ export default function Battles() {
     }
 
     const stakeAmountNum = parseFloat(stakeAmount);
+    const userBalance = user?.auraPoints || 0;
     const opponentBalance = selectedOpponent.auraPoints || 0;
+
+    // Check if user has enough balance
+    if (stakeAmountNum > userBalance) {
+      setBalanceErrorMessage("You don't have enough Aura Points to stake this amount!");
+      setShowBalanceError(true);
+      return;
+    }
 
     // Check if opponent has enough balance
     if (stakeAmountNum > opponentBalance) {
-      toast({
-        title: "Why are you trying to rob this farmer of all their Aura?",
-        description: "This user does not have enough balance to join this battle",
-        variant: "destructive",
-      });
+      setBalanceErrorMessage("Why are you trying to rob this farmer of all their Aura? This user does not have enough balance to join this battle");
+      setShowBalanceError(true);
       return;
     }
 
@@ -686,6 +693,33 @@ export default function Battles() {
                   SEND BATTLE REQUEST
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Balance Error Modal */}
+        <Dialog open={showBalanceError} onOpenChange={setShowBalanceError}>
+          <DialogContent className="bg-gradient-to-br from-[#1A0033] to-[#330066] border-2 border-[#FF3366] max-w-md mx-auto">
+            <div className="text-center space-y-6 p-6">
+              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#FF3366] to-[#FF6B9D] rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Balance Insufficient!</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  {balanceErrorMessage}
+                </p>
+              </div>
+
+              <Button 
+                onClick={() => setShowBalanceError(false)}
+                className="w-full bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/80 hover:via-[#9933FF]/80 hover:to-[#FF3366]/80 text-white font-bold py-3 rounded-xl"
+              >
+                Got it!
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
