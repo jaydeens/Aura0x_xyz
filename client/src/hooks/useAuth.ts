@@ -1,22 +1,36 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 
 export function useAuth() {
-  const { data: user, isLoading, error } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-    staleTime: 0, // Always fetch fresh data
-    gcTime: 0, // Don't cache at all (replaces cacheTime in v5)
-    refetchOnMount: true,
-    refetchOnWindowFocus: false, // Disable to prevent loops
-    refetchInterval: false, // Disable automatic polling
-  });
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasChecked, setHasChecked] = useState(false);
 
-  // If we got a 401 error, consider loading complete and user unauthenticated
-  const isActuallyLoading = isLoading && !error;
+  useEffect(() => {
+    // Only check auth once when component mounts
+    if (!hasChecked) {
+      fetch("/api/auth/user")
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          throw new Error('Unauthorized');
+        })
+        .then(userData => {
+          setUser(userData);
+        })
+        .catch(() => {
+          setUser(null);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          setHasChecked(true);
+        });
+    }
+  }, [hasChecked]);
 
   return {
     user,
-    isLoading: isActuallyLoading,
-    isAuthenticated: !!user && !error,
+    isLoading,
+    isAuthenticated: !!user,
   };
 }
