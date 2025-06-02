@@ -219,9 +219,45 @@ export default function Leaderboard() {
               </TabsTrigger>
             </TabsList>
 
+            <TabsContent value="all-time" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">All-Time Leaders</h2>
+                <Badge className="bg-[#8000FF]/20 text-[#8000FF]">
+                  Based on Aura Points
+                </Badge>
+              </div>
 
+              {leaderboardLoading ? (
+                <div className="space-y-4">
+                  {[...Array(10)].map((_, i) => (
+                    <div key={i} className="h-20 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <LeaderboardTable users={leaderboard || []} showTopPodium={true} />
+              )}
+            </TabsContent>
 
-            {/* Battle Winners Leaderboard */}
+            <TabsContent value="weekly" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">Weekly Leaders</h2>
+                <Badge className="bg-[#FFD700]/20 text-[#FFD700]">
+                  Based on Aura Points
+                </Badge>
+              </div>
+
+              {leaderboardLoading ? (
+                <div className="space-y-4">
+                  {[...Array(10)].map((_, i) => (
+                    <div key={i} className="h-20 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <LeaderboardTable users={leaderboard || []} showTopPodium={true} />
+              )}
+            </TabsContent>
+
+            {/* Remove old battle/streak/growth tabs - keeping only all-time and weekly */}
             <TabsContent value="battles" className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-white">Top Battle Champions</h2>

@@ -197,7 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If no lessons for today, generate new ones
       if (lessons.length === 0) {
         console.log("Generating daily lessons...");
-        const generatedLessons = await generateDailyLessons(3);
+        const generatedLessons = await generateDailyLessons(1);
         
         for (const lessonData of generatedLessons) {
           await storage.createLesson({
@@ -214,7 +214,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lessons = await storage.getDailyLessons(today);
       }
       
-      res.json(lessons);
+      // Always return only 1 lesson per day
+      const dailyLesson = lessons.slice(0, 1);
+      res.json(dailyLesson);
     } catch (error) {
       console.error("Error fetching daily lessons:", error);
       res.status(500).json({ message: "Failed to fetch daily lessons" });
