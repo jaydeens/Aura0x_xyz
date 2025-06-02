@@ -27,8 +27,21 @@ export default function NotificationBell() {
 
   const { data: notifications = [], refetch } = useQuery({
     queryKey: ["/api/notifications"],
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
     retry: false,
   });
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      console.log("Marking notification as read:", notificationId);
+      await apiRequest("POST", `/api/notifications/${notificationId}/read`);
+      // Force immediate refetch to update the UI
+      await refetch();
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
 
   const unreadCount = notifications.filter((n: Notification) => !n.isRead).length;
 
@@ -97,11 +110,12 @@ export default function NotificationBell() {
               {notifications.map((notification: Notification) => (
                 <div
                   key={notification.id}
-                  className={`p-3 rounded-lg border transition-colors ${
+                  className={`p-3 rounded-lg border transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
                     notification.isRead 
                       ? "bg-gray-50 dark:bg-gray-800/50" 
                       : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
                   }`}
+                  onClick={() => markAsRead(notification.id)}
                 >
                   <div className="flex items-start gap-3">
                     {getNotificationIcon(notification.type)}
