@@ -448,21 +448,21 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               <DialogTrigger asChild>
                 <Button className="flex-1 bg-gradient-to-r from-warning to-red-500 hover:from-warning/80 hover:to-red-500/80 text-black font-semibold">
                   <Vote className="w-4 h-4 mr-2" />
-                  Vote with USDT
+                  Gift Steeze
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-card border-primary/20">
                 <DialogHeader>
-                  <DialogTitle className="text-white">Cast Your Vote</DialogTitle>
+                  <DialogTitle className="text-white">Gift Steeze Tokens</DialogTitle>
                   <DialogDescription className="text-gray-400">
-                    Vote for your favorite KOL with USDT. 1 USDT = 1 Vote
+                    Support your favorite participant with purchased Steeze tokens. Only purchased Steeze can be gifted.
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-4 mt-6">
                   <div>
                     <label className="block text-sm font-medium text-white mb-2">
-                      Choose Your Fighter
+                      Choose Participant to Support
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <Button
@@ -479,7 +479,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                             {battle.challenger?.firstName || "Challenger"}
                           </div>
                           <div className="text-xs opacity-75">
-                            {battle.challengerVotes} votes
+                            {battle.challengerVotes} gifts
                           </div>
                         </div>
                       </Button>
@@ -498,7 +498,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                             {battle.opponent?.firstName || "Opponent"}
                           </div>
                           <div className="text-xs opacity-75">
-                            {battle.opponentVotes} votes
+                            {battle.opponentVotes} gifts
                           </div>
                         </div>
                       </Button>
@@ -507,7 +507,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   
                   <div>
                     <label className="block text-sm font-medium text-white mb-2">
-                      Vote Amount (USDT)
+                      Gift Amount (Steeze)
                     </label>
                     <div className="relative">
                       <Input
@@ -517,7 +517,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                         onChange={(e) => setVouchAmount(e.target.value)}
                         className="bg-background border-primary/30 focus:border-primary pr-16"
                       />
-                      <span className="absolute right-4 top-3 text-gray-400">USDT</span>
+                      <span className="absolute right-4 top-3 text-gray-400">Steeze</span>
                     </div>
                   </div>
                   
@@ -531,7 +531,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                     ) : (
                       <Coins className="w-4 h-4 mr-2" />
                     )}
-                    Cast Vote
+                    Send Gift
                   </Button>
                 </div>
               </DialogContent>
