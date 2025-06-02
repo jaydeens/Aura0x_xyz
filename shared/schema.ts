@@ -47,6 +47,7 @@ export const users = pgTable("users", {
   totalBattlesLost: integer("total_battles_lost").default(0),
   portfolioGrowth: decimal("portfolio_growth").default("0"),
   walletAge: integer("wallet_age").default(0),
+  totalUsdtEarned: decimal("total_usdt_earned").default("0"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -281,3 +282,5 @@ export type AuraLevel = typeof auraLevels.$inferSelect;
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
+export type InsertAuraHistory = z.infer<typeof insertAuraHistorySchema>;
+export type AuraHistory = typeof auraHistory.$inferSelect;
