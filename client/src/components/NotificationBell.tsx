@@ -136,7 +136,10 @@ export default function NotificationBell() {
                           <Button 
                             size="sm" 
                             className="h-6 text-xs"
-                            onClick={() => handleAcceptChallenge(notification.relatedId!)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAcceptChallenge(notification.relatedId!);
+                            }}
                           >
                             Accept
                           </Button>
@@ -144,7 +147,10 @@ export default function NotificationBell() {
                             size="sm" 
                             variant="outline"
                             className="h-6 text-xs"
-                            onClick={() => handleRejectChallenge(notification.relatedId!)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRejectChallenge(notification.relatedId!);
+                            }}
                           >
                             Reject
                           </Button>
