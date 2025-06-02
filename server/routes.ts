@@ -392,15 +392,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update battle status
       const updatedBattle = await storage.updateBattle(battleId, { status: 'withdrawn' });
       
-      // Create notification for opponent
-      await storage.createNotification({
-        id: `notif_${Date.now()}_${Math.random()}`,
-        userId: battle.opponentId,
-        type: "battle_withdrawn",
-        title: "Battle Challenge Withdrawn",
-        message: "A battle challenge directed to you has been withdrawn.",
-        relatedId: battleId,
-      });
+      // Create notification for opponent (only if opponent exists)
+      if (battle.opponentId) {
+        console.log("Creating withdrawal notification for opponent:", battle.opponentId);
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.opponentId,
+          type: "battle_withdrawn",
+          title: "Battle Challenge Withdrawn",
+          message: "A battle challenge directed to you has been withdrawn.",
+          relatedId: battleId,
+        });
+      } else {
+        console.log("No opponent ID found for battle:", battleId);
+      }
 
       res.json(updatedBattle);
     } catch (error) {
