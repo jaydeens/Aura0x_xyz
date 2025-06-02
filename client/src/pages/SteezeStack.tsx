@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import Navigation from '@/components/Navigation';
 import { 
   Coins, 
   TrendingUp, 
@@ -239,9 +240,11 @@ export default function SteezeStack() {
   const recentTransactions = transactions?.slice(0, 5) || [];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B] text-white">
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-[#0A0A0B] text-white pt-16">
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#00FF88] to-[#8000FF] bg-clip-text text-transparent">
             Steeze Stack
           </h1>
@@ -403,7 +406,8 @@ export default function SteezeStack() {
             )}
           </CardContent>
         </Card>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
