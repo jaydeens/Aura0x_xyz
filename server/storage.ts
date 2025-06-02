@@ -23,9 +23,6 @@ import {
   type AuraLevel,
   type Notification,
   type InsertNotification,
-  auraHistory,
-  type AuraHistory,
-  type InsertAuraHistory,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and, or, sql, gt, lt, gte, lte, isNotNull } from "drizzle-orm";
@@ -82,15 +79,9 @@ export interface IStorage {
   getAuraLevels(): Promise<AuraLevel[]>;
   seedAuraLevels(): Promise<void>;
   
-  // Aura history operations
-  createAuraHistory(entry: InsertAuraHistory): Promise<AuraHistory>;
-  getUserAuraHistory(userId: string): Promise<AuraHistory[]>;
-  getAuraStatsBySource(userId: string): Promise<{ source: string; total: number; count: number }[]>;
-  
   // User statistics
   updateUserAura(userId: string, points: number): Promise<void>;
   updateUserStreak(userId: string, streak: number): Promise<void>;
-  updateUserUsdtEarnings(userId: string, amount: number): Promise<void>;
   getUserByWallet(walletAddress: string): Promise<User | undefined>;
   getUserByTwitter(twitterId: string): Promise<User | undefined>;
 }
@@ -515,47 +506,6 @@ export class DatabaseStorage implements IStorage {
       .update(notifications)
       .set({ isRead: true })
       .where(eq(notifications.userId, userId));
-  }
-
-  // Aura history operations
-  async createAuraHistory(entry: InsertAuraHistory): Promise<AuraHistory> {
-    const [result] = await db
-      .insert(auraHistory)
-      .values(entry)
-      .returning();
-    return result;
-  }
-
-  async getUserAuraHistory(userId: string): Promise<AuraHistory[]> {
-    return await db
-      .select()
-      .from(auraHistory)
-      .where(eq(auraHistory.userId, userId))
-      .orderBy(desc(auraHistory.createdAt));
-  }
-
-  async getAuraStatsBySource(userId: string): Promise<{ source: string; total: number; count: number }[]> {
-    const result = await db
-      .select({
-        source: auraHistory.source,
-        total: sql<number>`SUM(${auraHistory.amount})::int`,
-        count: sql<number>`COUNT(*)::int`,
-      })
-      .from(auraHistory)
-      .where(eq(auraHistory.userId, userId))
-      .groupBy(auraHistory.source);
-    
-    return result;
-  }
-
-  async updateUserUsdtEarnings(userId: string, amount: number): Promise<void> {
-    await db
-      .update(users)
-      .set({
-        totalUsdtEarned: sql`${users.totalUsdtEarned} + ${amount.toString()}`,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId));
   }
 }
 

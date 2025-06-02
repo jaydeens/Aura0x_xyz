@@ -47,7 +47,6 @@ export const users = pgTable("users", {
   totalBattlesLost: integer("total_battles_lost").default(0),
   portfolioGrowth: decimal("portfolio_growth").default("0"),
   walletAge: integer("wallet_age").default(0),
-  totalUsdtEarned: decimal("total_usdt_earned").default("0"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -142,17 +141,6 @@ export const notifications = pgTable("notifications", {
   message: text("message").notNull(),
   relatedId: varchar("related_id"), // ID of related battle/lesson/etc
   isRead: boolean("is_read").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Aura Points History for tracking sources
-export const auraHistory = pgTable("aura_history", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  amount: integer("amount").notNull(),
-  source: varchar("source").notNull(), // 'lesson', 'vouching', 'battle_win', 'battle_stake'
-  sourceId: varchar("source_id"), // ID of related lesson, vouch, battle, etc.
-  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -276,11 +264,6 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
-export const insertAuraHistorySchema = createInsertSchema(auraHistory).omit({
-  id: true,
-  createdAt: true,
-});
-
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertLesson = z.infer<typeof insertLessonSchema>;
@@ -298,5 +281,3 @@ export type AuraLevel = typeof auraLevels.$inferSelect;
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
-export type InsertAuraHistory = z.infer<typeof insertAuraHistorySchema>;
-export type AuraHistory = typeof auraHistory.$inferSelect;
