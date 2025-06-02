@@ -51,6 +51,7 @@ export default function Battles() {
   }, [location, activeTab]);
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("live");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateBattle, setShowCreateBattle] = useState(false);
   const [opponentSearch, setOpponentSearch] = useState("");
   const [selectedOpponent, setSelectedOpponent] = useState<any>(null);
@@ -224,21 +225,56 @@ export default function Battles() {
   };
 
   const getBattleStats = () => {
-    if (!battles) return { total: 0, live: 0, upcoming: 0, completed: 0 };
+    if (!battles) return { total: 0, live: 0, upcoming: 0, completed: 0, pending: 0, accepted: 0, withdrawn: 0, cancelled: 0 };
     
     const total = battles.length;
     const live = battles.filter((b: any) => b.status === 'active').length;
     const upcoming = battles.filter((b: any) => b.status === 'accepted' || b.status === 'pending').length;
     const completed = battles.filter((b: any) => b.status === 'completed').length;
+    const pending = battles.filter((b: any) => b.status === 'pending').length;
+    const accepted = battles.filter((b: any) => b.status === 'accepted').length;
+    const withdrawn = battles.filter((b: any) => b.status === 'withdrawn').length;
+    const cancelled = battles.filter((b: any) => b.status === 'cancelled').length;
     
-    return { total, live, upcoming, completed };
+    return { total, live, upcoming, completed, pending, accepted, withdrawn, cancelled };
   };
 
   const stats = getBattleStats();
 
-  const liveBattles = battles?.filter((b: any) => b.status === 'active') || [];
-  const upcomingBattles = battles?.filter((b: any) => b.status === 'accepted' || b.status === 'pending') || [];
-  const completedBattles = battles?.filter((b: any) => b.status === 'completed') || [];
+  const getFilteredBattles = (tabType: string) => {
+    if (!battles) return [];
+    
+    let filteredBattles = battles;
+    
+    // Filter by tab type first
+    switch (tabType) {
+      case 'live':
+        filteredBattles = battles.filter((b: any) => b.status === 'active');
+        break;
+      case 'upcoming':
+        filteredBattles = battles.filter((b: any) => b.status === 'accepted' || b.status === 'pending');
+        break;
+      case 'completed':
+        filteredBattles = battles.filter((b: any) => b.status === 'completed');
+        break;
+      case 'my-battles':
+        filteredBattles = userBattles || [];
+        break;
+      default:
+        filteredBattles = battles;
+    }
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filteredBattles = filteredBattles.filter((b: any) => b.status === statusFilter);
+    }
+    
+    return filteredBattles;
+  };
+
+  const liveBattles = getFilteredBattles('live');
+  const upcomingBattles = getFilteredBattles('upcoming');
+  const completedBattles = getFilteredBattles('completed');
 
   if (isLoading || !isAuthenticated) {
     return (
