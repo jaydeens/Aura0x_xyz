@@ -1001,6 +1001,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalVouchAmount: "0",
       });
       
+      // Create notification for opponent
+      console.log("Creating challenge notification for opponent:", opponent.id);
+      await storage.createNotification({
+        id: `notif_${Date.now()}_${Math.random()}`,
+        userId: opponent.id,
+        type: "battle_challenge",
+        title: "New Battle Challenge!",
+        message: `You have been challenged to a battle with ${stakeAmount} Aura stake.`,
+        relatedId: battle.id,
+      });
+
       // Create battle request notification for opponent
       await storage.createBattleRequest({
         battleId: battle.id,
