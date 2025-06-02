@@ -72,20 +72,20 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                 <div className="text-center order-2 md:order-1">
                   <Link href={`/profile/${topThree[1].id}`} className="block cursor-pointer hover:scale-105 transition-transform duration-300">
                     <div className="relative mx-auto w-20 h-20 mb-4">
-                      <Avatar className="w-20 h-20 border-4 border-gray-400">
+                      <Avatar className="w-20 h-20 border-4 border-orange-600">
                         <AvatarImage src={topThree[1].profileImageUrl} />
-                        <AvatarFallback className="bg-gray-400/20 text-gray-400">
+                        <AvatarFallback className="bg-orange-600/20 text-orange-400">
                           <Star className="w-8 h-8" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-bold text-sm">2</span>
                       </div>
                     </div>
                     <h4 className="font-bold text-lg text-white">
                       {getUserDisplayName(topThree[1])}
                     </h4>
-                    <p className="text-accent font-semibold text-xl">
+                    <p className="text-orange-400 font-semibold text-xl">
                       {topThree[1].auraPoints.toLocaleString()}
                     </p>
                     <div className="text-sm text-gray-400">
@@ -131,20 +131,20 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                 <div className="text-center order-3">
                   <Link href={`/profile/${topThree[2].id}`} className="block cursor-pointer hover:scale-105 transition-transform duration-300">
                     <div className="relative mx-auto w-20 h-20 mb-4">
-                      <Avatar className="w-20 h-20 border-4 border-orange-600">
+                      <Avatar className="w-20 h-20 border-4 border-gray-400">
                         <AvatarImage src={topThree[2].profileImageUrl} />
-                        <AvatarFallback className="bg-orange-600/20 text-orange-400">
+                        <AvatarFallback className="bg-gray-400/20 text-gray-400">
                           <Trophy className="w-8 h-8" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-bold text-sm">3</span>
                       </div>
                     </div>
                     <h4 className="font-bold text-lg text-white">
                       {getUserDisplayName(topThree[2])}
                     </h4>
-                    <p className="text-orange-400 font-semibold text-xl">
+                    <p className="text-gray-400 font-semibold text-xl">
                       {topThree[2].auraPoints.toLocaleString()}
                     </p>
                     <div className="text-sm text-gray-400">
