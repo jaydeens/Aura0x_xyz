@@ -80,6 +80,12 @@ export default function Profile() {
   // Fetch profile data only if viewing another user's profile
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ["/api/users", targetUserId],
+    queryFn: () => fetch(`/api/users/${targetUserId}`).then(res => {
+      if (!res.ok) {
+        throw new Error('User not found');
+      }
+      return res.json();
+    }),
     enabled: !!targetUserId && isAuthenticated && !viewingOwnProfile,
     retry: false,
   });
