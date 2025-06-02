@@ -334,15 +334,15 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   <Users className="w-3 h-3 mr-1" />
                   {battle.totalVotes} votes
                 </div>
-                {battle.createdAt && (
+                {(battle.battleStartsAt || battle.createdAt) && (
                   <div className="text-xs text-gray-400 space-y-1">
                     <div className="flex items-center justify-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {new Date(battle.createdAt).toLocaleDateString()}
+                      {new Date(battle.battleStartsAt || battle.createdAt).toLocaleDateString()}
                     </div>
                     <div className="flex items-center justify-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {new Date(battle.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      {new Date(battle.battleStartsAt || battle.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </div>
                   </div>
                 )}
@@ -597,9 +597,9 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                       </Badge>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Created:</span>
+                      <span className="text-gray-400">Scheduled:</span>
                       <span className="text-white">
-                        {new Date(battle.createdAt).toLocaleDateString()} at {new Date(battle.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        {new Date(battle.battleStartsAt || battle.createdAt).toLocaleDateString()} at {new Date(battle.battleStartsAt || battle.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </span>
                     </div>
                     {battle.votingEndsAt && (

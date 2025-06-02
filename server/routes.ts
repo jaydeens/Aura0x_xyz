@@ -995,6 +995,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         challengerStake: stakeAmount,
         opponentStake: stakeAmount,
         status: "pending",
+        battleStartsAt: battleStartDate,
         votingEndsAt,
         totalVotes: 0,
         challengerVotes: 0,

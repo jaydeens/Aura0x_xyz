@@ -94,6 +94,7 @@ export const battles = pgTable("battles", {
   totalVouchAmount: decimal("total_vouch_amount").default("0"),
   winnerId: varchar("winner_id").references(() => users.id),
   status: varchar("status").default("pending"), // pending, active, completed, cancelled
+  battleStartsAt: timestamp("battle_starts_at"),
   votingEndsAt: timestamp("voting_ends_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
