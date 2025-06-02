@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, ExternalLink, CheckCircle, AlertCircle } from "lucide-react";
+import { Wallet, ExternalLink, CheckCircle, AlertCircle, Smartphone, QrCode } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -17,13 +17,15 @@ interface WalletConnectProps {
   onConnect?: (address: string) => void;
   showBalance?: boolean;
   linkMode?: boolean; // New prop for account linking
+  mobileOptimized?: boolean; // New prop for mobile-optimized experience
 }
 
-export default function WalletConnect({ onConnect, showBalance = true, linkMode = false }: WalletConnectProps) {
+export default function WalletConnect({ onConnect, showBalance = true, linkMode = false, mobileOptimized = false }: WalletConnectProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string>("");
   const [balance, setBalance] = useState<string>("0");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -71,7 +73,14 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
 
   useEffect(() => {
     checkConnection();
+    detectMobile();
   }, []);
+
+  const detectMobile = () => {
+    const userAgent = navigator.userAgent || navigator.vendor;
+    const mobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+    setIsMobile(mobile);
+  };
 
   const checkConnection = async () => {
     if (window.ethereum) {
@@ -105,7 +114,38 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     }
   };
 
+  const connectMobileWallet = async (walletType: 'metamask' | 'trust' | 'coinbase') => {
+    const deepLinks = {
+      metamask: `https://metamask.app.link/dapp/${window.location.host}`,
+      trust: `https://link.trustwallet.com/open_url?coin_id=60&url=https://${window.location.host}`,
+      coinbase: `https://go.cb-w.com/dapp?cb_url=https://${window.location.host}`
+    };
+
+    if (isMobile && !window.ethereum) {
+      // Open mobile wallet app
+      window.open(deepLinks[walletType], '_blank');
+      toast({
+        title: "Opening Wallet App",
+        description: `Opening ${walletType} app. Please connect your wallet and return to this page.`,
+      });
+      return;
+    }
+
+    // If wallet is available, proceed with normal connection
+    await connectWallet();
+  };
+
   const connectWallet = async () => {
+    // Mobile-specific wallet detection
+    if (isMobile && !window.ethereum) {
+      toast({
+        title: "Mobile Wallet Required",
+        description: "Please use a mobile wallet app or browser with wallet support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!window.ethereum) {
       toast({
         title: "Wallet Not Found",
