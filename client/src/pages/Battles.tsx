@@ -154,35 +154,64 @@ export default function Battles() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#1A1A1B] to-[#2A2A2B]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#1A1A1B] to-[#2A2A2B] relative overflow-hidden">
+      {/* Animated Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-[#8000FF]/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-48 h-48 bg-[#9933FF]/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-[#FF3366]/8 rounded-full blur-lg animate-pulse delay-500"></div>
+        <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-[#8000FF]/20 rounded-full blur-md animate-pulse delay-700"></div>
+      </div>
+      
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8 pt-24">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Sword className="w-12 h-12 text-[#8000FF] mr-4" />
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Battle Arena
-            </h1>
+      <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
+        {/* Epic Header */}
+        <div className="text-center mb-16 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8000FF]/5 to-transparent blur-3xl"></div>
+          <div className="relative">
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <Sword className="w-16 h-16 text-[#8000FF] mr-6 animate-pulse drop-shadow-[0_0_15px_#8000FF]" />
+                <div className="absolute inset-0 bg-[#8000FF]/20 blur-md rounded-full animate-ping"></div>
+              </div>
+              <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] bg-clip-text text-transparent drop-shadow-2xl">
+                ⚔️ BATTLE ARENA
+              </h1>
+              <div className="relative">
+                <Zap className="w-16 h-16 text-[#FF3366] ml-6 animate-pulse drop-shadow-[0_0_15px_#FF3366]" />
+                <div className="absolute inset-0 bg-[#FF3366]/20 blur-md rounded-full animate-ping delay-300"></div>
+              </div>
+            </div>
+            <div className="relative">
+              <p className="text-xl text-gray-300 max-w-4xl mx-auto font-medium leading-relaxed">
+                <span className="text-[#8000FF] font-bold">Stake your aura.</span> 
+                <span className="text-[#9933FF] font-bold mx-2">Challenge the elite.</span> 
+                <span className="text-[#FF3366] font-bold">Dominate the arena.</span>
+              </p>
+              <div className="mt-4 flex justify-center">
+                <div className="h-1 w-32 bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] rounded-full animate-pulse"></div>
+              </div>
+            </div>
           </div>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Challenge other users in 1v1 battles, stake your reputation, and let the community decide the winner.
-          </p>
         </div>
 
-        {/* Battle Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-            <CardContent className="p-6">
+        {/* Epic Battle Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <Card className="bg-gradient-to-br from-[#1A1A1B] to-[#0A0A0B] border-2 border-[#8000FF]/30 hover:border-[#8000FF]/60 transition-all duration-300 hover:shadow-[0_0_20px_#8000FF40] relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#8000FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Total Battles</p>
-                  <p className="text-3xl font-bold text-white">
+                  <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Battles</p>
+                  <p className="text-4xl font-black text-white drop-shadow-lg">
                     {stats.total}
                   </p>
                 </div>
-                <Sword className="w-8 h-8 text-[#8000FF]" />
+                <div className="relative">
+                  <Sword className="w-10 h-10 text-[#8000FF] drop-shadow-[0_0_10px_#8000FF]" />
+                  <div className="absolute inset-0 bg-[#8000FF]/20 blur-sm rounded-full animate-pulse"></div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -289,19 +318,23 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-                <CardContent className="p-12 text-center">
-                  <Sword className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No Live Battles</h3>
-                  <p className="text-gray-400 mb-6">
-                    No battles are currently active. Be the first to create one!
+              <Card className="bg-gradient-to-br from-[#1A1A1B] via-[#0A0A0B] to-[#1A1A1B] border-2 border-[#8000FF]/30 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#8000FF]/5 via-transparent to-[#9933FF]/5"></div>
+                <CardContent className="p-16 text-center relative z-10">
+                  <div className="relative mb-8">
+                    <Sword className="w-24 h-24 text-[#8000FF]/60 mx-auto drop-shadow-[0_0_20px_#8000FF40]" />
+                    <div className="absolute inset-0 bg-[#8000FF]/20 blur-xl rounded-full animate-pulse"></div>
+                  </div>
+                  <h3 className="text-3xl font-black text-white mb-4 drop-shadow-lg">THE ARENA AWAITS</h3>
+                  <p className="text-gray-300 mb-8 text-lg font-medium max-w-md mx-auto">
+                    No warriors are currently battling. <span className="text-[#8000FF] font-bold">Step into the arena</span> and prove your aura dominance!
                   </p>
                   <Button 
-                    className="bg-[#8000FF] hover:bg-[#8000FF]/80"
+                    className="bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/90 hover:via-[#9933FF]/90 hover:to-[#FF3366]/90 text-white font-bold px-8 py-4 rounded-xl shadow-[0_0_25px_#8000FF50] hover:shadow-[0_0_35px_#8000FF70] transition-all duration-300 text-lg"
                     onClick={() => setShowCreateBattle(true)}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create First Battle
+                    <Plus className="w-6 h-6 mr-3" />
+                    ENTER THE ARENA
                   </Button>
                 </CardContent>
               </Card>
