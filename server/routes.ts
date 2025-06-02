@@ -39,15 +39,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Seed aura levels on startup
   await storage.seedAuraLevels();
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Wallet authentication route
+  app.post('/api/auth/wallet', async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const { walletAddress } = req.body;
+      
+      if (!walletAddress || !web3Service.isValidAddress(walletAddress)) {
+        return res.status(400).json({ message: "Invalid wallet address" });
+      }
+
+      // Check if user exists by wallet
+      let user = await storage.getUserByWallet(walletAddress);
+      
+      if (!user) {
+        // Create new user with wallet
+        const walletAge = await web3Service.getWalletAge(walletAddress);
+        user = await storage.upsertUser({
+          id: `wallet_${walletAddress.toLowerCase()}`,
+          walletAddress: walletAddress.toLowerCase(),
+          walletAge,
+          auraPoints: 100, // Starting points
+          currentStreak: 0,
+          totalBattlesWon: 0,
+          totalBattlesLost: 0,
+          portfolioGrowth: "0",
+          totalVouchesReceived: "0",
+        });
+      }
+
+      // Store user in session
+      (req as any).session.user = user;
       res.json(user);
+    } catch (error) {
+      console.error("Error authenticating wallet:", error);
+      res.status(500).json({ message: "Failed to authenticate wallet" });
+    }
+  });
+
+  // Get current user route (works for both wallet and OAuth)
+  app.get('/api/auth/user', async (req: any, res) => {
+    try {
+      // Check for wallet authentication in session
+      if (req.session?.user) {
+        return res.json(req.session.user);
+      }
+
+      // Check for OAuth authentication
+      if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        const userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        return res.json(user);
+      }
+
+      return res.status(401).json({ message: "Unauthorized" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Logout route
+  app.post('/api/auth/logout', (req, res) => {
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ message: "Failed to logout" });
+        }
+        res.clearCookie('connect.sid');
+        res.json({ message: "Logged out successfully" });
+      });
+    } else {
+      res.json({ message: "Already logged out" });
     }
   });
 

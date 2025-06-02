@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Wallet, ExternalLink, CheckCircle, AlertCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 declare global {
   interface Window {
@@ -23,6 +24,36 @@ export default function WalletConnect({ onConnect, showBalance = true }: WalletC
   const [balance, setBalance] = useState<string>("0");
   const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const authenticateWallet = useMutation({
+    mutationFn: async (walletAddress: string) => {
+      return await apiRequest("/api/auth/wallet", {
+        method: "POST",
+        body: JSON.stringify({ walletAddress }),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: "Authentication Successful",
+        description: "You're now logged in with your wallet!",
+      });
+      // Reload to trigger redirect to dashboard
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    },
+    onError: (error) => {
+      console.error("Wallet authentication error:", error);
+      toast({
+        title: "Authentication Failed",
+        description: "Failed to authenticate with your wallet. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     checkConnection();
@@ -39,6 +70,8 @@ export default function WalletConnect({ onConnect, showBalance = true }: WalletC
             await fetchBalance(accounts[0]);
           }
           onConnect?.(accounts[0]);
+          // Auto-authenticate if wallet is already connected
+          authenticateWallet.mutate(accounts[0]);
         }
       } catch (error) {
         console.error("Error checking wallet connection:", error);
@@ -86,6 +119,9 @@ export default function WalletConnect({ onConnect, showBalance = true }: WalletC
         }
         
         onConnect?.(walletAddress);
+        
+        // Authenticate with backend
+        authenticateWallet.mutate(walletAddress);
         
         toast({
           title: "Wallet Connected",
