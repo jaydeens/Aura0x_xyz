@@ -79,82 +79,103 @@ export default function Dashboard() {
     ((user?.currentStreak || 0) / nextLevel.minDays) * 100 : 100;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/4 right-20 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-40 h-40 bg-primary/8 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-56 h-56 bg-primary/3 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgb(147,51,255) 1px, transparent 0)`,
+        backgroundSize: '50px 50px'
+      }}></div>
+
       <Navigation />
       
-      <main className="pt-20 pb-8">
+      <main className="relative pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Welcome Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Welcome back, {user?.firstName || user?.username || "Aura Warrior"}! 
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Continue building your Aura and dominate the leaderboard
+          <div className="mb-12 text-center">
+            <div className="relative inline-block">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-4">
+                Welcome back, {user?.firstName || user?.username || "Aura Warrior"}! 
+              </h1>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+            </div>
+            <p className="text-muted-foreground text-xl mt-6 max-w-2xl mx-auto">
+              Continue building your Aura and dominate the leaderboard in this epic Web3 battle arena
             </p>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
-              <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <Card className="bg-gradient-to-br from-card/80 to-primary/5 backdrop-blur-sm border-primary/30 hover:border-primary/60 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-8 relative z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-2">Aura Points</p>
-                    <p className="text-3xl font-bold text-primary group-hover:scale-105 transition-transform duration-200">
+                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">Aura Points</p>
+                    <p className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform duration-300">
                       {user?.auraPoints?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-200">
-                    <Coins className="w-7 h-7 text-primary" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 group-hover:rotate-12">
+                    <Coins className="w-8 h-8 text-primary" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-muted/50 to-muted/20 border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-8 relative z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-2">Current Streak</p>
-                    <p className="text-3xl font-bold text-foreground group-hover:scale-105 transition-transform duration-200">
-                      {user?.currentStreak || 0} <span className="text-lg text-muted-foreground">days</span>
+                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">Current Streak</p>
+                    <p className="text-4xl font-bold text-foreground group-hover:scale-110 transition-transform duration-300">
+                      {user?.currentStreak || 0} <span className="text-xl text-muted-foreground">days</span>
                     </p>
                   </div>
-                  <div className="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center group-hover:bg-orange-200 dark:group-hover:bg-orange-900/50 transition-colors duration-200">
-                    <Flame className="w-7 h-7 text-orange-500" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-900/20 rounded-3xl flex items-center justify-center group-hover:from-orange-200 dark:group-hover:from-orange-900/50 transition-all duration-300 group-hover:rotate-12">
+                    <Flame className="w-8 h-8 text-orange-500" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-muted/50 to-muted/20 border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-8 relative z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-2">Battles Won</p>
-                    <p className="text-3xl font-bold text-foreground group-hover:scale-105 transition-transform duration-200">
+                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">Battles Won</p>
+                    <p className="text-4xl font-bold text-foreground group-hover:scale-110 transition-transform duration-300">
                       {user?.totalBattlesWon || 0}
                     </p>
                   </div>
-                  <div className="w-14 h-14 bg-yellow-100 dark:bg-yellow-900/30 rounded-2xl flex items-center justify-center group-hover:bg-yellow-200 dark:group-hover:bg-yellow-900/50 transition-colors duration-200">
-                    <Trophy className="w-7 h-7 text-yellow-600" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-900/20 rounded-3xl flex items-center justify-center group-hover:from-yellow-200 dark:group-hover:from-yellow-900/50 transition-all duration-300 group-hover:rotate-12">
+                    <Trophy className="w-8 h-8 text-yellow-600" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-muted/50 to-muted/20 border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardContent className="p-8 relative z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-2">USDT Earned</p>
-                    <p className="text-3xl font-bold text-foreground group-hover:scale-105 transition-transform duration-200">
+                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">USDT Earned</p>
+                    <p className="text-4xl font-bold text-foreground group-hover:scale-110 transition-transform duration-300">
                       ${parseFloat(user?.totalUsdtEarned || "0").toFixed(2)}
                     </p>
                   </div>
-                  <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors duration-200">
-                    <Coins className="w-7 h-7 text-green-600" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/20 rounded-3xl flex items-center justify-center group-hover:from-green-200 dark:group-hover:from-green-900/50 transition-all duration-300 group-hover:rotate-12">
+                    <Coins className="w-8 h-8 text-green-600" />
                   </div>
                 </div>
               </CardContent>
