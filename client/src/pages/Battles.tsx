@@ -20,14 +20,26 @@ import {
   Clock,
   Target,
   Plus,
-  Filter
+  Filter,
+  X
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Battles() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("live");
+  const [showCreateBattle, setShowCreateBattle] = useState(false);
+  const [opponentUsername, setOpponentUsername] = useState("");
+  const [stakeAmount, setStakeAmount] = useState("");
+  const [battleDescription, setBattleDescription] = useState("");
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -54,20 +66,27 @@ export default function Battles() {
     retry: false,
   });
 
-  const createBattleMutation = useMutation({
+  const createBattle = useMutation({
     mutationFn: async (battleData: any) => {
-      await apiRequest("/api/battles", {
+      return await apiRequest("/api/battles", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(battleData),
       });
     },
     onSuccess: () => {
       toast({
         title: "Battle Created!",
-        description: "Your battle challenge has been posted to the arena.",
+        description: "Your battle challenge has been sent successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
+      setShowCreateBattle(false);
+      setOpponentUsername("");
+      setStakeAmount("");
+      setBattleDescription("");
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
@@ -88,6 +107,32 @@ export default function Battles() {
       });
     },
   });
+
+  const handleCreateBattle = () => {
+    if (!opponentUsername.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an opponent's username.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
+      toast({
+        title: "Error", 
+        description: "Please enter a valid stake amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createBattle.mutate({
+      opponentUsername: opponentUsername.trim(),
+      stakeAmount: parseFloat(stakeAmount),
+      description: battleDescription.trim() || "A battle of Web3 aura and reputation!",
+    });
+  };
 
   const getBattleStats = () => {
     if (!battles) return { total: 0, live: 0, upcoming: 0, completed: 0 };
@@ -257,7 +302,10 @@ export default function Battles() {
                   <p className="text-gray-400 mb-6">
                     No battles are currently active. Be the first to create one!
                   </p>
-                  <Button className="bg-[#8000FF] hover:bg-[#8000FF]/80">
+                  <Button 
+                    className="bg-[#8000FF] hover:bg-[#8000FF]/80"
+                    onClick={() => setShowCreateBattle(true)}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Create First Battle
                   </Button>
@@ -363,7 +411,10 @@ export default function Battles() {
                   <p className="text-gray-400 mb-6">
                     You haven't participated in any battles yet. Start your journey!
                   </p>
-                  <Button className="bg-[#8000FF] hover:bg-[#8000FF]/80">
+                  <Button 
+                    className="bg-[#8000FF] hover:bg-[#8000FF]/80"
+                    onClick={() => setShowCreateBattle(true)}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Your First Battle
                   </Button>
@@ -372,6 +423,72 @@ export default function Battles() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Create Battle Dialog */}
+        <Dialog open={showCreateBattle} onOpenChange={setShowCreateBattle}>
+          <DialogContent className="bg-[#1A1A1B] border-[#8000FF]/20 text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
+                Create Battle Challenge
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="opponent" className="text-white">Opponent Username</Label>
+                <Input
+                  id="opponent"
+                  placeholder="Enter username to challenge"
+                  value={opponentUsername}
+                  onChange={(e) => setOpponentUsername(e.target.value)}
+                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="stake" className="text-white">Stake Amount (USDT)</Label>
+                <Input
+                  id="stake"
+                  type="number"
+                  min="1"
+                  placeholder="0.00"
+                  value={stakeAmount}
+                  onChange={(e) => setStakeAmount(e.target.value)}
+                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description" className="text-white">Battle Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe what this battle is about..."
+                  value={battleDescription}
+                  onChange={(e) => setBattleDescription(e.target.value)}
+                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white resize-none"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreateBattle(false)}
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateBattle}
+                  disabled={createBattle.isPending}
+                  className="flex-1 bg-gradient-to-r from-[#8000FF] to-[#9933FF] hover:from-[#8000FF]/80 hover:to-[#9933FF]/80"
+                >
+                  {createBattle.isPending ? "Creating..." : "Send Challenge"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
