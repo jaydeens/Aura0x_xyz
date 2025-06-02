@@ -129,6 +129,122 @@ export default function BattleCard({ battle, featured = false, showResult = fals
     });
   };
 
+  // Battle management handlers
+  const handleAcceptChallenge = async () => {
+    setIsAccepting(true);
+    try {
+      await apiRequest(`/api/battles/${battle.id}/accept`, {
+        method: "POST",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
+      toast({
+        title: "Success",
+        description: "Challenge accepted successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to accept challenge",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
+  const handleRejectChallenge = async () => {
+    setIsRejecting(true);
+    try {
+      await apiRequest(`/api/battles/${battle.id}/reject`, {
+        method: "POST",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
+      toast({
+        title: "Success",
+        description: "Challenge rejected successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reject challenge",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
+  const handleWithdrawChallenge = async () => {
+    setIsWithdrawing(true);
+    try {
+      await apiRequest(`/api/battles/${battle.id}/withdraw`, {
+        method: "POST",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
+      toast({
+        title: "Success",
+        description: "Challenge withdrawn successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to withdraw challenge",
+        variant: "destructive",
+      });
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
+  const handleRequestCancellation = async () => {
+    setIsRequestingCancellation(true);
+    try {
+      await apiRequest(`/api/battles/${battle.id}/request-cancellation`, {
+        method: "POST",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
+      toast({
+        title: "Success",
+        description: "Cancellation request sent",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to request cancellation",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRequestingCancellation(false);
+    }
+  };
+
+  const handleApproveCancellation = async () => {
+    setIsApprovingCancellation(true);
+    try {
+      await apiRequest(`/api/battles/${battle.id}/approve-cancellation`, {
+        method: "POST",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
+      toast({
+        title: "Success",
+        description: "Battle cancelled by mutual agreement",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to approve cancellation",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApprovingCancellation(false);
+    }
+  };
+
   const getTimeRemaining = () => {
     if (!battle.votingEndsAt) return null;
     
