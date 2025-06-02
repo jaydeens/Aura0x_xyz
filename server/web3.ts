@@ -158,7 +158,7 @@ export class Web3Service {
     multiplier: number;
     level: string;
   } {
-    let multiplier = 1.0;
+    let multiplier = 1.0; // Levels don't affect aura multiplier
     let level = "Clout Chaser";
 
     if (streakDays >= 30) {

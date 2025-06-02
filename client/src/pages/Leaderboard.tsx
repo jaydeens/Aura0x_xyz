@@ -328,7 +328,7 @@ export default function Leaderboard() {
                            level.name === 'Aura Vader' ? 'Unlocked at 30 day streak' :
                            `${level.minDays}${level.maxDays ? `-${level.maxDays}` : '+'} days`}
                         </p>
-                        <div className="space-y-1">
+                        <div className="text-center">
                           <Badge 
                             variant="outline" 
                             style={{ 
@@ -338,20 +338,11 @@ export default function Leaderboard() {
                             }}
                             className="text-xs"
                           >
-                            {level.multiplier}x aura
+                            {level.name === 'Clout Chaser' ? 'No vouch bonus' : `${level.vouchingMultiplier}x vouching`}
                           </Badge>
-                          <br />
-                          <Badge 
-                            variant="outline" 
-                            style={{ 
-                              color: level.color, 
-                              borderColor: `${level.color}40`,
-                              backgroundColor: `${level.color}20`
-                            }}
-                            className="text-xs"
-                          >
-                            {level.name === 'Clout Chaser' ? 'No vouch bonus' : `${level.vouchingMultiplier || level.multiplier}x vouch`}
-                          </Badge>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Vouching bonus only
+                          </p>
                         </div>
                       </div>
                     )) : null}
