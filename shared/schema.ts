@@ -145,6 +145,17 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Aura Points History for tracking sources
+export const auraHistory = pgTable("aura_history", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(),
+  source: varchar("source").notNull(), // 'lesson', 'vouching', 'battle_win', 'battle_stake'
+  sourceId: varchar("source_id"), // ID of related lesson, vouch, battle, etc.
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   userLessons: many(userLessons),
@@ -262,6 +273,11 @@ export const insertAuraLevelSchema = createInsertSchema(auraLevels).omit({
 });
 
 export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  createdAt: true,
+});
+
+export const insertAuraHistorySchema = createInsertSchema(auraHistory).omit({
+  id: true,
   createdAt: true,
 });
 
