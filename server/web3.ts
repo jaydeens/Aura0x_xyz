@@ -200,18 +200,10 @@ export class Web3Service {
   }
 
   /**
-   * Estimate portfolio growth (placeholder implementation)
+   * Portfolio growth feature removed - returns 0
    */
   async getPortfolioGrowth(address: string): Promise<number> {
-    try {
-      // This would integrate with services like DeBank, Zapper, or Covalent
-      // For now, return a random growth percentage
-      const growth = (Math.random() - 0.3) * 500; // -30% to +470%
-      return Math.round(growth * 100) / 100;
-    } catch (error) {
-      console.error("Error getting portfolio growth:", error);
-      return 0;
-    }
+    return 0;
   }
 
   /**

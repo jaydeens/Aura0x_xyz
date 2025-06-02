@@ -165,7 +165,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                     <TableHead className="text-right text-gray-400 font-medium">Aura Points</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Win Rate</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Streak</TableHead>
-                    <TableHead className="text-right text-gray-400 font-medium">Portfolio</TableHead>
+
                     <TableHead className="text-right text-gray-400 font-medium">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -242,12 +242,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                           </Badge>
                         </TableCell>
                         
-                        <TableCell className="text-right">
-                          <div className={`flex items-center justify-end ${getPortfolioGrowthColor(user.portfolioGrowth)}`}>
-                            <TrendingUp className="w-4 h-4 mr-1" />
-                            {user.portfolioGrowth.startsWith('-') ? '' : '+'}{user.portfolioGrowth}%
-                          </div>
-                        </TableCell>
+
                         
                         <TableCell className="text-right">
                           <Link href={`/profile/${user.id}`}>

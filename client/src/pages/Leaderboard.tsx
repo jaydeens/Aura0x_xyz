@@ -96,12 +96,7 @@ export default function Leaderboard() {
       .slice(0, 10);
   };
 
-  const getTopByGrowth = () => {
-    if (!leaderboard) return [];
-    return [...leaderboard]
-      .sort((a: any, b: any) => parseFloat(b.portfolioGrowth || "0") - parseFloat(a.portfolioGrowth || "0"))
-      .slice(0, 10);
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
@@ -258,41 +253,7 @@ export default function Leaderboard() {
               )}
             </TabsContent>
 
-            {/* Remove old battle/streak/growth tabs - keeping only all-time and weekly */}
-            <TabsContent value="battles" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Top Battle Champions</h2>
-                <Badge className="bg-[#FFD700]/20 text-[#FFD700]">
-                  Combat Excellence
-                </Badge>
-              </div>
 
-              <LeaderboardTable users={getTopByBattles()} showTopPodium={false} />
-            </TabsContent>
-
-            {/* Streak Leaders */}
-            <TabsContent value="streak" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Consistency Masters</h2>
-                <Badge className="bg-[#00FF88]/20 text-[#00FF88]">
-                  Daily Grinders
-                </Badge>
-              </div>
-
-              <LeaderboardTable users={getTopByStreak()} showTopPodium={false} />
-            </TabsContent>
-
-            {/* Portfolio Growth */}
-            <TabsContent value="growth" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Portfolio Performers</h2>
-                <Badge className="bg-[#9933FF]/20 text-[#9933FF]">
-                  Investment Skills
-                </Badge>
-              </div>
-
-              <LeaderboardTable users={getTopByGrowth()} showTopPodium={false} />
-            </TabsContent>
           </Tabs>
 
           {/* Aura Levels Reference */}
