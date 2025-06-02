@@ -76,6 +76,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Link Twitter account to existing user
+  app.post("/api/auth/link-twitter", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { twitterId, twitterUsername, twitterDisplayName } = req.body;
+
+      if (!twitterId) {
+        return res.status(400).json({ message: "Twitter ID is required" });
+      }
+
+      // Check if Twitter account is already linked to another user
+      const existingUser = await storage.getUserByTwitter(twitterId);
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ message: "This Twitter account is already linked to another user" });
+      }
+
+      // Update current user with Twitter info
+      const updatedUser = await storage.upsertUser({
+        id: userId,
+        twitterId,
+        twitterUsername,
+        twitterDisplayName,
+        updatedAt: new Date(),
+      });
+
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error linking Twitter account:", error);
+      res.status(500).json({ message: "Failed to link Twitter account" });
+    }
+  });
+
+  // Link wallet address to existing user
+  app.post("/api/auth/link-wallet", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { walletAddress } = req.body;
+
+      if (!walletAddress) {
+        return res.status(400).json({ message: "Wallet address is required" });
+      }
+
+      // Validate wallet address format
+      if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+        return res.status(400).json({ message: "Invalid wallet address format" });
+      }
+
+      // Check if wallet is already linked to another user
+      const existingUser = await storage.getUserByWallet(walletAddress);
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ message: "This wallet address is already linked to another user" });
+      }
+
+      // Update current user with wallet address
+      const updatedUser = await storage.upsertUser({
+        id: userId,
+        walletAddress,
+        updatedAt: new Date(),
+      });
+
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error linking wallet address:", error);
+      res.status(500).json({ message: "Failed to link wallet address" });
+    }
+  });
+
   // Get current user route (works for both wallet and OAuth)
   app.get('/api/auth/user', async (req: any, res) => {
     try {

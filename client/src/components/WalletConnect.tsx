@@ -16,9 +16,10 @@ declare global {
 interface WalletConnectProps {
   onConnect?: (address: string) => void;
   showBalance?: boolean;
+  linkMode?: boolean; // New prop for account linking
 }
 
-export default function WalletConnect({ onConnect, showBalance = true }: WalletConnectProps) {
+export default function WalletConnect({ onConnect, showBalance = true, linkMode = false }: WalletConnectProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string>("");
   const [balance, setBalance] = useState<string>("0");
@@ -77,8 +78,10 @@ export default function WalletConnect({ onConnect, showBalance = true }: WalletC
             await fetchBalance(accounts[0]);
           }
           onConnect?.(accounts[0]);
-          // Auto-authenticate if wallet is already connected
-          authenticateWallet.mutate(accounts[0]);
+          // Auto-authenticate if wallet is already connected (but not in link mode)
+          if (!linkMode) {
+            authenticateWallet.mutate(accounts[0]);
+          }
         }
       } catch (error) {
         console.error("Error checking wallet connection:", error);

@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Navigation from "@/components/Navigation";
 import VouchForm from "@/components/VouchForm";
+import TwitterConnect from "@/components/TwitterConnect";
+import WalletConnect from "@/components/WalletConnect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +28,12 @@ import {
   Sword,
   HandHeart,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Settings,
+  Link2,
+  Twitter,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 
 interface ProfileParams {
@@ -314,7 +321,7 @@ export default function Profile() {
 
           {/* Profile Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-[#1A1A1B] border border-[#8000FF]/20">
+            <TabsList className={`grid w-full ${viewingOwnProfile ? 'grid-cols-4' : 'grid-cols-4'} bg-[#1A1A1B] border border-[#8000FF]/20`}>
               <TabsTrigger value="overview" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
                 Overview
               </TabsTrigger>
@@ -324,7 +331,11 @@ export default function Profile() {
               <TabsTrigger value="vouches" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
                 Vouches
               </TabsTrigger>
-              {!viewingOwnProfile && (
+              {viewingOwnProfile ? (
+                <TabsTrigger value="settings" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
+                  Settings
+                </TabsTrigger>
+              ) : (
                 <TabsTrigger value="vouch-user" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
                   Vouch User
                 </TabsTrigger>
@@ -393,6 +404,157 @@ export default function Profile() {
                 </Card>
               </div>
             </TabsContent>
+
+            {/* Settings Tab (Own Profile Only) */}
+            {viewingOwnProfile && (
+              <TabsContent value="settings" className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Account Linking */}
+                  <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center">
+                        <Link2 className="w-5 h-5 mr-2 text-[#8000FF]" />
+                        Account Linking
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Twitter Connection */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Twitter className="w-5 h-5 text-[#1DA1F2]" />
+                            <div>
+                              <p className="text-white font-medium">Twitter Account</p>
+                              <p className="text-sm text-gray-400">Connect your Twitter for verification</p>
+                            </div>
+                          </div>
+                          {profileUser.twitterId ? (
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                              <span className="text-green-500 text-sm">Connected</span>
+                            </div>
+                          ) : (
+                            <TwitterConnect onConnect={(twitterData) => {
+                              toast({
+                                title: "Twitter Connected",
+                                description: "Your Twitter account has been linked successfully.",
+                              });
+                              // Refresh user data
+                              window.location.reload();
+                            }} />
+                          )}
+                        </div>
+                      </div>
+
+                      <Separator className="bg-[#8000FF]/20" />
+
+                      {/* Wallet Connection */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Wallet className="w-5 h-5 text-[#8000FF]" />
+                            <div>
+                              <p className="text-white font-medium">Wallet Address</p>
+                              <p className="text-sm text-gray-400">Connect your wallet for Web3 features</p>
+                            </div>
+                          </div>
+                          {profileUser.walletAddress ? (
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                              <span className="text-green-500 text-sm">Connected</span>
+                            </div>
+                          ) : (
+                            <WalletConnect 
+                              showBalance={false}
+                              onConnect={(address) => {
+                                toast({
+                                  title: "Wallet Connected",
+                                  description: "Your wallet has been linked successfully.",
+                                });
+                                // Refresh user data
+                                window.location.reload();
+                              }} 
+                            />
+                          )}
+                        </div>
+                        {profileUser.walletAddress && (
+                          <div className="bg-[#0A0A0B] rounded-lg p-3">
+                            <p className="text-sm text-gray-400 mb-1">Connected Wallet:</p>
+                            <p className="text-white font-mono text-sm break-all">
+                              {profileUser.walletAddress}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Account Security */}
+                  <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center">
+                        <Settings className="w-5 h-5 mr-2 text-[#FFD700]" />
+                        Account Security
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Account Type:</span>
+                          <Badge className="bg-[#8000FF]/20 text-[#8000FF]">
+                            {profileUser.id?.startsWith('wallet_') ? 'Wallet Login' : 'Twitter Login'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Account Created:</span>
+                          <span className="text-white text-sm">
+                            {new Date(profileUser.createdAt || Date.now()).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Last Updated:</span>
+                          <span className="text-white text-sm">
+                            {new Date(profileUser.updatedAt || Date.now()).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Separator className="bg-[#8000FF]/20" />
+
+                      <div className="space-y-3">
+                        <h4 className="text-white font-medium">Verification Status</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400 text-sm">Email Verified:</span>
+                            {profileUser.email ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-yellow-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400 text-sm">Twitter Verified:</span>
+                            {profileUser.twitterId ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-yellow-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400 text-sm">Wallet Verified:</span>
+                            {profileUser.walletAddress ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-yellow-500" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            )}
 
             {/* Vouch User Tab */}
             {!viewingOwnProfile && (
