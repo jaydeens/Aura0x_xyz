@@ -33,6 +33,9 @@ export default function Dashboard() {
   const { data: dailyLessons, isLoading: lessonsLoading } = useQuery({
     queryKey: ["/api/lessons/daily"],
     retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale to force refresh
   });
 
   const { data: auraLevels } = useQuery({

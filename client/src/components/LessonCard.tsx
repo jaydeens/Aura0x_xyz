@@ -144,6 +144,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       // Invalidate queries to refresh user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/lessons"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/lessons/daily"] });
       setShowFullLesson(false);
     },
     onError: (error: any) => {
