@@ -327,10 +327,22 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                 <div className="text-xl font-bold text-warning">
                   {battle.challengerStake + battle.opponentStake} Aura
                 </div>
-                <div className="text-xs text-gray-500 flex items-center justify-center">
+                <div className="text-xs text-gray-500 flex items-center justify-center mb-2">
                   <Users className="w-3 h-3 mr-1" />
                   {battle.totalVotes} votes
                 </div>
+                {battle.createdAt && (
+                  <div className="text-xs text-gray-400 space-y-1">
+                    <div className="flex items-center justify-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(battle.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center justify-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(battle.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -512,13 +524,102 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               </DialogContent>
             </Dialog>
             
-            <Button 
-              variant="outline" 
-              className="border-primary/40 text-primary hover:bg-primary hover:text-white"
-            >
-              <Target className="w-4 h-4 mr-2" />
-              View Details
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="border-primary/40 text-primary hover:bg-primary hover:text-white"
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  View Details
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-card border-primary/20 max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-white flex items-center">
+                    <Sword className="w-5 h-5 mr-2 text-primary" />
+                    Battle Details
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-4 mt-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-primary/10 rounded-lg">
+                      <Avatar className="w-12 h-12 mx-auto mb-2">
+                        <AvatarImage src={battle.challenger?.profileImageUrl} />
+                        <AvatarFallback className="bg-primary/20 text-primary">
+                          <Crown className="w-6 h-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="font-semibold text-white text-sm">
+                        {battle.challenger?.firstName || battle.challenger?.username || `User ${battle.challengerId.slice(0, 6)}`}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {battle.challenger?.auraPoints?.toLocaleString() || "0"} Aura
+                      </p>
+                      <Badge variant="outline" className="mt-1 text-xs border-primary text-primary">
+                        Staked: {battle.challengerStake}
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-center p-3 bg-accent/10 rounded-lg">
+                      <Avatar className="w-12 h-12 mx-auto mb-2">
+                        <AvatarImage src={battle.opponent?.profileImageUrl} />
+                        <AvatarFallback className="bg-accent/20 text-accent">
+                          <Flame className="w-6 h-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="font-semibold text-white text-sm">
+                        {battle.opponent?.firstName || battle.opponent?.username || `User ${battle.opponentId.slice(0, 6)}`}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {battle.opponent?.auraPoints?.toLocaleString() || "0"} Aura
+                      </p>
+                      <Badge variant="outline" className="mt-1 text-xs border-accent text-accent">
+                        Staked: {battle.opponentStake}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-muted/20 p-3 rounded-lg space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Battle ID:</span>
+                      <span className="text-white font-mono">#{battle.id.slice(0, 8)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Status:</span>
+                      <Badge variant={battle.status === 'active' ? 'default' : 'secondary'}>
+                        {battle.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Created:</span>
+                      <span className="text-white">
+                        {new Date(battle.createdAt).toLocaleDateString()} at {new Date(battle.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                    </div>
+                    {battle.votingEndsAt && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Voting Ends:</span>
+                        <span className="text-white">
+                          {new Date(battle.votingEndsAt).toLocaleDateString()} at {new Date(battle.votingEndsAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Total Stakes:</span>
+                      <span className="text-warning font-semibold">
+                        {battle.challengerStake + battle.opponentStake} Aura
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Total Votes:</span>
+                      <span className="text-white">{battle.totalVotes}</span>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 
