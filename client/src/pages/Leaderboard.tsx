@@ -318,8 +318,11 @@ export default function Leaderboard() {
                         level.name === 'Attention Seeker' && 'border-[#F97316]/40 bg-[#F97316]/10',
                         level.name === 'Dedicated' && 'border-[#34D399]/40 bg-[#34D399]/10',
                         level.name === 'Grinder' && 'border-[#3B82F6]/40 bg-[#3B82F6]/10',
-                        level.name === 'Aura Vader' && 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10'
-                      )}>
+                        level.name === 'Aura Vader' && 'border-[#8B5CF6]/40 bg-[#8B5CF6]/10 animate-pulse-glow'
+                      )}
+                      style={level.name === 'Aura Vader' ? {
+                        boxShadow: '0 0 20px #8B5CF6, 0 0 40px #8B5CF6, 0 0 80px #8B5CF6'
+                      } : {}}>
                         <div className={cn(
                           "w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center",
                           level.name === 'Clout Chaser' && 'bg-[#9CA3AF]/20',
