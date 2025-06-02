@@ -258,12 +258,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const lessonId = parseInt(req.params.id);
       
-      // Check authentication
-      if (!req.isAuthenticated() || !req.user?.claims?.sub) {
+      // Check for wallet authentication in session (like other endpoints)
+      let userId;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      } else {
         return res.status(401).json({ message: "Please log in to take the quiz" });
       }
       
-      const userId = req.user.claims.sub;
       const { answer } = req.body;
 
       const lessons = await storage.getLessons();
