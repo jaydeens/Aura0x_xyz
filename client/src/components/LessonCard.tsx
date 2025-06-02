@@ -221,7 +221,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
   };
 
   return (
-    <Card className="bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50 hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+    <Card className="bg-[#1A1A1B] border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
