@@ -79,7 +79,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Link Twitter account to existing user
   app.post("/api/auth/link-twitter", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const { twitterId, twitterUsername, twitterDisplayName } = req.body;
 
       if (!twitterId) {
@@ -98,7 +98,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         twitterId,
         twitterUsername,
         twitterDisplayName,
-        updatedAt: new Date(),
       });
 
       res.json({ user: updatedUser });
@@ -111,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Link wallet address to existing user
   app.post("/api/auth/link-wallet", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const { walletAddress } = req.body;
 
       if (!walletAddress) {
@@ -133,7 +132,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedUser = await storage.upsertUser({
         id: userId,
         walletAddress,
-        updatedAt: new Date(),
       });
 
       res.json({ user: updatedUser });

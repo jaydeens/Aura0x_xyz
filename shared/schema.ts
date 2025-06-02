@@ -37,6 +37,7 @@ export const users = pgTable("users", {
   walletAddress: varchar("wallet_address"),
   twitterId: varchar("twitter_id"),
   twitterUsername: varchar("twitter_username"),
+  twitterDisplayName: varchar("twitter_display_name"),
   isVerified: boolean("is_verified").default(false),
   auraPoints: integer("aura_points").default(0),
   currentStreak: integer("current_streak").default(0),
@@ -206,7 +207,6 @@ export const vouchesRelations = relations(vouches, ({ one }) => ({
 // Schema types
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
-  updatedAt: true,
 });
 
 export const insertLessonSchema = createInsertSchema(lessons).omit({
