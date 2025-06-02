@@ -163,6 +163,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
   });
 
   const handleSubmitQuiz = () => {
+    console.log("Submit quiz clicked, quizAnswer:", quizAnswer); // Debug log
     if (quizAnswer === null || quizAnswer === undefined) {
       toast({
         title: "Please select an answer",
@@ -341,7 +342,10 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                       
                       <RadioGroup 
                         value={quizAnswer?.toString() || ""} 
-                        onValueChange={(value) => setQuizAnswer(Number(value))}
+                        onValueChange={(value) => {
+                          console.log("Radio selection changed:", value); // Debug log
+                          setQuizAnswer(Number(value));
+                        }}
                         className="space-y-3"
                       >
                         {lesson.quizOptions.map((option, index) => (
@@ -375,8 +379,8 @@ export default function LessonCard({ lesson }: LessonCardProps) {
 
                       <Button
                         onClick={handleSubmitQuiz}
-                        disabled={!quizAnswer || submitQuizMutation.isPending}
-                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
+                        disabled={quizAnswer === null || quizAnswer === undefined || submitQuizMutation.isPending}
+                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white disabled:opacity-50"
                       >
                         {submitQuizMutation.isPending ? "Checking..." : "Submit Answer"}
                       </Button>
