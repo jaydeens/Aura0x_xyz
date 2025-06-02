@@ -265,12 +265,25 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                     <span>+100 Aura Points</span>
                   </div>
                 </div>
+                
+                {/* Educational Value Badge */}
+                <div className="mt-2">
+                  <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
+                    <BookOpen className="w-3 h-3 mr-1" />
+                    Comprehensive Lesson
+                  </Badge>
+                </div>
               </DialogHeader>
               
               <div className="space-y-6 mt-6">
+                {/* Enhanced Content Display */}
                 <div className="prose prose-invert max-w-none">
-                  <div className="text-slate-300 leading-relaxed whitespace-pre-line">
-                    {lesson.content}
+                  <div className="text-slate-300 leading-relaxed space-y-4">
+                    {lesson.content.split('\n\n').map((paragraph, index) => (
+                      <p key={index} className="text-slate-300 leading-relaxed">
+                        {paragraph}
+                      </p>
+                    ))}
                   </div>
                 </div>
 
