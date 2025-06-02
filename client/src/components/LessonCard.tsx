@@ -53,7 +53,22 @@ export default function LessonCard({ lesson }: LessonCardProps) {
 
   const submitQuizMutation = useMutation({
     mutationFn: async (data: { lessonId: number; answer: number }) => {
-      return await apiRequest("POST", `/api/lessons/${data.lessonId}/quiz`, { answer: data.answer });
+      const response = await fetch(`/api/lessons/${data.lessonId}/quiz`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ answer: data.answer }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(JSON.stringify(result));
+      }
+      
+      return result;
     },
     onSuccess: (data) => {
       console.log("Quiz response:", data); // Debug log
