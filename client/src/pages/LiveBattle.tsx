@@ -53,11 +53,11 @@ export default function LiveBattle() {
 
   // Update countdown timer
   useEffect(() => {
-    if (!battle?.votingEndsAt) return;
+    if (!(battle as any)?.votingEndsAt) return;
 
     const updateTimer = () => {
       const now = new Date().getTime();
-      const endTime = new Date(battle.votingEndsAt).getTime();
+      const endTime = new Date((battle as any).votingEndsAt).getTime();
       const timeLeft = endTime - now;
 
       if (timeLeft <= 0) {
@@ -75,7 +75,7 @@ export default function LiveBattle() {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [battle?.votingEndsAt]);
+  }, [(battle as any)?.votingEndsAt]);
 
   // Gift Steeze mutation
   const giftSteeze = useMutation({
@@ -122,13 +122,13 @@ export default function LiveBattle() {
   };
 
   const getVotePercentage = (votes: number) => {
-    const total = (battle?.challengerVotes || 0) + (battle?.opponentVotes || 0);
+    const total = ((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0);
     if (total === 0) return 0;
     return (votes / total) * 100;
   };
 
-  const challengerPercentage = getVotePercentage(battle?.challengerVotes || 0);
-  const opponentPercentage = getVotePercentage(battle?.opponentVotes || 0);
+  const challengerPercentage = getVotePercentage((battle as any)?.challengerVotes || 0);
+  const opponentPercentage = getVotePercentage((battle as any)?.opponentVotes || 0);
 
   if (isLoading) {
     return (
@@ -138,7 +138,7 @@ export default function LiveBattle() {
     );
   }
 
-  if (!battle) {
+  if (!battle || !(battle as any).id) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
         <Card className="bg-[#1A1A1B] border-primary/20">
@@ -167,12 +167,12 @@ export default function LiveBattle() {
           
           <Badge 
             className={`px-4 py-2 text-lg font-bold animate-pulse ${
-              battle.status === 'active' 
+              (battle as any).status === 'active' 
                 ? 'bg-red-500/20 text-red-400' 
                 : 'bg-green-500/20 text-green-400'
             }`}
           >
-            {battle.status === 'active' ? '🔴 LIVE' : '✅ COMPLETED'}
+            {(battle as any).status === 'active' ? '🔴 LIVE' : '✅ COMPLETED'}
           </Badge>
         </div>
 
@@ -180,10 +180,10 @@ export default function LiveBattle() {
         <Card className="bg-[#1A1A1B] border-primary/20">
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold text-white mb-4">
-              {battle.title || `Battle #${battle.id.slice(0, 8)}`}
+              {(battle as any).title || `Battle #${(battle as any).id?.slice(0, 8)}`}
             </CardTitle>
             
-            {battle.status === 'active' && (
+            {(battle as any).status === 'active' && (
               <div className="flex items-center justify-center text-accent">
                 <Clock className="w-6 h-6 mr-3" />
                 <span className="font-mono text-2xl font-bold">{timeRemaining}</span>
@@ -201,15 +201,15 @@ export default function LiveBattle() {
             <CardContent className="p-6 relative z-10">
               <div className="text-center space-y-4">
                 <Avatar className="w-20 h-20 mx-auto border-2 border-blue-400">
-                  <AvatarImage src={battle.challenger?.profileImageUrl} />
+                  <AvatarImage src={(battle as any).challenger?.profileImageUrl} />
                   <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xl">
-                    {battle.challenger?.username?.[0]?.toUpperCase() || 'C'}
+                    {(battle as any).challenger?.username?.[0]?.toUpperCase() || 'C'}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div>
                   <h3 className="text-xl font-bold text-white">
-                    {battle.challenger?.username || 'Challenger'}
+                    {(battle as any).challenger?.username || 'Challenger'}
                   </h3>
                   <Badge variant="secondary" className="mt-1">
                     Challenger
@@ -218,7 +218,7 @@ export default function LiveBattle() {
 
                 <div className="space-y-2">
                   <div className="text-3xl font-bold text-blue-400">
-                    {battle.challengerVotes || 0}
+                    {(battle as any).challengerVotes || 0}
                   </div>
                   <div className="text-sm text-gray-400">gifts received</div>
                   
@@ -231,10 +231,10 @@ export default function LiveBattle() {
                   </div>
                 </div>
 
-                {battle.status === 'active' && isAuthenticated && (
+                {(battle as any).status === 'active' && isAuthenticated && (
                   <Button
                     onClick={() => {
-                      setSelectedParticipant(battle.challengerId);
+                      setSelectedParticipant((battle as any).challengerId);
                       setShowGiftDialog(true);
                     }}
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white"
@@ -259,32 +259,32 @@ export default function LiveBattle() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Total Stakes</span>
                     <span className="text-white font-bold">
-                      {(battle.challengerStake + battle.opponentStake).toLocaleString()} AP
+                      {((battle as any).challengerStake + (battle as any).opponentStake).toLocaleString()} AP
                     </span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Total Gifts</span>
                     <span className="text-white font-bold">
-                      {((battle.challengerVotes || 0) + (battle.opponentVotes || 0)).toLocaleString()}
+                      {(((battle as any).challengerVotes || 0) + ((battle as any).opponentVotes || 0)).toLocaleString()}
                     </span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Battle ID</span>
                     <span className="text-white font-mono">
-                      #{battle.id.slice(0, 8)}
+                      #{(battle as any).id?.slice(0, 8)}
                     </span>
                   </div>
                 </div>
                 
                 <Separator className="bg-primary/20" />
                 
-                {battle.winnerId && (
+                {(battle as any).winnerId && (
                   <div className="flex items-center justify-center space-x-2">
                     <Crown className="w-5 h-5 text-yellow-400" />
                     <span className="text-yellow-400 font-bold">
-                      {battle.winnerId === battle.challengerId ? 'Challenger Wins!' : 'Opponent Wins!'}
+                      {(battle as any).winnerId === (battle as any).challengerId ? 'Challenger Wins!' : 'Opponent Wins!'}
                     </span>
                   </div>
                 )}
