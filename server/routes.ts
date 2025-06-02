@@ -1292,6 +1292,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dashboard stats endpoint
+  app.get('/api/dashboard/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get user's aura points breakdown by source
+      const auraStats = await storage.getAuraStatsBySource(userId);
+      
+      // Get user's total USDT earnings
+      const user = await storage.getUser(userId);
+      const totalUsdtEarned = user?.totalUsdtEarned || "0";
+      
+      // Get recent aura history
+      const recentHistory = await storage.getUserAuraHistory(userId);
+      const last10History = recentHistory.slice(0, 10);
+      
+      res.json({
+        auraStats,
+        totalUsdtEarned,
+        recentHistory: last10History,
+      });
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

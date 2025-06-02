@@ -1,19 +1,36 @@
-import { useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import Navigation from "@/components/Navigation";
-import LessonCard from "@/components/LessonCard";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Zap, Flame, Clock, Trophy, Coins, Target } from "lucide-react";
+import { Coins, DollarSign, TrendingUp, Calendar, Award, Users, BookOpen, Zap } from "lucide-react";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { isUnauthorizedError } from "@/lib/authUtils";
+
+interface AuraStats {
+  source: string;
+  total: number;
+  count: number;
+}
+
+interface AuraHistoryEntry {
+  id: number;
+  amount: number;
+  source: string;
+  description: string | null;
+  createdAt: string;
+}
+
+interface DashboardStats {
+  auraStats: AuraStats[];
+  totalUsdtEarned: string;
+  recentHistory: AuraHistoryEntry[];
+}
 
 export default function Dashboard() {
+  const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading, user } = useAuth();
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -30,309 +47,278 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: dailyLessons, isLoading: lessonsLoading } = useQuery({
-    queryKey: ["/api/lessons/daily", new Date().toDateString()],
-    retry: false,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    staleTime: 0, // Always consider data stale to force refresh
-    cacheTime: 0, // Don't cache at all
-  });
-
-  const { data: auraLevels } = useQuery({
-    queryKey: ["/api/aura-levels"],
+  const { data: dashboardStats, isLoading: statsLoading, error } = useQuery({
+    queryKey: ["/api/dashboard/stats"],
+    enabled: isAuthenticated,
     retry: false,
   });
 
-  const { data: activeBattles } = useQuery({
-    queryKey: ["/api/battles", "active"],
-    retry: false,
-  });
+  // Handle unauthorized errors
+  useEffect(() => {
+    if (error && isUnauthorizedError(error as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [error, toast]);
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#8000FF] to-[#9933FF] rounded-2xl flex items-center justify-center">
-            <Zap className="w-8 h-8 text-white" />
-          </div>
+      <div className="min-h-screen bg-background p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  const getCurrentLevel = () => {
-    if (!auraLevels || !user) return null;
-    
-    const streak = user.currentStreak || 0;
-    return auraLevels.find(level => 
-      streak >= level.minDays && (!level.maxDays || streak <= level.maxDays)
-    );
+  const stats = dashboardStats as DashboardStats;
+  const sourceIcons = {
+    lesson: BookOpen,
+    vouching: Users,
+    battle_win: Award,
+    battle_stake: Zap,
   };
 
-  const getNextLevel = () => {
-    if (!auraLevels || !user) return null;
-    
-    const streak = user.currentStreak || 0;
-    return auraLevels.find(level => level.minDays > streak);
+  const sourceLabels = {
+    lesson: "Daily Lessons",
+    vouching: "Vouching",
+    battle_win: "Battle Wins",
+    battle_stake: "Battle Stakes",
   };
 
-  const currentLevel = getCurrentLevel();
-  const nextLevel = getNextLevel();
-  const progressToNext = nextLevel ? 
-    ((user?.currentStreak || 0) / nextLevel.minDays) * 100 : 100;
+  const sourceColors = {
+    lesson: "bg-blue-500",
+    vouching: "bg-green-500", 
+    battle_win: "bg-purple-500",
+    battle_stake: "bg-orange-500",
+  };
+
+  const totalAuraPoints = stats?.auraStats?.reduce((sum, stat) => sum + stat.total, 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
-      <Navigation />
-      
-      <main className="pt-20 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Welcome Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Welcome back, {user?.firstName || user?.username || "Aura Warrior"}! 
-            </h1>
-            <p className="text-gray-400 text-lg">
-              Continue building your Aura and dominate the leaderboard
-            </p>
-          </div>
+    <div className="min-h-screen bg-background p-4 space-y-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+          <p className="text-gray-400">Track your Aura points and earnings</p>
+        </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Aura Points</p>
-                    <p className="text-2xl font-bold text-[#8000FF]">
-                      {user?.auraPoints?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  <Coins className="w-8 h-8 text-[#8000FF]" />
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-card border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">Total Aura Points</CardTitle>
+              <Coins className="h-4 w-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">
+                {totalAuraPoints.toLocaleString()}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                From all sources
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">USDT Earned</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">
+                ${parseFloat(stats?.totalUsdtEarned || "0").toFixed(2)}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                From vouching
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">Activities</CardTitle>
+              <TrendingUp className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">
+                {stats?.auraStats?.reduce((sum, stat) => sum + stat.count, 0) || 0}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                Total activities
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">Current Streak</CardTitle>
+              <Calendar className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">
+                {user?.currentStreak || 0}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                Days streak
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Aura Points Breakdown */}
+          <Card className="bg-card border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-white">Aura Points by Source</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {statsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-gray-700 rounded mb-2"></div>
+                      <div className="h-2 bg-gray-700 rounded"></div>
+                    </div>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Current Streak</p>
-                    <p className="text-2xl font-bold text-[#FFD700]">
-                      {user?.currentStreak || 0} days
-                    </p>
-                  </div>
-                  <Flame className="w-8 h-8 text-[#FFD700]" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Battles Won</p>
-                    <p className="text-2xl font-bold text-[#00FF88]">
-                      {user?.totalBattlesWon || 0}
-                    </p>
-                  </div>
-                  <Trophy className="w-8 h-8 text-[#00FF88]" />
-                </div>
-              </CardContent>
-            </Card>
-
-
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Daily Lessons */}
-            <div className="lg:col-span-2">
-              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-                <CardHeader>
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-white flex items-center">
-                      <Zap className="w-6 h-6 mr-2 text-[#8000FF]" />
-                      Today's Lessons
-                    </CardTitle>
-                    <p className="text-gray-400">
-                      Complete your daily lessons to maintain your streak and earn Aura Points
-                    </p>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {lessonsLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="animate-pulse">
-                          <div className="h-32 bg-[#0A0A0B] rounded-lg"></div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : dailyLessons && dailyLessons.length > 0 ? (
-                    <div className="space-y-4">
-                      {dailyLessons.map((lesson: any) => (
-                        <LessonCard key={lesson.id} lesson={lesson} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                        No lessons available yet
-                      </h3>
-                      <p className="text-gray-500">
-                        New lessons are generated daily. Check back soon!
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Streak Progress */}
-              <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Flame className="w-5 h-5 mr-2 text-[#FFD700]" />
-                    Streak Progress
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center mb-6">
-                    <div className="text-4xl font-bold text-[#FFD700] mb-2">
-                      {user?.currentStreak || 0}
-                    </div>
-                    <div className="text-gray-400">days in a row</div>
-                    {currentLevel && (
-                      <Badge 
-                        className="mt-2"
-                        style={{ 
-                          backgroundColor: `${currentLevel.color}20`,
-                          color: currentLevel.color,
-                          borderColor: `${currentLevel.color}40`
-                        }}
-                      >
-                        {currentLevel.name}
-                      </Badge>
-                    )}
-                  </div>
+              ) : stats?.auraStats && stats.auraStats.length > 0 ? (
+                stats.auraStats.map((stat) => {
+                  const IconComponent = sourceIcons[stat.source as keyof typeof sourceIcons] || Coins;
+                  const percentage = totalAuraPoints > 0 ? (stat.total / totalAuraPoints) * 100 : 0;
                   
-                  {nextLevel && (
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-400">Progress to {nextLevel.name}</span>
-                        <span className="text-[#8000FF] font-bold">
-                          {user?.currentStreak || 0}/{nextLevel.minDays}
-                        </span>
+                  return (
+                    <div key={stat.source} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <IconComponent className="h-4 w-4 text-primary" />
+                          <span className="text-sm text-white">
+                            {sourceLabels[stat.source as keyof typeof sourceLabels] || stat.source}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {stat.count} activities
+                          </Badge>
+                          <span className="text-sm font-medium text-white">
+                            {stat.total.toLocaleString()} AP
+                          </span>
+                        </div>
                       </div>
                       <Progress 
-                        value={progressToNext} 
-                        className="h-2 bg-gray-700"
+                        value={percentage} 
+                        className="h-2"
                       />
                     </div>
-                  )}
+                  );
+                })
+              ) : (
+                <div className="text-center py-8">
+                  <Coins className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No Aura points earned yet</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Complete lessons, participate in battles, or receive vouches to start earning!
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-                  <div className="text-sm text-gray-400 text-center">
-                    {nextLevel ? (
-                      <>
-                        <span className="text-[#00FF88] font-bold">
-                          {nextLevel.minDays - (user?.currentStreak || 0)} days
-                        </span>{" "}
-                        to {nextLevel.name} status
-                      </>
-                    ) : (
-                      "You've reached the highest level!"
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Active Battles */}
-              <Card className="bg-[#1A1A1B] border-[#FF8800]/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Trophy className="w-5 h-5 mr-2 text-[#FF8800]" />
-                    Active Battles
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {activeBattles && activeBattles.length > 0 ? (
-                    <div className="space-y-3">
-                      {activeBattles.slice(0, 3).map((battle: any) => (
-                        <div key={battle.id} className="bg-[#0A0A0B] rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm">
-                              Battle #{battle.id.slice(0, 8)}
-                            </span>
-                            <Badge variant="secondary" className="bg-red-500/20 text-red-400">
-                              Live
-                            </Badge>
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            Stakes: {battle.challengerStake + battle.opponentStake} Aura
-                          </div>
+          {/* Recent Activity */}
+          <Card className="bg-card border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-white">Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {statsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="animate-pulse flex items-center space-x-3">
+                      <div className="h-8 w-8 bg-gray-700 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-700 rounded mb-1"></div>
+                        <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : stats?.recentHistory && stats.recentHistory.length > 0 ? (
+                <div className="space-y-4">
+                  {stats.recentHistory.map((activity) => {
+                    const IconComponent = sourceIcons[activity.source as keyof typeof sourceIcons] || Coins;
+                    const colorClass = sourceColors[activity.source as keyof typeof sourceColors] || "bg-gray-500";
+                    
+                    return (
+                      <div key={activity.id} className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-full ${colorClass}`}>
+                          <IconComponent className="h-4 w-4 text-white" />
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6">
-                      <Trophy className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                      <p className="text-gray-500 text-sm">No active battles</p>
-                    </div>
-                  )}
-                  
-                  <Button 
-                    className="w-full mt-4 bg-gradient-to-r from-[#FF8800] to-[#FFD700] hover:from-[#FF8800]/80 hover:to-[#FFD700]/80 text-black font-semibold"
-                    onClick={() => window.location.href = "/battles"}
-                  >
-                    View All Battles
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white">
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-[#8000FF] text-[#8000FF] hover:bg-[#8000FF] hover:text-white"
-                    onClick={() => window.location.href = "/vouch"}
-                  >
-                    <Coins className="w-4 h-4 mr-2" />
-                    Vouch for Friend
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black"
-                    onClick={() => window.location.href = "/leaderboard"}
-                  >
-                    <Trophy className="w-4 h-4 mr-2" />
-                    View Leaderboard
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-[#00FF88] text-[#00FF88] hover:bg-[#00FF88] hover:text-black"
-                    onClick={() => window.location.href = `/profile/${user?.id}`}
-                  >
-                    <Target className="w-4 h-4 mr-2" />
-                    My Profile
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-white">
+                              {activity.description || `${sourceLabels[activity.source as keyof typeof sourceLabels] || activity.source} activity`}
+                            </p>
+                            <span className="text-sm font-medium text-green-400">
+                              +{activity.amount} AP
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400">
+                            {new Date(activity.createdAt).toLocaleDateString()} at{" "}
+                            {new Date(activity.createdAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <TrendingUp className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No recent activity</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Your recent Aura point activities will appear here
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      </main>
+
+        {/* Economic Info */}
+        <Card className="bg-card border-primary/20 mt-6">
+          <CardHeader>
+            <CardTitle className="text-white">Economics Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-400 mb-2">1 USD = 10 AP</div>
+                <p className="text-sm text-gray-400">Exchange Rate</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400 mb-2">60% / 40%</div>
+                <p className="text-sm text-gray-400">Vouch Revenue Split</p>
+                <p className="text-xs text-gray-500 mt-1">Recipient / Platform</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400 mb-2">100% AP</div>
+                <p className="text-sm text-gray-400">Full Aura Points</p>
+                <p className="text-xs text-gray-500 mt-1">To vouch recipient</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
