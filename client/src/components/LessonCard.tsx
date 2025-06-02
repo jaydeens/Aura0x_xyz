@@ -56,6 +56,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       return await apiRequest("POST", `/api/lessons/${data.lessonId}/quiz`, { answer: data.answer });
     },
     onSuccess: (data) => {
+      console.log("Quiz response:", data); // Debug log
       if (data.correct) {
         setQuizCompleted(true);
         setShowQuiz(false); // Hide quiz form
@@ -65,21 +66,33 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           description: "You can now share your achievement on X to complete the lesson.",
         });
       } else {
-        setQuizFeedback({ correct: false, explanation: data.explanation });
+        setQuizFeedback({ correct: false, explanation: data.explanation || data.message });
         toast({
           title: "Incorrect Answer",
-          description: data.message,
+          description: data.message || "Try again! Review the lesson content.",
           variant: "destructive",
         });
       }
     },
-    onError: (error) => {
-      setQuizFeedback({ correct: false, explanation: error.message });
-      toast({
-        title: "Incorrect Answer",
-        description: "Try again! Review the lesson content.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      console.log("Quiz error:", error); // Debug log
+      // Handle 400 errors (incorrect answers) differently from other errors
+      if (error.message.includes('400:')) {
+        const errorData = JSON.parse(error.message.split('400: ')[1]);
+        setQuizFeedback({ correct: false, explanation: errorData.explanation || errorData.message });
+        toast({
+          title: "Incorrect Answer",
+          description: errorData.message || "Try again! Review the lesson content.",
+          variant: "destructive",
+        });
+      } else {
+        setQuizFeedback({ correct: false, explanation: error.message });
+        toast({
+          title: "Error",
+          description: "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
