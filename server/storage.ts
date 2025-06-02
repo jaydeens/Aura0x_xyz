@@ -88,6 +88,11 @@ export interface IStorage {
   updateUserUsdtEarnings(userId: string, amount: number): Promise<void>;
   getUserByWallet(walletAddress: string): Promise<User | undefined>;
   getUserByTwitter(twitterId: string): Promise<User | undefined>;
+  
+  // Steeze operations
+  createSteezeTransaction(transaction: InsertSteezeTransaction): Promise<SteezeTransaction>;
+  getUserSteezeTransactions(userId: string): Promise<SteezeTransaction[]>;
+  updateUserSteezeBalance(userId: string, amount: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -532,6 +537,30 @@ export class DatabaseStorage implements IStorage {
       .update(notifications)
       .set({ isRead: true })
       .where(eq(notifications.userId, userId));
+  }
+
+  // Steeze operations
+  async createSteezeTransaction(transaction: InsertSteezeTransaction): Promise<SteezeTransaction> {
+    const [newTransaction] = await db
+      .insert(steezeTransactions)
+      .values(transaction)
+      .returning();
+    return newTransaction;
+  }
+
+  async getUserSteezeTransactions(userId: string): Promise<SteezeTransaction[]> {
+    return await db
+      .select()
+      .from(steezeTransactions)
+      .where(eq(steezeTransactions.userId, userId))
+      .orderBy(desc(steezeTransactions.createdAt));
+  }
+
+  async updateUserSteezeBalance(userId: string, amount: number): Promise<void> {
+    await db
+      .update(users)
+      .set({ steezeBalance: amount })
+      .where(eq(users.id, userId));
   }
 }
 
