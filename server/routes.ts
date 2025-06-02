@@ -264,6 +264,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Battle management routes
+  app.post('/api/battles/:id/accept', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      const battle = await storage.getBattle(battleId);
+      
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+      
+      if (battle.opponentId !== userId) {
+        return res.status(403).json({ message: "Only the challenged user can accept this battle" });
+      }
+      
+      if (battle.status !== 'challenge_sent') {
+        return res.status(400).json({ message: "Battle cannot be accepted" });
+      }
+
+      // Update battle status
+      const updatedBattle = await storage.updateBattle(battleId, { status: 'accepted' });
+      
+      // Create notification for challenger
+      await storage.createNotification({
+        id: `notif_${Date.now()}_${Math.random()}`,
+        userId: battle.challengerId,
+        type: "battle_accepted",
+        title: "Battle Challenge Accepted!",
+        message: "Your battle challenge has been accepted. The battle is now active!",
+        relatedId: battleId,
+      });
+
+      res.json(updatedBattle);
+    } catch (error) {
+      console.error("Error accepting battle:", error);
+      res.status(500).json({ message: "Failed to accept battle" });
+    }
+  });
+
+  app.post('/api/battles/:id/reject', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      const battle = await storage.getBattle(battleId);
+      
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+      
+      if (battle.opponentId !== userId) {
+        return res.status(403).json({ message: "Only the challenged user can reject this battle" });
+      }
+
+      // Update battle status
+      const updatedBattle = await storage.updateBattle(battleId, { status: 'rejected' });
+      
+      // Create notification for challenger
+      await storage.createNotification({
+        id: `notif_${Date.now()}_${Math.random()}`,
+        userId: battle.challengerId,
+        type: "battle_rejected",
+        title: "Battle Challenge Rejected",
+        message: "Your battle challenge was rejected.",
+        relatedId: battleId,
+      });
+
+      res.json(updatedBattle);
+    } catch (error) {
+      console.error("Error rejecting battle:", error);
+      res.status(500).json({ message: "Failed to reject battle" });
+    }
+  });
+
+  // Notification routes
+  app.get('/api/notifications', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const notifications = await storage.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
   // Profile update routes
   app.post('/api/user/update-profile', async (req: any, res) => {
     try {
