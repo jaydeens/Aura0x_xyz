@@ -399,7 +399,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                     <div className="space-y-4">
                       <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
                         <p className="text-slate-300 text-sm mb-3">
-                          Share your completion on X to earn aura points:
+                          Share your completion on X to unlock your aura points:
                         </p>
                         <div className="flex gap-2">
                           <Button
@@ -412,31 +412,43 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                           </Button>
                           <Button
                             onClick={() => {
-                              // Open X post intent and automatically complete lesson
                               window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`)}`);
-                              
-                              // Complete lesson automatically after opening post intent
-                              setTimeout(() => {
-                                completeLesson.mutate({
-                                  lessonId: lesson.id,
-                                  tweetUrl: "shared", // Simple flag instead of requiring URL
-                                });
-                              }, 1000);
                             }}
                             size="sm"
                             className="bg-black hover:bg-gray-800 text-white"
-                            disabled={isCompleting}
                           >
                             <ExternalLink className="w-4 h-4 mr-1" />
-                            {isCompleting ? "Completing..." : "Post Now"}
+                            Post Now
                           </Button>
                         </div>
                       </div>
                       
-                      <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3">
+                      <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3 space-y-3">
                         <p className="text-amber-300 text-sm text-center">
-                          💡 Click "Post Now" to share and automatically earn your aura points!
+                          After posting, claim your aura points below:
                         </p>
+                        <Button
+                          onClick={() => {
+                            completeLesson.mutate({
+                              lessonId: lesson.id,
+                              tweetUrl: "shared",
+                            });
+                          }}
+                          disabled={isCompleting}
+                          className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                        >
+                          {isCompleting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Claiming...
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-4 h-4 mr-2" />
+                              Claim +{lesson.auraReward} APs
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   </div>
