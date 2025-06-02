@@ -854,7 +854,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Update user streak and aura points
         await storage.updateUserStreak(userId, newStreak);
-        await storage.updateUserAura(userId, 100);
+        await storage.updateUserAura(userId, 100, 'lessons');
         
         // Update last lesson date to today
         const today = new Date();
@@ -878,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Update user streak and aura points
         await storage.updateUserStreak(userId, newStreak);
-        await storage.updateUserAura(userId, 100);
+        await storage.updateUserAura(userId, 100, 'lessons');
         
         // Update last lesson date to today
         const today = new Date();
