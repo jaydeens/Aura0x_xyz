@@ -236,7 +236,7 @@ export default function LiveBattle() {
                   <div className="text-3xl font-bold text-blue-400">
                     {(battle as any).challengerVotes || 0}
                   </div>
-                  <div className="text-sm text-gray-400">gifts received</div>
+                  <div className="text-sm text-gray-400">Steeze received</div>
                   
                   <Progress 
                     value={challengerPercentage} 
@@ -336,7 +336,7 @@ export default function LiveBattle() {
                   <div className="text-3xl font-bold text-red-400">
                     {(battle as any).opponentVotes || 0}
                   </div>
-                  <div className="text-sm text-gray-400">gifts received</div>
+                  <div className="text-sm text-gray-400">Steeze received</div>
                   
                   <Progress 
                     value={opponentPercentage} 
