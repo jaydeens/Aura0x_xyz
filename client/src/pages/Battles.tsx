@@ -90,18 +90,20 @@ export default function Battles() {
   });
 
   const getBattleStats = () => {
-    if (!battles) return { total: 0, live: 0, completed: 0 };
+    if (!battles) return { total: 0, live: 0, upcoming: 0, completed: 0 };
     
     const total = battles.length;
     const live = battles.filter((b: any) => b.status === 'active').length;
+    const upcoming = battles.filter((b: any) => b.status === 'pending').length;
     const completed = battles.filter((b: any) => b.status === 'completed').length;
     
-    return { total, live, completed };
+    return { total, live, upcoming, completed };
   };
 
   const stats = getBattleStats();
 
   const liveBattles = battles?.filter((b: any) => b.status === 'active') || [];
+  const upcomingBattles = battles?.filter((b: any) => b.status === 'pending') || [];
   const completedBattles = battles?.filter((b: any) => b.status === 'completed') || [];
 
   if (isLoading || !isAuthenticated) {
@@ -131,7 +133,7 @@ export default function Battles() {
         </div>
 
         {/* Battle Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -160,6 +162,20 @@ export default function Battles() {
             </CardContent>
           </Card>
 
+          <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Upcoming</p>
+                  <p className="text-3xl font-bold text-[#9933FF]">
+                    {stats.upcoming}
+                  </p>
+                </div>
+                <Clock className="w-8 h-8 text-[#9933FF]" />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -178,10 +194,14 @@ export default function Battles() {
         {/* Battle Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <TabsList className="grid w-full sm:w-auto grid-cols-3 bg-[#1A1A1B] border border-[#8000FF]/20">
+            <TabsList className="grid w-full sm:w-auto grid-cols-4 bg-[#1A1A1B] border border-[#8000FF]/20">
               <TabsTrigger value="live" className="data-[state=active]:bg-[#00FF88] data-[state=active]:text-black">
                 <Zap className="w-4 h-4 mr-2" />
-                Live Battles
+                Live
+              </TabsTrigger>
+              <TabsTrigger value="upcoming" className="data-[state=active]:bg-[#9933FF] data-[state=active]:text-white">
+                <Clock className="w-4 h-4 mr-2" />
+                Upcoming
               </TabsTrigger>
               <TabsTrigger value="completed" className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black">
                 <Trophy className="w-4 h-4 mr-2" />
@@ -241,6 +261,40 @@ export default function Battles() {
                     <Plus className="w-4 h-4 mr-2" />
                     Create First Battle
                   </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Upcoming Battles */}
+          <TabsContent value="upcoming" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Upcoming Battles</h2>
+              <Badge className="bg-[#9933FF]/20 text-[#9933FF]">
+                {stats.upcoming} Scheduled
+              </Badge>
+            </div>
+
+            {battlesLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : upcomingBattles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {upcomingBattles.map((battle: any) => (
+                  <BattleCard key={battle.id} battle={battle} />
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+                <CardContent className="p-12 text-center">
+                  <Clock className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No Upcoming Battles</h3>
+                  <p className="text-gray-400">
+                    No battles are scheduled yet.
+                  </p>
                 </CardContent>
               </Card>
             )}
