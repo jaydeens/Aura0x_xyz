@@ -74,8 +74,8 @@ export default function BattleCard({ battle, featured = false, showResult = fals
   // User role checks
   const isChallenger = user?.id === battle.challengerId;
   const isOpponent = user?.id === battle.opponentId;
-  const canWithdraw = isChallenger && battle.status === 'challenge_sent';
-  const canAcceptReject = isOpponent && battle.status === 'challenge_sent';
+  const canWithdraw = isChallenger && (battle.status === 'challenge_sent' || battle.status === 'pending');
+  const canAcceptReject = isOpponent && (battle.status === 'challenge_sent' || battle.status === 'pending');
   const canRequestCancellation = (isChallenger || isOpponent) && battle.status === 'accepted';
   const canApproveCancellation = (isChallenger || isOpponent) && battle.status === 'cancellation_requested';
 
