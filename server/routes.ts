@@ -1098,8 +1098,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionHash,
       });
       
-      // Award aura points to recipient
-      await storage.updateUserAura(toUserId, finalAuraPoints);
+      // Award aura points to recipient and track USDT earnings
+      await storage.updateUserAura(toUserId, finalAuraPoints, 'vouching');
+      
+      // Calculate and track USDT earnings (60% to recipient)
+      const usdtEarnings = usdtAmount * 0.6;
+      await storage.updateUserUsdtEarnings(toUserId, usdtEarnings);
       
       res.json({
         vouch,

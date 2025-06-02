@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Zap, Flame, Clock, Trophy, Coins, Target } from "lucide-react";
+import { Zap, Flame, Clock, Trophy, Coins, Target, BookOpen, HandHeart, Swords, Info } from "lucide-react";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -142,7 +142,89 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
+            <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">USDT Earned</p>
+                    <p className="text-2xl font-bold text-[#9933FF]">
+                      ${parseFloat(user?.totalUsdtEarned || "0").toFixed(2)}
+                    </p>
+                  </div>
+                  <Coins className="w-8 h-8 text-[#9933FF]" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
+          {/* Aura Points Breakdown */}
+          <div className="mb-8">
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold text-white flex items-center">
+                  <Zap className="w-5 h-5 mr-2 text-[#8000FF]" />
+                  Aura Points Breakdown
+                </CardTitle>
+                <p className="text-gray-400">Track where your Aura Points come from</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Daily Lessons */}
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center mx-auto mb-3">
+                      <BookOpen className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-2xl font-bold text-[#FFD700] mb-1">
+                      {user?.auraFromLessons?.toLocaleString() || "0"}
+                    </div>
+                    <div className="text-gray-400 text-sm">From Daily Lessons</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {user?.auraPoints ? Math.round(((user?.auraFromLessons || 0) / user.auraPoints) * 100) : 0}% of total
+                    </div>
+                  </div>
+
+                  {/* Vouching */}
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#9933FF] to-[#8000FF] rounded-full flex items-center justify-center mx-auto mb-3">
+                      <HandHeart className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-2xl font-bold text-[#9933FF] mb-1">
+                      {user?.auraFromVouching?.toLocaleString() || "0"}
+                    </div>
+                    <div className="text-gray-400 text-sm">From Vouching</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {user?.auraPoints ? Math.round(((user?.auraFromVouching || 0) / user.auraPoints) * 100) : 0}% of total
+                    </div>
+                  </div>
+
+                  {/* Battles */}
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#00FF88] to-[#00D4FF] rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Swords className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-2xl font-bold text-[#00FF88] mb-1">
+                      {user?.auraFromBattles?.toLocaleString() || "0"}
+                    </div>
+                    <div className="text-gray-400 text-sm">From Battles</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {user?.auraPoints ? Math.round(((user?.auraFromBattles || 0) / user.auraPoints) * 100) : 0}% of total
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conversion Note */}
+                <div className="mt-6 p-4 bg-[#8000FF]/10 border border-[#8000FF]/20 rounded-lg">
+                  <div className="flex items-center text-sm text-gray-300">
+                    <Info className="w-4 h-4 mr-2 text-[#8000FF]" />
+                    <span>
+                      <strong>Conversion Rate:</strong> 1 USDT = 10 Aura Points (base) • 
+                      Streak multipliers apply to vouching • 
+                      Battle Aura Points can be converted to USDT
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
