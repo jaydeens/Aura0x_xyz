@@ -320,16 +320,28 @@ export default function Leaderboard() {
                       <p className="text-sm text-gray-400 mb-2">
                         {level.minDays}{level.maxDays ? `-${level.maxDays}` : '+'} days
                       </p>
-                      <Badge 
-                        variant="outline" 
-                        style={{ 
-                          color: level.color, 
-                          borderColor: `${level.color}40`,
-                          backgroundColor: `${level.color}20`
-                        }}
-                      >
-                        {level.multiplier}x multiplier
-                      </Badge>
+                      <div className="space-y-1">
+                        <Badge 
+                          variant="outline" 
+                          style={{ 
+                            color: level.color, 
+                            borderColor: `${level.color}40`,
+                            backgroundColor: `${level.color}20`
+                          }}
+                        >
+                          {level.multiplier}x aura
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          style={{ 
+                            color: level.color, 
+                            borderColor: `${level.color}40`,
+                            backgroundColor: `${level.color}20`
+                          }}
+                        >
+                          {level.vouchingMultiplier || level.multiplier}x vouch
+                        </Badge>
+                      </div>
                     </div>
                   ))}
                 </div>
