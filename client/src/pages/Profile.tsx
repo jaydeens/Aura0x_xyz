@@ -258,12 +258,57 @@ export default function Profile() {
     input.onchange = async (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
-        // For now, we'll show a message that image upload is coming soon
-        toast({
-          title: "Image Upload",
-          description: "Profile picture upload will be available soon. For now, you can use your Replit profile picture.",
-          variant: "default",
-        });
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "File Too Large",
+            description: "Please select an image smaller than 5MB.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: "Invalid File Type",
+            description: "Please select a valid image file.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        try {
+          const formData = new FormData();
+          formData.append('profileImage', file);
+
+          const response = await fetch('/api/user/upload-profile-image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to upload image');
+          }
+
+          const result = await response.json();
+          
+          // Update profile with new image URL
+          updateProfileMutation.mutate({ profileImageUrl: result.imageUrl });
+          
+          toast({
+            title: "Image Uploaded",
+            description: "Your profile picture has been updated successfully.",
+          });
+        } catch (error) {
+          console.error('Upload error:', error);
+          toast({
+            title: "Upload Failed",
+            description: error instanceof Error ? error.message : "Failed to upload image. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     };
     input.click();
