@@ -443,7 +443,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; lastLessonDate?: Date }): Promise<User> {
+  async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; lastLessonDate?: Date }): Promise<User> {
     const [user] = await db
       .update(users)
       .set({

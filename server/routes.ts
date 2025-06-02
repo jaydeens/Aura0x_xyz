@@ -578,7 +578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const updatedUser = await storage.updateUserProfile(userId, { username, profileImageUrl });
+      const updatedUser = await storage.updateUserProfile(userId, { username, profileImageUrl, twitterUsername });
       
       // Update session if using wallet auth
       if (req.session?.user) {
