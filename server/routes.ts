@@ -240,13 +240,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User search endpoint  
-  app.get('/api/users/search', isAuthenticated, async (req: any, res) => {
+  app.get('/api/users/search', async (req: any, res) => {
     try {
       const query = req.query.q as string;
-      const currentUserId = req.user.claims.sub;
       
       if (!query || query.trim().length < 2) {
         return res.json([]);
+      }
+
+      // Get current user ID from either wallet session or OAuth
+      let currentUserId: string | null = null;
+      if (req.session?.user?.id) {
+        currentUserId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        currentUserId = req.user.claims.sub;
       }
 
       const users = await storage.searchUsers(query.trim(), currentUserId);
