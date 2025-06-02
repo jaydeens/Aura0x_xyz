@@ -195,7 +195,7 @@ export default function Dashboard() {
                 <p className="text-muted-foreground text-base">Track where your Aura Points come from</p>
               </CardHeader>
               <CardContent className="pt-2">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Daily Lessons */}
                   <div className="text-center group hover:scale-105 transition-transform duration-300">
                     <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
