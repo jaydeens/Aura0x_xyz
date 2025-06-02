@@ -26,7 +26,10 @@ function Router() {
   return (
     <Switch>
       {!isAuthenticated ? (
-        <Route path="*" component={Landing} />
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="*" component={Landing} />
+        </>
       ) : (
         <>
           <Route path="/" component={Dashboard} />
@@ -35,7 +38,7 @@ function Router() {
           <Route path="/leaderboard" component={Leaderboard} />
           <Route path="/profile/:id" component={Profile} />
           <Route path="/steeze-stack" component={SteezeStack} />
-          <Route component={NotFound} />
+          <Route path="*" component={NotFound} />
         </>
       )}
     </Switch>
