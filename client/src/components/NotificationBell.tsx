@@ -93,7 +93,10 @@ export default function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">Notifications</h3>
+          <div>
+            <h3 className="font-semibold">Notifications</h3>
+            <p className="text-xs text-gray-500 mt-1">Click on messages to mark as read</p>
+          </div>
           <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
             <X className="w-4 h-4" />
           </Button>
