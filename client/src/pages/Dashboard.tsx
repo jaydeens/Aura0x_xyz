@@ -254,11 +254,17 @@ export default function Dashboard() {
                         <strong className="text-primary">Aura Points:</strong> Main ranking token for leaderboard position
                       </div>
                     </div>
-                    <div>
-                      <strong className="text-[#9933FF]">Vouching:</strong> 1 USDT = 10 Aura Points (base) • Streak multipliers apply
+                    <div className="flex items-start space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <strong className="text-primary">Vouching:</strong> 1 USDT = 10 Aura Points (base) • Streak multipliers apply
+                      </div>
                     </div>
-                    <div>
-                      <strong className="text-[#00FF88]">Battle Support:</strong> Purchase Steeze tokens (1 Steeze = 0.01 USDT) to help friends win battles
+                    <div className="flex items-start space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <strong className="text-primary">Battle Support:</strong> Purchase Steeze tokens (1 Steeze = 0.01 USDT) to help friends win battles
+                      </div>
                     </div>
                   </div>
                 </div>
