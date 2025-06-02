@@ -5,7 +5,7 @@ export function useAuth() {
     queryKey: ["/api/auth/user"],
     retry: false,
     staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache at all
+    gcTime: 0, // Don't cache at all (replaces cacheTime in v5)
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
