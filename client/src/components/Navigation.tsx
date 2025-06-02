@@ -93,16 +93,25 @@ export default function Navigation() {
               </div>
             )}
 
-            {/* Wallet Connect Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:flex border-primary/50 text-primary hover:bg-primary hover:text-white"
-              onClick={handleWalletConnect}
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Connect Wallet
-            </Button>
+            {/* Wallet Status */}
+            {isAuthenticated && user?.walletAddress ? (
+              <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-green-500/30">
+                <Zap className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-medium text-green-500">
+                  {user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}
+                </span>
+              </div>
+            ) : !isAuthenticated ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex border-primary/50 text-primary hover:bg-primary hover:text-white"
+                onClick={handleWalletConnect}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Connect Wallet
+              </Button>
+            ) : null}
 
             {/* User Menu */}
             {isAuthenticated && user ? (
