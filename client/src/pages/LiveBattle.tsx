@@ -373,18 +373,18 @@ export default function LiveBattle() {
                     {/* Challenger */}
                     <div className="text-center space-y-4">
                       <Avatar className="w-24 h-24 mx-auto border-4 border-blue-500 animate-pulse">
-                        <AvatarImage src={(battle as any)?.challengerAvatar} />
+                        <AvatarImage src={challenger?.profileImageUrl} />
                         <AvatarFallback className="bg-blue-500/20 text-blue-400 text-2xl font-bold">
-                          {((battle as any)?.challengerName || 'C').charAt(0)}
+                          {(challenger?.username || 'C').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div>
                         <h3 className="text-xl font-bold text-blue-400">
-                          {(battle as any)?.challengerName || 'Challenger'}
+                          {challenger?.username || 'Challenger'}
                         </h3>
                         <p className="text-blue-300 text-sm">
-                          @{(battle as any)?.challengerUsername || 'challenger'}
+                          @{challenger?.username || 'challenger'}
                         </p>
                         <Badge variant="secondary" className="mt-2 bg-blue-500/20 text-blue-400 border-blue-500/30">
                           Challenger
@@ -410,7 +410,7 @@ export default function LiveBattle() {
                             setSelectedParticipant((battle as any).challengerId);
                             setShowGiftDialog(true);
                           }}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 mt-4"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-3"
                           disabled={!isAuthenticated || (battle as any).status !== 'active'}
                         >
                           <Gift className="w-4 h-4 mr-2" />
@@ -488,7 +488,7 @@ export default function LiveBattle() {
                             setSelectedParticipant((battle as any).opponentId);
                             setShowGiftDialog(true);
                           }}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 mt-4"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-3"
                           disabled={!isAuthenticated || (battle as any).status !== 'active'}
                         >
                           <Gift className="w-4 h-4 mr-2" />
@@ -512,13 +512,13 @@ export default function LiveBattle() {
                   <div>
                     <h4 className="text-gray-400 text-sm mb-2">Started At</h4>
                     <p className="text-white font-mono">
-                      {new Date((battle as any).createdAt).toLocaleString()}
+                      {(battle as any).createdAt ? new Date((battle as any).createdAt).toLocaleString() : 'Now'}
                     </p>
                   </div>
                   <div>
                     <h4 className="text-gray-400 text-sm mb-2">Ends At</h4>
                     <p className="text-white font-mono">
-                      {new Date((battle as any).endsAt).toLocaleString()}
+                      {(battle as any).endsAt ? new Date((battle as any).endsAt).toLocaleString() : 'TBD'}
                     </p>
                   </div>
                 </CardContent>
@@ -562,6 +562,16 @@ export default function LiveBattle() {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-[#8000FF]/10 rounded-lg border border-[#8000FF]/20">
+                  <div className="flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-[#8000FF]" />
+                    <span className="text-white font-medium">Your Steeze Balance</span>
+                  </div>
+                  <div className="text-[#8000FF] font-bold text-lg">
+                    {user?.steezeBalance || 1000} STEEZE
+                  </div>
+                </div>
+                
                 <div>
                   <label className="text-sm font-medium text-white mb-2 block">
                     Amount (Steeze Tokens)
@@ -573,7 +583,11 @@ export default function LiveBattle() {
                     placeholder="Enter amount"
                     className="bg-gray-800 border-gray-600 text-white"
                     min="1"
+                    max={user?.steezeBalance || 1000}
                   />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Maximum: {user?.steezeBalance || 1000} STEEZE
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Button
