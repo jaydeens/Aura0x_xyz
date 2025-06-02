@@ -28,11 +28,18 @@ export default function WalletConnect({ onConnect, showBalance = true }: WalletC
 
   const authenticateWallet = useMutation({
     mutationFn: async (walletAddress: string) => {
-      return await apiRequest("/api/auth/wallet", {
+      const response = await fetch("/api/auth/wallet", {
         method: "POST",
-        body: JSON.stringify({ walletAddress }),
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress }),
+        credentials: "include",
       });
+      
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });

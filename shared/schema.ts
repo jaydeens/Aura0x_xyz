@@ -205,7 +205,6 @@ export const vouchesRelations = relations(vouches, ({ one }) => ({
 
 // Schema types
 export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
   createdAt: true,
   updatedAt: true,
 });
