@@ -55,6 +55,7 @@ export default function Battles() {
   const [opponentSearch, setOpponentSearch] = useState("");
   const [selectedOpponent, setSelectedOpponent] = useState<any>(null);
   const [stakeAmount, setStakeAmount] = useState("");
+  const [battleTitle, setBattleTitle] = useState("");
   const [battleDescription, setBattleDescription] = useState("");
   const [battleDate, setBattleDate] = useState("");
   const [battleTime, setBattleTime] = useState("12:00");
