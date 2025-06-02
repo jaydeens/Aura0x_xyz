@@ -338,11 +338,10 @@ export default function Leaderboard() {
                             }}
                             className="text-xs"
                           >
-                            {level.name === 'Clout Chaser' ? 'No vouch bonus' : `${level.vouchingMultiplier}x vouching`}
+                            {level.name === 'Clout Chaser' ? 'No vouch bonus' : 
+                             level.vouchingMultiplier ? `${level.vouchingMultiplier}x vouching` : 
+                             `${level.multiplier}x vouching`}
                           </Badge>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Vouching bonus only
-                          </p>
                         </div>
                       </div>
                     )) : null}
