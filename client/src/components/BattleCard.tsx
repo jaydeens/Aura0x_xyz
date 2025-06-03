@@ -471,7 +471,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               onClick={() => window.location.href = `/battle/${battle.id}`}
             >
               <Target className="w-4 h-4 mr-2" />
-              Join Battle & Gift Steeze
+              Join Aura Clash & Gift Steeze
             </Button>
           </div>
         )}
@@ -551,7 +551,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               onClick={() => window.location.href = `/battle/${battle.id}`}
               className="w-full bg-accent hover:bg-accent/80 text-white"
             >
-              {battle.status === "active" ? "Join Battle & Gift Steeze" : "View Battle Details"}
+              {battle.status === "active" ? "Join Aura Clash & Gift Steeze" : "View Aura Clash Details"}
             </Button>
           </div>
         )}

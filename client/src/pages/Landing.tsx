@@ -204,8 +204,8 @@ export default function Landing() {
                 <div className="w-16 h-16 bg-gradient-to-br from-[#FFD700] to-[#FF8800] rounded-lg flex items-center justify-center mb-6">
                   <Sword className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">Aura Battles</h3>
-                <p className="text-gray-400 mb-4">Challenge other users to 1v1 battles. Stake your Aura Points and let the community decide the winner.</p>
+                <h3 className="text-xl font-bold mb-4">Aura Clashes</h3>
+                <p className="text-gray-400 mb-4">Challenge other users to 1v1 Aura Clashes. Stake your Aura Points and let the community decide the winner.</p>
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center text-gray-400">
@@ -253,18 +253,18 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Aura Battles
+              Aura Clashes
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Challenge other users to epic 1v1 battles and stake your Aura Points for victory
+              Challenge other users to epic 1v1 Aura Clashes and stake your Aura Points for victory
             </p>
           </div>
 
-          {/* Mock Live Battle */}
+          {/* Mock Live Aura Clash */}
           <Card className="bg-gradient-to-r from-[#1A1A1B] to-[#8000FF]/5 border-[#8000FF]/30 max-w-4xl mx-auto">
             <CardContent className="p-8">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold">Live Battle</h3>
+                <h3 className="text-2xl font-bold">Live Aura Clash</h3>
                 <Badge className="bg-red-500/20 text-red-400 animate-pulse">
                   <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
                   LIVE

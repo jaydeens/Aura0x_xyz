@@ -618,7 +618,7 @@ export default function LiveBattle() {
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Trophy className="w-5 h-5 text-[#8000FF]" />
-                    Battle Information
+                    Aura Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-6">
