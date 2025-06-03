@@ -414,11 +414,11 @@ export default function LiveBattle() {
                             setSelectedParticipant((battle as any).challengerId);
                             setShowGiftDialog(true);
                           }}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-3"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 mt-4 flex items-center justify-center gap-3"
                           disabled={!isAuthenticated || (battle as any).status !== 'active'}
                         >
-                          <Gift className="w-4 h-4 mr-2" />
-                          Gift Steeze
+                          <Gift className="w-5 h-5" />
+                          <span>Gift Steeze</span>
                         </Button>
                       </div>
                     </div>
@@ -492,11 +492,11 @@ export default function LiveBattle() {
                             setSelectedParticipant((battle as any).opponentId);
                             setShowGiftDialog(true);
                           }}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-3"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 mt-4 flex items-center justify-center gap-3"
                           disabled={!isAuthenticated || (battle as any).status !== 'active'}
                         >
-                          <Gift className="w-4 h-4 mr-2" />
-                          Gift Steeze
+                          <Gift className="w-5 h-5" />
+                          <span>Gift Steeze</span>
                         </Button>
                       </div>
                     </div>
