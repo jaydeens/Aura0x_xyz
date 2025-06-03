@@ -917,13 +917,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lessonId,
           completed: true,
           tweetUrl,
-          auraEarned: 100,
+          auraEarned: 10,
           completedAt: new Date(),
         });
         
         // Update user streak and aura points
         await storage.updateUserStreak(userId, newStreak);
-        await storage.updateUserAura(userId, 100, 'lessons');
+        await storage.updateUserAura(userId, 10, 'lessons');
         
         // Update last lesson date to today
         const today = new Date();
@@ -932,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           lesson: completedLesson,
           newStreak,
-          auraEarned: 100,
+          auraEarned: 10,
         });
       } else {
         // Create new completion record
@@ -941,13 +941,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lessonId,
           completed: true,
           tweetUrl,
-          auraEarned: 100,
+          auraEarned: 10,
           completedAt: new Date(),
         });
         
         // Update user streak and aura points
         await storage.updateUserStreak(userId, newStreak);
-        await storage.updateUserAura(userId, 100, 'lessons');
+        await storage.updateUserAura(userId, 10, 'lessons');
         
         // Update last lesson date to today
         const today = new Date();
@@ -956,7 +956,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           lesson: completedLesson,
           newStreak,
-          auraEarned: 100,
+          auraEarned: 10,
         });
       }
     } catch (error) {

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Coins, Sword, Trophy, Zap, Clock, Flame, Star } from "lucide-react";
+import { Crown, Coins, Sword, Trophy, Zap, Clock, Flame, Star, Users, BookOpen, Twitter, Settings, Sparkles } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 
 export default function Landing() {
