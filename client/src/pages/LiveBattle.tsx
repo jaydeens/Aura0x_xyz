@@ -434,7 +434,7 @@ export default function LiveBattle() {
                           <span className="text-sm">Total Stakes</span>
                         </div>
                         <div className="text-xl font-bold text-[#8000FF]">
-                          {((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0)} AP
+                          {((battle as any)?.challengerStake || 0) + ((battle as any)?.opponentStake || 0)} AP
                         </div>
                         <div className="flex items-center justify-center gap-2">
                           <Gift className="w-4 h-4" />
