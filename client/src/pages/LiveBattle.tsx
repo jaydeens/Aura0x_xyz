@@ -443,12 +443,7 @@ export default function LiveBattle() {
                         <div className="text-lg font-bold text-white">
                           {((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0)}
                         </div>
-                        <div className="flex items-center justify-center gap-2 mt-4">
-                          <span className="text-xs text-gray-400">Battle ID</span>
-                        </div>
-                        <div className="text-xs font-mono text-white/60">
-                          #{(battle as any).id?.slice(0, 8)}
-                        </div>
+
                       </div>
                     </div>
 
