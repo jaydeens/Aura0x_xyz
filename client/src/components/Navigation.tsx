@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "wouter";
-import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X } from "lucide-react";
+import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -132,6 +132,12 @@ export default function Navigation() {
                     <Link href={`/profile/${currentUser.id}`} className="cursor-pointer">
                       <User className="w-4 h-4 mr-2" />
                       Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="cursor-pointer">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-primary/20" />
