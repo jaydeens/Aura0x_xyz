@@ -516,13 +516,14 @@ export default function LiveBattle() {
                   <div>
                     <h4 className="text-gray-400 text-sm mb-2">Started At</h4>
                     <p className="text-white font-mono">
-                      {(battle as any).createdAt ? new Date((battle as any).createdAt).toLocaleString() : 'Now'}
+                      {(battle as any).battleStartsAt ? new Date((battle as any).battleStartsAt).toLocaleString() : 
+                       (battle as any).createdAt ? new Date((battle as any).createdAt).toLocaleString() : 'Now'}
                     </p>
                   </div>
                   <div>
                     <h4 className="text-gray-400 text-sm mb-2">Ends At</h4>
                     <p className="text-white font-mono">
-                      {(battle as any).endsAt ? new Date((battle as any).endsAt).toLocaleString() : 'TBD'}
+                      {(battle as any).votingEndsAt ? new Date((battle as any).votingEndsAt).toLocaleString() : 'TBD'}
                     </p>
                   </div>
                 </CardContent>
