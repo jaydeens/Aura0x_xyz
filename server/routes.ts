@@ -1680,6 +1680,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // X (Twitter) OAuth disconnect route
+  app.post("/api/auth/twitter/disconnect", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Clear Twitter OAuth tokens from user profile
+      await storage.updateUserProfile(userId, {
+        twitterAccessToken: null,
+        twitterRefreshToken: null,
+      });
+
+      res.json({ message: "X account disconnected successfully" });
+    } catch (error: any) {
+      console.error("Error disconnecting X account:", error);
+      res.status(500).json({ message: "Failed to disconnect X account" });
+    }
+  });
+
+  // Post lesson completion to X
+  app.post("/api/lessons/share-completion", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { lessonTitle, auraEarned } = req.body;
+      const user = await storage.getUser(userId);
+
+      if (!user?.twitterAccessToken) {
+        return res.status(400).json({ message: "X account not connected" });
+      }
+
+      // Create tweet content
+      const tweetText = `🎯 Just completed "${lessonTitle}" on Aura! Earned ${auraEarned} Aura points and leveling up my Web3 knowledge! 🚀\n\n#AuraLearning #Web3Education #BuildingMyAura`;
+
+      // Post to X using Twitter API v2
+      const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: tweetText
+        }),
+      });
+
+      if (!tweetResponse.ok) {
+        const errorData = await tweetResponse.json();
+        console.error("X posting error:", errorData);
+        return res.status(500).json({ message: "Failed to post to X" });
+      }
+
+      const tweetData = await tweetResponse.json();
+      res.json({ 
+        message: "Lesson completion shared to X successfully",
+        tweetId: tweetData.data?.id 
+      });
+    } catch (error: any) {
+      console.error("Error sharing lesson completion to X:", error);
+      res.status(500).json({ message: "Failed to share to X" });
+    }
+  });
+
   // Leaderboard routes
   app.get('/api/leaderboard', async (req, res) => {
     try {

@@ -39,7 +39,7 @@ export interface IStorage {
   // User operations - mandatory for Replit Auth
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string }): Promise<User>;
+  updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; twitterAccessToken?: string | null; twitterRefreshToken?: string | null }): Promise<User>;
   checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean>;
   getUserByUsername(username: string): Promise<User | undefined>;
   searchUsers(query: string, excludeUserId?: string): Promise<User[]>;

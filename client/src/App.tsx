@@ -11,6 +11,7 @@ import LiveBattle from "@/pages/LiveBattle";
 import Leaderboard from "@/pages/Leaderboard";
 import Profile from "@/pages/Profile";
 import SteezeStack from "@/pages/SteezeStack";
+import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/profile/:id" component={Profile} />
       <Route path="/steeze-stack" component={SteezeStack} />
+      <Route path="/settings" component={Settings} />
       <Route path="*" component={NotFound} />
     </Switch>
   );
