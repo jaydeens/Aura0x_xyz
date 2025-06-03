@@ -356,7 +356,7 @@ export default function LiveBattle() {
             {/* Draw Display for Completed Battles */}
             {(battle as any).status === 'completed' && !(battle as any).winnerId && (
               <div className="flex items-center justify-center gap-3 text-gray-400 text-2xl font-bold mb-4">
-                <span>🤝 Battle Draw - No Winner</span>
+                <span>🤝 Aura Draw - No Winner</span>
               </div>
             )}
             
@@ -375,9 +375,9 @@ export default function LiveBattle() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <Radio className="w-5 h-5 text-[#8000FF] animate-pulse" />
-                  Live Battle Radar
+                  Live Aura Radar
                 </h3>
-                <div className="text-white/60 text-sm">Real-time battle intensity</div>
+                <div className="text-white/60 text-sm">Real-time Aura intensity</div>
               </div>
               
               <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-red-500/20 rounded-full overflow-hidden">

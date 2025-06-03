@@ -31,7 +31,7 @@ export default function Navigation() {
 
   const navItems = [
     { path: "/", label: "Dashboard", icon: Home },
-    { path: "/battles", label: "Battles", icon: Sword },
+    { path: "/battles", label: "Aura Arena", icon: Sword },
     { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
     { path: "/steeze-stack", label: "Steeze Stack", icon: Coins },
   ];

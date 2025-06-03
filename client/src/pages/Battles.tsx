@@ -298,7 +298,7 @@ export default function Battles() {
                 <div className="absolute inset-0 bg-primary/30 rounded-full blur-lg"></div>
               </div>
               <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                Battle Arena
+                Aura Arena
               </h1>
               <div className="relative">
                 <Zap className="w-16 h-16 text-primary animate-pulse" />
@@ -504,9 +504,9 @@ export default function Battles() {
                       <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/30 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg">
                         <Sword className="w-12 h-12 text-primary" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white mb-4">No Live Battles</h3>
+                      <h3 className="text-3xl font-bold text-white mb-4">No Live Aura Clashes</h3>
                       <p className="text-gray-300 mb-10 max-w-lg mx-auto text-lg leading-relaxed">
-                        The arena awaits a champion. Step forward and prove your aura dominance in epic Web3 battles!
+                        The arena awaits a champion. Step forward and prove your aura dominance in epic Web3 clashes!
                       </p>
                       <div className="space-y-4">
                         <Button 
@@ -514,7 +514,7 @@ export default function Battles() {
                           onClick={() => setShowCreateBattle(true)}
                         >
                           <Plus className="w-5 h-5 mr-2" />
-                          Create Your First Battle
+                          Create Your First Aura Clash
                         </Button>
                         <div className="flex items-center justify-center space-x-6 text-sm text-gray-400 mt-6">
                           <div className="flex items-center space-x-2">
