@@ -906,7 +906,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Helper function to update battle statuses based on time
+  // Helper function to update battle statuses based on time and determine winners
   const updateBattleStatuses = async () => {
     try {
       const battles = await storage.getBattles();
@@ -921,13 +921,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Battle should be active
             await storage.updateBattle(battle.id, { status: 'active' });
           } else if (now >= endTime) {
-            // Battle should be completed
-            await storage.updateBattle(battle.id, { status: 'completed' });
+            // Battle should be completed - determine winner and redistribute Aura Points
+            await completeBattleAndDetermineWinner(battle);
           }
         }
       }
     } catch (error) {
       console.error("Error updating battle statuses:", error);
+    }
+  };
+
+  // Function to complete battle and determine winner based on Steeze token counts
+  const completeBattleAndDetermineWinner = async (battle: any) => {
+    try {
+      // Skip if already completed
+      if (battle.status === 'completed') return;
+
+      const challengerVotes = battle.challengerVotes || 0;
+      const opponentVotes = battle.opponentVotes || 0;
+      
+      let winnerId = null;
+      let updates: any = { status: 'completed' };
+
+      // Determine winner based on Steeze token counts
+      if (challengerVotes > opponentVotes) {
+        winnerId = battle.challengerId;
+        updates.winnerId = winnerId;
+        
+        // Winner takes all opponent's staked Aura Points
+        await storage.updateUserAura(battle.challengerId, battle.opponentStake, 'battles');
+        await storage.updateUserAura(battle.opponentId, -battle.opponentStake, 'battles');
+        
+        // Create notifications
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.challengerId,
+          type: "battle_won",
+          title: "Battle Victory!",
+          message: `You won the battle and gained ${battle.opponentStake} Aura Points!`,
+          relatedId: battle.id,
+        });
+        
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.opponentId,
+          type: "battle_lost",
+          title: "Battle Defeat",
+          message: `You lost the battle and ${battle.opponentStake} Aura Points.`,
+          relatedId: battle.id,
+        });
+        
+      } else if (opponentVotes > challengerVotes) {
+        winnerId = battle.opponentId;
+        updates.winnerId = winnerId;
+        
+        // Winner takes all challenger's staked Aura Points
+        await storage.updateUserAura(battle.opponentId, battle.challengerStake, 'battles');
+        await storage.updateUserAura(battle.challengerId, -battle.challengerStake, 'battles');
+        
+        // Create notifications
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.opponentId,
+          type: "battle_won",
+          title: "Battle Victory!",
+          message: `You won the battle and gained ${battle.challengerStake} Aura Points!`,
+          relatedId: battle.id,
+        });
+        
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.challengerId,
+          type: "battle_lost",
+          title: "Battle Defeat",
+          message: `You lost the battle and ${battle.challengerStake} Aura Points.`,
+          relatedId: battle.id,
+        });
+        
+      } else {
+        // Draw - no Aura Point redistribution
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.challengerId,
+          type: "battle_draw",
+          title: "Battle Draw",
+          message: "The battle ended in a draw. No Aura Points were redistributed.",
+          relatedId: battle.id,
+        });
+        
+        await storage.createNotification({
+          id: `notif_${Date.now()}_${Math.random()}`,
+          userId: battle.opponentId,
+          type: "battle_draw",
+          title: "Battle Draw",
+          message: "The battle ended in a draw. No Aura Points were redistributed.",
+          relatedId: battle.id,
+        });
+      }
+
+      // Update battle with completion status and winner
+      await storage.updateBattle(battle.id, updates);
+      
+      console.log(`Battle ${battle.id} completed. Winner: ${winnerId ? winnerId : 'Draw'}`);
+      
+    } catch (error) {
+      console.error(`Error completing battle ${battle.id}:`, error);
     }
   };
 
@@ -1278,9 +1376,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const amount = parseInt(paymentIntent.metadata.steezeAmount);
       const usdtAmount = amount * 0.01;
 
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       // Create transaction record
       const transaction = await storage.createSteezeTransaction({
-        userId: req.user.id,
+        userId,
         type: "purchase",
         amount,
         usdtAmount: usdtAmount.toString(),
@@ -1289,9 +1399,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Update user's Steeze balance
-      const user = await storage.getUser(req.user.id);
+      const user = await storage.getUser(userId);
       const currentBalance = user?.steezeBalance || 0;
-      await storage.updateUserSteezeBalance(req.user.id, currentBalance + amount);
+      await storage.updateUserSteezeBalance(userId, currentBalance + amount);
 
       res.json({ transaction, newBalance: currentBalance + amount });
     } catch (error: any) {
@@ -1300,18 +1410,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/steeze/redeem", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
+  app.post("/api/steeze/redeem", async (req: any, res) => {
     try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const { amount } = req.body;
       const redeemRate = 0.007; // 1 Steeze = 0.007 USDT
       const usdtAmount = amount * redeemRate;
       
       // Get current user and check balance
-      const user = await storage.getUser(req.user.id);
+      const user = await storage.getUser(userId);
       const currentBalance = user?.steezeBalance || 0;
       
       if (currentBalance < amount) {
@@ -1320,7 +1438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create redeem transaction
       const transaction = await storage.createSteezeTransaction({
-        userId: req.user.id,
+        userId,
         type: "redeem",
         amount,
         usdtAmount: usdtAmount.toString(),
@@ -1329,7 +1447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Update user's Steeze balance
-      await storage.updateUserSteezeBalance(req.user.id, currentBalance - amount);
+      await storage.updateUserSteezeBalance(userId, currentBalance - amount);
 
       res.json({ 
         transaction, 
@@ -1342,13 +1460,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/steeze/transactions", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
+  app.get("/api/steeze/transactions", async (req: any, res) => {
     try {
-      const transactions = await storage.getUserSteezeTransactions(req.user.id);
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const transactions = await storage.getUserSteezeTransactions(userId);
       res.json(transactions);
     } catch (error: any) {
       console.error("Error fetching Steeze transactions:", error);

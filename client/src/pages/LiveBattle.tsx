@@ -291,10 +291,14 @@ export default function LiveBattle() {
                 className={`px-4 py-2 text-lg font-bold animate-pulse ${
                   (battle as any).status === 'active' 
                     ? 'bg-red-500/20 text-red-400' 
-                    : 'bg-green-500/20 text-green-400'
+                    : (battle as any).status === 'completed'
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-gray-500/20 text-gray-400'
                 }`}
               >
-                {(battle as any).status === 'active' ? '🔴 LIVE' : '✅ COMPLETED'}
+                {(battle as any).status === 'active' ? '🔴 LIVE' : 
+                 (battle as any).status === 'completed' ? '✅ COMPLETED' : 
+                 '⏳ ' + ((battle as any).status || 'PENDING').toUpperCase()}
               </Badge>
             </div>
           </div>
@@ -304,7 +308,28 @@ export default function LiveBattle() {
             <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#8000FF] to-[#FF00FF] mb-2 animate-pulse">
               {(battle as any)?.title || "AURA BATTLES"}
             </h1>
-            {timeRemaining && (
+            
+            {/* Winner Display for Completed Battles */}
+            {(battle as any).status === 'completed' && (battle as any).winnerId && (
+              <div className="flex items-center justify-center gap-3 text-yellow-400 text-2xl font-bold mb-4 animate-bounce">
+                <Crown className="w-8 h-8 text-yellow-400" />
+                <span>
+                  {(battle as any).winnerId === (battle as any).challengerId 
+                    ? `${challenger?.username || 'Challenger'} Wins!`
+                    : `${opponent?.username || 'Opponent'} Wins!`}
+                </span>
+                <Crown className="w-8 h-8 text-yellow-400" />
+              </div>
+            )}
+            
+            {/* Draw Display for Completed Battles */}
+            {(battle as any).status === 'completed' && !(battle as any).winnerId && (
+              <div className="flex items-center justify-center gap-3 text-gray-400 text-2xl font-bold mb-4">
+                <span>🤝 Battle Draw - No Winner</span>
+              </div>
+            )}
+            
+            {timeRemaining && (battle as any).status === 'active' && (
               <div className="flex items-center justify-center gap-2 text-[#8000FF] text-xl font-bold">
                 <Clock className="w-6 h-6 animate-spin" />
                 <span className="font-mono bg-black/30 px-3 py-1 rounded-lg">{timeRemaining}</span>
