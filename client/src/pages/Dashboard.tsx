@@ -45,8 +45,10 @@ export default function Dashboard() {
   });
 
   const { data: activeBattles } = useQuery({
-    queryKey: ["/api/battles", "active"],
+    queryKey: ["/api/battles?status=active"],
     retry: false,
+    staleTime: 0,
+    refetchInterval: 5000, // Refresh every 5 seconds to keep live data updated
   });
 
   if (isLoading || !isAuthenticated) {
