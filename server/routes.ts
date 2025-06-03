@@ -1844,6 +1844,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Manual trigger for battle status update (for testing/admin)
+  app.post("/api/battles/update-statuses", async (req, res) => {
+    try {
+      await updateBattleStatuses();
+      res.json({ message: "Battle statuses updated successfully" });
+    } catch (error) {
+      console.error("Error updating battle statuses:", error);
+      res.status(500).json({ message: "Failed to update battle statuses" });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // Start automatic battle status checker - runs every 30 seconds
+  setInterval(updateBattleStatuses, 30000);
+  console.log("Started automatic battle status checker");
+  
   return httpServer;
 }
