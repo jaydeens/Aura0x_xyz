@@ -86,6 +86,36 @@ export default function LiveBattle() {
     refetchInterval: 5000,
   });
 
+  // Join battle as viewer on mount and maintain presence
+  useEffect(() => {
+    if (!battleId || !isAuthenticated) return;
+    
+    const joinBattle = async () => {
+      try {
+        await apiRequest("POST", `/api/battles/${battleId}/join`);
+      } catch (error) {
+        console.error("Failed to join battle:", error);
+      }
+    };
+
+    joinBattle();
+
+    // Send heartbeat every 15 seconds to maintain presence
+    const heartbeatInterval = setInterval(async () => {
+      try {
+        await apiRequest("POST", `/api/battles/${battleId}/heartbeat`);
+      } catch (error) {
+        console.error("Failed to send heartbeat:", error);
+      }
+    }, 15000);
+
+    // Cleanup on unmount
+    return () => {
+      clearInterval(heartbeatInterval);
+      apiRequest("POST", `/api/battles/${battleId}/leave`).catch(console.error);
+    };
+  }, [battleId, isAuthenticated]);
+
   // Gift Steeze mutation
   const giftSteeze = useMutation({
     mutationFn: async ({ battleId, participantId, amount }: { battleId: string, participantId: string, amount: number }) => {
@@ -285,7 +315,7 @@ export default function LiveBattle() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <Users className="w-4 h-4" />
-                <span className="font-mono">{Math.max(1, ((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0))} watching</span>
+                <span className="font-mono">{(battle as any)?.viewerCount || 1} watching</span>
               </div>
               <Badge 
                 className={`px-4 py-2 text-lg font-bold animate-pulse ${
