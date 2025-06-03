@@ -377,7 +377,7 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-white flex items-center">
                     <Trophy className="w-5 h-5 mr-2 text-primary" />
-                    Active Battles
+                    Active Aura Clashes
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -387,7 +387,7 @@ export default function Dashboard() {
                         <div key={battle.id} className="bg-[#0A0A0B] rounded-lg p-3">
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-medium text-sm">
-                              Battle #{battle.id.slice(0, 8)}
+                              Aura Clash #{battle.id.slice(0, 8)}
                             </span>
                             <Badge variant="secondary" className="bg-red-500/20 text-red-400">
                               Live
@@ -402,7 +402,7 @@ export default function Dashboard() {
                   ) : (
                     <div className="text-center py-6">
                       <Trophy className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                      <p className="text-gray-500 text-sm">No active battles</p>
+                      <p className="text-gray-500 text-sm">No active Aura clashes</p>
                     </div>
                   )}
                   
@@ -410,7 +410,7 @@ export default function Dashboard() {
                     className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                     onClick={() => window.location.href = "/battles"}
                   >
-                    View All Battles
+                    View All Aura Clashes
                   </Button>
                 </CardContent>
               </Card>
