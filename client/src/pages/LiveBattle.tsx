@@ -414,13 +414,11 @@ export default function LiveBattle() {
                             setSelectedParticipant((battle as any).challengerId);
                             setShowGiftDialog(true);
                           }}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-4 mt-4 rounded-lg text-sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 mt-4 rounded-md text-sm mx-auto"
                           disabled={!isAuthenticated || (battle as any).status !== 'active'}
                         >
-                          <div className="flex items-center justify-center gap-2">
-                            <Gift className="w-4 h-4" />
-                            <span>Gift Steeze</span>
-                          </div>
+                          <Gift className="w-4 h-4 mr-2" />
+                          Gift Steeze
                         </Button>
                       </div>
                     </div>
@@ -494,13 +492,11 @@ export default function LiveBattle() {
                             setSelectedParticipant((battle as any).opponentId);
                             setShowGiftDialog(true);
                           }}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-4 mt-4 rounded-lg text-sm"
+                          className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 mt-4 rounded-md text-sm mx-auto"
                           disabled={!isAuthenticated || (battle as any).status !== 'active'}
                         >
-                          <div className="flex items-center justify-center gap-2">
-                            <Gift className="w-4 h-4" />
-                            <span>Gift Steeze</span>
-                          </div>
+                          <Gift className="w-4 h-4 mr-2" />
+                          Gift Steeze
                         </Button>
                       </div>
                     </div>
