@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { db } from "./db";
 import { lessons as lessonsTable } from "../shared/schema";
@@ -46,6 +47,56 @@ const completeLessonSchema = z.object({
     message: "Must be 'shared' or a valid Twitter/X URL"
   }),
 });
+
+// Battle presence tracking
+interface BattleViewer {
+  userId: string;
+  username: string;
+  lastSeen: number;
+}
+
+const battleViewers = new Map<string, Map<string, BattleViewer>>();
+
+function addViewer(battleId: string, userId: string, username: string) {
+  if (!battleViewers.has(battleId)) {
+    battleViewers.set(battleId, new Map());
+  }
+  const viewers = battleViewers.get(battleId)!;
+  viewers.set(userId, {
+    userId,
+    username,
+    lastSeen: Date.now()
+  });
+}
+
+function removeViewer(battleId: string, userId: string) {
+  const viewers = battleViewers.get(battleId);
+  if (viewers) {
+    viewers.delete(userId);
+    if (viewers.size === 0) {
+      battleViewers.delete(battleId);
+    }
+  }
+}
+
+function getViewerCount(battleId: string): number {
+  const viewers = battleViewers.get(battleId);
+  if (!viewers) return 0;
+  
+  // Clean up stale viewers (older than 30 seconds)
+  const now = Date.now();
+  const staleThreshold = 30000;
+  
+  const userIds = Array.from(viewers.keys());
+  for (const userId of userIds) {
+    const viewer = viewers.get(userId);
+    if (viewer && now - viewer.lastSeen > staleThreshold) {
+      viewers.delete(userId);
+    }
+  }
+  
+  return viewers.size;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create uploads directory if it doesn't exist
@@ -1079,10 +1130,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!battle) {
         return res.status(404).json({ message: "Battle not found" });
       }
-      res.json(battle);
+      
+      const viewerCount = getViewerCount(req.params.id);
+      res.json({ ...battle, viewerCount });
     } catch (error) {
       console.error("Error fetching battle:", error);
       res.status(500).json({ message: "Failed to fetch battle" });
+    }
+  });
+
+  // Join battle as viewer
+  app.post('/api/battles/:id/join', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      let username = 'Anonymous';
+      
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+        const user = await storage.getUser(userId);
+        username = user?.username || 'Anonymous';
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        username = user?.username || 'Anonymous';
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      addViewer(battleId, userId, username);
+      
+      const viewerCount = getViewerCount(battleId);
+      res.json({ viewerCount });
+    } catch (error) {
+      console.error("Error joining battle:", error);
+      res.status(500).json({ message: "Failed to join battle" });
+    }
+  });
+
+  // Leave battle as viewer
+  app.post('/api/battles/:id/leave', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      removeViewer(battleId, userId);
+      
+      const viewerCount = getViewerCount(battleId);
+      res.json({ viewerCount });
+    } catch (error) {
+      console.error("Error leaving battle:", error);
+      res.status(500).json({ message: "Failed to leave battle" });
+    }
+  });
+
+  // Update viewer presence (heartbeat)
+  app.post('/api/battles/:id/heartbeat', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      let username = 'Anonymous';
+      
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+        const user = await storage.getUser(userId);
+        username = user?.username || 'Anonymous';
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        username = user?.username || 'Anonymous';
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      addViewer(battleId, userId, username); // This updates lastSeen timestamp
+      
+      const viewerCount = getViewerCount(battleId);
+      res.json({ viewerCount });
+    } catch (error) {
+      console.error("Error updating heartbeat:", error);
+      res.status(500).json({ message: "Failed to update heartbeat" });
     }
   });
 
