@@ -159,10 +159,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDailyLessons(date: Date): Promise<Lesson[]> {
+    // Use UTC for consistent daily boundaries
     const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    startOfDay.setUTCHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    endOfDay.setUTCHours(23, 59, 59, 999);
 
     return await db
       .select()
@@ -170,11 +171,11 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(lessons.isActive, true),
-          gt(lessons.createdAt, startOfDay),
-          lt(lessons.createdAt, endOfDay)
+          gte(lessons.createdAt, startOfDay),
+          lte(lessons.createdAt, endOfDay)
         )
       )
-      .orderBy(asc(lessons.createdAt))
+      .orderBy(desc(lessons.createdAt))
       .limit(3);
   }
 

@@ -714,37 +714,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Expires': '0'
       });
 
-      const today = new Date();
+      // Use UTC date for consistent daily boundaries at 00:00 UTC
+      const now = new Date();
+      const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
       const forceRefresh = req.query.force === 'true';
       
       let lessons = await storage.getDailyLessons(today);
       
-      // If no lessons for today, generate new ones
-      if (lessons.length === 0) {
-        console.log("Generating daily lessons...");
+      // If no lessons for today, or if it's a new day and we want to ensure fresh content
+      const shouldGenerateNew = lessons.length === 0 || forceRefresh;
+      
+      if (shouldGenerateNew) {
+        console.log(`Generating daily lessons for ${today.toISOString().split('T')[0]}...`);
         
-        const generatedLessons = await generateDailyLessons(1);
-        
-        for (const lessonData of generatedLessons) {
-          // Generate quiz for each lesson
-          const quiz = await generateLessonQuiz(lessonData.title, lessonData.content);
+        try {
+          const generatedLessons = await generateDailyLessons(1);
           
-          await storage.createLesson({
-            title: lessonData.title,
-            content: lessonData.content,
-            keyTakeaways: lessonData.keyTakeaways,
-            difficulty: lessonData.difficulty,
-            estimatedReadTime: lessonData.estimatedReadTime,
-            auraReward: 10,
-            isActive: true,
-            quizQuestion: quiz.question,
-            quizOptions: quiz.options,
-            quizCorrectAnswer: quiz.correctAnswer,
-            quizExplanation: quiz.explanation,
-          });
+          for (const lessonData of generatedLessons) {
+            // Generate quiz for each lesson
+            const quiz = await generateLessonQuiz(lessonData.title, lessonData.content);
+            
+            await storage.createLesson({
+              title: lessonData.title,
+              content: lessonData.content,
+              keyTakeaways: lessonData.keyTakeaways,
+              difficulty: lessonData.difficulty,
+              estimatedReadTime: lessonData.estimatedReadTime,
+              auraReward: 100,
+              isActive: true,
+              quizQuestion: quiz.question,
+              quizOptions: quiz.options,
+              quizCorrectAnswer: quiz.correctAnswer,
+              quizExplanation: quiz.explanation,
+            });
+          }
+          
+          lessons = await storage.getDailyLessons(today);
+        } catch (error) {
+          console.error("Failed to generate new lesson:", error);
+          // Fallback to most recent lesson if generation fails
+          const fallbackLessons = await storage.getLessons(1);
+          lessons = fallbackLessons;
         }
-        
-        lessons = await storage.getDailyLessons(today);
       }
       
       // If existing lessons don't have quiz data, add it
