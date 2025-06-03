@@ -962,17 +962,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const battles = await storage.getBattles();
       const now = new Date();
+      console.log(`Checking ${battles.length} battles for status updates at ${now.toISOString()}`);
 
       for (const battle of battles) {
-        if (battle.status === 'accepted' && battle.battleStartsAt && battle.votingEndsAt) {
+        if ((battle.status === 'accepted' || battle.status === 'active') && battle.battleStartsAt && battle.votingEndsAt) {
           const startTime = new Date(battle.battleStartsAt);
           const endTime = new Date(battle.votingEndsAt);
+          
+          console.log(`Battle ${battle.id}: status=${battle.status}, ends=${endTime.toISOString()}, now=${now.toISOString()}, shouldComplete=${now >= endTime}`);
 
-          if (now >= startTime && now < endTime) {
+          if (now >= startTime && now < endTime && battle.status === 'accepted') {
             // Battle should be active
+            console.log(`Activating battle ${battle.id}`);
             await storage.updateBattle(battle.id, { status: 'active' });
-          } else if (now >= endTime) {
+          } else if (now >= endTime && battle.status !== 'completed') {
             // Battle should be completed - determine winner and redistribute Aura Points
+            console.log(`Completing battle ${battle.id} - voting ended at ${battle.votingEndsAt}`);
             await completeBattleAndDetermineWinner(battle);
           }
         }
