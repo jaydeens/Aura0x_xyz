@@ -343,6 +343,28 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   <Users className="w-3 h-3 mr-1" />
                   {battle.totalVotes} votes
                 </div>
+                
+                {/* Winner/Result Display for Completed Battles */}
+                {battle.status === "completed" && (
+                  <div className="mb-2">
+                    {battle.winnerId ? (
+                      <div className="flex items-center justify-center gap-1 text-yellow-500">
+                        <Trophy className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {battle.winnerId === battle.challengerId 
+                            ? (battle.challenger?.username || "Challenger") 
+                            : (battle.opponent?.username || "Opponent")} Wins!
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-1 text-gray-400">
+                        <Target className="w-4 h-4" />
+                        <span className="text-sm font-medium">Draw</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 {(battle.battleStartsAt || battle.createdAt) && (
                   <div className="text-xs text-gray-400 space-y-1">
                     <div className="flex items-center justify-center gap-1">
