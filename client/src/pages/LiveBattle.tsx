@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,6 +42,7 @@ export default function LiveBattle() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   const [timeRemaining, setTimeRemaining] = useState("");
   const [giftAmount, setGiftAmount] = useState("");
@@ -305,7 +306,7 @@ export default function LiveBattle() {
           <div className="flex items-center justify-between">
             <Button 
               variant="ghost" 
-              onClick={() => window.history.back()}
+              onClick={() => setLocation('/battles')}
               className="text-white hover:bg-[#8000FF]/20"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
