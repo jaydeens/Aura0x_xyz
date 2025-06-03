@@ -38,6 +38,8 @@ export const users = pgTable("users", {
   twitterId: varchar("twitter_id"),
   twitterUsername: varchar("twitter_username"),
   twitterDisplayName: varchar("twitter_display_name"),
+  twitterAccessToken: text("twitter_access_token"),
+  twitterRefreshToken: text("twitter_refresh_token"),
   isVerified: boolean("is_verified").default(false),
   auraPoints: integer("aura_points").default(0),
   currentStreak: integer("current_streak").default(0),
