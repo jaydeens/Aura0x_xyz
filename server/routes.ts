@@ -1086,6 +1086,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Manual battle completion endpoint (for testing)
+  app.post('/api/battles/:id/complete', async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const battleId = req.params.id;
+      const battle = await storage.getBattle(battleId);
+      
+      if (!battle) {
+        return res.status(404).json({ message: "Battle not found" });
+      }
+      
+      // Only allow participants to manually complete their battle
+      if (battle.challengerId !== userId && battle.opponentId !== userId) {
+        return res.status(403).json({ message: "Only battle participants can complete this battle" });
+      }
+
+      // Complete the battle
+      await completeBattleAndDetermineWinner(battle);
+      
+      // Get updated battle data
+      const updatedBattle = await storage.getBattle(battleId);
+      res.json(updatedBattle);
+    } catch (error) {
+      console.error("Error completing battle:", error);
+      res.status(500).json({ message: "Failed to complete battle" });
+    }
+  });
+
   // Gift Steeze to battle participants
   app.post('/api/battles/gift', async (req: any, res) => {
     try {

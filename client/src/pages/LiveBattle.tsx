@@ -89,7 +89,7 @@ export default function LiveBattle() {
   // Gift Steeze mutation
   const giftSteeze = useMutation({
     mutationFn: async ({ battleId, participantId, amount }: { battleId: string, participantId: string, amount: number }) => {
-      const response = await apiRequest("POST", "/api/battles/vote", {
+      const response = await apiRequest("POST", "/api/battles/gift", {
         battleId,
         participantId,
         amount,
@@ -400,8 +400,19 @@ export default function LiveBattle() {
                 <CardContent className="p-6">
                   <div className="grid grid-cols-3 gap-6 items-center">
                     {/* Challenger */}
-                    <div className="text-center space-y-4">
-                      <Avatar className="w-24 h-24 mx-auto border-4 border-blue-500 animate-pulse">
+                    <div className="text-center space-y-4 relative">
+                      {/* Winner Crown */}
+                      {(battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).challengerId && (
+                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
+                          <Crown className="w-12 h-12 text-yellow-400 animate-bounce" />
+                        </div>
+                      )}
+                      
+                      <Avatar className={`w-24 h-24 mx-auto border-4 ${
+                        (battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).challengerId
+                          ? 'border-yellow-400 shadow-lg shadow-yellow-400/50'
+                          : 'border-blue-500'
+                      } ${(battle as any).status === 'active' ? 'animate-pulse' : ''}`}>
                         <AvatarImage src={challenger?.profileImageUrl} />
                         <AvatarFallback className="bg-blue-500/20 text-blue-400 text-2xl font-bold">
                           {(challenger?.username || 'C').charAt(0).toUpperCase()}
@@ -409,14 +420,25 @@ export default function LiveBattle() {
                       </Avatar>
                       
                       <div>
-                        <h3 className="text-xl font-bold text-blue-400">
+                        <h3 className={`text-xl font-bold ${
+                          (battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).challengerId
+                            ? 'text-yellow-400'
+                            : 'text-blue-400'
+                        }`}>
                           {challenger?.username || 'Challenger'}
+                          {(battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).challengerId && ' 👑'}
                         </h3>
                         <p className="text-blue-300 text-sm">
                           @{challenger?.username || 'challenger'}
                         </p>
-                        <Badge variant="secondary" className="mt-2 bg-blue-500/20 text-blue-400 border-blue-500/30">
-                          Challenger
+                        <Badge variant="secondary" className={`mt-2 ${
+                          (battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).challengerId
+                            ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                            : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                        }`}>
+                          {(battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).challengerId 
+                            ? 'WINNER' 
+                            : 'Challenger'}
                         </Badge>
                       </div>
 
@@ -473,8 +495,19 @@ export default function LiveBattle() {
                     </div>
 
                     {/* Opponent */}
-                    <div className="text-center space-y-4">
-                      <Avatar className="w-24 h-24 mx-auto border-4 border-red-500 animate-pulse">
+                    <div className="text-center space-y-4 relative">
+                      {/* Winner Crown */}
+                      {(battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).opponentId && (
+                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
+                          <Crown className="w-12 h-12 text-yellow-400 animate-bounce" />
+                        </div>
+                      )}
+                      
+                      <Avatar className={`w-24 h-24 mx-auto border-4 ${
+                        (battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).opponentId
+                          ? 'border-yellow-400 shadow-lg shadow-yellow-400/50'
+                          : 'border-red-500'
+                      } ${(battle as any).status === 'active' ? 'animate-pulse' : ''}`}>
                         <AvatarImage src={opponent?.profileImageUrl} />
                         <AvatarFallback className="bg-red-500/20 text-red-400 text-2xl font-bold">
                           {(opponent?.username || 'O').charAt(0).toUpperCase()}
@@ -482,14 +515,25 @@ export default function LiveBattle() {
                       </Avatar>
                       
                       <div>
-                        <h3 className="text-xl font-bold text-red-400">
+                        <h3 className={`text-xl font-bold ${
+                          (battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).opponentId
+                            ? 'text-yellow-400'
+                            : 'text-red-400'
+                        }`}>
                           {opponent?.username || 'Opponent'}
+                          {(battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).opponentId && ' 👑'}
                         </h3>
                         <p className="text-red-300 text-sm">
                           @{opponent?.username || 'opponent'}
                         </p>
-                        <Badge variant="secondary" className="mt-2 bg-red-500/20 text-red-400 border-red-500/30">
-                          Opponent
+                        <Badge variant="secondary" className={`mt-2 ${
+                          (battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).opponentId
+                            ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                            : 'bg-red-500/20 text-red-400 border-red-500/30'
+                        }`}>
+                          {(battle as any).status === 'completed' && (battle as any).winnerId === (battle as any).opponentId 
+                            ? 'WINNER' 
+                            : 'Opponent'}
                         </Badge>
                       </div>
 
