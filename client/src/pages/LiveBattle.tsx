@@ -637,7 +637,7 @@ export default function LiveBattle() {
                     <span className="text-white font-medium">Your Steeze Balance</span>
                   </div>
                   <div className="text-[#8000FF] font-bold text-lg">
-                    {(user as any)?.steezeBalance || 1000} STEEZE
+                    {(user as any)?.steezeBalance || 0} STEEZE
                   </div>
                 </div>
                 
@@ -652,10 +652,10 @@ export default function LiveBattle() {
                     placeholder="Enter amount"
                     className="bg-gray-800 border-gray-600 text-white"
                     min="1"
-                    max={(user as any)?.steezeBalance || 1000}
+                    max={(user as any)?.steezeBalance || 0}
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Maximum: {(user as any)?.steezeBalance || 1000} STEEZE
+                    Maximum: {(user as any)?.steezeBalance || 0} STEEZE
                   </p>
                 </div>
                 <div className="flex gap-2">
