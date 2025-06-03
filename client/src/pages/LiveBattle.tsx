@@ -285,7 +285,7 @@ export default function LiveBattle() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <Users className="w-4 h-4" />
-                <span className="font-mono">{Math.floor(Math.random() * 1500) + 500} watching</span>
+                <span className="font-mono">{((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0) + 15} watching</span>
               </div>
               <Badge 
                 className={`px-4 py-2 text-lg font-bold animate-pulse ${
@@ -441,7 +441,7 @@ export default function LiveBattle() {
                           <span className="text-sm">Total Gifts</span>
                         </div>
                         <div className="text-lg font-bold text-white">
-                          {Math.floor(Math.random() * 100) + 50}
+                          {((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0)}
                         </div>
                         <div className="flex items-center justify-center gap-2 mt-4">
                           <span className="text-xs text-gray-400">Battle ID</span>
@@ -573,7 +573,7 @@ export default function LiveBattle() {
                     <span className="text-white font-medium">Your Steeze Balance</span>
                   </div>
                   <div className="text-[#8000FF] font-bold text-lg">
-                    {user?.steezeBalance || 1000} STEEZE
+                    {(user as any)?.steezeBalance || 1000} STEEZE
                   </div>
                 </div>
                 
@@ -588,10 +588,10 @@ export default function LiveBattle() {
                     placeholder="Enter amount"
                     className="bg-gray-800 border-gray-600 text-white"
                     min="1"
-                    max={user?.steezeBalance || 1000}
+                    max={(user as any)?.steezeBalance || 1000}
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Maximum: {user?.steezeBalance || 1000} STEEZE
+                    Maximum: {(user as any)?.steezeBalance || 1000} STEEZE
                   </p>
                 </div>
                 <div className="flex gap-2">
