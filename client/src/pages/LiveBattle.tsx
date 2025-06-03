@@ -502,7 +502,7 @@ export default function LiveBattle() {
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
                             <Trophy className="w-4 h-4" />
-                            <span>Final Votes: {(battle as any).challengerVotes || 0}</span>
+                            <span>Final Steeze: {(battle as any).challengerVotes || 0}</span>
                           </div>
                         )}
                       </div>
@@ -604,7 +604,7 @@ export default function LiveBattle() {
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
                             <Trophy className="w-4 h-4" />
-                            <span>Final Votes: {(battle as any).opponentVotes || 0}</span>
+                            <span>Final Steeze: {(battle as any).opponentVotes || 0}</span>
                           </div>
                         )}
                       </div>

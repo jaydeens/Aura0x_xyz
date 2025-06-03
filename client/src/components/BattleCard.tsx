@@ -341,7 +341,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                 </div>
                 <div className="text-xs text-muted-foreground flex items-center justify-center mb-2">
                   <Users className="w-3 h-3 mr-1" />
-                  {battle.totalVotes} votes
+                  {battle.totalVotes} Steeze
                 </div>
                 
                 {/* Winner/Result Display for Completed Battles */}
@@ -406,8 +406,8 @@ export default function BattleCard({ battle, featured = false, showResult = fals
         {battle.status === "active" && (battle.challengerVotes > 0 || battle.opponentVotes > 0) && (
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Vote Distribution</span>
-              <span className="text-gray-400">{battle.totalVotes} total votes</span>
+              <span className="text-gray-400">Steeze Distribution</span>
+              <span className="text-gray-400">{battle.totalVotes} total Steeze</span>
             </div>
             
             <div className="space-y-2">
@@ -416,7 +416,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   {battle.challenger?.firstName || "Challenger"}
                 </span>
                 <span className="text-sm font-medium text-primary">
-                  {battle.challengerVotes} votes ({challengerPercentage.toFixed(1)}%)
+                  {battle.challengerVotes} Steeze ({challengerPercentage.toFixed(1)}%)
                 </span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
@@ -433,7 +433,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   {battle.opponent?.firstName || "Opponent"}
                 </span>
                 <span className="text-sm font-medium text-accent">
-                  {battle.opponentVotes} votes ({opponentPercentage.toFixed(1)}%)
+                  {battle.opponentVotes} Steeze ({opponentPercentage.toFixed(1)}%)
                 </span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
