@@ -543,6 +543,18 @@ export default function BattleCard({ battle, featured = false, showResult = fals
             </p>
           </div>
         )}
+
+        {/* View Details for Active and Completed Battles */}
+        {(battle.status === "active" || battle.status === "completed") && (
+          <div className="mt-4">
+            <Button 
+              onClick={() => window.location.href = `/battle/${battle.id}`}
+              className="w-full bg-accent hover:bg-accent/80 text-white"
+            >
+              {battle.status === "active" ? "Join Battle & Gift Steeze" : "View Battle Details"}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
