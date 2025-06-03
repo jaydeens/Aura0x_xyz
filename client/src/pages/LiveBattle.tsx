@@ -285,7 +285,7 @@ export default function LiveBattle() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <Users className="w-4 h-4" />
-                <span className="font-mono">{((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0) + 15} watching</span>
+                <span className="font-mono">{Math.max(1, ((battle as any)?.challengerVotes || 0) + ((battle as any)?.opponentVotes || 0))} watching</span>
               </div>
               <Badge 
                 className={`px-4 py-2 text-lg font-bold animate-pulse ${
