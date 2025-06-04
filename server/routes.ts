@@ -1896,7 +1896,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           keyTakeaways: lessonData.keyTakeaways,
           difficulty: lessonData.difficulty,
           estimatedReadTime: lessonData.estimatedReadTime,
-          auraReward: 100,
+          auraReward: 10,
           isActive: true,
           quizQuestion: quiz.question,
           quizOptions: quiz.options,
