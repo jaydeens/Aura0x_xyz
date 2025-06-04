@@ -241,7 +241,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="flex items-center gap-1 text-accent font-semibold">
               <Zap className="w-4 h-4" />
-              <span>+100</span>
+              <span>+{lesson.auraReward}</span>
             </div>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   </Badge>
                   <div className="flex items-center gap-1 text-accent font-semibold">
                     <Zap className="w-4 h-4" />
-                    <span>+100 Aura Points</span>
+                    <span>+{lesson.auraReward} Aura Points</span>
                   </div>
                 </div>
                 
@@ -461,7 +461,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                           ) : (
                             <>
                               <Zap className="w-4 h-4 mr-2" />
-                              Claim +100 APs
+                              Claim +{lesson.auraReward} APs
                             </>
                           )}
                         </Button>

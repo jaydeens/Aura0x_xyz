@@ -721,8 +721,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let lessons = await storage.getDailyLessons(today);
       
-      // If no lessons for today, or if it's a new day and we want to ensure fresh content
-      const shouldGenerateNew = lessons.length === 0 || forceRefresh;
+      // Check if we need to generate new lessons
+      // Generate if: no lessons for today, force refresh, or if lesson is older than today
+      const shouldGenerateNew = lessons.length === 0 || forceRefresh || 
+        (lessons.length > 0 && new Date(lessons[0].createdAt).toDateString() !== today.toDateString());
       
       if (shouldGenerateNew) {
         console.log(`Generating daily lessons for ${today.toISOString().split('T')[0]}...`);
@@ -740,7 +742,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               keyTakeaways: lessonData.keyTakeaways,
               difficulty: lessonData.difficulty,
               estimatedReadTime: lessonData.estimatedReadTime,
-              auraReward: 100,
+              auraReward: 10,
               isActive: true,
               quizQuestion: quiz.question,
               quizOptions: quiz.options,
