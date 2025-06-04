@@ -5,7 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Coins, Sword, Trophy, Zap, Clock, Flame, Star, Users, BookOpen, Twitter, Settings, Sparkles } from "lucide-react";
+import { Crown, Coins, Sword, Trophy, Zap, Clock, Flame, Star, Users, BookOpen, Settings, Sparkles } from "lucide-react";
+import { SiX } from "react-icons/si";
 import AuthModal from "@/components/AuthModal";
 
 export default function Landing() {
@@ -171,7 +172,7 @@ export default function Landing() {
             <Card className="bg-[#1A1A1B] border-[#1DA1F2]/20 hover:border-[#1DA1F2]/40 transition-all hover:scale-105">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#1DA1F2] to-[#0A7BC4] rounded-lg flex items-center justify-center mb-6">
-                  <Twitter className="w-8 h-8 text-white" />
+                  <SiX className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">X Account Sync</h3>
                 <p className="text-gray-400 mb-4">Connect your X account for automated lesson completion sharing. Showcase your learning progress to your followers.</p>
