@@ -89,7 +89,6 @@ export default function Landing() {
           </div>
         </div>
       </nav>
-
       {/* Hero Section */}
       <section className="pt-24 pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#8000FF]/5 to-[#9933FF]/5"></div>
@@ -130,7 +129,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section id="features" className="py-16 bg-gradient-to-b from-[#0A0A0B] to-[#1A1A1B]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -226,7 +224,7 @@ export default function Landing() {
                 <div className="w-16 h-16 bg-gradient-to-br from-[#00FF88] to-[#00D4FF] rounded-lg flex items-center justify-center mb-6">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">Steeze Tokens</h3>
+                <h3 className="text-xl font-bold mb-4">Steeze Coins</h3>
                 <p className="text-gray-400 mb-4">Gift Steeze tokens during live Aura Clashes to support your favorite participants. Token counts determine battle winners.</p>
                 
                 <div className="bg-[#0A0A0B] rounded-lg p-3">
@@ -247,7 +245,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Live Aura Clashes */}
       <section id="battles" className="py-16 bg-gradient-to-b from-[#1A1A1B]/20 to-[#0A0A0B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -307,7 +304,6 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-
       {/* Leaderboard Preview */}
       <section id="leaderboard" className="py-16 bg-gradient-to-b from-[#0A0A0B] to-[#8000FF]/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -364,7 +360,6 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="bg-[#1A1A1B] border-t border-[#8000FF]/20 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -429,7 +424,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-
       {/* Auth Modal */}
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </div>
