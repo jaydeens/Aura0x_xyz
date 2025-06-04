@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  background: linear-gradient(to bottom, #8B5CF6 0%, #000000 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
 :root {
   --background: 0 0% 5%; /* Almost Black */
   --foreground: 0 0% 98%; /* Almost White */
