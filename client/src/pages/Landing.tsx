@@ -13,6 +13,22 @@ export default function Landing() {
   const { isAuthenticated, isLoading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
+  // Fetch real-time platform statistics
+  const { data: stats } = useQuery({
+    queryKey: ['/api/stats'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const { data: leaderboard } = useQuery({
+    queryKey: ['/api/leaderboard'],
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  const { data: activeBattles } = useQuery({
+    queryKey: ['/api/battles'],
+    refetchInterval: 15000, // Refresh every 15 seconds
+  });
+
   // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -87,8 +103,28 @@ export default function Landing() {
               Build Your Aura
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
-              The ultimate Web3 platform where users build their reputation through daily lessons, USDT vouching, and epic 1v1 Aura Battles.
+              Complete daily Web3 lessons, connect your X account for automated sharing, and engage in live Aura Clashes where viewers gift Steeze tokens to support their favorites.
             </p>
+            
+            {/* Real-time Platform Statistics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
+              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-[#8000FF]">{stats?.totalUsers || 0}</div>
+                <div className="text-sm text-gray-400">Active Users</div>
+              </div>
+              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-[#9933FF]">{stats?.totalAura || 0}</div>
+                <div className="text-sm text-gray-400">Total Aura</div>
+              </div>
+              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-[#8000FF]">{stats?.activeBattles || 0}</div>
+                <div className="text-sm text-gray-400">Live Clashes</div>
+              </div>
+              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-[#9933FF]">{stats?.completedLessonsCount || 0}</div>
+                <div className="text-sm text-gray-400">Lessons Complete</div>
+              </div>
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Button 
@@ -136,10 +172,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              How It Works
+              Platform Features
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Four core activities that help you farm Aura and build your Web3 reputation
+              Build your Web3 reputation through learning, social sharing, and live competitive battles
             </p>
           </div>
 
@@ -148,70 +184,65 @@ export default function Landing() {
             <Card className="bg-[#1A1A1B] border-[#8000FF]/20 hover:border-[#8000FF]/40 transition-all hover:scale-105">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#8000FF] to-[#6B00E6] rounded-lg flex items-center justify-center mb-6">
-                  <Zap className="w-8 h-8 text-white" />
+                  <BookOpen className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Daily Lessons</h3>
-                <p className="text-gray-400 mb-4">Complete AI-powered Web3 lessons and share your progress to earn Aura Points and maintain your learning streak.</p>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Clout Chaser</span>
-                    <Badge variant="secondary" className="bg-[#8000FF]/20 text-[#8000FF]">0-4 days</Badge>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Attention Seeker</span>
-                    <Badge variant="secondary" className="bg-[#9933FF]/20 text-[#9933FF]">5-14 days</Badge>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Grinder</span>
-                    <Badge variant="secondary" className="bg-[#00FF88]/20 text-[#00FF88]">15-29 days</Badge>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Aura Vader</span>
-                    <Badge variant="secondary" className="bg-[#FFD700]/20 text-[#FFD700]">30+ days</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* USDT Vouching */}
-            <Card className="bg-[#1A1A1B] border-[#9933FF]/20 hover:border-[#9933FF]/40 transition-all hover:scale-105">
-              <CardContent className="p-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#9933FF] to-[#00D4FF] rounded-lg flex items-center justify-center mb-6">
-                  <Coins className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold mb-4">USDT Vouching</h3>
-                <p className="text-gray-400 mb-4">Support other users by vouching with USDT. Higher streak levels unlock multiplier bonuses for more Aura farming.</p>
+                <p className="text-gray-400 mb-4">Complete AI-generated Web3 lessons with interactive quizzes. Earn 10 Aura Points per completion and build your streak.</p>
                 
                 <div className="bg-[#0A0A0B] rounded-lg p-3">
-                  <div className="text-xs text-gray-400 mb-2">1 USDT = 10 Base Aura Points</div>
+                  <div className="text-xs text-gray-400 mb-2">Rewards per lesson</div>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>Aura Vader</span>
-                      <span className="text-[#00FF88]">2x multiplier</span>
+                      <span>Aura Points</span>
+                      <span className="text-[#8000FF]">+10 AP</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Grinder</span>
-                      <span className="text-[#FFD700]">1.5x multiplier</span>
+                      <span>Daily Streak</span>
+                      <span className="text-[#9933FF]">+1 day</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Aura Battles */}
+            {/* X Integration */}
+            <Card className="bg-[#1A1A1B] border-[#1DA1F2]/20 hover:border-[#1DA1F2]/40 transition-all hover:scale-105">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#1DA1F2] to-[#0A7BC4] rounded-lg flex items-center justify-center mb-6">
+                  <Twitter className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4">X Account Sync</h3>
+                <p className="text-gray-400 mb-4">Connect your X account for automated lesson completion sharing. Showcase your learning progress to your followers.</p>
+                
+                <div className="bg-[#0A0A0B] rounded-lg p-3">
+                  <div className="text-xs text-gray-400 mb-2">Auto-posting features</div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Lesson Completion</span>
+                      <span className="text-[#1DA1F2]">Auto</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Streak Milestones</span>
+                      <span className="text-[#1DA1F2]">Auto</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Live Aura Clashes */}
             <Card className="bg-[#1A1A1B] border-[#FFD700]/20 hover:border-[#FFD700]/40 transition-all hover:scale-105">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#FFD700] to-[#FF8800] rounded-lg flex items-center justify-center mb-6">
                   <Sword className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">Aura Clashes</h3>
-                <p className="text-gray-400 mb-4">Challenge other users to 1v1 Aura Clashes. Stake your Aura Points and let the community decide the winner.</p>
+                <h3 className="text-xl font-bold mb-4">Live Aura Clashes</h3>
+                <p className="text-gray-400 mb-4">Challenge users to live battles with TikTok-style interfaces. Viewers gift Steeze tokens to support their favorites.</p>
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center text-gray-400">
                     <Clock className="w-4 h-4 mr-2 text-[#9933FF]" />
-                    3-5 hour voting window
+                    Live voting system
                   </div>
                   <div className="flex items-center text-gray-400">
                     <Trophy className="w-4 h-4 mr-2 text-[#FFD700]" />

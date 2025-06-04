@@ -1807,6 +1807,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Platform statistics for landing page
+  app.get('/api/stats', async (req, res) => {
+    try {
+      // Get total users count
+      const allUsers = await storage.getLeaderboard(1000); // Get all users
+      const totalUsers = allUsers.length;
+      
+      // Get total aura points across all users
+      const totalAura = allUsers.reduce((sum, user: any) => sum + (user.auraPoints || 0), 0);
+      
+      // Get battles data
+      const allBattles = await storage.getBattles();
+      const activeBattles = allBattles.filter((battle: any) => battle.status === 'active').length;
+      const completedBattles = allBattles.filter((battle: any) => battle.status === 'completed').length;
+      
+      // Get lessons data
+      const lessons = await storage.getLessons(50);
+      const totalLessons = lessons.length;
+      
+      // Get user lessons to calculate completion rate
+      const userLessons = await Promise.all(
+        allUsers.map((user: any) => storage.getUserLessons(user.id))
+      );
+      const completedLessonsCount = userLessons.flat().filter((ul: any) => ul.completed).length;
+      
+      res.json({
+        totalUsers,
+        totalAura,
+        activeBattles,
+        completedBattles,
+        totalLessons,
+        completedLessonsCount,
+        averageAuraPerUser: totalUsers > 0 ? Math.round(totalAura / totalUsers) : 0,
+      });
+    } catch (error) {
+      console.error("Error fetching platform stats:", error);
+      res.status(500).json({ message: "Failed to fetch platform statistics" });
+    }
+  });
+
   // Aura levels route
   app.get('/api/aura-levels', async (req, res) => {
     try {
