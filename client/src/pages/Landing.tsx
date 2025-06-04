@@ -199,7 +199,7 @@ export default function Landing() {
                   <Sword className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Live Aura Clashes</h3>
-                <p className="text-gray-400 mb-4">Challenge users to live battles with TikTok-style interfaces. Viewers gift Steeze tokens to support their favorites.</p>
+                <p className="text-gray-400 mb-4">Challenge users to live battles!! Viewers gift Steeze tokens to support their favorites.</p>
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center text-gray-400">
