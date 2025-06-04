@@ -231,6 +231,10 @@ export default function Landing() {
                 <div className="bg-[#0A0A0B] rounded-lg p-3">
                   <div className="text-xs text-gray-400 mb-2">Token mechanics</div>
                   <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Gift to participants</span>
+                      <span className="text-[#00FF88]">Real-time</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
