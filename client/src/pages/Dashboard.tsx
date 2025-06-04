@@ -120,41 +120,40 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            <Card className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 backdrop-blur-sm border-pink-500/30 hover:border-pink-400 transition-all duration-500 hover:shadow-2xl hover:shadow-pink-500/30 hover:-translate-y-2 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-pink-300 text-sm font-black mb-3 uppercase tracking-wider">🔥 FAME POINTS</p>
-                    <p className="text-4xl font-black text-white group-hover:scale-110 transition-transform duration-300">
-                      {user?.auraPoints?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-3xl flex items-center justify-center group-hover:from-pink-400/40 group-hover:to-purple-400/40 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
-                    <Coins className="w-8 h-8 text-pink-400" />
-                  </div>
+          {/* TikTok-Style Stats Cards */}
+          <div className="flex flex-col space-y-4 mb-12 max-w-md mx-auto">
+            {/* Main Fame Card - TikTok Style */}
+            <div className="relative bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 mb-6 transform hover:scale-105 transition-all duration-300 shadow-2xl">
+              <div className="absolute top-4 right-4">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
+                  <Coins className="w-6 h-6 text-white" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-center">
+                <p className="text-white/80 text-sm font-bold uppercase tracking-wider mb-2">🔥 Your Fame Score</p>
+                <p className="text-6xl font-black text-white mb-2">
+                  {user?.auraPoints?.toLocaleString() || "0"}
+                </p>
+                <p className="text-white/90 text-lg font-medium">Going Viral!</p>
+              </div>
+            </div>
 
-            <Card className="bg-gradient-to-br from-orange-900/40 to-red-900/40 backdrop-blur-sm border-orange-500/30 hover:border-orange-400 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/30 hover:-translate-y-2 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-300 text-sm font-black mb-3 uppercase tracking-wider">🔥 VIRAL STREAK</p>
-                    <p className="text-4xl font-black text-white group-hover:scale-110 transition-transform duration-300">
-                      {user?.currentStreak || 0} <span className="text-xl text-orange-300">days</span>
-                    </p>
-                  </div>
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-red-500/30 rounded-3xl flex items-center justify-center group-hover:from-orange-400/40 group-hover:to-red-400/40 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
-                    <Flame className="w-8 h-8 text-orange-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Row of Small Stats */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+                <Flame className="w-8 h-8 text-white mx-auto mb-2" />
+                <p className="text-white/80 text-xs font-bold uppercase mb-1">Streak</p>
+                <p className="text-2xl font-black text-white">{user?.currentStreak || 0}</p>
+                <p className="text-white/70 text-xs">days</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+                <Trophy className="w-8 h-8 text-white mx-auto mb-2" />
+                <p className="text-white/80 text-xs font-bold uppercase mb-1">Wins</p>
+                <p className="text-2xl font-black text-white">{user?.totalBattlesWon || 0}</p>
+                <p className="text-white/70 text-xs">battles</p>
+              </div>
+            </div>
 
             <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

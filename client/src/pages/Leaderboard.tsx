@@ -134,63 +134,38 @@ export default function Leaderboard() {
             </p>
           </div>
 
-          {/* TikTok Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            <Card className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 backdrop-blur-sm border-pink-500/30 hover:border-pink-400 transition-all duration-500 hover:shadow-2xl hover:shadow-pink-500/30 hover:-translate-y-2 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-pink-300 text-sm font-black uppercase tracking-wider">👥 CREATORS</p>
-                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
-                      {stats?.totalUsers?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  <Users className="w-10 h-10 text-pink-400 group-hover:scale-110 transition-transform" />
-                </div>
-              </CardContent>
-            </Card>
+          {/* TikTok Mobile Stats */}
+          <div className="flex flex-col space-y-4 mb-12 max-w-md mx-auto">
+            {/* TikTok-Style Community Stats */}
+            <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-6 mb-4">
+              <div className="text-center">
+                <Users className="w-12 h-12 text-white mx-auto mb-2" />
+                <p className="text-white/80 text-sm font-bold uppercase mb-1">Community</p>
+                <p className="text-4xl font-black text-white">{stats?.totalUsers?.toLocaleString() || "0"}</p>
+                <p className="text-white/70 text-sm">Creators Going Viral</p>
+              </div>
+            </div>
 
-            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 backdrop-blur-sm border-yellow-500/30 hover:border-yellow-400 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-500/30 hover:-translate-y-2 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-yellow-300 text-sm font-black uppercase tracking-wider">⚡ TOTAL FAME</p>
-                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
-                      {stats?.totalAura?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  <Zap className="w-10 h-10 text-yellow-400 group-hover:scale-110 transition-transform" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 backdrop-blur-sm border-green-500/30 hover:border-green-400 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/30 hover:-translate-y-2 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-300 text-sm font-black uppercase tracking-wider">🎯 AVG FAME</p>
-                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
-                      {stats?.avgAura?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  <Target className="w-10 h-10 text-green-400 group-hover:scale-110 transition-transform" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 backdrop-blur-sm border-purple-500/30 hover:border-purple-400 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-2 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-300 text-sm font-black uppercase tracking-wider">🥊 SHOWDOWNS</p>
-                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
-                      {stats?.totalBattles?.toLocaleString() || "0"}
-                    </p>
-                  </div>
-                  <Trophy className="w-10 h-10 text-purple-400 group-hover:scale-110 transition-transform" />
-                </div>
-              </CardContent>
-            </Card>
+            {/* Quick Stats Row */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-4 text-center">
+                <Zap className="w-6 h-6 text-white mx-auto mb-1" />
+                <p className="text-white/80 text-xs font-bold uppercase">Fame</p>
+                <p className="text-lg font-black text-white">{Math.floor((stats?.totalAura || 0) / 1000)}K</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-green-500 to-cyan-500 rounded-2xl p-4 text-center">
+                <Target className="w-6 h-6 text-white mx-auto mb-1" />
+                <p className="text-white/80 text-xs font-bold uppercase">Avg</p>
+                <p className="text-lg font-black text-white">{stats?.avgAura?.toLocaleString() || "0"}</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl p-4 text-center">
+                <Trophy className="w-6 h-6 text-white mx-auto mb-1" />
+                <p className="text-white/80 text-xs font-bold uppercase">Battles</p>
+                <p className="text-lg font-black text-white">{stats?.totalBattles?.toLocaleString() || "0"}</p>
+              </div>
+            </div>
           </div>
 
           {/* User Rank Card */}
