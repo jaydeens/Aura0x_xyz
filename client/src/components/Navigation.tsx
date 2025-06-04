@@ -30,10 +30,10 @@ export default function Navigation() {
 
 
   const navItems = [
-    { path: "/", label: "Dashboard", icon: Home },
-    { path: "/battles", label: "Aura Arena", icon: Sword },
-    { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
-    { path: "/steeze-stack", label: "Steeze Stack", icon: Coins },
+    { path: "/", label: "Feed", icon: Home },
+    { path: "/battles", label: "Live Battles", icon: Sword },
+    { path: "/leaderboard", label: "Trending", icon: Trophy },
+    { path: "/steeze-stack", label: "Creator Fund", icon: Coins },
   ];
 
   const isActive = (path: string) => {
@@ -43,33 +43,39 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-xl border-b border-pink-500/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center cursor-pointer">
-              <div className="h-10 flex items-center justify-center">
-                <img src="/logo.png" alt="Aura Logo" className="h-8" />
+            <div className="flex items-center cursor-pointer space-x-3">
+              <div className="relative">
+                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
+              <span className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
+                AURA
+              </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link key={item.path} href={item.path}>
                   <div
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-2xl transition-all cursor-pointer font-bold text-sm uppercase tracking-wide ${
                       isActive(item.path)
-                        ? "text-primary bg-primary/10"
-                        : "text-gray-300 hover:text-primary hover:bg-primary/5"
+                        ? "text-white bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg transform scale-105"
+                        : "text-gray-300 hover:text-pink-400 hover:bg-pink-500/10"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    <span className="font-medium">{item.label}</span>
+                    <span>{item.label}</span>
                   </div>
                 </Link>
               );
@@ -78,14 +84,14 @@ export default function Navigation() {
 
           {/* User Section */}
           <div className="flex items-center space-x-4">
-            {/* Aura Points Display */}
+            {/* Fame Points Display */}
             {isAuthenticated && currentUser && (
-              <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-primary/20">
-                <Coins className="w-4 h-4 text-warning" />
-                <span className="text-sm font-medium">
+              <div className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-4 py-2 rounded-2xl border border-pink-500/30 backdrop-blur-sm">
+                <Coins className="w-4 h-4 text-pink-400" />
+                <span className="text-sm font-black text-white">
                   {currentUser.auraPoints?.toLocaleString() || "0"}
                 </span>
-                <span className="text-xs text-gray-400">Aura</span>
+                <span className="text-xs text-pink-400 font-bold uppercase tracking-wide">FAME</span>
               </div>
             )}
 
