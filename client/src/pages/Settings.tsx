@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Twitter, CheckCircle, AlertCircle } from "lucide-react";
+import { Twitter, CheckCircle, AlertCircle, Settings2, User, Shield } from "lucide-react";
 import Navigation from "@/components/Navigation";
 
 export default function Settings() {
@@ -48,7 +48,6 @@ export default function Settings() {
 
   const handleTwitterConnect = () => {
     setIsConnecting(true);
-    // Redirect to Twitter OAuth
     window.location.href = "/api/auth/twitter";
   };
 
@@ -73,7 +72,7 @@ export default function Settings() {
     },
   });
 
-  const isTwitterConnected = user?.twitterId && user?.twitterAccessToken;
+  const isTwitterConnected = (user as any)?.twitterId && (user as any)?.twitterAccessToken;
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -82,164 +81,135 @@ export default function Settings() {
         <div className="max-w-4xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-black text-white mb-2">⚙️ Settings</h1>
-            <p className="text-gray-400">Manage your account and preferences</p>
+            <h1 className="text-4xl font-black text-white mb-2">⚙️ Account Settings</h1>
+            <p className="text-gray-400">Manage your profile and account preferences</p>
           </div>
 
           <div className="space-y-6">
             {/* Profile Settings */}
             <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>
-              Update your profile details and display information.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  value={user?.username || ""}
-                  onChange={(e) => {
-                    updateProfileMutation.mutate({ username: e.target.value });
-                  }}
-                  placeholder="Enter username"
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  value={user?.email || ""}
-                  disabled
-                  placeholder="Email from auth provider"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <User className="w-5 h-5 mr-2 text-purple-400" />
+                  Profile Information
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Update your display name and profile details
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="username" className="text-white">Username</Label>
+                    <Input
+                      id="username"
+                      value={(user as any)?.username || ""}
+                      className="bg-gray-700 border-gray-600 text-white"
+                      placeholder="Enter username"
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email" className="text-white">Email</Label>
+                    <Input
+                      id="email"
+                      value={(user as any)?.email || "Not connected"}
+                      className="bg-gray-700 border-gray-600 text-white"
+                      readOnly
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* X (Twitter) Integration */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Twitter className="h-5 w-5" />
-              X (Twitter) Integration
-            </CardTitle>
-            <CardDescription>
-              Connect your X account to automatically share lesson completions and Aura achievements.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {isTwitterConnected ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+            {/* Social Connections */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Twitter className="w-5 h-5 mr-2 text-blue-400" />
+                  Social Connections
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Connect your social media accounts for enhanced features
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Twitter className="w-6 h-6 text-blue-400" />
                     <div>
-                      <p className="font-medium">Connected to X</p>
-                      <p className="text-sm text-muted-foreground">
-                        @{user?.twitterUsername}
+                      <h4 className="text-white font-semibold">X (Twitter)</h4>
+                      <p className="text-gray-400 text-sm">
+                        {isTwitterConnected ? 
+                          `Connected as @${(user as any)?.twitterUsername || 'Unknown'}` : 
+                          'Connect your X account'
+                        }
                       </p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-green-600 border-green-600">
-                    Connected
-                  </Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-medium">Automated Posting</h4>
-                  <p className="text-sm text-muted-foreground">
-                    When enabled, your lesson completions and Aura achievements will be automatically shared to X.
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm">Lesson completion posts enabled</span>
+                  <div className="flex items-center space-x-2">
+                    {isTwitterConnected ? (
+                      <>
+                        <Badge className="bg-green-500/20 text-green-400">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Connected
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => disconnectTwitterMutation.mutate()}
+                          disabled={disconnectTwitterMutation.isPending}
+                          className="border-gray-600 text-white hover:bg-gray-700"
+                        >
+                          Disconnect
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={handleTwitterConnect}
+                        disabled={isConnecting}
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        <Twitter className="w-4 h-4 mr-2" />
+                        Connect
+                      </Button>
+                    )}
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <Button
-                  variant="outline"
-                  onClick={() => disconnectTwitterMutation.mutate()}
-                  disabled={disconnectTwitterMutation.isPending}
-                >
-                  Disconnect X Account
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 border rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-amber-500" />
-                  <div>
-                    <p className="font-medium">X Account Not Connected</p>
-                    <p className="text-sm text-muted-foreground">
-                      Connect your X account to enable automated sharing of your Aura journey.
-                    </p>
+            {/* Account Stats */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-green-400" />
+                  Account Statistics
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Your performance metrics and achievements
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                    <div className="text-2xl font-bold text-white">{(user as any)?.auraPoints || 0}</div>
+                    <div className="text-sm text-gray-400">Fame Points</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                    <div className="text-2xl font-bold text-white">{(user as any)?.currentStreak || 0}</div>
+                    <div className="text-sm text-gray-400">Day Streak</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                    <div className="text-2xl font-bold text-white">{(user as any)?.totalBattlesWon || 0}</div>
+                    <div className="text-sm text-gray-400">Battles Won</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                    <div className="text-2xl font-bold text-white">${(user as any)?.totalUsdtEarned || "0.00"}</div>
+                    <div className="text-sm text-gray-400">USDT Earned</div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-medium">Benefits of Connecting X</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Automatically share lesson completions</li>
-                    <li>• Showcase your Aura level achievements</li>
-                    <li>• Build your Web3 learning reputation</li>
-                    <li>• Connect with other learners</li>
-                  </ul>
-                </div>
-
-                <Button
-                  onClick={handleTwitterConnect}
-                  disabled={isConnecting}
-                  className="flex items-center gap-2"
-                >
-                  <Twitter className="h-4 w-4" />
-                  {isConnecting ? "Connecting..." : "Connect X Account"}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Account Statistics */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Statistics</CardTitle>
-            <CardDescription>
-              Your Aura journey progress and achievements.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {user?.auraPoints || 0}
-                </div>
-                <div className="text-sm text-muted-foreground">Aura Points</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {user?.currentStreak || 0}
-                </div>
-                <div className="text-sm text-muted-foreground">Day Streak</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  {user?.totalBattlesWon || 0}
-                </div>
-                <div className="text-sm text-muted-foreground">Clashes Won</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-amber-600">
-                  ${user?.totalUsdtEarned || "0.00"}
-                </div>
-                <div className="text-sm text-muted-foreground">USDT Earned</div>
-              </div>
-            </div>
-          </CardContent>
+              </CardContent>
             </Card>
           </div>
         </div>
