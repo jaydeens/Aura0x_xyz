@@ -134,37 +134,36 @@ export default function Leaderboard() {
             </p>
           </div>
 
-          {/* TikTok Mobile Stats */}
-          <div className="flex flex-col space-y-4 mb-12 max-w-md mx-auto">
-            {/* TikTok-Style Community Stats */}
-            <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-6 mb-4">
-              <div className="text-center">
-                <Users className="w-12 h-12 text-white mx-auto mb-2" />
-                <p className="text-white/80 text-sm font-bold uppercase mb-1">Community</p>
-                <p className="text-4xl font-black text-white">{stats?.totalUsers?.toLocaleString() || "0"}</p>
-                <p className="text-white/70 text-sm">Creators Going Viral</p>
+          {/* Community Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {/* Main Community Card */}
+            <div className="md:col-span-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black uppercase tracking-wider">👥 Community</h3>
+                <Users className="w-8 h-8 text-white/80" />
               </div>
+              <div className="text-5xl font-black mb-2">{stats?.totalUsers?.toLocaleString() || "0"}</div>
+              <div className="text-white/80 font-medium">Creators Going Viral</div>
             </div>
 
-            {/* Quick Stats Row */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-4 text-center">
-                <Zap className="w-6 h-6 text-white mx-auto mb-1" />
-                <p className="text-white/80 text-xs font-bold uppercase">Fame</p>
-                <p className="text-lg font-black text-white">{Math.floor((stats?.totalAura || 0) / 1000)}K</p>
+            {/* Total Fame */}
+            <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">⚡ Fame</h3>
+                <Zap className="w-6 h-6 text-white/80" />
               </div>
-              
-              <div className="bg-gradient-to-br from-green-500 to-cyan-500 rounded-2xl p-4 text-center">
-                <Target className="w-6 h-6 text-white mx-auto mb-1" />
-                <p className="text-white/80 text-xs font-bold uppercase">Avg</p>
-                <p className="text-lg font-black text-white">{stats?.avgAura?.toLocaleString() || "0"}</p>
+              <div className="text-3xl font-black mb-1">{Math.floor((stats?.totalAura || 0) / 1000)}K</div>
+              <div className="text-white/80 text-sm">total points</div>
+            </div>
+
+            {/* Average */}
+            <div className="bg-gradient-to-br from-green-500 to-cyan-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">🎯 Average</h3>
+                <Target className="w-6 h-6 text-white/80" />
               </div>
-              
-              <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl p-4 text-center">
-                <Trophy className="w-6 h-6 text-white mx-auto mb-1" />
-                <p className="text-white/80 text-xs font-bold uppercase">Battles</p>
-                <p className="text-lg font-black text-white">{stats?.totalBattles?.toLocaleString() || "0"}</p>
-              </div>
+              <div className="text-3xl font-black mb-1">{stats?.avgAura?.toLocaleString() || "0"}</div>
+              <div className="text-white/80 text-sm">per creator</div>
             </div>
           </div>
 

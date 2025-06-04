@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 import Navigation from "@/components/Navigation";
 import LessonCard from "@/components/LessonCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,448 +19,226 @@ export default function Dashboard() {
   // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
+      window.location.href = "/";
     }
-  }, [isAuthenticated, isLoading, toast]);
+  }, [isAuthenticated, isLoading]);
 
+  // Fetch daily lessons
   const { data: dailyLessons, isLoading: lessonsLoading } = useQuery({
-    queryKey: ["/api/lessons/daily", new Date().toDateString()],
-    retry: false,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    staleTime: 0, // Always consider data stale to force refresh
-    cacheTime: 0, // Don't cache at all
+    queryKey: ["/api/lessons/daily"],
+    enabled: isAuthenticated,
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        window.location.href = "/";
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load lessons",
+        });
+      }
+    },
   });
 
-  const { data: auraLevels } = useQuery({
-    queryKey: ["/api/aura-levels"],
-    retry: false,
+  // Fetch recent battles
+  const { data: recentBattles, isLoading: battlesLoading } = useQuery({
+    queryKey: ["/api/battles"],
+    enabled: isAuthenticated,
   });
 
-  const { data: activeBattles } = useQuery({
-    queryKey: ["/api/battles?status=active"],
-    retry: false,
-    staleTime: 0,
-    refetchInterval: 5000, // Refresh every 5 seconds to keep live data updated
-  });
-
-  if (isLoading || !isAuthenticated) {
+  // Loading state
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
-            LOADING AURA...
-          </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg font-bold">Loading your fame dashboard...</p>
         </div>
       </div>
     );
   }
 
-  const getCurrentLevel = () => {
-    if (!auraLevels || !user) return null;
-    
-    const streak = user.currentStreak || 0;
-    return auraLevels.find(level => 
-      streak >= level.minDays && (!level.maxDays || streak <= level.maxDays)
-    );
-  };
-
-  const getNextLevel = () => {
-    if (!auraLevels || !user) return null;
-    
-    const streak = user.currentStreak || 0;
-    return auraLevels.find(level => level.minDays > streak);
-  };
-
-  const currentLevel = getCurrentLevel();
-  const nextLevel = getNextLevel();
-  const progressToNext = nextLevel ? 
-    ((user?.currentStreak || 0) / nextLevel.minDays) * 100 : 100;
+  // Not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 relative overflow-hidden">
-      {/* TikTok Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
-      </div>
-
+    <div className="min-h-screen bg-black">
       <Navigation />
-      
-      <main className="relative pt-20 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* TikTok-Style Welcome Header */}
-          <div className="mb-16 text-center relative">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
-              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
-              <span className="text-white font-black text-sm tracking-wider">CREATOR ONLINE</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-black mb-6 text-white leading-tight">
-              WELCOME BACK,
-              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
-                {user?.firstName || user?.username || "LEGEND"}
-              </span>
-              <span className="block text-white">READY TO GO VIRAL?</span>
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+              Your Fame Feed
             </h1>
-            
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">
-              Your fame dashboard is loading... Time to see what's trending in your world 🔥
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Welcome back, {user?.firstName || user?.username || 'Creator'}! 
+              Ready to build your viral empire and climb the fame ladder?
             </p>
           </div>
 
-          {/* TikTok-Style Stats Cards */}
-          <div className="flex flex-col space-y-4 mb-12 max-w-md mx-auto">
-            {/* Main Fame Card - TikTok Style */}
-            <div className="relative bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 mb-6 transform hover:scale-105 transition-all duration-300 shadow-2xl">
-              <div className="absolute top-4 right-4">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
-                  <Coins className="w-6 h-6 text-white" />
+          {/* Stats Overview - TikTok Style */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {/* Fame Points Card */}
+            <div className="lg:col-span-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 text-white relative overflow-hidden group hover:scale-105 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-black uppercase tracking-wider">🔥 Fame Score</h3>
+                  <Coins className="w-8 h-8 text-white/80" />
                 </div>
-              </div>
-              <div className="text-center">
-                <p className="text-white/80 text-sm font-bold uppercase tracking-wider mb-2">🔥 Your Fame Score</p>
-                <p className="text-6xl font-black text-white mb-2">
-                  {user?.auraPoints?.toLocaleString() || "0"}
-                </p>
-                <p className="text-white/90 text-lg font-medium">Going Viral!</p>
+                <div className="text-5xl font-black mb-2">{user?.auraPoints?.toLocaleString() || "0"}</div>
+                <div className="text-white/80 font-medium">Going Viral!</div>
               </div>
             </div>
 
-            {/* Row of Small Stats */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
-                <Flame className="w-8 h-8 text-white mx-auto mb-2" />
-                <p className="text-white/80 text-xs font-bold uppercase mb-1">Streak</p>
-                <p className="text-2xl font-black text-white">{user?.currentStreak || 0}</p>
-                <p className="text-white/70 text-xs">days</p>
+            {/* Streak Card */}
+            <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">🔥 Streak</h3>
+                <Flame className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">{user?.currentStreak || 0}</div>
+              <div className="text-white/80 text-sm">days hot</div>
+            </div>
+
+            {/* Wins Card */}
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">🏆 Wins</h3>
+                <Trophy className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">{user?.totalBattlesWon || 0}</div>
+              <div className="text-white/80 text-sm">showdowns</div>
+            </div>
+          </div>
+
+          {/* Main Content Sections */}
+          <div className="space-y-16">
+            {/* Today's Learning Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-black text-white mb-2">📚 Level Up Today</h2>
+                  <p className="text-gray-400">Complete daily lessons to maintain your viral streak and earn fame points</p>
+                </div>
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-4 py-2">
+                  <span className="text-white font-bold text-sm">🔥 {user?.currentStreak || 0} day streak</span>
+                </div>
               </div>
               
-              <div className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
-                <Trophy className="w-8 h-8 text-white mx-auto mb-2" />
-                <p className="text-white/80 text-xs font-bold uppercase mb-1">Wins</p>
-                <p className="text-2xl font-black text-white">{user?.totalBattlesWon || 0}</p>
-                <p className="text-white/70 text-xs">battles</p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {lessonsLoading ? (
+                  [...Array(3)].map((_, i) => (
+                    <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
+                      <div className="h-32 bg-gray-700 rounded-2xl mb-4"></div>
+                      <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                  ))
+                ) : dailyLessons && dailyLessons.length > 0 ? (
+                  dailyLessons.map((lesson: any) => (
+                    <LessonCard key={lesson.id} lesson={lesson} />
+                  ))
+                ) : (
+                  <div className="md:col-span-2 lg:col-span-3 text-center py-16">
+                    <Clock className="w-20 h-20 text-gray-500 mx-auto mb-6" />
+                    <h3 className="text-2xl font-bold text-gray-300 mb-4">No Lessons Yet</h3>
+                    <p className="text-gray-500 text-lg">New viral content drops daily. Check back soon!</p>
+                  </div>
+                )}
               </div>
-            </div>
+            </section>
 
-            <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">Battles Won</p>
-                    <p className="text-4xl font-bold text-foreground group-hover:scale-110 transition-transform duration-300">
-                      {user?.totalBattlesWon || 0}
-                    </p>
-                  </div>
-                  <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-900/20 rounded-3xl flex items-center justify-center group-hover:from-yellow-200 dark:group-hover:from-yellow-900/50 transition-all duration-300 group-hover:rotate-12">
-                    <Trophy className="w-8 h-8 text-yellow-600" />
-                  </div>
+            {/* Live Battles Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-black text-white mb-2">🥊 Live Showdowns</h2>
+                  <p className="text-gray-400">Join the action and vote on viral battles happening right now</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">USDT Earned</p>
-                    <p className="text-4xl font-bold text-foreground group-hover:scale-110 transition-transform duration-300">
-                      ${parseFloat(user?.totalUsdtEarned || "0").toFixed(2)}
-                    </p>
+                <Link href="/battles">
+                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-6 py-3 hover:scale-105 transition-transform cursor-pointer">
+                    <span className="text-white font-bold">View All Battles</span>
                   </div>
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/20 rounded-3xl flex items-center justify-center group-hover:from-green-200 dark:group-hover:from-green-900/50 transition-all duration-300 group-hover:rotate-12">
-                    <Coins className="w-8 h-8 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Aura Points Breakdown */}
-          <div className="mb-8">
-            <Card className="bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-lg">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center">
-                  <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
-                    <Zap className="w-5 h-5 text-primary" />
-                  </div>
-                  Aura Points Breakdown
-                </CardTitle>
-                <p className="text-muted-foreground text-base">Track where your Aura Points come from</p>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Daily Lessons */}
-                  <div className="text-center group hover:scale-105 transition-transform duration-300">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                      <BookOpen className="w-10 h-10 text-primary-foreground" />
+                </Link>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {battlesLoading ? (
+                  [...Array(2)].map((_, i) => (
+                    <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
+                      <div className="h-40 bg-gray-700 rounded-2xl mb-4"></div>
+                      <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
                     </div>
-                    <div className="text-3xl font-bold text-primary mb-2">
-                      {user?.auraFromLessons?.toLocaleString() || "100"}
-                    </div>
-                    <div className="text-muted-foreground text-sm font-medium mb-1">From Daily Lessons</div>
-                    <div className="text-xs text-muted-foreground px-3 py-1 bg-primary/10 rounded-full inline-block">
-                      {user?.auraPoints ? Math.round(((user?.auraFromLessons || 100) / user.auraPoints) * 100) : 50}% of total
-                    </div>
-                  </div>
-
-                  {/* Vouching */}
-                  <div className="text-center group hover:scale-105 transition-transform duration-300">
-                    <div className="w-20 h-20 bg-gradient-to-br from-muted to-muted/60 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                      <HandHeart className="w-10 h-10 text-primary" />
-                    </div>
-                    <div className="text-3xl font-bold text-foreground mb-2">
-                      {user?.auraFromVouching?.toLocaleString() || "0"}
-                    </div>
-                    <div className="text-muted-foreground text-sm font-medium mb-1">From Vouching</div>
-                    <div className="text-xs text-muted-foreground px-3 py-1 bg-muted/50 rounded-full inline-block">
-                      {user?.auraPoints ? Math.round(((user?.auraFromVouching || 0) / user.auraPoints) * 100) : 0}% of total
-                    </div>
-                  </div>
-
-                  {/* Battles */}
-                  <div className="text-center group hover:scale-105 transition-transform duration-300">
-                    <div className="w-20 h-20 bg-gradient-to-br from-muted to-muted/60 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                      <Swords className="w-10 h-10 text-primary" />
-                    </div>
-                    <div className="text-3xl font-bold text-foreground mb-2">
-                      {user?.auraFromBattles?.toLocaleString() || "0"}
-                    </div>
-                    <div className="text-muted-foreground text-sm font-medium mb-1">From Battles</div>
-                    <div className="text-xs text-muted-foreground px-3 py-1 bg-muted/50 rounded-full inline-block">
-                      {user?.auraPoints ? Math.round(((user?.auraFromBattles || 0) / user.auraPoints) * 100) : 0}% of total
-                    </div>
-                  </div>
-                </div>
-
-                {/* Token Information */}
-                <div className="mt-8 p-6 bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-2xl">
-                  <div className="flex items-center text-base text-foreground mb-4">
-                    <div className="w-6 h-6 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
-                      <Info className="w-4 h-4 text-primary" />
-                    </div>
-                    <span className="font-semibold">Token System</span>
-                  </div>
-                  <div className="space-y-3 text-sm text-muted-foreground">
-                    <div className="flex items-start space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <strong className="text-primary">Aura Points:</strong> Main ranking token for leaderboard position
+                  ))
+                ) : recentBattles && recentBattles.length > 0 ? (
+                  recentBattles.slice(0, 2).map((battle: any) => (
+                    <div key={battle.id} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-gray-700 hover:border-pink-500/50 transition-all duration-300">
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge className="bg-pink-500/20 text-pink-400">
+                          {battle.status === 'active' ? 'LIVE' : 'COMPLETED'}
+                        </Badge>
+                        <Trophy className="w-6 h-6 text-gray-400" />
                       </div>
+                      <h3 className="text-white font-bold text-lg mb-2">{battle.topic}</h3>
+                      <p className="text-gray-400 text-sm">Join the battle and vote for your favorite</p>
                     </div>
-                    <div className="flex items-start space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <strong className="text-primary">Vouching:</strong> 1 USDT = 10 Aura Points (base) • Streak multipliers apply
-                      </div>
-                    </div>
-
+                  ))
+                ) : (
+                  <div className="md:col-span-2 text-center py-16">
+                    <Trophy className="w-20 h-20 text-gray-500 mx-auto mb-6" />
+                    <h3 className="text-2xl font-bold text-gray-300 mb-4">No Active Battles</h3>
+                    <p className="text-gray-500 text-lg">Be the first to start a viral showdown!</p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                )}
+              </div>
+            </section>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Daily Lessons */}
-            <div className="lg:col-span-2">
-              <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-                <CardHeader>
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-white flex items-center">
-                      <Zap className="w-6 h-6 mr-2 text-[#8000FF]" />
-                      Today's Lessons
-                    </CardTitle>
-                    <p className="text-gray-400">
-                      Complete your daily lessons to maintain your streak and earn Aura Points
-                    </p>
+            {/* Quick Actions */}
+            <section>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-black text-white mb-2">⚡ Quick Actions</h2>
+                <p className="text-gray-400">Jump into the action with these popular features</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Link href="/lessons">
+                  <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
+                    <BookOpen className="w-8 h-8 mb-4" />
+                    <h3 className="font-bold mb-2">Start Learning</h3>
+                    <p className="text-sm text-white/80">Complete daily lessons</p>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {lessonsLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="animate-pulse">
-                          <div className="h-32 bg-[#0A0A0B] rounded-lg"></div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : dailyLessons && dailyLessons.length > 0 ? (
-                    <div className="space-y-4">
-                      {dailyLessons.map((lesson: any) => (
-                        <LessonCard key={lesson.id} lesson={lesson} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                        No lessons available yet
-                      </h3>
-                      <p className="text-gray-500">
-                        New lessons are generated daily. Check back soon!
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Streak Progress */}
-              <Card className="bg-[#1A1A1B] border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Flame className="w-5 h-5 mr-2 text-primary" />
-                    Streak Progress
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center mb-6">
-                    <div className="text-4xl font-bold text-primary mb-2">
-                      {user?.currentStreak || 0}
-                    </div>
-                    <div className="text-gray-400">days in a row</div>
-                    {currentLevel && (
-                      <Badge 
-                        className="mt-2"
-                        style={{ 
-                          backgroundColor: `${currentLevel.color}20`,
-                          color: currentLevel.color,
-                          borderColor: `${currentLevel.color}40`
-                        }}
-                      >
-                        {currentLevel.name}
-                      </Badge>
-                    )}
+                </Link>
+                
+                <Link href="/battles">
+                  <div className="bg-gradient-to-br from-red-500 to-pink-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
+                    <Swords className="w-8 h-8 mb-4" />
+                    <h3 className="font-bold mb-2">Join Battle</h3>
+                    <p className="text-sm text-white/80">Vote in live showdowns</p>
                   </div>
-                  
-                  {nextLevel && (
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-400">Progress to {nextLevel.name}</span>
-                        <span className="text-[#8000FF] font-bold">
-                          {user?.currentStreak || 0}/{nextLevel.minDays}
-                        </span>
-                      </div>
-                      <Progress 
-                        value={progressToNext} 
-                        className="h-2 bg-gray-700"
-                      />
-                    </div>
-                  )}
-
-                  <div className="text-sm text-gray-400 text-center">
-                    {nextLevel ? (
-                      <>
-                        <span className="text-[#00FF88] font-bold">
-                          {nextLevel.minDays - (user?.currentStreak || 0)} days
-                        </span>{" "}
-                        to {nextLevel.name} status
-                      </>
-                    ) : (
-                      "You've reached the highest level!"
-                    )}
+                </Link>
+                
+                <Link href="/leaderboard">
+                  <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
+                    <Trophy className="w-8 h-8 mb-4" />
+                    <h3 className="font-bold mb-2">Leaderboard</h3>
+                    <p className="text-sm text-white/80">See top creators</p>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Active Battles */}
-              <Card className="bg-[#1A1A1B] border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Trophy className="w-5 h-5 mr-2 text-primary" />
-                    Active Aura Clashes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {activeBattles && activeBattles.length > 0 ? (
-                    <div className="space-y-3">
-                      {activeBattles.slice(0, 3).map((battle: any) => (
-                        <div key={battle.id} className="bg-[#0A0A0B] rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm">
-                              Aura Clash #{battle.id.slice(0, 8)}
-                            </span>
-                            <Badge variant="secondary" className="bg-red-500/20 text-red-400">
-                              Live
-                            </Badge>
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            Stakes: {battle.challengerStake + battle.opponentStake} Aura
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6">
-                      <Trophy className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                      <p className="text-gray-500 text-sm">No active Aura clashes</p>
-                    </div>
-                  )}
-                  
-                  <Button 
-                    className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-                    onClick={() => window.location.href = "/battles"}
-                  >
-                    View All Aura Clashes
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white">
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                    onClick={() => window.location.href = "/steeze-stack"}
-                  >
-                    <Coins className="w-4 h-4 mr-2" />
-                    Steeze Stack
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                    onClick={() => window.location.href = "/leaderboard"}
-                  >
-                    <Trophy className="w-4 h-4 mr-2" />
-                    View Leaderboard
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                    onClick={() => window.location.href = `/profile/${user?.id}`}
-                  >
-                    <Target className="w-4 h-4 mr-2" />
-                    My Profile
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                </Link>
+                
+                <Link href="/profile">
+                  <div className="bg-gradient-to-br from-purple-500 to-indigo-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
+                    <Target className="w-8 h-8 mb-4" />
+                    <h3 className="font-bold mb-2">My Profile</h3>
+                    <p className="text-sm text-white/80">Edit your profile</p>
+                  </div>
+                </Link>
+              </div>
+            </section>
           </div>
         </div>
       </main>
