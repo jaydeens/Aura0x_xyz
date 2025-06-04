@@ -196,59 +196,84 @@ export default function Leaderboard() {
             </Card>
           )}
 
-          {/* Leaderboard Tabs */}
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 bg-[#1A1A1B] border border-[#8000FF]/20">
-              <TabsTrigger value="all-time" className="data-[state=active]:bg-[#8000FF] data-[state=active]:text-white">
-                <Trophy className="w-4 h-4 mr-2" />
-                All Time
-              </TabsTrigger>
-              <TabsTrigger value="weekly" className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black">
-                <Zap className="w-4 h-4 mr-2" />
-                Weekly
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all-time" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">All-Time Leaders</h2>
-                <Badge className="bg-[#8000FF]/20 text-[#8000FF]">
-                  Based on Aura Points
-                </Badge>
-              </div>
-
+          {/* TikTok-Style Leaderboard */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden border border-gray-700">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6">
+              <h2 className="text-3xl font-black text-white text-center">🏆 Fame Leaderboard 🏆</h2>
+              <p className="text-white/80 text-center mt-2">The most viral creators in our community</p>
+            </div>
+            
+            <div className="p-6">
               {leaderboardLoading ? (
                 <div className="space-y-4">
                   {[...Array(10)].map((_, i) => (
-                    <div key={i} className="h-20 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                    <div key={i} className="bg-gray-800/50 rounded-2xl p-4 animate-pulse">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-700 rounded w-1/3 mb-2"></div>
+                          <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+                        </div>
+                        <div className="h-6 bg-gray-700 rounded w-16"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : leaderboard && leaderboard.length > 0 ? (
+                <div className="space-y-3">
+                  {leaderboard.map((user: any, index: number) => (
+                    <div key={user.id} className={`rounded-2xl p-4 transition-all duration-300 hover:scale-105 ${
+                      index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
+                      index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30' :
+                      index === 2 ? 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30' :
+                      'bg-gray-800/50 border border-gray-700/50'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg ${
+                            index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
+                            index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' :
+                            index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
+                            'bg-gradient-to-br from-pink-500 to-purple-600 text-white'
+                          }`}>
+                            {index < 3 ? (index === 0 ? '👑' : index === 1 ? '🥈' : '🥉') : `#${index + 1}`}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-bold text-lg">
+                              {user.username?.substring(0, 20) || 'Anonymous Creator'}
+                              {index === 0 && ' 👑'}
+                            </h3>
+                            <div className="flex items-center space-x-4 text-sm text-gray-400">
+                              <span>{user.auraPoints?.toLocaleString() || 0} fame</span>
+                              {user.currentStreak > 0 && (
+                                <div className="flex items-center">
+                                  <Flame className="w-4 h-4 text-orange-400 mr-1" />
+                                  <span className="text-orange-400">{user.currentStreak} streak</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            index < 5 ? 'bg-pink-500/20 text-pink-400' : 'bg-gray-600/20 text-gray-400'
+                          }`}>
+                            {index < 3 ? 'LEGENDARY' : index < 10 ? 'VIRAL' : 'RISING'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
-                <LeaderboardTable users={leaderboard || []} showTopPodium={true} />
-              )}
-            </TabsContent>
-
-            <TabsContent value="weekly" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Weekly Leaders</h2>
-                <Badge className="bg-[#FFD700]/20 text-[#FFD700]">
-                  Based on Aura Points
-                </Badge>
-              </div>
-
-              {leaderboardLoading ? (
-                <div className="space-y-4">
-                  {[...Array(10)].map((_, i) => (
-                    <div key={i} className="h-20 bg-[#1A1A1B] rounded-lg animate-pulse" />
-                  ))}
+                <div className="text-center py-16">
+                  <Trophy className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-300 mb-2">No Rankings Yet</h3>
+                  <p className="text-gray-500">Be the first to earn fame points and claim the top spot!</p>
                 </div>
-              ) : (
-                <LeaderboardTable users={leaderboard || []} showTopPodium={true} />
               )}
-            </TabsContent>
-
-
-          </Tabs>
+            </div>
+          </div>
 
           {/* Aura Levels Reference */}
           {auraLevels && auraLevels.length > 0 && (

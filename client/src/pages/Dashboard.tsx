@@ -80,7 +80,7 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Overview - TikTok Style */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-16">
             {/* Fame Points Card */}
             <div className="lg:col-span-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 text-white relative overflow-hidden group hover:scale-105 transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -112,6 +112,16 @@ export default function Dashboard() {
               </div>
               <div className="text-3xl font-black mb-1">{user?.totalBattlesWon || 0}</div>
               <div className="text-white/80 text-sm">showdowns</div>
+            </div>
+
+            {/* USDT Earnings Card */}
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">💰 Earnings</h3>
+                <Target className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">${user?.totalUsdtEarned || "0.00"}</div>
+              <div className="text-white/80 text-sm">USDT earned</div>
             </div>
           </div>
 
@@ -195,6 +205,76 @@ export default function Dashboard() {
                     <p className="text-gray-500 text-lg">Be the first to start a viral showdown!</p>
                   </div>
                 )}
+              </div>
+            </section>
+
+            {/* Analytics Section */}
+            <section>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-black text-white mb-2">📊 Your Performance</h2>
+                <p className="text-gray-400">Detailed breakdown of your viral journey and achievements</p>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6 mb-8">
+                {/* Learning Progress */}
+                <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-3xl p-6 border border-blue-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-white font-bold">📚 Learning Stats</h3>
+                    <BookOpen className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Lessons from Learning:</span>
+                      <span className="text-blue-400 font-semibold">{user?.auraFromLessons || 0} fame</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Learning Percentage:</span>
+                      <span className="text-blue-400 font-semibold">
+                        {user?.auraPoints ? Math.round(((user?.auraFromLessons || 0) / user?.auraPoints) * 100) : 0}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Stats */}
+                <div className="bg-gradient-to-br from-pink-900/50 to-purple-900/50 rounded-3xl p-6 border border-pink-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-white font-bold">💝 Social Stats</h3>
+                    <HandHeart className="w-6 h-6 text-pink-400" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Fame from Vouching:</span>
+                      <span className="text-pink-400 font-semibold">{user?.auraFromVouching || 0} fame</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Social Percentage:</span>
+                      <span className="text-pink-400 font-semibold">
+                        {user?.auraPoints ? Math.round(((user?.auraFromVouching || 0) / user?.auraPoints) * 100) : 0}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Battle Stats */}
+                <div className="bg-gradient-to-br from-orange-900/50 to-red-900/50 rounded-3xl p-6 border border-orange-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-white font-bold">⚔️ Battle Stats</h3>
+                    <Swords className="w-6 h-6 text-orange-400" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Fame from Battles:</span>
+                      <span className="text-orange-400 font-semibold">{user?.auraFromBattles || 0} fame</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Battle Percentage:</span>
+                      <span className="text-orange-400 font-semibold">
+                        {user?.auraPoints ? Math.round(((user?.auraFromBattles || 0) / user?.auraPoints) * 100) : 0}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
