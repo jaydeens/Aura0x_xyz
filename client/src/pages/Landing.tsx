@@ -61,242 +61,216 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <nav className="sticky top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      {/* TikTok-Style Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-purple-500/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
                   <Trophy className="w-6 h-6 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
                 AURA
               </span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#elite" className="text-muted-foreground hover:text-amber-600 transition-colors font-medium">Elite Features</a>
-              <a href="#prestige" className="text-muted-foreground hover:text-amber-600 transition-colors font-medium">Prestige Ranks</a>
-              <a href="#legends" className="text-muted-foreground hover:text-amber-600 transition-colors font-medium">Hall of Legends</a>
+              <a href="#viral" className="text-gray-300 hover:text-pink-400 transition-colors font-bold text-sm uppercase tracking-wide">Viral Content</a>
+              <a href="#battles" className="text-gray-300 hover:text-purple-400 transition-colors font-bold text-sm uppercase tracking-wide">Live Battles</a>
+              <a href="#trending" className="text-gray-300 hover:text-cyan-400 transition-colors font-bold text-sm uppercase tracking-wide">Trending Now</a>
             </div>
 
             <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50 font-semibold">
-                INVITE ONLY
+              <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-3 py-1 animate-bounce">
+                🔥 TRENDING
               </Badge>
-              <Button onClick={handleLogin} className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 py-2 shadow-lg">
-                Claim Your Status
+              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-6 py-2 rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 transition-all">
+                GET VIRAL
               </Button>
             </div>
           </div>
         </div>
       </nav>
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-slate-50 via-white to-amber-50/30 overflow-hidden">
-        {/* Background Elements */}
+      {/* TikTok-Style Hero */}
+      <section className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 overflow-hidden">
+        {/* TikTok Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-amber-200/40 to-orange-200/40 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-amber-100/30 to-yellow-100/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-32 left-1/4 w-64 h-64 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-32 right-1/4 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
         </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left Column - Content */}
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 px-4 py-2 text-sm font-bold tracking-wide">
-                  🏆 ELITE STATUS PLATFORM
-                </Badge>
-                <h1 className="text-6xl lg:text-7xl font-black leading-tight">
-                  Build Your
-                  <span className="block bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
-                    LEGENDARY
-                  </span>
-                  <span className="block text-gray-900">Reputation</span>
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-                  Join the most exclusive community of high-achievers. Complete elite challenges, 
-                  dominate leaderboards, and earn recognition that sets you apart from everyone else.
-                </p>
-              </div>
+        <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+          <div className="text-center max-w-4xl mx-auto">
+            {/* TikTok-style badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-6 py-3 mb-8 animate-bounce">
+              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-sm tracking-wider">GOING VIRAL</span>
+            </div>
+            
+            {/* Main headline with TikTok energy */}
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black leading-none mb-6">
+              <span className="block text-white">BUILD YOUR</span>
+              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+                AURA
+              </span>
+              <span className="block text-white">GO VIRAL</span>
+            </h1>
+            
+            {/* TikTok-style description */}
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto font-medium">
+              The app that's breaking the internet 🔥 Complete challenges, flex your wins, 
+              and build legendary status that everyone talks about
+            </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={handleLogin}
-                  size="lg"
-                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-lg px-12 py-4 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
-                >
-                  <Trophy className="w-6 h-6 mr-3" />
-                  Claim Elite Status
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleWatchDemo}
-                  size="lg"
-                  className="border-2 border-amber-500 text-amber-700 hover:bg-amber-50 font-semibold text-lg px-8 py-4"
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  See Elite Members
-                </Button>
-              </div>
-
-              <div className="flex items-center space-x-8 pt-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600">{(stats as any)?.totalUsers || 0}</div>
-                  <div className="text-sm text-gray-500 font-medium">Elite Members</div>
-                </div>
-                <div className="w-px h-12 bg-gray-200"></div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600">98%</div>
-                  <div className="text-sm text-gray-500 font-medium">Prestige Rate</div>
-                </div>
-                <div className="w-px h-12 bg-gray-200"></div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600">{(stats as any)?.activeBattles || 0}</div>
-                  <div className="text-sm text-gray-500 font-medium">Live Battles</div>
-                </div>
-              </div>
+            {/* TikTok-style buttons */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+              <Button 
+                onClick={handleLogin}
+                size="lg"
+                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-xl px-12 py-6 rounded-2xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 animate-pulse"
+              >
+                <Trophy className="w-7 h-7 mr-3" />
+                GET FAMOUS NOW
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleWatchDemo}
+                size="lg"
+                className="border-3 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-black text-xl px-10 py-6 rounded-2xl backdrop-blur-sm"
+              >
+                <Play className="w-6 h-6 mr-3" />
+                SEE THE HYPE
+              </Button>
             </div>
 
-            {/* Right Column - Visual Elements */}
-            <div className="relative lg:h-96">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-3xl transform rotate-6"></div>
-              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-amber-100">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-gray-900">Today's Elite Challenge</h3>
-                    <Badge className="bg-amber-100 text-amber-800 border-amber-200">LEGENDARY</Badge>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center">
-                        <Star className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900">Master Advanced Strategies</div>
-                        <div className="text-sm text-gray-500">+2,500 Prestige Points</div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-600">Progress to Legendary</span>
-                        <span className="font-medium text-amber-600">87%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full" style={{width: '87%'}}></div>
-                      </div>
-                    </div>
-                  </div>
+            {/* Viral stats */}
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="text-center">
+                <div className="text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                  {(stats as any)?.totalUsers || 0}
                 </div>
+                <div className="text-sm text-gray-400 font-bold uppercase tracking-wide">LEGENDS</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+                  VIRAL
+                </div>
+                <div className="text-sm text-gray-400 font-bold uppercase tracking-wide">STATUS</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
+                  {(stats as any)?.activeBattles || 0}
+                </div>
+                <div className="text-sm text-gray-400 font-bold uppercase tracking-wide">LIVE NOW</div>
               </div>
             </div>
           </div>
         </div>
       </section>
-      {/* Elite Features Section */}
-      <section id="elite" className="py-32 bg-white">
+      {/* Viral Content Section */}
+      <section id="viral" className="py-24 bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 px-6 py-3 text-sm font-bold tracking-wide mb-6">
-              EXCLUSIVE MEMBER BENEFITS
-            </Badge>
-            <h2 className="text-5xl font-black mb-6 text-gray-900">
-              Elite Status Unlocks
-              <span className="block bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                Legendary Features
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-6 py-3 mb-6 animate-pulse">
+              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-sm tracking-wider">VIRAL FEATURES</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
+              GET READY TO
+              <span className="block bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 bg-clip-text text-transparent">
+                BREAK THE INTERNET
               </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Access premium challenges, exclusive rewards, and elite recognition that separates legends from the ordinary
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+              Features that make you famous 🔥 Build your brand, go viral, and become the legend everyone follows
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Elite Challenges */}
-            <Card className="relative border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group overflow-hidden">
-              <div className="absolute top-0 right-0 bg-gradient-to-br from-amber-500 to-orange-600 text-white px-4 py-2 text-xs font-bold">
-                PREMIUM
+            {/* Daily Challenges */}
+            <Card className="relative bg-gradient-to-br from-white to-pink-50 border-2 border-pink-200 hover:shadow-2xl hover:shadow-pink-500/20 transition-all duration-500 hover:-translate-y-2 group overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-pink-500 to-purple-600 text-white px-4 py-2 text-xs font-black animate-pulse">
+                🔥 HOT
               </div>
               <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 animate-pulse">
                   <Target className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Elite Challenges</h3>
-                <p className="text-gray-600 mb-6">Exclusive high-stakes challenges designed for top performers. Prove your superiority against other elite members.</p>
+                <h3 className="text-2xl font-black mb-4 text-gray-900">Daily Viral Challenges</h3>
+                <p className="text-gray-700 mb-6 font-medium">Complete trending challenges that everyone's talking about. Get featured, gain followers, and build your reputation.</p>
                 
-                <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                  <div className="text-xs text-amber-700 font-semibold mb-2 uppercase tracking-wide">Prestige Rewards</div>
+                <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-200">
+                  <div className="text-xs text-pink-700 font-black mb-2 uppercase tracking-wide">VIRAL REWARDS</div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-700">Prestige Points</span>
-                      <span className="text-amber-600 font-bold">+2,500 PP</span>
+                      <span className="text-gray-700 font-bold">Fame Points</span>
+                      <span className="text-pink-600 font-black">+1,000 FP</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-700">Elite Streak</span>
-                      <span className="text-orange-600 font-bold">+1 Level</span>
+                      <span className="text-gray-700 font-bold">Viral Streak</span>
+                      <span className="text-purple-600 font-black">+1 Day</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Legendary Status Tracking */}
-            <Card className="relative border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group overflow-hidden">
-              <div className="absolute top-0 right-0 bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2 text-xs font-bold">
-                EXCLUSIVE
+            {/* Analytics Dashboard */}
+            <Card className="relative bg-gradient-to-br from-white to-purple-50 border-2 border-purple-200 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-2 group overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2 text-xs font-black animate-bounce">
+                💎 PREMIUM
               </div>
               <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Legendary Analytics</h3>
-                <p className="text-gray-600 mb-6">Advanced performance metrics and prestige tracking reserved for elite members only.</p>
+                <h3 className="text-2xl font-black mb-4 text-gray-900">Viral Analytics</h3>
+                <p className="text-gray-700 mb-6 font-medium">Track your viral moments in real-time. See your influence grow and monitor your legendary status across all platforms.</p>
                 
-                <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                  <div className="text-xs text-purple-700 font-semibold mb-2 uppercase tracking-wide">Elite Insights</div>
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-4 border border-purple-200">
+                  <div className="text-xs text-purple-700 font-black mb-2 uppercase tracking-wide">INFLUENCER METRICS</div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-700">Prestige Rank</span>
-                      <span className="text-purple-600 font-bold">Real-time</span>
+                      <span className="text-gray-700 font-bold">Viral Score</span>
+                      <span className="text-purple-600 font-black">Live</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-700">Legend Badges</span>
-                      <span className="text-indigo-600 font-bold">Unlockable</span>
+                      <span className="text-gray-700 font-bold">Legend Badges</span>
+                      <span className="text-indigo-600 font-black">Collectible</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Elite Community Access */}
-            <Card className="relative border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group overflow-hidden">
-              <div className="absolute top-0 right-0 bg-gradient-to-br from-emerald-600 to-teal-600 text-white px-4 py-2 text-xs font-bold">
-                VIP ACCESS
+            {/* Creator Community */}
+            <Card className="relative bg-gradient-to-br from-white to-cyan-50 border-2 border-cyan-200 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 hover:-translate-y-2 group overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-cyan-500 to-blue-600 text-white px-4 py-2 text-xs font-black">
+                👑 VIP
               </div>
               <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 animate-pulse">
                   <Users className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Elite Circle</h3>
-                <p className="text-gray-600 mb-6">Join the most exclusive community of high-achievers. Network with legends and industry leaders.</p>
+                <h3 className="text-2xl font-black mb-4 text-gray-900">Creator Circle</h3>
+                <p className="text-gray-700 mb-6 font-medium">Join the most exclusive creator community. Collaborate with top influencers and build your empire together.</p>
                 
                 <div className="space-y-3 text-sm">
-                  <div className="flex items-center text-gray-600">
-                    <CheckCircle className="w-4 h-4 mr-3 text-emerald-600" />
-                    Private mastermind groups
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="w-4 h-4 mr-3 text-cyan-600" />
+                    <span className="font-bold">Private creator groups</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <CheckCircle className="w-4 h-4 mr-3 text-emerald-600" />
-                    Direct mentor access
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="w-4 h-4 mr-3 text-cyan-600" />
+                    <span className="font-bold">Brand collaboration deals</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <CheckCircle className="w-4 h-4 mr-3 text-emerald-600" />
-                    Legendary status verification
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="w-4 h-4 mr-3 text-cyan-600" />
+                    <span className="font-bold">Verified influencer status</span>
                   </div>
                 </div>
               </CardContent>
@@ -304,55 +278,58 @@ export default function Landing() {
           </div>
         </div>
       </section>
-      {/* Legendary Battles */}
-      <section id="prestige" className="py-32 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
-        {/* Background Effects */}
+      {/* Live Battles - TikTok Style */}
+      <section id="battles" className="py-24 bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white relative overflow-hidden">
+        {/* TikTok Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-72 h-72 bg-gradient-to-br from-red-500/20 to-pink-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <Badge className="bg-gradient-to-r from-red-600 to-orange-600 text-white border-0 px-6 py-3 text-sm font-bold tracking-wide mb-6">
-              🔥 LEGENDARY BATTLEGROUND
-            </Badge>
-            <h2 className="text-5xl font-black mb-6">
-              Where Legends
-              <span className="block bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
-                CLASH FOR GLORY
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
+              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-sm tracking-wider">LIVE BATTLES</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6">
+              EPIC
+              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+                SHOWDOWNS
               </span>
+              <span className="block text-white">GOING VIRAL</span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              High-stakes battles where only the elite dare compete. Spectators bet real value while champions fight for ultimate prestige.
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
+              Real battles, real drama, real fame 🔥 Watch legends clash live and see who becomes the next viral sensation
             </p>
           </div>
 
           {/* Active Battles Display */}
-          <Card className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 border-2 border-amber-500/30 max-w-5xl mx-auto shadow-2xl backdrop-blur-sm">
+          <Card className="bg-gradient-to-br from-black/80 to-purple-900/80 border-2 border-pink-500/30 max-w-5xl mx-auto shadow-2xl backdrop-blur-sm">
             <CardContent className="p-10">
               {activeBattles && Array.isArray(activeBattles) && activeBattles.length > 0 ? (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-3xl font-black text-white">LIVE LEGENDARY BATTLES</h3>
-                    <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold animate-pulse">
+                    <h3 className="text-3xl font-black text-white">LIVE NOW 🔴</h3>
+                    <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-3 text-lg font-black animate-pulse">
                       <div className="w-3 h-3 bg-white rounded-full mr-2 animate-ping"></div>
-                      {activeBattles.length} EPIC CLASHES
+                      {activeBattles.length} VIRAL BATTLES
                     </Badge>
                   </div>
                   {activeBattles.slice(0, 3).map((battle: any) => (
-                    <div key={battle.id} className="bg-gradient-to-r from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300">
+                    <div key={battle.id} className="bg-gradient-to-r from-purple-800/50 to-pink-800/50 rounded-3xl p-8 border border-pink-500/30 hover:border-pink-500/60 transition-all duration-300 hover:scale-105">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-6">
-                          <div className="text-xl font-bold text-amber-400">{battle.challengerName || 'Elite Warrior'}</div>
+                        <div className="flex items-center space-x-8">
+                          <div className="text-2xl font-black text-pink-400">{battle.challengerName || 'Viral Star'}</div>
                           <div className="text-center">
-                            <div className="text-red-500 font-black text-lg">⚔️ VS ⚔️</div>
-                            <div className="text-xs text-gray-400 font-semibold">LEGENDARY CLASH</div>
+                            <div className="text-white font-black text-2xl animate-bounce">⚡ VS ⚡</div>
+                            <div className="text-xs text-gray-400 font-black uppercase tracking-wide">VIRAL CLASH</div>
                           </div>
-                          <div className="text-xl font-bold text-amber-400">{battle.opponentName || 'Elite Champion'}</div>
+                          <div className="text-2xl font-black text-cyan-400">{battle.opponentName || 'Rising Legend'}</div>
                         </div>
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 text-lg font-bold">
-                          🏆 {battle.stakeAmount || 0} PRESTIGE
+                        <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 text-xl font-black rounded-2xl animate-pulse">
+                          🏆 {battle.stakeAmount || 0} FAME
                         </Badge>
                       </div>
                     </div>
@@ -360,17 +337,17 @@ export default function Landing() {
                 </div>
               ) : (
                 <div className="text-center py-16">
-                  <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-full flex items-center justify-center">
-                    <Trophy className="w-16 h-16 text-amber-400" />
+                  <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full flex items-center justify-center animate-pulse">
+                    <Trophy className="w-16 h-16 text-pink-400" />
                   </div>
-                  <h3 className="text-3xl font-black mb-6 text-white">THE ARENA AWAITS</h3>
-                  <p className="text-xl text-gray-300 mb-8 max-w-md mx-auto">No battles worthy of legends are happening right now. Will you be the first to step into the arena?</p>
+                  <h3 className="text-4xl font-black mb-6 text-white">NO BATTLES RIGHT NOW</h3>
+                  <p className="text-xl text-gray-300 mb-8 max-w-md mx-auto font-medium">The stage is empty... Will you be the first to start the next viral battle that breaks the internet?</p>
                   <Button 
                     onClick={handleLogin}
-                    className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xl px-12 py-4 shadow-2xl hover:shadow-amber-500/25 transform hover:-translate-y-1 transition-all duration-300"
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-2xl px-16 py-6 rounded-3xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-110 transition-all duration-300 animate-pulse"
                   >
-                    <Trophy className="w-6 h-6 mr-3" />
-                    ENTER THE ARENA
+                    <Trophy className="w-8 h-8 mr-4" />
+                    START VIRAL BATTLE
                   </Button>
                 </div>
               )}
@@ -378,46 +355,47 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-      {/* Hall of Legends */}
-      <section id="legends" className="py-32 bg-gradient-to-br from-amber-50 via-white to-orange-50">
+      {/* Trending Creators */}
+      <section id="trending" className="py-24 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <Badge className="bg-gradient-to-r from-amber-600 to-orange-600 text-white border-0 px-6 py-3 text-sm font-bold tracking-wide mb-6">
-              👑 HALL OF LEGENDS
-            </Badge>
-            <h2 className="text-5xl font-black mb-6 text-gray-900">
-              The Most
-              <span className="block bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
-                LEGENDARY
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full px-6 py-3 mb-6 animate-pulse">
+              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-sm tracking-wider">TRENDING NOW</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
+              TOP
+              <span className="block bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
+                CREATORS
               </span>
-              <span className="block text-gray-900">Elite Members</span>
+              <span className="block text-gray-900">GOING VIRAL</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Only the most exceptional individuals earn their place in our Hall of Legends. Will your name be inscribed among the elite?
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+              The hottest creators breaking the internet right now 🔥 See who's trending and climb the ranks to join them
             </p>
           </div>
 
-          <Card className="bg-white border-2 border-amber-200 max-w-5xl mx-auto shadow-2xl">
+          <Card className="bg-white border-2 border-cyan-200 max-w-5xl mx-auto shadow-2xl">
             <CardContent className="p-10">
               {leaderboard && Array.isArray(leaderboard) && leaderboard.length > 0 ? (
                 <div className="space-y-6">
                   <div className="text-center mb-10">
-                    <h3 className="text-3xl font-black mb-3 text-gray-900">LEGENDARY RANKINGS</h3>
-                    <p className="text-gray-600 text-lg">Ranked by prestige points, elite challenges conquered, and legendary status achieved</p>
+                    <h3 className="text-3xl font-black mb-3 text-gray-900">VIRAL RANKINGS 🔥</h3>
+                    <p className="text-gray-700 text-lg font-medium">Ranked by viral moments, fan engagement, and legendary status achieved</p>
                   </div>
                   {leaderboard.slice(0, 5).map((user: any, index: number) => {
                     const isTopThree = index < 3;
-                    const rankColors = ['from-yellow-400 to-amber-500', 'from-gray-400 to-gray-500', 'from-amber-600 to-orange-600'];
-                    const rankIcons = ['👑', '🥈', '🥉'];
+                    const rankColors = ['from-pink-500 to-purple-600', 'from-cyan-400 to-blue-500', 'from-orange-500 to-red-500'];
+                    const rankIcons = ['🔥', '⭐', '💎'];
                     
                     return (
-                      <div key={user.id} className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
+                      <div key={user.id} className={`flex items-center justify-between p-8 rounded-3xl border-2 transition-all duration-300 hover:scale-105 ${
                         isTopThree 
-                          ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300 shadow-lg' 
+                          ? 'bg-gradient-to-r from-cyan-50 to-purple-50 border-cyan-300 shadow-xl' 
                           : 'bg-gray-50 border-gray-200'
                       }`}>
                         <div className="flex items-center space-x-6">
-                          <div className={`flex items-center justify-center w-16 h-16 rounded-2xl font-black text-white text-xl shadow-lg ${
+                          <div className={`flex items-center justify-center w-20 h-20 rounded-3xl font-black text-white text-2xl shadow-xl animate-pulse ${
                             isTopThree 
                               ? `bg-gradient-to-br ${rankColors[index]}` 
                               : 'bg-gradient-to-br from-gray-500 to-gray-600'
@@ -425,19 +403,19 @@ export default function Landing() {
                             {isTopThree ? rankIcons[index] : index + 1}
                           </div>
                           <div>
-                            <div className="font-black text-xl text-gray-900">{user.username || 'Legendary Elite'}</div>
-                            <div className="text-gray-600 font-semibold">{user.totalBattlesWon || 0} legendary victories</div>
+                            <div className="font-black text-2xl text-gray-900">{user.username || 'Viral Creator'}</div>
+                            <div className="text-gray-700 font-bold text-lg">{user.totalBattlesWon || 0} viral moments</div>
                           </div>
                           {isTopThree && (
-                            <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2 font-bold">
-                              LEGEND
+                            <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 font-black text-lg animate-bounce">
+                              VIRAL
                             </Badge>
                           )}
                         </div>
                         <div className="text-right">
-                          <div className="font-black text-2xl text-amber-600">{user.auraPoints || 0}</div>
-                          <div className="text-gray-500 font-semibold text-sm">PRESTIGE POINTS</div>
-                          <div className="text-orange-600 font-bold">{user.currentStreak || 0} day reign</div>
+                          <div className="font-black text-3xl bg-gradient-to-r from-cyan-500 to-purple-600 bg-clip-text text-transparent">{user.auraPoints || 0}</div>
+                          <div className="text-gray-500 font-black text-sm uppercase tracking-wide">FAME POINTS</div>
+                          <div className="text-pink-600 font-black text-lg">{user.currentStreak || 0} day streak</div>
                         </div>
                       </div>
                     );
@@ -445,17 +423,17 @@ export default function Landing() {
                 </div>
               ) : (
                 <div className="text-center py-16">
-                  <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full flex items-center justify-center">
-                    <Trophy className="w-16 h-16 text-amber-500" />
+                  <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-cyan-400/20 to-purple-500/20 rounded-full flex items-center justify-center animate-pulse">
+                    <Trophy className="w-16 h-16 text-cyan-500" />
                   </div>
-                  <h3 className="text-3xl font-black mb-6 text-gray-900">THE HALL AWAITS ITS FIRST LEGEND</h3>
-                  <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">No one has yet achieved legendary status. Will you be the first to claim your throne?</p>
+                  <h3 className="text-4xl font-black mb-6 text-gray-900">BE THE FIRST TO GO VIRAL</h3>
+                  <p className="text-xl text-gray-700 mb-8 max-w-md mx-auto font-medium">No viral creators yet... Will you be the first to break the internet and start the trend?</p>
                   <Button 
                     onClick={handleLogin}
-                    className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xl px-12 py-4 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
+                    className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-black text-2xl px-16 py-6 rounded-3xl shadow-2xl hover:shadow-cyan-500/25 transform hover:scale-110 transition-all duration-300 animate-pulse"
                   >
-                    <Trophy className="w-6 h-6 mr-3" />
-                    CLAIM YOUR THRONE
+                    <Trophy className="w-8 h-8 mr-4" />
+                    START YOUR VIRAL JOURNEY
                   </Button>
                 </div>
               )}
@@ -463,73 +441,78 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-      {/* Elite Footer */}
-      <footer className="bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white py-16">
+      {/* TikTok-Style Footer */}
+      <footer className="bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12">
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-xl">
-                    <Trophy className="w-7 h-7 text-white" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl animate-pulse">
+                    <Trophy className="w-8 h-8 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full animate-pulse"></div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full animate-ping"></div>
                 </div>
-                <span className="text-3xl font-black bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                <span className="text-4xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
                   AURA
                 </span>
               </div>
-              <p className="text-gray-300 font-medium leading-relaxed">The most exclusive platform for elite individuals to build legendary status and compete at the highest level.</p>
+              <p className="text-gray-300 font-bold leading-relaxed text-lg">The viral app that's breaking the internet. Build your brand, go viral, and become legendary.</p>
               <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 bg-amber-500/20 hover:bg-amber-500/30 rounded-lg flex items-center justify-center transition-colors group">
-                  <svg className="w-5 h-5 text-amber-400 group-hover:text-amber-300" fill="currentColor" viewBox="0 0 24 24">
+                <a href="#" className="w-14 h-14 bg-gradient-to-br from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 rounded-2xl flex items-center justify-center transition-all group hover:scale-110">
+                  <svg className="w-7 h-7 text-pink-400 group-hover:text-pink-300" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                   </svg>
                 </a>
-                <a href="#" className="w-10 h-10 bg-amber-500/20 hover:bg-amber-500/30 rounded-lg flex items-center justify-center transition-colors group">
-                  <svg className="w-5 h-5 text-amber-400 group-hover:text-amber-300" fill="currentColor" viewBox="0 0 24 24">
+                <a href="#" className="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 hover:from-purple-500/30 hover:to-cyan-500/30 rounded-2xl flex items-center justify-center transition-all group hover:scale-110">
+                  <svg className="w-7 h-7 text-purple-400 group-hover:text-purple-300" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+                <a href="#" className="w-14 h-14 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 rounded-2xl flex items-center justify-center transition-all group hover:scale-110">
+                  <svg className="w-7 h-7 text-cyan-400 group-hover:text-cyan-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.89 2.718.099.118.112.222.085.343-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.750-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
                   </svg>
                 </a>
               </div>
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-amber-400 text-lg">ELITE ACCESS</h4>
-              <ul className="space-y-3 text-gray-300">
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Elite Dashboard</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Legendary Challenges</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Prestige Battles</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Hall of Legends</a></li>
+              <h4 className="font-black mb-6 text-pink-400 text-xl uppercase tracking-wide">VIRAL FEATURES</h4>
+              <ul className="space-y-4 text-gray-300">
+                <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Creator Dashboard</a></li>
+                <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Viral Challenges</a></li>
+                <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Live Battles</a></li>
+                <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Trending Page</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-amber-400 text-lg">EXCLUSIVE CIRCLE</h4>
-              <ul className="space-y-3 text-gray-300">
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">VIP Profiles</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Elite Mentorship</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Premium Support</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Legendary FAQ</a></li>
+              <h4 className="font-black mb-6 text-purple-400 text-xl uppercase tracking-wide">CREATOR CIRCLE</h4>
+              <ul className="space-y-4 text-gray-300">
+                <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Creator Profiles</a></li>
+                <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Brand Deals</a></li>
+                <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Creator Support</a></li>
+                <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Fame FAQ</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-amber-400 text-lg">PRESTIGE RESOURCES</h4>
-              <ul className="space-y-3 text-gray-300">
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Elite Documentation</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Legend Stories</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Exclusive Insights</a></li>
-                <li><a href="#" className="hover:text-amber-400 transition-colors font-medium">Elite Terms</a></li>
+              <h4 className="font-black mb-6 text-cyan-400 text-xl uppercase tracking-wide">GO VIRAL</h4>
+              <ul className="space-y-4 text-gray-300">
+                <li><a href="#" className="hover:text-cyan-400 transition-colors font-bold text-lg">Viral Guide</a></li>
+                <li><a href="#" className="hover:text-cyan-400 transition-colors font-bold text-lg">Success Stories</a></li>
+                <li><a href="#" className="hover:text-cyan-400 transition-colors font-bold text-lg">Creator Tips</a></li>
+                <li><a href="#" className="hover:text-cyan-400 transition-colors font-bold text-lg">Terms</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-amber-500/20 mt-12 pt-8">
+          <div className="border-t border-pink-500/30 mt-16 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 font-medium">&copy; 2024 AURA Platform. All rights reserved. Where legends are born.</p>
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 px-4 py-2 font-bold mt-4 md:mt-0">
-                INVITE ONLY PLATFORM
+              <p className="text-gray-400 font-bold text-lg">&copy; 2024 AURA. All rights reserved. Where legends go viral.</p>
+              <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white border-0 px-8 py-3 font-black text-lg mt-6 md:mt-0 animate-pulse">
+                🔥 TRENDING APP
               </Badge>
             </div>
           </div>
