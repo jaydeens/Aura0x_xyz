@@ -278,42 +278,48 @@ export default function Battles() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#1A1A1B] to-[#2A2A2B] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8000FF]"></div>
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
+            LOADING BATTLES...
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 relative overflow-hidden">
+      {/* TikTok Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
+      </div>
+      
       <Navigation />
-      <div className="container mx-auto px-4 py-8 pt-24">
-        {/* Enhanced Header */}
-        <div className="text-center mb-20 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-[3rem] blur-3xl"></div>
-          <div className="relative z-10 py-12">
-            <div className="flex items-center justify-center mb-8 gap-6">
-              <div className="relative">
-                <Sword className="w-16 h-16 text-primary animate-pulse" />
-                <div className="absolute inset-0 bg-primary/30 rounded-full blur-lg"></div>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                Aura Arena
-              </h1>
-              <div className="relative">
-                <Zap className="w-16 h-16 text-primary animate-pulse" />
-                <div className="absolute inset-0 bg-primary/30 rounded-full blur-lg"></div>
-              </div>
-            </div>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-              Enter the ultimate proving ground where warriors stake their aura and clash for dominance
-            </p>
-            <div className="mt-8 flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            </div>
+      <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
+        {/* TikTok-Style Header */}
+        <div className="text-center mb-16 relative">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
+            <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+            <span className="text-white font-black text-sm tracking-wider">LIVE BATTLES</span>
           </div>
+          
+          <h1 className="text-5xl md:text-7xl font-black mb-6 text-white leading-tight">
+            EPIC
+            <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+              SHOWDOWNS
+            </span>
+            <span className="block text-white">GOING VIRAL</span>
+          </h1>
+          
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">
+            Real battles, real drama, real fame 🔥 Watch legends clash live and see who becomes the next viral sensation
+          </p>
         </div>
 
         {/* Enhanced Battle Stats */}
