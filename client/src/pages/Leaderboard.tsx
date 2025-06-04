@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Crown, TrendingUp, Users, Zap, Target } from "lucide-react";
+import { Trophy, Crown, TrendingUp, Users, Zap, Target, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Leaderboard() {

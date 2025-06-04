@@ -79,49 +79,36 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Stats Overview - TikTok Style */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-16">
+          {/* Stats Overview - Simplified Colors */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {/* Fame Points Card */}
-            <div className="lg:col-span-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 text-white relative overflow-hidden group hover:scale-105 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-black uppercase tracking-wider">🔥 Fame Score</h3>
-                  <Coins className="w-8 h-8 text-white/80" />
-                </div>
-                <div className="text-5xl font-black mb-2">{user?.auraPoints?.toLocaleString() || "0"}</div>
-                <div className="text-white/80 font-medium">Going Viral!</div>
+            <div className="md:col-span-2 bg-gray-800 rounded-2xl p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-bold">🔥 Fame Score</h3>
+                <Coins className="w-6 h-6 text-purple-400" />
               </div>
+              <div className="text-3xl font-black text-white mb-1">{user?.auraPoints?.toLocaleString() || "0"}</div>
+              <div className="text-gray-400 text-sm">viral points</div>
             </div>
 
             {/* Streak Card */}
-            <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-wider">🔥 Streak</h3>
-                <Flame className="w-6 h-6 text-white/80" />
+                <h3 className="text-white font-bold">🔥 Streak</h3>
+                <Flame className="w-6 h-6 text-orange-400" />
               </div>
-              <div className="text-3xl font-black mb-1">{user?.currentStreak || 0}</div>
-              <div className="text-white/80 text-sm">days hot</div>
+              <div className="text-2xl font-black text-white mb-1">{user?.currentStreak || 0}</div>
+              <div className="text-gray-400 text-sm">days</div>
             </div>
 
-            {/* Wins Card */}
-            <div className="bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+            {/* Earnings Card */}
+            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-wider">🏆 Wins</h3>
-                <Trophy className="w-6 h-6 text-white/80" />
+                <h3 className="text-white font-bold">💰 Earnings</h3>
+                <Target className="w-6 h-6 text-green-400" />
               </div>
-              <div className="text-3xl font-black mb-1">{user?.totalBattlesWon || 0}</div>
-              <div className="text-white/80 text-sm">showdowns</div>
-            </div>
-
-            {/* USDT Earnings Card */}
-            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-wider">💰 Earnings</h3>
-                <Target className="w-6 h-6 text-white/80" />
-              </div>
-              <div className="text-3xl font-black mb-1">${user?.totalUsdtEarned || "0.00"}</div>
-              <div className="text-white/80 text-sm">USDT earned</div>
+              <div className="text-2xl font-black text-white mb-1">${user?.totalUsdtEarned || "0.00"}</div>
+              <div className="text-gray-400 text-sm">USDT</div>
             </div>
           </div>
 
@@ -153,10 +140,28 @@ export default function Dashboard() {
                     <LessonCard key={lesson.id} lesson={lesson} />
                   ))
                 ) : (
-                  <div className="md:col-span-2 lg:col-span-3 text-center py-16">
-                    <Clock className="w-20 h-20 text-gray-500 mx-auto mb-6" />
-                    <h3 className="text-2xl font-bold text-gray-300 mb-4">No Lessons Yet</h3>
-                    <p className="text-gray-500 text-lg">New viral content drops daily. Check back soon!</p>
+                  <div className="md:col-span-2 lg:col-span-3">
+                    <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
+                      <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                        <BookOpen className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-3">Level Up Today</h3>
+                      <p className="text-gray-400 mb-6">New lessons drop daily to help you master the viral game</p>
+                      <div className="space-y-3">
+                        <div className="bg-gray-700/50 rounded-lg p-4 text-left">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-white font-semibold">Today's Lesson</h4>
+                              <p className="text-gray-400 text-sm">Check back soon for new content</p>
+                            </div>
+                            <Clock className="w-5 h-5 text-gray-400" />
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-sm">
+                          Lessons reset daily at midnight
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -215,21 +220,21 @@ export default function Dashboard() {
                 <p className="text-gray-400">Detailed breakdown of your viral journey and achievements</p>
               </div>
               
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="grid md:grid-cols-3 gap-4 mb-8">
                 {/* Learning Progress */}
-                <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-3xl p-6 border border-blue-500/30">
+                <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-white font-bold">📚 Learning Stats</h3>
-                    <BookOpen className="w-6 h-6 text-blue-400" />
+                    <BookOpen className="w-6 h-6 text-gray-400" />
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Lessons from Learning:</span>
-                      <span className="text-blue-400 font-semibold">{user?.auraFromLessons || 0} fame</span>
+                      <span className="text-gray-400">Fame from Learning:</span>
+                      <span className="text-white font-semibold">{user?.auraFromLessons || 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Learning Percentage:</span>
-                      <span className="text-blue-400 font-semibold">
+                      <span className="text-gray-400">Learning %:</span>
+                      <span className="text-white font-semibold">
                         {user?.auraPoints ? Math.round(((user?.auraFromLessons || 0) / user?.auraPoints) * 100) : 0}%
                       </span>
                     </div>
@@ -237,19 +242,19 @@ export default function Dashboard() {
                 </div>
 
                 {/* Social Stats */}
-                <div className="bg-gradient-to-br from-pink-900/50 to-purple-900/50 rounded-3xl p-6 border border-pink-500/30">
+                <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-white font-bold">💝 Social Stats</h3>
-                    <HandHeart className="w-6 h-6 text-pink-400" />
+                    <HandHeart className="w-6 h-6 text-gray-400" />
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-400">Fame from Vouching:</span>
-                      <span className="text-pink-400 font-semibold">{user?.auraFromVouching || 0} fame</span>
+                      <span className="text-white font-semibold">{user?.auraFromVouching || 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Social Percentage:</span>
-                      <span className="text-pink-400 font-semibold">
+                      <span className="text-gray-400">Social %:</span>
+                      <span className="text-white font-semibold">
                         {user?.auraPoints ? Math.round(((user?.auraFromVouching || 0) / user?.auraPoints) * 100) : 0}%
                       </span>
                     </div>
@@ -257,19 +262,19 @@ export default function Dashboard() {
                 </div>
 
                 {/* Battle Stats */}
-                <div className="bg-gradient-to-br from-orange-900/50 to-red-900/50 rounded-3xl p-6 border border-orange-500/30">
+                <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-white font-bold">⚔️ Battle Stats</h3>
-                    <Swords className="w-6 h-6 text-orange-400" />
+                    <Swords className="w-6 h-6 text-gray-400" />
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-400">Fame from Battles:</span>
-                      <span className="text-orange-400 font-semibold">{user?.auraFromBattles || 0} fame</span>
+                      <span className="text-white font-semibold">{user?.auraFromBattles || 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Battle Percentage:</span>
-                      <span className="text-orange-400 font-semibold">
+                      <span className="text-gray-400">Battle %:</span>
+                      <span className="text-white font-semibold">
                         {user?.auraPoints ? Math.round(((user?.auraFromBattles || 0) / user?.auraPoints) * 100) : 0}%
                       </span>
                     </div>
@@ -285,36 +290,36 @@ export default function Dashboard() {
                 <p className="text-gray-400">Jump into the action with these popular features</p>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link href="/lessons">
-                  <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
-                    <BookOpen className="w-8 h-8 mb-4" />
-                    <h3 className="font-bold mb-2">Start Learning</h3>
-                    <p className="text-sm text-white/80">Complete daily lessons</p>
+                  <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer">
+                    <BookOpen className="w-8 h-8 mb-4 text-purple-400" />
+                    <h3 className="font-bold mb-2 text-white">Start Learning</h3>
+                    <p className="text-sm text-gray-400">Complete daily lessons</p>
                   </div>
                 </Link>
                 
                 <Link href="/battles">
-                  <div className="bg-gradient-to-br from-red-500 to-pink-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
-                    <Swords className="w-8 h-8 mb-4" />
-                    <h3 className="font-bold mb-2">Join Battle</h3>
-                    <p className="text-sm text-white/80">Vote in live showdowns</p>
+                  <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-red-500 transition-colors cursor-pointer">
+                    <Swords className="w-8 h-8 mb-4 text-red-400" />
+                    <h3 className="font-bold mb-2 text-white">Join Battle</h3>
+                    <p className="text-sm text-gray-400">Vote in live showdowns</p>
                   </div>
                 </Link>
                 
                 <Link href="/leaderboard">
-                  <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
-                    <Trophy className="w-8 h-8 mb-4" />
-                    <h3 className="font-bold mb-2">Leaderboard</h3>
-                    <p className="text-sm text-white/80">See top creators</p>
+                  <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-yellow-500 transition-colors cursor-pointer">
+                    <Trophy className="w-8 h-8 mb-4 text-yellow-400" />
+                    <h3 className="font-bold mb-2 text-white">Leaderboard</h3>
+                    <p className="text-sm text-gray-400">See top creators</p>
                   </div>
                 </Link>
                 
                 <Link href="/profile">
-                  <div className="bg-gradient-to-br from-purple-500 to-indigo-500 rounded-3xl p-6 text-white hover:scale-105 transition-transform cursor-pointer">
-                    <Target className="w-8 h-8 mb-4" />
-                    <h3 className="font-bold mb-2">My Profile</h3>
-                    <p className="text-sm text-white/80">Edit your profile</p>
+                  <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-blue-500 transition-colors cursor-pointer">
+                    <Target className="w-8 h-8 mb-4 text-blue-400" />
+                    <h3 className="font-bold mb-2 text-white">My Profile</h3>
+                    <p className="text-sm text-gray-400">Edit your profile</p>
                   </div>
                 </Link>
               </div>
