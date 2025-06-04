@@ -5,8 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Coins, Sword, Trophy, Zap, Clock, Flame, Star, Users, BookOpen, Settings, Sparkles } from "lucide-react";
-import { SiX } from "react-icons/si";
+import { Trophy, Clock, Star, Users, BookOpen, Play, CheckCircle, TrendingUp, Award, Target } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 
 export default function Landing() {
@@ -50,10 +49,10 @@ export default function Landing() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#8000FF] to-[#9933FF] rounded-2xl flex items-center justify-center">
-            <Zap className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
+            <BookOpen className="w-8 h-8 text-primary-foreground" />
           </div>
         </div>
       </div>
@@ -61,69 +60,86 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0A0A0B]/90 backdrop-blur-md border-b border-[#8000FF]/20">
+      <nav className="sticky top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#8000FF] to-[#9933FF] rounded-xl flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-                Aura
+              <span className="text-2xl font-semibold text-foreground">
+                LearnHub
               </span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-300 hover:text-[#8000FF] transition-colors">Features</a>
-              <a href="#battles" className="text-gray-300 hover:text-[#8000FF] transition-colors">Battles</a>
-              <a href="#leaderboard" className="text-gray-300 hover:text-[#8000FF] transition-colors">Leaderboard</a>
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
+              <a href="#challenges" className="text-muted-foreground hover:text-foreground transition-colors">Challenges</a>
+              <a href="#leaderboard" className="text-muted-foreground hover:text-foreground transition-colors">Leaderboard</a>
             </div>
 
             <div className="flex items-center space-x-4">
-              <Button onClick={handleLogin} className="bg-gradient-to-r from-[#8000FF] to-[#9933FF] hover:from-[#6B00E6] hover:to-[#8000FF] text-white font-medium px-6 py-2">
-                <Zap className="w-4 h-4 mr-2" />
-                Connect & Start
+              <Button onClick={handleLogin} className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-6 py-2">
+                Get Started
               </Button>
             </div>
           </div>
         </div>
       </nav>
       {/* Hero Section */}
-      <section className="pt-24 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#8000FF]/5 to-[#9933FF]/5"></div>
-        {/* Animated background elements */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-[#8000FF]/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-20 w-48 h-48 bg-[#9933FF]/10 rounded-full blur-2xl animate-pulse"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="pt-16 pb-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Build Your Aura
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground">
+              Master Skills Through
+              <span className="text-primary block">Interactive Learning</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
-              Complete daily Web3 lessons, connect your X account for automated sharing, and engage in live Aura Clashes where viewers gift Steeze tokens to support their favorites.
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+              Complete daily lessons, track your progress, and compete with others in knowledge challenges. Build expertise through consistent learning and friendly competition.
             </p>
             
 
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
               <Button 
                 onClick={handleLogin}
-                className="bg-gradient-to-r from-[#8000FF] to-[#9933FF] hover:from-[#6B00E6] hover:to-[#8000FF] text-white font-semibold text-lg px-8 py-4 h-auto"
+                size="lg"
+                className="text-lg px-8 py-4"
               >
-                <Zap className="w-5 h-5 mr-2" />
-                Start Your Journey
+                <Play className="w-5 h-5 mr-2" />
+                Start Learning
               </Button>
               <Button 
                 variant="outline" 
                 onClick={handleWatchDemo}
-                className="border-2 border-[#8000FF]/50 text-[#8000FF] hover:bg-[#8000FF]/10 font-semibold text-lg px-8 py-4 h-auto"
+                size="lg"
+                className="text-lg px-8 py-4"
               >
                 <Clock className="w-5 h-5 mr-2" />
                 Watch Demo
               </Button>
+            </div>
+
+            {/* Statistics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-2">{stats?.totalUsers || 0}</div>
+                <div className="text-sm text-muted-foreground">Active Learners</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-2">{stats?.totalAura || 0}</div>
+                <div className="text-sm text-muted-foreground">Points Earned</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-2">{stats?.activeBattles || 0}</div>
+                <div className="text-sm text-muted-foreground">Active Challenges</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-2">99%</div>
+                <div className="text-sm text-muted-foreground">Success Rate</div>
+              </div>
             </div>
 
 
@@ -131,62 +147,62 @@ export default function Landing() {
         </div>
       </section>
       {/* Features Section */}
-      <section id="features" className="py-16 bg-gradient-to-b from-[#0A0A0B] to-[#1A1A1B]/20">
+      <section id="features" className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Platform Features
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4 text-foreground">
+              Everything You Need to Learn
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Build your Web3 reputation through learning, social sharing, and live competitive battles
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Comprehensive learning platform with interactive lessons, progress tracking, and community challenges
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Daily Lessons */}
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20 hover:border-[#8000FF]/40 transition-all hover:scale-105">
+            <Card className="border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardContent className="p-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#8000FF] to-[#6B00E6] rounded-lg flex items-center justify-center mb-6">
-                  <BookOpen className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
+                  <BookOpen className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">Daily Lessons</h3>
-                <p className="text-gray-400 mb-4">Complete AI-generated Web3 lessons with interactive quizzes. Earn 10 Aura Points per completion and build your streak.</p>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">Daily Lessons</h3>
+                <p className="text-muted-foreground mb-4">Complete interactive lessons with quizzes. Earn 10 points per completion and build your learning streak.</p>
                 
-                <div className="bg-[#0A0A0B] rounded-lg p-3">
-                  <div className="text-xs text-gray-400 mb-2">Rewards per lesson</div>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <div className="text-xs text-muted-foreground mb-2">Rewards per lesson</div>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>Aura Points</span>
-                      <span className="text-[#8000FF]">+10 AP</span>
+                      <span>Learning Points</span>
+                      <span className="text-primary font-medium">+10 LP</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Daily Streak</span>
-                      <span className="text-[#9933FF]">+1 day</span>
+                      <span className="text-success font-medium">+1 day</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* X Integration */}
-            <Card className="bg-[#1A1A1B] border-[#1DA1F2]/20 hover:border-[#1DA1F2]/40 transition-all hover:scale-105">
+            {/* Progress Tracking */}
+            <Card className="border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardContent className="p-6">
-                <div className="w-16 h-16 bg-white dark:bg-black rounded-lg flex items-center justify-center mb-6">
-                  <SiX className="w-8 h-8 text-black dark:text-white" />
+                <div className="w-16 h-16 bg-success/10 rounded-lg flex items-center justify-center mb-6">
+                  <TrendingUp className="w-8 h-8 text-success" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">X Account Sync</h3>
-                <p className="text-gray-400 mb-4">Connect your X account for automated lesson completion sharing. Showcase your learning progress to your followers.</p>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">Progress Tracking</h3>
+                <p className="text-muted-foreground mb-4">Monitor your learning journey with detailed analytics. Track completion rates, streak milestones, and skill development.</p>
                 
-                <div className="bg-[#0A0A0B] rounded-lg p-3">
-                  <div className="text-xs text-gray-400 mb-2">Auto-posting features</div>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <div className="text-xs text-muted-foreground mb-2">Tracking features</div>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>Lesson Completion</span>
-                      <span className="text-[#1DA1F2]">Auto</span>
+                      <span>Daily Progress</span>
+                      <span className="text-success font-medium">Real-time</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Streak Milestones</span>
-                      <span className="text-[#1DA1F2]">Auto</span>
+                      <span>Achievement Badges</span>
+                      <span className="text-warning font-medium">Unlockable</span>
                     </div>
                   </div>
                 </div>
