@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Twitter, CheckCircle, AlertCircle } from "lucide-react";
+import Navigation from "@/components/Navigation";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -75,17 +76,19 @@ export default function Settings() {
   const isTwitterConnected = user?.twitterId && user?.twitterAccessToken;
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">
-            Manage your account settings and preferences.
-          </p>
-        </div>
+    <div className="min-h-screen bg-transparent">
+      <Navigation />
+      <main className="pt-20 pb-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-black text-white mb-2">⚙️ Settings</h1>
+            <p className="text-gray-400">Manage your account and preferences</p>
+          </div>
 
-        {/* Profile Settings */}
-        <Card>
+          <div className="space-y-6">
+            {/* Profile Settings */}
+            <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>
@@ -237,8 +240,10 @@ export default function Settings() {
               </div>
             </div>
           </CardContent>
-        </Card>
-      </div>
+            </Card>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
