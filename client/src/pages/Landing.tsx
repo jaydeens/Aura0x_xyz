@@ -225,7 +225,7 @@ export default function Landing() {
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">Steeze Coins</h3>
-                <p className="text-gray-400 mb-4">Gift Steeze tokens during live Aura Clashes to support your favorite participants. Token counts determine battle winners.</p>
+                <p className="text-gray-400 mb-4">Gift Steeze coins during live Aura Clashes to support your favorite participants.</p>
                 
                 <div className="bg-[#0A0A0B] rounded-lg p-3">
                   <div className="text-xs text-gray-400 mb-2">Token mechanics</div>
