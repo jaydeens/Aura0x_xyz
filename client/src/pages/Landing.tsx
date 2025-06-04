@@ -106,25 +106,7 @@ export default function Landing() {
               Complete daily Web3 lessons, connect your X account for automated sharing, and engage in live Aura Clashes where viewers gift Steeze tokens to support their favorites.
             </p>
             
-            {/* Real-time Platform Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
-              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-[#8000FF]">{stats?.totalUsers || 0}</div>
-                <div className="text-sm text-gray-400">Active Users</div>
-              </div>
-              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-[#9933FF]">{stats?.totalAura || 0}</div>
-                <div className="text-sm text-gray-400">Total Aura</div>
-              </div>
-              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-[#8000FF]">{stats?.activeBattles || 0}</div>
-                <div className="text-sm text-gray-400">Live Clashes</div>
-              </div>
-              <div className="bg-[#0A0A0B]/40 backdrop-blur-sm border border-[#8000FF]/20 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-[#9933FF]">{stats?.completedLessonsCount || 0}</div>
-                <div className="text-sm text-gray-400">Lessons Complete</div>
-              </div>
-            </div>
+
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Button 
