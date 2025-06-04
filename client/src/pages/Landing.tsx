@@ -144,25 +144,7 @@ export default function Landing() {
               </Button>
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#8000FF]">12,547</div>
-                <div className="text-sm text-gray-400">Active Users</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#9933FF]">3,821</div>
-                <div className="text-sm text-gray-400">Battles Fought</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#00FF88]">$284K</div>
-                <div className="text-sm text-gray-400">USDT Vouched</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#FFD700]">45,923</div>
-                <div className="text-sm text-gray-400">Lessons Completed</div>
-              </div>
-            </div>
+
           </div>
         </div>
       </section>
@@ -256,22 +238,26 @@ export default function Landing() {
               </CardContent>
             </Card>
 
-            {/* Leaderboard */}
+            {/* Steeze Token System */}
             <Card className="bg-[#1A1A1B] border-[#00FF88]/20 hover:border-[#00FF88]/40 transition-all hover:scale-105">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#00FF88] to-[#00D4FF] rounded-lg flex items-center justify-center mb-6">
-                  <Trophy className="w-8 h-8 text-white" />
+                  <Sparkles className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">Global Ranking</h3>
-                <p className="text-gray-400 mb-4">Compete for the top spot on the global leaderboard with portfolio analytics and battle stats.</p>
+                <h3 className="text-xl font-bold mb-4">Steeze Tokens</h3>
+                <p className="text-gray-400 mb-4">Gift Steeze tokens during live Aura Clashes to support your favorite participants. Token counts determine battle winners.</p>
                 
                 <div className="bg-[#0A0A0B] rounded-lg p-3">
-                  <div className="text-xs text-gray-400 mb-2">Ranking Factors</div>
+                  <div className="text-xs text-gray-400 mb-2">Token mechanics</div>
                   <div className="space-y-1 text-sm">
-                    <div>• Total Aura Points</div>
-                    <div>• Battle Win/Loss Ratio</div>
-                    <div>• Wallet Age & Growth</div>
-                    <div>• Vouches Received</div>
+                    <div className="flex justify-between">
+                      <span>Gift to participants</span>
+                      <span className="text-[#00FF88]">Real-time</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Winner determination</span>
+                      <span className="text-[#FFD700]">Token count</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -280,86 +266,61 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Live Battle Preview */}
+      {/* Live Aura Clashes */}
       <section id="battles" className="py-16 bg-gradient-to-b from-[#1A1A1B]/20 to-[#0A0A0B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Aura Clashes
+              Live Aura Clashes
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Challenge other users to epic 1v1 Aura Clashes and stake your Aura Points for victory
+              Real-time battles where viewers gift Steeze tokens to support participants
             </p>
           </div>
 
-          {/* Mock Live Aura Clash */}
+          {/* Active Battles Display */}
           <Card className="bg-gradient-to-r from-[#1A1A1B] to-[#8000FF]/5 border-[#8000FF]/30 max-w-4xl mx-auto">
             <CardContent className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold">Live Aura Clash</h3>
-                <Badge className="bg-red-500/20 text-red-400 animate-pulse">
-                  <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
-                  LIVE
-                </Badge>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6 items-center">
-                {/* Challenger */}
-                <div className="text-center">
-                  <div className="w-24 h-24 mx-auto mb-4 relative">
-                    <div className="w-24 h-24 bg-gradient-to-br from-[#8000FF] to-[#6B00E6] rounded-full flex items-center justify-center border-4 border-[#8000FF]">
-                      <Crown className="w-8 h-8 text-white" />
-                    </div>
-                    <Badge className="absolute -bottom-2 -right-2 bg-[#FFD700]/20 text-[#FFD700]">
-                      Grinder
+              {activeBattles && Array.isArray(activeBattles) && activeBattles.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold">Active Battles</h3>
+                    <Badge className="bg-green-500/20 text-green-400">
+                      <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                      {activeBattles.length} Live
                     </Badge>
                   </div>
-                  <h4 className="font-bold text-lg">DefiMaster</h4>
-                  <p className="text-sm text-gray-400">3,245 Aura</p>
-                  <Badge variant="outline" className="mt-2 border-[#8000FF] text-[#8000FF]">
-                    Staked: 500 Aura
-                  </Badge>
-                </div>
-
-                {/* VS + Timer */}
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-[#9933FF] mb-4">VS</div>
-                  <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-                    <CardContent className="p-4">
-                      <div className="text-sm text-gray-400 mb-1">Voting ends in</div>
-                      <div className="text-2xl font-bold text-[#8000FF]">02:47:32</div>
-                      <div className="text-xs text-gray-500">Total Votes: 127</div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Opponent */}
-                <div className="text-center">
-                  <div className="w-24 h-24 mx-auto mb-4 relative">
-                    <div className="w-24 h-24 bg-gradient-to-br from-[#9933FF] to-[#00D4FF] rounded-full flex items-center justify-center border-4 border-[#9933FF]">
-                      <Flame className="w-8 h-8 text-white" />
+                  {activeBattles.slice(0, 3).map((battle: any) => (
+                    <div key={battle.id} className="bg-[#0A0A0B]/40 rounded-lg p-4 border border-[#8000FF]/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="text-lg font-bold">{battle.challengerName || 'Anonymous'}</div>
+                          <span className="text-[#9933FF]">VS</span>
+                          <div className="text-lg font-bold">{battle.opponentName || 'Anonymous'}</div>
+                        </div>
+                        <Badge variant="outline" className="border-[#8000FF] text-[#8000FF]">
+                          Stake: {battle.stakeAmount || 0} AP
+                        </Badge>
+                      </div>
                     </div>
-                    <Badge className="absolute -bottom-2 -right-2 bg-[#9933FF]/20 text-[#9933FF]">
-                      Aura Vader
-                    </Badge>
-                  </div>
-                  <h4 className="font-bold text-lg">DeFiWizard</h4>
-                  <p className="text-sm text-gray-400">8,921 Aura</p>
-                  <Badge variant="outline" className="mt-2 border-[#9933FF] text-[#9933FF]">
-                    Staked: 500 Aura
-                  </Badge>
+                  ))}
                 </div>
-              </div>
-
-              <div className="mt-8 text-center">
-                <Button 
-                  onClick={handleLogin}
-                  className="bg-gradient-to-r from-[#FFD700] to-[#FF8800] hover:from-[#FFD700]/80 hover:to-[#FF8800]/80 text-black font-bold"
-                >
-                  <Coins className="w-4 h-4 mr-2" />
-                  Join to Vote & Battle
-                </Button>
-              </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#8000FF]/20 to-[#9933FF]/20 rounded-full flex items-center justify-center">
+                    <Sword className="w-12 h-12 text-[#8000FF]" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-4">No Active Battles</h3>
+                  <p className="text-gray-400 mb-6">Be the first to start an Aura Clash and build your reputation</p>
+                  <Button 
+                    onClick={handleLogin}
+                    className="bg-gradient-to-r from-[#8000FF] to-[#9933FF] hover:from-[#6B00E6] hover:to-[#8000FF] text-white font-bold"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Start Your Journey
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -376,71 +337,47 @@ export default function Landing() {
           </div>
 
           <Card className="bg-[#1A1A1B] border-[#8000FF]/20 max-w-4xl mx-auto">
-            <CardContent className="p-0">
-              {/* Top 3 Podium */}
-              <div className="bg-gradient-to-r from-[#8000FF]/10 to-[#9933FF]/10 p-8">
-                <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                  {/* 2nd Place */}
-                  <div className="text-center order-2 md:order-1">
-                    <div className="relative mx-auto w-20 h-20 mb-4">
-                      <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-                        <Star className="w-6 h-6 text-white" />
+            <CardContent className="p-8">
+              {leaderboard && Array.isArray(leaderboard) && leaderboard.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-bold mb-2">Top Aura Leaders</h3>
+                    <p className="text-gray-400">Current platform rankings</p>
+                  </div>
+                  {leaderboard.slice(0, 5).map((user: any, index: number) => (
+                    <div key={user.id} className="flex items-center justify-between p-4 bg-[#0A0A0B]/40 rounded-lg border border-[#8000FF]/20">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#8000FF] to-[#9933FF] text-white font-bold">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <div className="font-bold">{user.username || 'Anonymous'}</div>
+                          <div className="text-sm text-gray-400">{user.totalBattlesWon || 0} battles won</div>
+                        </div>
                       </div>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">2</span>
+                      <div className="text-right">
+                        <div className="font-bold text-[#8000FF]">{user.auraPoints || 0} AP</div>
+                        <div className="text-sm text-gray-400">{user.currentStreak || 0} day streak</div>
                       </div>
                     </div>
-                    <h3 className="font-bold text-lg">AuraFarmer</h3>
-                    <p className="text-[#9933FF] font-semibold">15,423 Aura</p>
-                    <div className="text-sm text-gray-400">47 battles won</div>
-                  </div>
-
-                  {/* 1st Place */}
-                  <div className="text-center order-1 md:order-2">
-                    <div className="relative mx-auto w-28 h-28 mb-4">
-                      <div className="w-28 h-28 bg-gradient-to-br from-[#FFD700] to-[#FF8800] rounded-full flex items-center justify-center animate-pulse">
-                        <Crown className="w-10 h-10 text-white" />
-                      </div>
-                      <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#FFD700] rounded-full flex items-center justify-center">
-                        <Crown className="w-5 h-5 text-black" />
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-xl bg-gradient-to-r from-[#FFD700] to-[#FF8800] bg-clip-text text-transparent">
-                      AuraVader
-                    </h3>
-                    <p className="text-[#FFD700] font-bold text-lg">23,892 Aura</p>
-                    <div className="text-sm text-gray-300">73 battles won</div>
-                    <Badge className="mt-2 bg-[#FFD700]/20 text-[#FFD700]">
-                      AURA VADER
-                    </Badge>
-                  </div>
-
-                  {/* 3rd Place */}
-                  <div className="text-center order-3">
-                    <div className="relative mx-auto w-20 h-20 mb-4">
-                      <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
-                        <Flame className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">3</span>
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-lg">CryptoFarmer</h3>
-                    <p className="text-orange-400 font-semibold">12,156 Aura</p>
-                    <div className="text-sm text-gray-400">31 battles won</div>
-                  </div>
+                  ))}
                 </div>
-              </div>
-
-              <div className="p-6 text-center">
-                <Button 
-                  onClick={handleLogin}
-                  className="border border-[#8000FF] text-[#8000FF] hover:bg-[#8000FF] hover:text-white"
-                  variant="outline"
-                >
-                  Join the Leaderboard
-                </Button>
-              </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#8000FF]/20 to-[#9933FF]/20 rounded-full flex items-center justify-center">
+                    <Trophy className="w-12 h-12 text-[#8000FF]" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-4">No Rankings Yet</h3>
+                  <p className="text-gray-400 mb-6">Be the first to complete lessons and climb the leaderboard</p>
+                  <Button 
+                    onClick={handleLogin}
+                    className="bg-gradient-to-r from-[#8000FF] to-[#9933FF] hover:from-[#6B00E6] hover:to-[#8000FF] text-white font-bold"
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Start Building Your Aura
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
