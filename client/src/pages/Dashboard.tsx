@@ -100,50 +100,57 @@ export default function Dashboard() {
       
       <main className="relative pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Welcome Header */}
-          <div className="mb-12 text-center">
-            <div className="relative inline-block">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-4">
-                Welcome back, {user?.firstName || user?.username || "Aura Warrior"}! 
-              </h1>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+          {/* TikTok-Style Welcome Header */}
+          <div className="mb-16 text-center relative">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
+              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-sm tracking-wider">CREATOR ONLINE</span>
             </div>
-            <p className="text-muted-foreground text-xl mt-6 max-w-2xl mx-auto">
-              Continue building your Aura and dominate the leaderboard in this epic Web3 battle arena
+            
+            <h1 className="text-5xl md:text-7xl font-black mb-6 text-white leading-tight">
+              WELCOME BACK,
+              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+                {user?.firstName || user?.username || "LEGEND"}
+              </span>
+              <span className="block text-white">READY TO GO VIRAL?</span>
+            </h1>
+            
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">
+              Your fame dashboard is loading... Time to see what's trending in your world 🔥
             </p>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            <Card className="bg-gradient-to-br from-card/80 to-primary/5 backdrop-blur-sm border-primary/30 hover:border-primary/60 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <Card className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 backdrop-blur-sm border-pink-500/30 hover:border-pink-400 transition-all duration-500 hover:shadow-2xl hover:shadow-pink-500/30 hover:-translate-y-2 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <CardContent className="p-8 relative z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">Aura Points</p>
-                    <p className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform duration-300">
+                    <p className="text-pink-300 text-sm font-black mb-3 uppercase tracking-wider">🔥 FAME POINTS</p>
+                    <p className="text-4xl font-black text-white group-hover:scale-110 transition-transform duration-300">
                       {user?.auraPoints?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 group-hover:rotate-12">
-                    <Coins className="w-8 h-8 text-primary" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-3xl flex items-center justify-center group-hover:from-pink-400/40 group-hover:to-purple-400/40 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
+                    <Coins className="w-8 h-8 text-pink-400" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-card/80 to-muted/10 backdrop-blur-sm border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <Card className="bg-gradient-to-br from-orange-900/40 to-red-900/40 backdrop-blur-sm border-orange-500/30 hover:border-orange-400 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/30 hover:-translate-y-2 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <CardContent className="p-8 relative z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-3 uppercase tracking-wide">Current Streak</p>
-                    <p className="text-4xl font-bold text-foreground group-hover:scale-110 transition-transform duration-300">
-                      {user?.currentStreak || 0} <span className="text-xl text-muted-foreground">days</span>
+                    <p className="text-orange-300 text-sm font-black mb-3 uppercase tracking-wider">🔥 VIRAL STREAK</p>
+                    <p className="text-4xl font-black text-white group-hover:scale-110 transition-transform duration-300">
+                      {user?.currentStreak || 0} <span className="text-xl text-orange-300">days</span>
                     </p>
                   </div>
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-900/20 rounded-3xl flex items-center justify-center group-hover:from-orange-200 dark:group-hover:from-orange-900/50 transition-all duration-300 group-hover:rotate-12">
-                    <Flame className="w-8 h-8 text-orange-500" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500/30 to-red-500/30 rounded-3xl flex items-center justify-center group-hover:from-orange-400/40 group-hover:to-red-400/40 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
+                    <Flame className="w-8 h-8 text-orange-400" />
                   </div>
                 </div>
               </CardContent>

@@ -46,10 +46,13 @@ export default function Leaderboard() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#8000FF] to-[#9933FF] rounded-2xl flex items-center justify-center">
-            <Trophy className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="text-3xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
+            LOADING HALL OF FAME...
           </div>
         </div>
       </div>
@@ -99,75 +102,92 @@ export default function Leaderboard() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 relative overflow-hidden">
+      {/* TikTok Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
+      </div>
+
       <Navigation />
       
-      <main className="pt-20 pb-8">
+      <main className="relative z-10 pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Global Leaderboard
+          {/* TikTok-Style Header */}
+          <div className="text-center mb-16 relative">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
+              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-sm tracking-wider">HALL OF FAME</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-black mb-6 text-white leading-tight">
+              TOP
+              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+                CREATORS
+              </span>
+              <span className="block text-white">GOING VIRAL</span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              The top Web3 users in the Aura ecosystem, ranked by Aura Points and battle prowess
+            
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">
+              The legends who made it to the top of the fame ladder 🔥 See who's trending in the viral universe
             </p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardContent className="p-4">
+          {/* TikTok Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <Card className="bg-gradient-to-br from-pink-900/40 to-purple-900/40 backdrop-blur-sm border-pink-500/30 hover:border-pink-400 transition-all duration-500 hover:shadow-2xl hover:shadow-pink-500/30 hover:-translate-y-2 group">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Total Users</p>
-                    <p className="text-2xl font-bold text-[#8000FF]">
+                    <p className="text-pink-300 text-sm font-black uppercase tracking-wider">👥 CREATORS</p>
+                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
                       {stats?.totalUsers?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <Users className="w-8 h-8 text-[#8000FF]" />
+                  <Users className="w-10 h-10 text-pink-400 group-hover:scale-110 transition-transform" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#FFD700]/20">
-              <CardContent className="p-4">
+            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 backdrop-blur-sm border-yellow-500/30 hover:border-yellow-400 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-500/30 hover:-translate-y-2 group">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Total Aura</p>
-                    <p className="text-2xl font-bold text-[#FFD700]">
+                    <p className="text-yellow-300 text-sm font-black uppercase tracking-wider">⚡ TOTAL FAME</p>
+                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
                       {stats?.totalAura?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <Zap className="w-8 h-8 text-[#FFD700]" />
+                  <Zap className="w-10 h-10 text-yellow-400 group-hover:scale-110 transition-transform" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#00FF88]/20">
-              <CardContent className="p-4">
+            <Card className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 backdrop-blur-sm border-green-500/30 hover:border-green-400 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/30 hover:-translate-y-2 group">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Avg Aura</p>
-                    <p className="text-2xl font-bold text-[#00FF88]">
+                    <p className="text-green-300 text-sm font-black uppercase tracking-wider">🎯 AVG FAME</p>
+                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
                       {stats?.avgAura?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <Target className="w-8 h-8 text-[#00FF88]" />
+                  <Target className="w-10 h-10 text-green-400 group-hover:scale-110 transition-transform" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
-              <CardContent className="p-4">
+            <Card className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 backdrop-blur-sm border-purple-500/30 hover:border-purple-400 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-2 group">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Total Battles</p>
-                    <p className="text-2xl font-bold text-[#9933FF]">
+                    <p className="text-purple-300 text-sm font-black uppercase tracking-wider">🥊 SHOWDOWNS</p>
+                    <p className="text-3xl font-black text-white group-hover:scale-110 transition-transform">
                       {stats?.totalBattles?.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <Trophy className="w-8 h-8 text-[#9933FF]" />
+                  <Trophy className="w-10 h-10 text-purple-400 group-hover:scale-110 transition-transform" />
                 </div>
               </CardContent>
             </Card>
