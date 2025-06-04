@@ -171,8 +171,8 @@ export default function Landing() {
             {/* X Integration */}
             <Card className="bg-[#1A1A1B] border-[#1DA1F2]/20 hover:border-[#1DA1F2]/40 transition-all hover:scale-105">
               <CardContent className="p-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#1DA1F2] to-[#0A7BC4] rounded-lg flex items-center justify-center mb-6">
-                  <SiX className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-white dark:bg-black rounded-lg flex items-center justify-center mb-6">
+                  <SiX className="w-8 h-8 text-black dark:text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-4">X Account Sync</h3>
                 <p className="text-gray-400 mb-4">Connect your X account for automated lesson completion sharing. Showcase your learning progress to your followers.</p>
