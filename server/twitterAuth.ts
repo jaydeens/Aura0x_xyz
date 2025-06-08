@@ -15,7 +15,7 @@ export function setupTwitterAuth(app: Express) {
     tokenURL: 'https://api.twitter.com/2/oauth2/token',
     clientID: process.env.TWITTER_CLIENT_ID,
     clientSecret: process.env.TWITTER_CLIENT_SECRET,
-    callbackURL: '/api/auth/twitter/callback',
+    callbackURL: `https://d0cff2cc-08d4-40e9-8970-8c2e7510e34d-00-2ejxen6586xhw.kirk.replit.dev/api/auth/twitter/callback`,
     scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access'],
     state: true,
     pkce: true,
@@ -59,11 +59,22 @@ export function setupTwitterAuth(app: Express) {
   }));
 
   // Twitter auth routes
-  app.get("/api/auth/twitter", passport.authenticate("twitter"));
+  app.get("/api/auth/twitter", (req, res, next) => {
+    console.log("Twitter auth initiated");
+    passport.authenticate("twitter")(req, res, next);
+  });
 
   app.get("/api/auth/twitter/callback", 
-    passport.authenticate("twitter", { failureRedirect: "/?error=twitter_auth_failed" }),
+    (req, res, next) => {
+      console.log("Twitter callback received:", req.query);
+      next();
+    },
+    passport.authenticate("twitter", { 
+      failureRedirect: "/?error=twitter_auth_failed",
+      failureMessage: true 
+    }),
     (req, res) => {
+      console.log("Twitter authentication successful");
       // Successful authentication, redirect to dashboard
       res.redirect("/?twitter_connected=true");
     }
