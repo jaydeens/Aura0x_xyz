@@ -52,33 +52,12 @@ export default function LiveBattle() {
   const [giftAnimations, setGiftAnimations] = useState<Array<{id: number, type: string, participant: string}>>([]);
   const [showTopGifters, setShowTopGifters] = useState(true);
 
-  // Mock top gifters data (simulating live gifting activity)
-  const topGifters = {
-    challenger: [
-      { username: "crypto_whale", amount: 1500, avatar: null },
-      { username: "aura_master", amount: 850, avatar: null },
-      { username: "steeze_king", amount: 720, avatar: null },
-      { username: "diamond_hands", amount: 650, avatar: null },
-      { username: "moon_rider", amount: 450, avatar: null },
-      { username: "hodl_strong", amount: 380, avatar: null },
-      { username: "defi_ninja", amount: 320, avatar: null },
-      { username: "yield_farmer", amount: 280, avatar: null },
-      { username: "nft_collector", amount: 240, avatar: null },
-      { username: "web3_builder", amount: 200, avatar: null }
-    ],
-    opponent: [
-      { username: "battle_legend", amount: 1200, avatar: null },
-      { username: "steeze_queen", amount: 900, avatar: null },
-      { username: "crypto_lord", amount: 750, avatar: null },
-      { username: "aura_beast", amount: 600, avatar: null },
-      { username: "chain_master", amount: 480, avatar: null },
-      { username: "token_hunter", amount: 420, avatar: null },
-      { username: "smart_trader", amount: 350, avatar: null },
-      { username: "gas_saver", amount: 300, avatar: null },
-      { username: "block_explorer", amount: 260, avatar: null },
-      { username: "degen_trader", amount: 220, avatar: null }
-    ]
-  };
+  // Fetch battle votes/gifts data
+  const { data: battleVotes } = useQuery({
+    queryKey: [`/api/battles/${battleId}/votes`],
+    enabled: !!battleId,
+    refetchInterval: 3000,
+  });
 
   // Fetch battle data
   const { data: battle, isLoading, error } = useQuery({
@@ -407,20 +386,31 @@ export default function LiveBattle() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {topGifters.challenger.map((gifter, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-blue-500/10 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <div className="text-sm font-bold text-blue-400">#{index + 1}</div>
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs">
-                          {gifter.username.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-white text-sm">{gifter.username}</span>
-                    </div>
-                    <div className="text-blue-400 font-bold">{gifter.amount}</div>
+                {battleVotes && Array.isArray(battleVotes) ? (
+                  battleVotes
+                    .filter((vote: any) => vote.participantId === (battle as any).challengerId)
+                    .sort((a: any, b: any) => b.amount - a.amount)
+                    .slice(0, 10)
+                    .map((vote: any, index: number) => (
+                      <div key={vote.id || index} className="flex items-center justify-between p-2 bg-blue-500/10 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-bold text-blue-400">#{index + 1}</div>
+                          <Avatar className="w-8 h-8">
+                            <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs">
+                              {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-white text-sm">{vote.voterUsername || 'Anonymous'}</span>
+                        </div>
+                        <div className="text-blue-400 font-bold">{vote.amount || 0}</div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-center py-4 text-gray-400">
+                    <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No gifts yet</p>
                   </div>
-                ))}
+                )}
               </CardContent>
             </Card>
 
@@ -648,20 +638,31 @@ export default function LiveBattle() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {topGifters.opponent.map((gifter, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-red-500/10 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <div className="text-sm font-bold text-red-400">#{index + 1}</div>
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className="bg-red-500/20 text-red-400 text-xs">
-                          {gifter.username.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-white text-sm">{gifter.username}</span>
-                    </div>
-                    <div className="text-red-400 font-bold">{gifter.amount}</div>
+                {battleVotes && Array.isArray(battleVotes) ? (
+                  battleVotes
+                    .filter((vote: any) => vote.participantId === (battle as any).opponentId)
+                    .sort((a: any, b: any) => b.amount - a.amount)
+                    .slice(0, 10)
+                    .map((vote: any, index: number) => (
+                      <div key={vote.id || index} className="flex items-center justify-between p-2 bg-red-500/10 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-bold text-red-400">#{index + 1}</div>
+                          <Avatar className="w-8 h-8">
+                            <AvatarFallback className="bg-red-500/20 text-red-400 text-xs">
+                              {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-white text-sm">{vote.voterUsername || 'Anonymous'}</span>
+                        </div>
+                        <div className="text-red-400 font-bold">{vote.amount || 0}</div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-center py-4 text-gray-400">
+                    <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No gifts yet</p>
                   </div>
-                ))}
+                )}
               </CardContent>
             </Card>
           </div>

@@ -66,17 +66,38 @@ export function setupTwitterAuth(app: Express) {
 
   app.get("/api/auth/twitter/callback", 
     (req, res, next) => {
-      console.log("Twitter callback received:", req.query);
+      console.log("Twitter callback received with query:", req.query);
+      console.log("Twitter callback headers:", req.headers);
       next();
     },
-    passport.authenticate("twitter", { 
-      failureRedirect: "/?error=twitter_auth_failed",
-      failureMessage: true 
-    }),
-    (req, res) => {
-      console.log("Twitter authentication successful");
-      // Successful authentication, redirect to dashboard
-      res.redirect("/?twitter_connected=true");
+    (req, res, next) => {
+      passport.authenticate("twitter", (err: any, user: any, info: any) => {
+        console.log("Twitter authentication result:");
+        console.log("Error:", err);
+        console.log("User:", user ? `User ID: ${user.id}` : 'No user');
+        console.log("Info:", info);
+        
+        if (err) {
+          console.error("Twitter authentication error:", err);
+          return res.redirect("/?error=twitter_auth_error&details=" + encodeURIComponent(err.message || 'Unknown error'));
+        }
+        
+        if (!user) {
+          console.log("No user returned from Twitter authentication");
+          return res.redirect("/?error=twitter_auth_failed&details=no_user");
+        }
+        
+        // Log in the user
+        req.logIn(user, (loginErr) => {
+          if (loginErr) {
+            console.error("Login error:", loginErr);
+            return res.redirect("/?error=login_failed&details=" + encodeURIComponent(loginErr.message));
+          }
+          
+          console.log("Twitter authentication and login successful for user:", user.id);
+          res.redirect("/?twitter_connected=true");
+        });
+      })(req, res, next);
     }
   );
 }
