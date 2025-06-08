@@ -324,50 +324,52 @@ export default function Leaderboard() {
               ) : leaderboard && leaderboard.length > 0 ? (
                 <div className="space-y-3">
                   {leaderboard.map((user: any, index: number) => (
-                    <div key={user.id} className={`rounded-2xl p-4 transition-all duration-300 hover:scale-105 ${
-                      index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
-                      index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30' :
-                      index === 2 ? 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30' :
-                      'bg-gray-800/50 border border-gray-700/50'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg ${
-                            index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
-                            index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' :
-                            index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
-                            'bg-gradient-to-br from-pink-500 to-purple-600 text-white'
-                          }`}>
-                            {index < 3 ? (index === 0 ? '👑' : index === 1 ? '🥈' : '🥉') : `#${index + 1}`}
-                          </div>
-                          <div>
-                            <h3 className="text-white font-bold text-lg">
-                              {user.username?.substring(0, 20) || 'Anonymous Creator'}
-                              {index === 0 && ' 👑'}
-                            </h3>
-                            <div className="flex items-center space-x-4 text-sm text-gray-400">
-                              <span>{user.auraPoints?.toLocaleString() || 0} Aura</span>
-                              {user.currentStreak > 0 && (
-                                <div className="flex items-center">
-                                  <Flame className="w-4 h-4 text-orange-400 mr-1" />
-                                  <span className="text-orange-400">{user.currentStreak} streak</span>
-                                </div>
-                              )}
+                    <Link key={user.id} href={`/profile/${user.username || user.id}`}>
+                      <div className={`rounded-2xl p-4 transition-all duration-300 hover:scale-105 cursor-pointer ${
+                        index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
+                        index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30' :
+                        index === 2 ? 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30' :
+                        'bg-gray-800/50 border border-gray-700/50'
+                      }`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg ${
+                              index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
+                              index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' :
+                              index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
+                              'bg-gradient-to-br from-pink-500 to-purple-600 text-white'
+                            }`}>
+                              {index < 3 ? (index === 0 ? '👑' : index === 1 ? '🥈' : '🥉') : `#${index + 1}`}
+                            </div>
+                            <div>
+                              <h3 className="text-white font-bold text-lg">
+                                {user.username?.substring(0, 20) || 'Anonymous Creator'}
+                                {index === 0 && ' 👑'}
+                              </h3>
+                              <div className="flex items-center space-x-4 text-sm text-gray-400">
+                                <span>{user.auraPoints?.toLocaleString() || 0} Aura</span>
+                                {user.currentStreak > 0 && (
+                                  <div className="flex items-center">
+                                    <Flame className="w-4 h-4 text-orange-400 mr-1" />
+                                    <span className="text-orange-400">{user.currentStreak} streak</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          {(() => {
-                            const auraLevel = getUserAuraLevel(user.currentStreak || 0);
-                            return (
-                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
-                                {auraLevel.name.toUpperCase()}
-                              </div>
-                            );
-                          })()}
+                          <div className="text-right">
+                            {(() => {
+                              const auraLevel = getUserAuraLevel(user.currentStreak || 0);
+                              return (
+                                <div className={`px-3 py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
+                                  {auraLevel.name.toUpperCase()}
+                                </div>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
