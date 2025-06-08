@@ -35,7 +35,7 @@ interface VouchFormProps {
 
 export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const [selectedUserId, setSelectedUserId] = useState(preselectedUserId || "");
-  const [usdtAmount, setUsdtAmount] = useState("");
+  const [ethAmount, setEthAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
@@ -57,7 +57,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setUsdtAmount("");
+      setEthAmount("");
       setTransactionHash("");
       setSelectedUserId(preselectedUserId || "");
     },
@@ -83,11 +83,11 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
 
   const selectedUser = leaderboard?.find((u: any) => u.id === selectedUserId);
   const userStreakLevel = getStreakLevel(user?.currentStreak || 0);
-  const amount = parseFloat(usdtAmount) || 0;
-  const baseAuraPoints = amount * 10; // 1 USDT = 10 Aura Points
+  const amount = parseFloat(ethAmount) || 0;
+  const baseAuraPoints = amount * 1000; // 1 ETH = 1000 Aura Points
   const finalAuraPoints = Math.floor(baseAuraPoints * userStreakLevel.multiplier);
-  const userAmount = (amount * 0.6).toFixed(2);
-  const platformFee = (amount * 0.4).toFixed(2);
+  const userAmount = (amount * 0.6).toFixed(4);
+  const platformFee = (amount * 0.4).toFixed(4);
 
   const handleVouch = () => {
     if (!selectedUserId) {
@@ -102,7 +102,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     if (!amount || amount <= 0) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid USDT amount",
+        description: "Please enter a valid ETH amount",
         variant: "destructive",
       });
       return;
@@ -119,7 +119,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
 
     vouchMutation.mutate({
       toUserId: selectedUserId,
-      usdtAmount: amount,
+      ethAmount: amount,
       transactionHash: transactionHash.trim(),
     });
   };
@@ -222,21 +222,22 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           </Card>
         )}
 
-        {/* USDT Amount */}
+        {/* ETH Amount */}
         <div className="space-y-2">
-          <Label className="text-white font-medium">Vouch Amount (USDT)</Label>
+          <Label className="text-white font-medium">Vouch Amount (ETH)</Label>
           <div className="relative">
             <Input
               type="number"
-              placeholder="10"
-              value={usdtAmount}
-              onChange={(e) => setUsdtAmount(e.target.value)}
+              placeholder="0.01"
+              step="0.001"
+              value={ethAmount}
+              onChange={(e) => setEthAmount(e.target.value)}
               className="bg-background border-primary/30 focus:border-primary pr-16"
             />
-            <span className="absolute right-4 top-3 text-gray-400">USDT</span>
+            <span className="absolute right-4 top-3 text-gray-400">ETH</span>
           </div>
           <p className="text-xs text-gray-500">
-            Minimum: 1 USDT • 1 USDT = 10 Base Aura Points
+            Minimum: 0.001 ETH • 1 ETH = 1000 Base Aura Points
           </p>
         </div>
 
@@ -299,13 +300,13 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-400">USDT to User (60%):</span>
-                  <span className="text-white">${userAmount}</span>
+                  <span className="text-gray-400">ETH to User (60%):</span>
+                  <span className="text-white">{userAmount} ETH</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-400">Platform fee (40%):</span>
-                  <span className="text-gray-400">${platformFee}</span>
+                  <span className="text-gray-400">{platformFee} ETH</span>
                 </div>
               </div>
             </CardContent>
