@@ -6,6 +6,7 @@ import { db } from "./db";
 import { lessons as lessonsTable } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupTwitterAuth } from "./twitterAuth";
 import { generateDailyLessons, generateLessonAnalysis, generateLessonQuiz, validateTweetContent } from "./openai";
 import { web3Service } from "./web3";
 import { z } from "zod";
@@ -137,7 +138,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
   
   // Twitter auth (optional - requires Twitter API keys)
-  // setupTwitterAuth(app);
+  try {
+    setupTwitterAuth(app);
+  } catch (error) {
+    console.warn("Twitter authentication setup failed:", error);
+  }
 
   // Seed aura levels on startup
   await storage.seedAuraLevels();
@@ -1824,6 +1829,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced X API posting endpoints
+  
   // Post lesson completion to X
   app.post("/api/lessons/share-completion", async (req: any, res) => {
     try {
@@ -1839,15 +1846,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { lessonTitle, auraEarned } = req.body;
+      const { lessonTitle, auraEarned, streakDays } = req.body;
       const user = await storage.getUser(userId);
 
       if (!user?.twitterAccessToken) {
         return res.status(400).json({ message: "X account not connected" });
       }
 
-      // Create tweet content
-      const tweetText = `🎯 Just completed "${lessonTitle}" on Aura! Earned ${auraEarned} Aura points and leveling up my Web3 knowledge! 🚀\n\n#AuraLearning #Web3Education #BuildingMyAura`;
+      // Enhanced tweet content with streak information
+      let tweetText = `🎯 Just completed "${lessonTitle}" on @AuraPlatform! 
+      
+💫 Earned ${auraEarned} Aura points`;
+      
+      if (streakDays > 0) {
+        tweetText += `
+🔥 ${streakDays} day learning streak!`;
+      }
+      
+      tweetText += `
+
+Building my Web3 knowledge one lesson at a time! 🚀
+
+#AuraLearning #Web3Education #BuildingMyAura #LearnToEarn`;
 
       // Post to X using Twitter API v2
       const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
@@ -1875,6 +1895,214 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error sharing lesson completion to X:", error);
       res.status(500).json({ message: "Failed to share to X" });
+    }
+  });
+
+  // Post battle victory to X
+  app.post("/api/battles/share-victory", async (req: any, res) => {
+    try {
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { battleId, opponentUsername, auraEarned } = req.body;
+      const user = await storage.getUser(userId);
+
+      if (!user?.twitterAccessToken) {
+        return res.status(400).json({ message: "X account not connected" });
+      }
+
+      const tweetText = `⚔️ Victory in the Aura Arena! 
+
+Just defeated @${opponentUsername} in an epic Web3 battle on @AuraPlatform! 
+
+💎 Earned ${auraEarned} Aura points
+🏆 Climbing the leaderboard
+
+Ready for the next challenger! 
+
+#AuraBattle #Web3Gaming #Victory #CryptoChampion`;
+
+      const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: tweetText }),
+      });
+
+      if (!tweetResponse.ok) {
+        const errorData = await tweetResponse.json();
+        console.error("X posting error:", errorData);
+        return res.status(500).json({ message: "Failed to post to X" });
+      }
+
+      const tweetData = await tweetResponse.json();
+      res.json({ 
+        message: "Battle victory shared to X successfully",
+        tweetId: tweetData.data?.id 
+      });
+    } catch (error: any) {
+      console.error("Error sharing battle victory to X:", error);
+      res.status(500).json({ message: "Failed to share to X" });
+    }
+  });
+
+  // Post milestone achievement to X
+  app.post("/api/achievements/share-milestone", async (req: any, res) => {
+    try {
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { milestone, totalAura, rank } = req.body;
+      const user = await storage.getUser(userId);
+
+      if (!user?.twitterAccessToken) {
+        return res.status(400).json({ message: "X account not connected" });
+      }
+
+      let tweetText = `🎯 Milestone Achieved on @AuraPlatform! 
+
+${milestone}
+
+💫 Total Aura: ${totalAura?.toLocaleString()}`;
+
+      if (rank) {
+        tweetText += `
+🏆 Global Rank: #${rank}`;
+      }
+
+      tweetText += `
+
+Building my Web3 empire one achievement at a time! 🚀
+
+#AuraMilestone #Web3Achievement #BuildingMyAura #CryptoSuccess`;
+
+      const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: tweetText }),
+      });
+
+      if (!tweetResponse.ok) {
+        const errorData = await tweetResponse.json();
+        console.error("X posting error:", errorData);
+        return res.status(500).json({ message: "Failed to post to X" });
+      }
+
+      const tweetData = await tweetResponse.json();
+      res.json({ 
+        message: "Milestone achievement shared to X successfully",
+        tweetId: tweetData.data?.id 
+      });
+    } catch (error: any) {
+      console.error("Error sharing milestone to X:", error);
+      res.status(500).json({ message: "Failed to share to X" });
+    }
+  });
+
+  // Post custom tweet with validation
+  app.post("/api/social/post-tweet", async (req: any, res) => {
+    try {
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { content, includeAuraTag = true } = req.body;
+      const user = await storage.getUser(userId);
+
+      if (!user?.twitterAccessToken) {
+        return res.status(400).json({ message: "X account not connected" });
+      }
+
+      // Validate content length (Twitter's limit is 280 characters)
+      let tweetText = content;
+      if (includeAuraTag && !tweetText.includes('@AuraPlatform') && !tweetText.includes('#Aura')) {
+        tweetText += '\n\n#BuildingMyAura @AuraPlatform';
+      }
+
+      if (tweetText.length > 280) {
+        return res.status(400).json({ message: "Tweet content too long (max 280 characters)" });
+      }
+
+      const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: tweetText }),
+      });
+
+      if (!tweetResponse.ok) {
+        const errorData = await tweetResponse.json();
+        console.error("X posting error:", errorData);
+        return res.status(500).json({ message: "Failed to post to X" });
+      }
+
+      const tweetData = await tweetResponse.json();
+      res.json({ 
+        message: "Tweet posted successfully",
+        tweetId: tweetData.data?.id,
+        url: `https://twitter.com/i/web/status/${tweetData.data?.id}`
+      });
+    } catch (error: any) {
+      console.error("Error posting custom tweet:", error);
+      res.status(500).json({ message: "Failed to post tweet" });
+    }
+  });
+
+  // Get X account connection status
+  app.get("/api/social/x-status", async (req: any, res) => {
+    try {
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(userId);
+      const isConnected = !!(user?.twitterAccessToken && user?.twitterUsername);
+
+      res.json({
+        connected: isConnected,
+        username: user?.twitterUsername || null,
+        twitterId: user?.twitterId || null
+      });
+    } catch (error: any) {
+      console.error("Error checking X status:", error);
+      res.status(500).json({ message: "Failed to check X status" });
     }
   });
 
