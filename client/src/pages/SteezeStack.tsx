@@ -333,113 +333,137 @@ export default function SteezeStack() {
           </div>
 
           {/* Trading Interface */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
             {/* Purchase/Redeem Form */}
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader>
-                <div className="flex space-x-1 bg-[#2A2A2B] p-1 rounded-lg">
-                  <Button
-                    variant={activeTab === 'purchase' ? 'default' : 'ghost'}
-                    className={`flex-1 ${activeTab === 'purchase' ? 'bg-[#8000FF] text-white' : 'text-gray-400'}`}
-                    onClick={() => setActiveTab('purchase')}
-                  >
-                    <ArrowUpRight className="w-4 h-4 mr-2" />
-                    Purchase
-                  </Button>
-                  <Button
-                    variant={activeTab === 'redeem' ? 'default' : 'ghost'}
-                    className={`flex-1 ${activeTab === 'redeem' ? 'bg-[#FF6B6B] text-white' : 'text-gray-400'}`}
-                    onClick={() => setActiveTab('redeem')}
-                  >
-                    <ArrowDownLeft className="w-4 h-4 mr-2" />
-                    Redeem
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+              <div className="flex space-x-2 bg-black/30 p-2 rounded-2xl mb-6">
+                <Button
+                  variant={activeTab === 'purchase' ? 'default' : 'ghost'}
+                  className={`flex-1 rounded-xl font-bold transition-all duration-300 ${
+                    activeTab === 'purchase' 
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg' 
+                      : 'text-white/60 hover:text-white hover:bg-white/10'
+                  }`}
+                  onClick={() => setActiveTab('purchase')}
+                >
+                  <ArrowUpRight className="w-4 h-4 mr-2" />
+                  BUY STEEZE
+                </Button>
+                <Button
+                  variant={activeTab === 'redeem' ? 'default' : 'ghost'}
+                  className={`flex-1 rounded-xl font-bold transition-all duration-300 ${
+                    activeTab === 'redeem' 
+                      ? 'bg-gradient-to-r from-green-500 to-cyan-500 text-white shadow-lg' 
+                      : 'text-white/60 hover:text-white hover:bg-white/10'
+                  }`}
+                  onClick={() => setActiveTab('redeem')}
+                >
+                  <ArrowDownLeft className="w-4 h-4 mr-2" />
+                  CASH OUT
+                </Button>
+              </div>
+              
+              <div className="min-h-[200px]">
                 {activeTab === 'purchase' ? (
                   <PurchaseForm onSuccess={handleTransactionUpdate} />
                 ) : (
                   <RedeemForm battleEarnedSteeze={user?.battleEarnedSteeze || 0} onSuccess={handleTransactionUpdate} />
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Info Card */}
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#8000FF]">
-                  <Info className="w-5 h-5" />
-                  How It Works
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-gray-300">
-                <div>
-                  <h4 className="font-semibold text-[#00FF88] mb-2">Purchase Steeze</h4>
-                  <p className="text-sm">Buy Steeze tokens to support friends in battles (purchased tokens are non-redeemable).</p>
+            <div className="bg-gradient-to-br from-blue-800/30 to-purple-900/30 backdrop-blur-xl rounded-3xl p-8 border border-blue-500/20 shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                  <Info className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-[#FF6B6B] mb-2">Earn Battle Steeze</h4>
-                  <p className="text-sm">Fight in Aura Challenges to earn redeemable Steeze that can be converted to USD.</p>
+                <h3 className="text-2xl font-black text-white">How It Works</h3>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="bg-black/20 rounded-2xl p-4 border border-green-500/20">
+                  <h4 className="font-black text-green-400 mb-2 text-lg">💎 Purchase Steeze</h4>
+                  <p className="text-white/80 text-sm leading-relaxed">Buy Steeze tokens to support friends in battles (purchased tokens are non-redeemable).</p>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-[#8000FF] mb-2">Redeem Policy</h4>
-                  <p className="text-sm">Only Steeze earned from battles can be redeemed - purchased Steeze supports friends only.</p>
+                
+                <div className="bg-black/20 rounded-2xl p-4 border border-purple-500/20">
+                  <h4 className="font-black text-purple-400 mb-2 text-lg">⚔️ Earn Battle Steeze</h4>
+                  <p className="text-white/80 text-sm leading-relaxed">Fight in Aura Challenges to earn redeemable Steeze that can be converted to USD.</p>
                 </div>
-              </CardContent>
-            </Card>
+                
+                <div className="bg-black/20 rounded-2xl p-4 border border-cyan-500/20">
+                  <h4 className="font-black text-cyan-400 mb-2 text-lg">💰 Redeem Policy</h4>
+                  <p className="text-white/80 text-sm leading-relaxed">Only Steeze earned from battles can be redeemed - purchased Steeze supports friends only.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Recent Transactions */}
-          <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Clock className="w-5 h-5" />
-                Recent Transactions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {recentTransactions.length > 0 ? (
-                <div className="space-y-3">
-                  {recentTransactions.map((transaction: SteezeTransaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-[#2A2A2B] rounded-lg border border-[#8000FF]/10">
-                      <div className="flex items-center gap-3">
-                        {transaction.type === 'purchase' ? (
-                          <ArrowUpRight className="w-4 h-4 text-[#00FF88]" />
-                        ) : (
-                          <ArrowDownLeft className="w-4 h-4 text-[#FF6B6B]" />
-                        )}
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-3xl font-black text-white">Transaction History</h3>
+            </div>
+            
+            {recentTransactions.length > 0 ? (
+              <div className="space-y-4">
+                {recentTransactions.map((transaction: SteezeTransaction) => (
+                  <div key={transaction.id} className="bg-black/30 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          transaction.type === 'purchase' 
+                            ? 'bg-gradient-to-br from-green-500 to-cyan-500' 
+                            : 'bg-gradient-to-br from-pink-500 to-rose-500'
+                        }`}>
+                          {transaction.type === 'purchase' ? (
+                            <ArrowUpRight className="w-6 h-6 text-white" />
+                          ) : (
+                            <ArrowDownLeft className="w-6 h-6 text-white" />
+                          )}
+                        </div>
                         <div>
-                          <p className="font-medium text-white capitalize">{transaction.type}</p>
-                          <p className="text-sm text-gray-400">{new Date(transaction.createdAt).toLocaleDateString()}</p>
+                          <p className="text-xl font-bold text-white capitalize">{transaction.type}</p>
+                          <p className="text-white/60">{new Date(transaction.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
+                      
                       <div className="text-right">
-                        <p className="font-medium text-white">{transaction.amount} Steeze</p>
-                        <p className="text-sm text-gray-400">${transaction.usdtAmount}</p>
+                        <p className="text-2xl font-black text-white">{transaction.amount} Steeze</p>
+                        <p className="text-white/60">${transaction.usdtAmount}</p>
                       </div>
+                      
                       <Badge 
-                        variant={transaction.status === 'completed' ? 'default' : 'secondary'}
-                        className={transaction.status === 'completed' ? 'bg-[#00FF88]/20 text-[#00FF88]' : ''}
+                        className={`px-4 py-2 font-bold text-sm ${
+                          transaction.status === 'completed' 
+                            ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                            : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                        }`}
                       >
-                        {transaction.status}
+                        {transaction.status.toUpperCase()}
                       </Badge>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Coins className="w-12 h-12 text-purple-400" />
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-400">
-                  <Coins className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium mb-2">
-                    No transactions yet
-                  </h3>
-                  <p className="text-gray-500">
-                    Start by purchasing your first Steeze tokens!
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                <h3 className="text-2xl font-black text-white mb-4">
+                  No Transactions Yet
+                </h3>
+                <p className="text-white/60 text-lg">
+                  Start by purchasing your first Steeze tokens!
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>
