@@ -299,7 +299,6 @@ export default function Battles() {
         <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
       </div>
-      
       <Navigation />
       <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
         {/* TikTok-Style Header */}
@@ -317,9 +316,7 @@ export default function Battles() {
             <span className="block text-white">GOING VIRAL</span>
           </h1>
           
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">
-            Real battles, real drama, real fame 🔥 Watch legends clash live and see who becomes the next viral sensation
-          </p>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">Real Challenges, real drama, real aura🔥 Watch legends clash live and see who becomes the next sensation</p>
         </div>
 
         {/* Enhanced Battle Stats */}

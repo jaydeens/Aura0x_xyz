@@ -210,16 +210,6 @@ export default function Dashboard() {
                 ) : recentBattles && recentBattles.length > 0 ? (
                   recentBattles.slice(0, 2).map((battle: any) => (
                     <div key={battle.id} className="md:col-span-6">
-                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-gray-700 hover:border-pink-500/50 transition-all duration-300">
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge className="bg-pink-500/20 text-pink-400">
-                          {battle.status === 'active' ? 'LIVE' : 'COMPLETED'}
-                        </Badge>
-                        <Trophy className="w-6 h-6 text-gray-400" />
-                      </div>
-                      <h3 className="text-white font-bold text-lg mb-2">{battle.topic}</h3>
-                      <p className="text-gray-400 text-sm">Join the battle and vote for your favorite</p>
-                      </div>
                     </div>
                   ))
                 ) : (
