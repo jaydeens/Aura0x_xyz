@@ -151,7 +151,7 @@ export default function Leaderboard() {
                 <Zap className="w-6 h-6 text-white/80" />
               </div>
               <div className="text-3xl font-black mb-1">{Math.floor((stats?.totalAura || 0) / 1000)}K</div>
-              <div className="text-white/80 text-sm">total points</div>
+              <div className="text-white/80 text-sm">APs</div>
             </div>
 
             {/* Average */}
