@@ -49,11 +49,12 @@ export default function Profile() {
   
   // Get user ID from URL
   const urlPath = window.location.pathname;
-  const urlUserId = urlPath.split('/').pop() || '';
+  const urlSegments = urlPath.split('/').filter(segment => segment.length > 0);
+  const urlUserId = urlSegments.length > 1 ? urlSegments[1] : '';
   const currentUser = user as any;
   
-  // Check if viewing own profile
-  const viewingOwnProfile = !urlUserId || urlUserId === currentUser?.id;
+  // Check if viewing own profile (either /profile or /profile/currentUserId)
+  const viewingOwnProfile = urlSegments.length === 1 || urlUserId === currentUser?.id || urlUserId === 'profile';
   const targetUserId = viewingOwnProfile ? currentUser?.id : urlUserId;
 
   // Fetch profile data only if viewing another user's profile
