@@ -9,12 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Crown, TrendingUp, Users, Zap, Target, Flame } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Trophy, Crown, TrendingUp, Users, Zap, Target, Flame, Search, User } from "lucide-react";
+import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 
 export default function Leaderboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -84,6 +89,39 @@ export default function Leaderboard() {
       return num.toString();
     }
   };
+
+  // Search for users
+  const searchUsers = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/users/search?q=${encodeURIComponent(query.trim())}`);
+      if (response.ok) {
+        const users = await response.json();
+        setSearchResults(users);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchUsers(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const getLeaderboardStats = () => {
     if (!leaderboard || leaderboard.length === 0) return null;
@@ -213,6 +251,93 @@ export default function Leaderboard() {
               </CardContent>
             </Card>
           )}
+
+          {/* User Search Section */}
+          <Card className="bg-[#1A1A1B] border-[#8000FF]/20 mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white flex items-center">
+                <Search className="w-5 h-5 mr-2" />
+                Find Creators
+              </CardTitle>
+              <p className="text-gray-400">
+                Search for other creators in the community
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="Search by username..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#8000FF] focus:ring-[#8000FF]"
+                />
+              </div>
+              
+              {/* Search Results */}
+              {searchQuery && (
+                <div className="mt-4">
+                  {isSearching ? (
+                    <div className="text-center py-4">
+                      <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#8000FF]"></div>
+                      <p className="text-gray-400 mt-2">Searching...</p>
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="space-y-3">
+                      <h4 className="text-white font-semibold">Search Results</h4>
+                      {searchResults.map((searchUser: any) => (
+                        <div key={searchUser.id} className="bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105 hover:bg-gray-800/70">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-[#8000FF] to-[#9933FF] rounded-full flex items-center justify-center">
+                                <User className="w-6 h-6 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="text-white font-bold text-lg">
+                                  {searchUser.username || 'Anonymous Creator'}
+                                </h3>
+                                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                                  <span>{searchUser.auraPoints?.toLocaleString() || 0} Aura</span>
+                                  {searchUser.currentStreak > 0 && (
+                                    <div className="flex items-center">
+                                      <Flame className="w-4 h-4 text-orange-400 mr-1" />
+                                      <span className="text-orange-400">{searchUser.currentStreak} streak</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              {(() => {
+                                const auraLevel = getUserAuraLevel(searchUser.currentStreak || 0);
+                                return (
+                                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
+                                    {auraLevel.name.toUpperCase()}
+                                  </div>
+                                );
+                              })()}
+                              <Link href={`/profile/${searchUser.username || searchUser.id}`}>
+                                <Button size="sm" className="bg-[#8000FF] hover:bg-[#6B00E6] text-white">
+                                  View Profile
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : searchQuery.length > 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+                      <h4 className="text-gray-300 font-semibold mb-1">No creators found</h4>
+                      <p className="text-gray-500">Try a different search term</p>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* TikTok-Style Leaderboard */}
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden border border-gray-700">
