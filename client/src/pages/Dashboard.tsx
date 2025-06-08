@@ -136,10 +136,10 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-12 gap-6">
                 {lessonsLoading ? (
                   [...Array(3)].map((_, i) => (
-                    <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
+                    <div key={i} className="md:col-span-6 bg-gray-800/50 rounded-3xl p-6 animate-pulse">
                       <div className="h-32 bg-gray-700 rounded-2xl mb-4"></div>
                       <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-700 rounded w-1/2"></div>
@@ -147,10 +147,12 @@ export default function Dashboard() {
                   ))
                 ) : dailyLessons && dailyLessons.length > 0 ? (
                   dailyLessons.map((lesson: any) => (
-                    <LessonCard key={lesson.id} lesson={lesson} />
+                    <div key={lesson.id} className="md:col-span-6">
+                      <LessonCard lesson={lesson} />
+                    </div>
                   ))
                 ) : (
-                  <div className="md:col-span-4">
+                  <div className="md:col-span-12">
                     <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
                       <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
                         <BookOpen className="w-8 h-8 text-gray-400" />
@@ -198,18 +200,19 @@ export default function Dashboard() {
                 </Link>
               </div>
               
-              <div className="grid md:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-12 gap-6">
                 {battlesLoading ? (
                   [...Array(4)].map((_, i) => (
-                    <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
+                    <div key={i} className="md:col-span-6 bg-gray-800/50 rounded-3xl p-6 animate-pulse">
                       <div className="h-40 bg-gray-700 rounded-2xl mb-4"></div>
                       <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-700 rounded w-1/2"></div>
                     </div>
                   ))
                 ) : recentBattles && recentBattles.length > 0 ? (
-                  recentBattles.slice(0, 4).map((battle: any) => (
-                    <div key={battle.id} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-gray-700 hover:border-pink-500/50 transition-all duration-300">
+                  recentBattles.slice(0, 2).map((battle: any) => (
+                    <div key={battle.id} className="md:col-span-6">
+                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-gray-700 hover:border-pink-500/50 transition-all duration-300">
                       <div className="flex items-center justify-between mb-4">
                         <Badge className="bg-pink-500/20 text-pink-400">
                           {battle.status === 'active' ? 'LIVE' : 'COMPLETED'}
@@ -218,10 +221,11 @@ export default function Dashboard() {
                       </div>
                       <h3 className="text-white font-bold text-lg mb-2">{battle.topic}</h3>
                       <p className="text-gray-400 text-sm">Join the battle and vote for your favorite</p>
+                      </div>
                     </div>
                   ))
                 ) : (
-                  <div className="md:col-span-4 text-center py-16">
+                  <div className="md:col-span-12 text-center py-16">
                     <Trophy className="w-20 h-20 text-gray-500 mx-auto mb-6" />
                     <h3 className="text-2xl font-bold text-gray-300 mb-4">No Active Battles</h3>
                     <p className="text-gray-500 text-lg">Be the first to start a viral showdown!</p>
