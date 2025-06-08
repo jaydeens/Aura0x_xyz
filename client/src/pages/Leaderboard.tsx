@@ -74,6 +74,17 @@ export default function Leaderboard() {
     return { name: 'Clout Chaser', color: 'text-[#9CA3AF]', bg: 'bg-[#9CA3AF]/20' };
   };
 
+  // Function to format numbers intelligently
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    } else {
+      return num.toString();
+    }
+  };
+
   const getLeaderboardStats = () => {
     if (!leaderboard || leaderboard.length === 0) return null;
     
@@ -159,7 +170,7 @@ export default function Leaderboard() {
                 <h3 className="text-sm font-black uppercase tracking-wider">⚡ Aura</h3>
                 <Zap className="w-6 h-6 text-white/80" />
               </div>
-              <div className="text-3xl font-black mb-1">{Math.floor((stats?.totalAura || 0) / 1000)}K</div>
+              <div className="text-3xl font-black mb-1">{formatNumber(stats?.totalAura || 0)}</div>
               <div className="text-white/80 text-sm">APs</div>
             </div>
 
