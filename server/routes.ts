@@ -1652,7 +1652,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         transaction, 
         newBalance: currentBalance - amount,
-        usdtReceived: usdtAmount
+        ethReceived: ethAmount
       });
     } catch (error: any) {
       console.error("Error redeeming Steeze:", error);

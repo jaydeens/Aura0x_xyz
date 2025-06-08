@@ -136,7 +136,7 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
           className="bg-[#2A2A2B] border-[#8000FF]/30 text-white"
         />
         <p className="text-sm text-gray-400 mt-1">
-          You'll receive {amount ? Math.floor(parseFloat(amount) * 1000) : 0} Steeze tokens
+          You'll receive {amount ? Math.floor(parseFloat(amount) / 0.0001) : 0} Steeze tokens
         </p>
       </div>
       <Button 
@@ -216,6 +216,11 @@ function RedeemForm({ battleEarnedSteeze, onSuccess }: { battleEarnedSteeze: num
         <p className="text-sm text-gray-400 mt-1">
           Available to redeem: {battleEarnedSteeze} Steeze from battles
         </p>
+        {amount && (
+          <p className="text-sm text-green-400 mt-1">
+            You'll receive: {(parseInt(amount) * 0.00007).toFixed(6)} ETH
+          </p>
+        )}
       </div>
       <Button 
         onClick={handleRedeem}
