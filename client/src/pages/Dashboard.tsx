@@ -177,6 +177,128 @@ export default function Dashboard() {
               </div>
             </section>
 
+            {/* Right Sidebar - Visual Elements & Motivation */}
+            <aside className="xl:col-span-1 space-y-6">
+              {/* Achievement Visualization */}
+              <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm">
+                <div className="text-center mb-6">
+                  <div className="relative mx-auto w-24 h-24 mb-4">
+                    {/* Circular Progress Ring */}
+                    <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="transparent"
+                        className="text-gray-700"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="transparent"
+                        strokeDasharray={`${(user?.currentStreak || 0) * 10} 251.2`}
+                        className="text-gradient-to-r from-purple-400 to-pink-400"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl">🚀</span>
+                    </div>
+                  </div>
+                  <h3 className="text-white font-bold text-lg">Streak Power</h3>
+                  <p className="text-gray-400 text-sm">Keep going to unlock bonuses</p>
+                </div>
+              </div>
+
+              {/* Quick Stats Visualization */}
+              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                <h3 className="text-white font-bold mb-4 flex items-center">
+                  <Target className="w-5 h-5 mr-2 text-yellow-400" />
+                  Goals Progress
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-400">Daily Learning</span>
+                      <span className="text-white">1/1</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full w-full"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-400">Weekly Battles</span>
+                      <span className="text-white">2/5</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full w-2/5"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-400">Social Connections</span>
+                      <span className="text-white">7/10</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full w-3/4"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Motivational Card */}
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10"></div>
+                <div className="relative z-10">
+                  <div className="text-center mb-4">
+                    <div className="text-4xl mb-2">⭐</div>
+                    <h3 className="text-white font-bold">Level Up Tip</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm text-center leading-relaxed">
+                    "Consistency beats intensity. Complete daily lessons to build unstoppable momentum and unlock exclusive rewards."
+                  </p>
+                  <div className="flex justify-center mt-4">
+                    <div className="flex space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-yellow-400' : 'bg-gray-600'}`}></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Achievement Badges */}
+              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                <h3 className="text-white font-bold mb-4 flex items-center">
+                  <Trophy className="w-5 h-5 mr-2 text-yellow-400" />
+                  Recent Achievements
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg p-3 text-center border border-purple-500/30">
+                    <div className="text-2xl mb-1">🔥</div>
+                    <div className="text-white text-xs font-semibold">Streak Master</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-3 text-center border border-blue-500/30">
+                    <div className="text-2xl mb-1">🎯</div>
+                    <div className="text-white text-xs font-semibold">Goal Crusher</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg p-3 text-center border border-green-500/30">
+                    <div className="text-2xl mb-1">💰</div>
+                    <div className="text-white text-xs font-semibold">Earner</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-lg p-3 text-center border border-pink-500/30">
+                    <div className="text-2xl mb-1">⚡</div>
+                    <div className="text-white text-xs font-semibold">Rising Star</div>
+                  </div>
+                </div>
+              </div>
+            </aside>
 
           </div>
 
