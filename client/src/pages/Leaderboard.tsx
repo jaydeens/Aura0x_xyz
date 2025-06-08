@@ -197,7 +197,7 @@ export default function Leaderboard() {
           {/* TikTok-Style Leaderboard */}
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden border border-gray-700">
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6">
-              <h2 className="text-3xl font-black text-white text-center">🏆 Fame Leaderboard 🏆</h2>
+              <h2 className="text-3xl font-black text-white text-center">🏆 Aura Leaderboard 🏆</h2>
               <p className="text-white/80 text-center mt-2">The most viral creators in our community</p>
             </div>
             
@@ -242,7 +242,7 @@ export default function Leaderboard() {
                               {index === 0 && ' 👑'}
                             </h3>
                             <div className="flex items-center space-x-4 text-sm text-gray-400">
-                              <span>{user.auraPoints?.toLocaleString() || 0} fame</span>
+                              <span>{user.auraPoints?.toLocaleString() || 0} Aura</span>
                               {user.currentStreak > 0 && (
                                 <div className="flex items-center">
                                   <Flame className="w-4 h-4 text-orange-400 mr-1" />
@@ -267,7 +267,7 @@ export default function Leaderboard() {
                 <div className="text-center py-16">
                   <Trophy className="w-16 h-16 text-gray-500 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-gray-300 mb-2">No Rankings Yet</h3>
-                  <p className="text-gray-500">Be the first to earn fame points and claim the top spot!</p>
+                  <p className="text-gray-500">Be the first to earn Aura points and claim the top spot!</p>
                 </div>
               )}
             </div>

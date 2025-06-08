@@ -89,14 +89,14 @@ export default function Navigation() {
 
           {/* User Section */}
           <div className="flex items-center space-x-4">
-            {/* Fame Points Display */}
+            {/* Aura Points Display */}
             {isAuthenticated && currentUser && (
               <div className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-4 py-2 rounded-2xl border border-pink-500/30 backdrop-blur-sm">
                 <Coins className="w-4 h-4 text-pink-400" />
                 <span className="text-sm font-black text-white">
                   {currentUser.auraPoints?.toLocaleString() || "0"}
                 </span>
-                <span className="text-xs text-pink-400 font-bold uppercase tracking-wide">FAME</span>
+                <span className="text-xs text-pink-400 font-bold uppercase tracking-wide">AURA</span>
               </div>
             )}
 
