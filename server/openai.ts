@@ -200,7 +200,29 @@ export async function generateLessonQuiz(lessonTitle: string, lessonContent: str
       response_format: { type: "json_object" },
     });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+    const quizData = JSON.parse(response.choices[0].message.content || "{}");
+    
+    // Randomize the answer positions
+    if (quizData.options && Array.isArray(quizData.options) && quizData.correctAnswer === 0) {
+      const correctOption = quizData.options[0];
+      const shuffledOptions = [...quizData.options];
+      
+      // Shuffle the array using Fisher-Yates algorithm
+      for (let i = shuffledOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+      }
+      
+      // Find the new position of the correct answer
+      const newCorrectIndex = shuffledOptions.indexOf(correctOption);
+      
+      quizData.options = shuffledOptions;
+      quizData.correctAnswer = newCorrectIndex;
+      
+      console.log(`Quiz answer randomized: correct answer moved to position ${newCorrectIndex}`);
+    }
+    
+    return quizData;
   } catch (error) {
     console.error("Error generating quiz:", error);
     throw new Error("Failed to generate quiz");
