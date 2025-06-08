@@ -162,7 +162,7 @@ export const steezeTransactions = pgTable("steeze_transactions", {
   userId: varchar("user_id").notNull().references(() => users.id),
   type: varchar("type").notNull(), // 'purchase', 'redeem', 'transfer', 'battle_support'
   amount: integer("amount").notNull(), // Amount of Steeze tokens
-  usdtAmount: decimal("usdt_amount").notNull(), // USDT value involved
+  usdtAmount: decimal("usdt_amount").notNull(), // ETH value involved (keeping column name for compatibility)
   rate: decimal("rate").notNull(), // Exchange rate used (0.01 for purchase, 0.007 for redeem)
   status: varchar("status").default("completed"), // 'pending', 'completed', 'failed'
   transactionHash: text("transaction_hash"), // Blockchain transaction hash if applicable

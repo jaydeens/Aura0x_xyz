@@ -76,7 +76,8 @@ interface SteezeTransaction {
   id: string;
   type: string;
   amount: number;
-  ethAmount: string;
+  usdtAmount: string;
+  ethAmount?: string;
   rate: string;
   status: string;
   createdAt: string;
@@ -371,7 +372,7 @@ export default function SteezeStack() {
                 
                 <div className="bg-black/20 rounded-2xl p-4 border border-purple-500/20">
                   <h4 className="font-black text-purple-400 mb-2 text-lg">⚔️ Earn Battle Steeze</h4>
-                  <p className="text-white/80 text-sm leading-relaxed">Fight in Aura Challenges to earn redeemable Steeze that can be converted to USD.</p>
+                  <p className="text-white/80 text-sm leading-relaxed">Fight in Aura Challenges to earn redeemable Steeze that can be converted to ETH.</p>
                 </div>
                 
                 <div className="bg-black/20 rounded-2xl p-4 border border-cyan-500/20">

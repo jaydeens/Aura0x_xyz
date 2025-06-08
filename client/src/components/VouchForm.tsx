@@ -119,7 +119,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
 
     vouchMutation.mutate({
       toUserId: selectedUserId,
-      ethAmount: amount,
+      usdtAmount: amount,
       transactionHash: transactionHash.trim(),
     });
   };
@@ -138,7 +138,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           Vouch for a Friend
         </CardTitle>
         <p className="text-gray-400">
-          Support your friends with USDT and boost their Aura Points
+          Support your friends with ETH and boost their Aura Points
         </p>
       </CardHeader>
 
