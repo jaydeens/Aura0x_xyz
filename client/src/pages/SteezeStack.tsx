@@ -18,6 +18,7 @@ import {
   Clock, 
   DollarSign,
   Wallet,
+  Target,
   Info
 } from 'lucide-react';
 
