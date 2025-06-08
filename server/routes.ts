@@ -1779,14 +1779,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User profile routes
   app.get('/api/users/:id', async (req, res) => {
     try {
-      const user = await storage.getUser(req.params.id);
+      // Try to get user by ID first, then by username
+      let user = await storage.getUser(req.params.id);
+      if (!user) {
+        user = await storage.getUserByUsername(req.params.id);
+      }
+      
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       
-      // Get additional user stats
-      const battles = await storage.getUserBattles(req.params.id);
-      const vouches = await storage.getUserVouches(req.params.id);
+      // Get additional user stats using the actual user ID
+      const battles = await storage.getUserBattles(user.id);
+      const vouches = await storage.getUserVouches(user.id);
       
       // Only count completed battles for statistics
       const completedBattles = battles.filter(b => b.status === 'completed');
@@ -1795,12 +1800,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user,
         battleStats: {
           total: completedBattles.length,
-          won: completedBattles.filter(b => b.winnerId === req.params.id).length,
-          lost: completedBattles.filter(b => b.winnerId && b.winnerId !== req.params.id).length,
+          won: completedBattles.filter(b => b.winnerId === user.id).length,
+          lost: completedBattles.filter(b => b.winnerId && b.winnerId !== user.id).length,
         },
         vouchStats: {
-          received: vouches.filter(v => v.toUserId === req.params.id).length,
-          given: vouches.filter(v => v.fromUserId === req.params.id).length,
+          received: vouches.filter(v => v.toUserId === user.id).length,
+          given: vouches.filter(v => v.fromUserId === user.id).length,
         },
       });
     } catch (error) {
