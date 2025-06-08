@@ -122,10 +122,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Main Content Sections */}
-          <div className="space-y-16">
-            {/* Today's Learning Section */}
-            <section>
+          {/* Main Content Sections - Wide Layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            {/* Today's Learning Section - Takes 2/3 width */}
+            <section className="xl:col-span-2">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-3xl font-black text-white mb-2">📚 Level Up Today</h2>
@@ -136,7 +136,7 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 gap-6">
                 {lessonsLoading ? (
                   [...Array(3)].map((_, i) => (
                     <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
@@ -150,7 +150,7 @@ export default function Dashboard() {
                     <LessonCard key={lesson.id} lesson={lesson} />
                   ))
                 ) : (
-                  <div className="md:col-span-2 lg:col-span-3">
+                  <div className="md:col-span-2">
                     <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
                       <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
                         <BookOpen className="w-8 h-8 text-gray-400" />
@@ -176,6 +176,86 @@ export default function Dashboard() {
                 )}
               </div>
             </section>
+
+            {/* Right Sidebar - Activity & Stats */}
+            <aside className="xl:col-span-1 space-y-6">
+              {/* Quick Stats */}
+              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">📊 Quick Stats</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Global Rank</span>
+                    <span className="text-white font-bold">#12</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Weekly Growth</span>
+                    <span className="text-green-400 font-bold">+25%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Total Battles</span>
+                    <span className="text-white font-bold">47</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Win Rate</span>
+                    <span className="text-yellow-400 font-bold">73%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">🔥 Recent Activity</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-white text-sm">Lesson completed</p>
+                      <p className="text-gray-400 text-xs">2 hours ago</p>
+                    </div>
+                    <span className="text-green-400 text-sm">+10 AP</span>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-white text-sm">Battle won</p>
+                      <p className="text-gray-400 text-xs">5 hours ago</p>
+                    </div>
+                    <span className="text-blue-400 text-sm">+25 AP</span>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-white text-sm">Vouch received</p>
+                      <p className="text-gray-400 text-xs">1 day ago</p>
+                    </div>
+                    <span className="text-purple-400 text-sm">+15 AP</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trending Topics */}
+              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">📈 Trending</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">#DeFiSummer</span>
+                    <span className="text-gray-400 text-sm">↗ 15%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">#Web3Gaming</span>
+                    <span className="text-gray-400 text-sm">↗ 8%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">#NFTArt</span>
+                    <span className="text-gray-400 text-sm">↗ 12%</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          {/* Bottom Section - Live Battles */}
+          <div className="mt-16">
 
             {/* Live Battles Section */}
             <section>
