@@ -70,9 +70,7 @@ export default function Dashboard() {
         <div className="max-w-full mx-auto px-8">
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
-              Your Fame Feed
-            </h1>
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">Your Aura Dashboard</h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Welcome back, {user?.firstName || user?.username || 'Creator'}! 
               Ready to build your viral empire and climb the fame ladder?
