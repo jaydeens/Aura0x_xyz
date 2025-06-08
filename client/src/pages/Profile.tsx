@@ -327,8 +327,8 @@ export default function Profile() {
                       <span>{profileUser?.currentStreak || 0} Day Streak</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Trophy className="w-4 h-4 text-[#8000FF]" />
-                      <span>{battleStats?.won || 0} Battles Won</span>
+                      <Wallet className="w-4 h-4 text-[#8000FF]" />
+                      <span>{(profileUser?.totalEthEarned || 0).toFixed(4)} ETH Earned</span>
                     </div>
                   </div>
 
@@ -654,17 +654,17 @@ export default function Profile() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-white">{vouchStats?.received || 0}</div>
+                    <div className="text-2xl font-bold text-white">{(profileUser?.totalEthReceived || 0).toFixed(4)} ETH</div>
                     <div className="text-[#999] text-sm">Received</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">{vouchStats?.given || 0}</div>
+                    <div className="text-2xl font-bold text-white">{(profileUser?.totalEthGiven || 0).toFixed(4)} ETH</div>
                     <div className="text-[#999] text-sm">Given</div>
                   </div>
                 </div>
                 
                 <div className="text-center text-sm text-[#999]">
-                  Community reputation through vouching
+                  ETH vouching activity and community support
                 </div>
               </CardContent>
             </Card>
