@@ -110,10 +110,10 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
 
   const handlePurchase = () => {
     const purchaseAmount = parseFloat(amount);
-    if (purchaseAmount < 1) {
+    if (purchaseAmount < 0.001) {
       toast({
         title: "Invalid Amount",
-        description: "Minimum purchase is $1.00",
+        description: "Minimum purchase is 0.001 ETH",
         variant: "destructive",
       });
       return;
@@ -124,19 +124,19 @@ function PurchaseForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="amount" className="text-gray-300">Amount (USD)</Label>
+        <Label htmlFor="amount" className="text-gray-300">Amount (ETH)</Label>
         <Input
           id="amount"
           type="number"
-          step="0.01"
-          min="1"
+          step="0.001"
+          min="0.001"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Enter amount in USD"
+          placeholder="Enter amount in ETH"
           className="bg-[#2A2A2B] border-[#8000FF]/30 text-white"
         />
         <p className="text-sm text-gray-400 mt-1">
-          You'll receive {amount ? Math.floor(parseFloat(amount) * 100) : 0} Steeze tokens
+          You'll receive {amount ? Math.floor(parseFloat(amount) * 1000) : 0} Steeze tokens
         </p>
       </div>
       <Button 
@@ -417,7 +417,7 @@ export default function SteezeStack() {
                       
                       <div className="text-right">
                         <p className="text-2xl font-black text-white">{transaction.amount} Steeze</p>
-                        <p className="text-white/60">{transaction.ethAmount} ETH</p>
+                        <p className="text-white/60">{Number(transaction.usdtAmount).toFixed(4)} ETH</p>
                       </div>
                       
                       <Badge 
