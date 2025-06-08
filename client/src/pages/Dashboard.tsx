@@ -139,7 +139,7 @@ export default function Dashboard() {
               <div className="grid md:grid-cols-12 gap-6">
                 {lessonsLoading ? (
                   [...Array(3)].map((_, i) => (
-                    <div key={i} className="md:col-span-6 bg-gray-800/50 rounded-3xl p-6 animate-pulse">
+                    <div key={i} className="md:col-span-8 bg-gray-800/50 rounded-3xl p-6 animate-pulse">
                       <div className="h-32 bg-gray-700 rounded-2xl mb-4"></div>
                       <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-700 rounded w-1/2"></div>
@@ -147,7 +147,7 @@ export default function Dashboard() {
                   ))
                 ) : dailyLessons && dailyLessons.length > 0 ? (
                   dailyLessons.map((lesson: any) => (
-                    <div key={lesson.id} className="md:col-span-6">
+                    <div key={lesson.id} className="md:col-span-8">
                       <LessonCard lesson={lesson} />
                     </div>
                   ))
