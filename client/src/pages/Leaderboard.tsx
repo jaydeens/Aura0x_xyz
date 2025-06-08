@@ -65,6 +65,15 @@ export default function Leaderboard() {
     return rank > 0 ? rank : null;
   };
 
+  // Function to get user's Aura level based on streak
+  const getUserAuraLevel = (currentStreak: number) => {
+    if (currentStreak >= 30) return { name: 'Aura Vader', color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/20' };
+    if (currentStreak >= 15) return { name: 'Grinder', color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/20' };
+    if (currentStreak >= 10) return { name: 'Dedicated', color: 'text-[#34D399]', bg: 'bg-[#34D399]/20' };
+    if (currentStreak >= 5) return { name: 'Attention Seeker', color: 'text-[#F97316]', bg: 'bg-[#F97316]/20' };
+    return { name: 'Clout Chaser', color: 'text-[#9CA3AF]', bg: 'bg-[#9CA3AF]/20' };
+  };
+
   const getLeaderboardStats = () => {
     if (!leaderboard || leaderboard.length === 0) return null;
     
@@ -253,11 +262,14 @@ export default function Leaderboard() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            index < 5 ? 'bg-pink-500/20 text-pink-400' : 'bg-gray-600/20 text-gray-400'
-                          }`}>
-                            {index < 3 ? 'LEGENDARY' : index < 10 ? 'VIRAL' : 'RISING'}
-                          </div>
+                          {(() => {
+                            const auraLevel = getUserAuraLevel(user.currentStreak || 0);
+                            return (
+                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
+                                {auraLevel.name.toUpperCase()}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
