@@ -39,7 +39,9 @@ export async function generateDailyLessons(count: number = 1): Promise<DailyLess
   ]
 }
 
-Focus on topics like: Building authentic relationships in Web3 communities, Creating valuable content that establishes expertise, Networking strategies for Web3 professionals, Building trust through consistent helpful actions, Developing thought leadership in crypto spaces, Supporting others to build your own reputation, or Long-term reputation building strategies. Make each lesson genuinely educational and valuable.`;
+Focus on topics like: Building authentic relationships in Web3 communities, Creating valuable content that establishes expertise, Networking strategies for Web3 professionals, Building trust through consistent helpful actions, Developing thought leadership in crypto spaces, Supporting others to build your own reputation, Long-term reputation building strategies, Personal branding in DeFi, Community management tactics, Influencer collaboration strategies, Content creation for Web3 audiences, Social media optimization for crypto, Building credibility through transparency, Leveraging NFT communities, GameFi reputation building, DAO participation strategies, or Cross-platform presence building. 
+
+Ensure each lesson offers completely unique content and perspective. Avoid repeating similar advice or examples from previous lessons. Make each lesson genuinely educational and valuable with fresh insights.`;
 
     console.log('Calling OpenAI API...');
     const startTime = Date.now();
