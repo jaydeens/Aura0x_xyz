@@ -590,41 +590,37 @@ export default function LiveBattle() {
             </div>
 
             {/* Top Gifters - Opponent */}
-            <Card className="bg-black/40 border-red-500/30 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-red-400 flex items-center gap-2">
-                  <Crown className="w-5 h-5" />
-                  Top Gifters - {(battle as any)?.opponentName || 'Opponent'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <div className="bg-black/20 backdrop-blur-sm border border-pink-500/30 rounded-3xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Crown className="w-5 h-5 text-pink-400" />
+                <h3 className="text-pink-400 font-bold">Top Gifters - Opponent</h3>
+              </div>
+              <div className="space-y-3">
                 {battleVotes && Array.isArray(battleVotes) ? (
                   battleVotes
                     .filter((vote: any) => vote.participantId === (battle as any).opponentId)
                     .sort((a: any, b: any) => b.amount - a.amount)
                     .slice(0, 10)
                     .map((vote: any, index: number) => (
-                      <div key={vote.id || index} className="flex items-center justify-between p-2 bg-red-500/10 rounded-lg">
+                      <div key={vote.id || index} className="flex items-center justify-between p-3 bg-pink-500/10 rounded-xl border border-pink-500/20">
                         <div className="flex items-center gap-2">
-                          <div className="text-sm font-bold text-red-400">#{index + 1}</div>
-                          <Avatar className="w-8 h-8">
-                            <AvatarFallback className="bg-red-500/20 text-red-400 text-xs">
-                              {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="text-sm font-bold text-pink-400">#{index + 1}</div>
+                          <div className="w-8 h-8 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 text-xs font-bold">
+                            {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
+                          </div>
                           <span className="text-white text-sm">{vote.voterUsername || 'Anonymous'}</span>
                         </div>
-                        <div className="text-red-400 font-bold">{vote.amount || 0}</div>
+                        <div className="text-pink-400 font-bold">{vote.amount || 0}</div>
                       </div>
                     ))
                 ) : (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="text-center py-8 text-gray-400">
                     <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No gifts yet</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Gift Dialog */}
