@@ -86,7 +86,7 @@ export default function Dashboard() {
                 <Coins className="w-6 h-6 text-purple-400" />
               </div>
               <div className="text-3xl font-black text-white mb-1">{user?.auraPoints?.toLocaleString() || "0"}</div>
-              <div className="text-gray-400 text-sm">viral points</div>
+              <div className="text-gray-400 text-sm">APs</div>
             </div>
 
             {/* Streak Card */}
