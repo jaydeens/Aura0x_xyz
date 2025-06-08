@@ -50,6 +50,7 @@ function Router() {
       <Route path="/battle/:id" component={LiveBattle} />
       <Route path="/arena" component={Battles} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/profile" component={Profile} />
       <Route path="/profile/:id" component={Profile} />
       <Route path="/steeze-stack" component={SteezeStack} />
       <Route path="/settings" component={Settings} />
