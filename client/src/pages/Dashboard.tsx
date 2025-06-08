@@ -177,63 +177,7 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* Right Sidebar - Simple Vector Graphics */}
-            <aside className="xl:col-span-1 flex items-center justify-center">
-              <div className="space-y-8">
-                {/* Simple Learning Vector */}
-                <div className="text-center">
-                  <svg width="120" height="120" viewBox="0 0 120 120" className="mx-auto mb-4">
-                    <defs>
-                      <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#8B5CF6" />
-                        <stop offset="100%" stopColor="#EC4899" />
-                      </linearGradient>
-                    </defs>
-                    <rect x="30" y="20" width="60" height="80" rx="4" fill="url(#bookGrad)" opacity="0.8" />
-                    <rect x="25" y="25" width="60" height="80" rx="4" fill="url(#bookGrad)" opacity="0.9" />
-                    <rect x="20" y="30" width="60" height="80" rx="4" fill="url(#bookGrad)" />
-                    <line x1="35" y1="50" x2="65" y2="50" stroke="white" strokeWidth="2" opacity="0.7" />
-                    <line x1="35" y1="60" x2="70" y2="60" stroke="white" strokeWidth="2" opacity="0.7" />
-                    <line x1="35" y1="70" x2="60" y2="70" stroke="white" strokeWidth="2" opacity="0.7" />
-                  </svg>
-                </div>
 
-                {/* Simple Rocket Vector */}
-                <div className="text-center">
-                  <svg width="100" height="120" viewBox="0 0 100 120" className="mx-auto">
-                    <defs>
-                      <linearGradient id="rocketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#06B6D4" />
-                        <stop offset="100%" stopColor="#3B82F6" />
-                      </linearGradient>
-                    </defs>
-                    <ellipse cx="50" cy="25" rx="15" ry="20" fill="url(#rocketGrad)" />
-                    <rect x="35" y="25" width="30" height="40" fill="url(#rocketGrad)" />
-                    <polygon points="35,65 50,85 65,65" fill="#EF4444" opacity="0.8" />
-                    <polygon points="40,65 50,80 60,65" fill="#F59E0B" opacity="0.9" />
-                    <circle cx="45" cy="35" r="3" fill="white" opacity="0.8" />
-                    <circle cx="55" cy="45" r="3" fill="white" opacity="0.8" />
-                  </svg>
-                </div>
-
-                {/* Simple Trophy Vector */}
-                <div className="text-center">
-                  <svg width="100" height="120" viewBox="0 0 100 120" className="mx-auto">
-                    <defs>
-                      <linearGradient id="trophyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#F59E0B" />
-                        <stop offset="100%" stopColor="#EAB308" />
-                      </linearGradient>
-                    </defs>
-                    <ellipse cx="50" cy="35" rx="20" ry="25" fill="url(#trophyGrad)" />
-                    <rect x="45" y="60" width="10" height="20" fill="url(#trophyGrad)" />
-                    <rect x="35" y="80" width="30" height="8" fill="url(#trophyGrad)" />
-                    <circle cx="50" cy="35" r="12" fill="#FCD34D" opacity="0.8" />
-                    <polygon points="45,30 50,25 55,30 52,35 48,35" fill="white" opacity="0.9" />
-                  </svg>
-                </div>
-              </div>
-            </aside>
 
           </div>
 
