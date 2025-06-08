@@ -61,7 +61,7 @@ export default function Navigation() {
               <img 
                 src={auraTextLogo} 
                 alt="AURA" 
-                className="h-8 w-auto"
+                className="h-6 w-auto"
               />
             </div>
           </Link>
