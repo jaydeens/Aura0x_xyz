@@ -98,7 +98,7 @@ export class Web3Service {
       return {
         isValid: true,
         from: tx.from,
-        to: tx.to,
+        to: tx.to || "",
         amount: ethers.formatEther(tx.value),
         blockNumber: receipt.blockNumber
       };

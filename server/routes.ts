@@ -35,7 +35,7 @@ const voteSchema = z.object({
 
 const vouchSchema = z.object({
   toUserId: z.string(),
-  usdtAmount: z.number().min(1),
+  ethAmount: z.number().min(0.001),
   transactionHash: z.string(),
 });
 
@@ -1479,7 +1479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/vouch', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { toUserId, usdtAmount, transactionHash } = vouchSchema.parse(req.body);
+      const { toUserId, ethAmount, transactionHash } = vouchSchema.parse(req.body);
       
       // Verify transaction
       const txVerification = await web3Service.verifyTransaction(transactionHash);
@@ -1494,25 +1494,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Calculate aura points with multiplier
-      const basePoints = web3Service.calculateVouchDistribution(usdtAmount).auraPoints;
+      const basePoints = web3Service.calculateVouchDistribution(ethAmount).auraPoints;
       const { finalAuraPoints, multiplier } = web3Service.applyStreakMultiplier(basePoints, user.currentStreak || 0);
       
       // Create vouch record
       const vouch = await storage.createVouch({
         fromUserId: userId,
         toUserId,
-        usdtAmount: usdtAmount.toString(),
+        usdtAmount: ethAmount.toString(), // Keep field name for now to avoid DB migration
         auraPoints: finalAuraPoints,
         multiplier: multiplier.toString(),
         transactionHash,
       });
       
-      // Award aura points to recipient and track USDT earnings
+      // Award aura points to recipient and track ETH earnings
       await storage.updateUserAura(toUserId, finalAuraPoints, 'vouching');
       
-      // Calculate and track USDT earnings (60% to recipient)
-      const usdtEarnings = usdtAmount * 0.6;
-      await storage.updateUserUsdtEarnings(toUserId, usdtEarnings);
+      // Calculate and track ETH earnings (60% to recipient)
+      const ethEarnings = ethAmount * 0.6;
+      await storage.updateUserUsdtEarnings(toUserId, ethEarnings);
       
       res.json({
         vouch,

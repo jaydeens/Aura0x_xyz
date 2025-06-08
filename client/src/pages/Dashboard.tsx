@@ -108,8 +108,8 @@ export default function Dashboard() {
                 <h3 className="text-white font-bold">💰 Earnings</h3>
                 <Target className="w-6 h-6 text-green-400" />
               </div>
-              <div className="text-2xl font-black text-white mb-1">${user?.totalUsdtEarned || "0.00"}</div>
-              <div className="text-purple-200 text-sm">USDT</div>
+              <div className="text-2xl font-black text-white mb-1">{(user?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
+              <div className="text-purple-200 text-sm">earned</div>
             </div>
           </div>
 

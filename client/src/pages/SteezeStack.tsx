@@ -76,7 +76,7 @@ interface SteezeTransaction {
   id: string;
   type: string;
   amount: number;
-  usdtAmount: string;
+  ethAmount: string;
   rate: string;
   status: string;
   createdAt: string;
@@ -416,7 +416,7 @@ export default function SteezeStack() {
                       
                       <div className="text-right">
                         <p className="text-2xl font-black text-white">{transaction.amount} Steeze</p>
-                        <p className="text-white/60">${transaction.usdtAmount}</p>
+                        <p className="text-white/60">{transaction.ethAmount} ETH</p>
                       </div>
                       
                       <Badge 
