@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -24,11 +25,10 @@ import {
   Mail,
   Phone,
   Share,
-  Twitter
+  Twitter,
+  Send
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navigation from "@/components/Navigation";
-import SocialSharing from "@/components/SocialSharing";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -43,192 +43,192 @@ export default function Settings() {
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [tweetText, setTweetText] = useState("");
+  const [showTweetComposer, setShowTweetComposer] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["/api/auth/user"],
   });
 
-  const { data: profileData } = useQuery({
-    queryKey: ["/api/profile"],
+  const { data: twitterStatus, refetch: refetchTwitterStatus } = useQuery({
+    queryKey: ["/api/social/x-status"],
   });
 
   const { data: auraLevels } = useQuery({
     queryKey: ["/api/aura-levels"],
-    retry: false,
   });
 
+  const currentUser = user as any;
+  const currentAuraLevel = auraLevels?.find?.((level: any) => 
+    currentUser?.auraPoints >= level.minAuraPoints
+  ) || auraLevels?.[0];
+
+  const isTwitterConnected = !!twitterStatus?.connected;
+
   // Username validation
-  const validateUsername = async (username: string) => {
+  const checkUsernameAvailability = async (username: string) => {
     if (!username || username.length < 3) {
       setIsUsernameValid(false);
-      setUsernameMessage("Username must be at least 3 characters long");
-      return false;
-    }
-    
-    if (username === (user as any)?.username) {
-      setIsUsernameValid(true);
-      setUsernameMessage("");
-      return true;
+      setUsernameMessage("Username must be at least 3 characters");
+      return;
     }
 
     try {
-      const response = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      const response = await fetch(`/api/auth/check-username?username=${username}&excludeUserId=${currentUser?.id}`);
       const data = await response.json();
       
       if (data.available) {
         setIsUsernameValid(true);
-        setUsernameMessage("Username available");
+        setUsernameMessage("Username is available");
       } else {
         setIsUsernameValid(false);
-        setUsernameMessage("Username already taken");
+        setUsernameMessage("Username is already taken");
       }
-      return data.available;
     } catch (error) {
       setIsUsernameValid(false);
       setUsernameMessage("Error checking username");
-      return false;
     }
   };
 
-  // Update profile mutation
-  const updateProfileMutation = useMutation({
-    mutationFn: async (data: { username?: string; email?: string; profileImageUrl?: string }) => {
-      const response = await apiRequest("PUT", "/api/profile", data);
-      return response.json();
+  // Mutations
+  const updateUsernameMutation = useMutation({
+    mutationFn: async (username: string) => {
+      return apiRequest("/api/auth/update-profile", {
+        method: "POST",
+        body: { username }
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/profile"] });
+      toast({ title: "Username updated successfully!" });
       setIsEditingUsername(false);
-      setIsEditingEmail(false);
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
-    onError: () => {
-      toast({
-        title: "Update Failed",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
-    },
+    onError: (error: any) => {
+      toast({ title: "Error updating username", description: error.message, variant: "destructive" });
+    }
   });
 
-  // Profile picture upload mutation
-  const uploadProfilePictureMutation = useMutation({
+  const updateEmailMutation = useMutation({
+    mutationFn: async (email: string) => {
+      return apiRequest("/api/auth/update-profile", {
+        method: "POST",
+        body: { email }
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Email updated successfully!" });
+      setIsEditingEmail(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error updating email", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const uploadProfileImageMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append("profileImage", file);
+      formData.append('profileImage', file);
       
-      const response = await fetch("/api/upload-profile-image", {
-        method: "POST",
-        body: formData,
+      const response = await fetch('/api/auth/upload-profile-image', {
+        method: 'POST',
+        body: formData
       });
       
       if (!response.ok) {
-        throw new Error("Upload failed");
+        throw new Error('Failed to upload image');
       }
       
-      return response.json();
-    },
-    onSuccess: (data) => {
-      updateProfileMutation.mutate({ profileImageUrl: data.imageUrl });
-    },
-    onError: () => {
-      toast({
-        title: "Upload Failed",
-        description: "Failed to upload profile picture. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Twitter connection
-  const handleTwitterConnect = () => {
-    setIsConnecting(true);
-    window.location.href = "/api/auth/twitter";
-  };
-
-  const disconnectTwitterMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/auth/twitter/disconnect");
       return response.json();
     },
     onSuccess: () => {
+      toast({ title: "Profile image updated successfully!" });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "X Disconnected",
-        description: "Your X account has been disconnected.",
-      });
     },
-    onError: () => {
-      toast({
-        title: "Disconnect Failed",
-        description: "Failed to disconnect X account. Please try again.",
-        variant: "destructive",
-      });
-    },
+    onError: (error: any) => {
+      toast({ title: "Error uploading image", description: error.message, variant: "destructive" });
+    }
   });
 
-  // Handle file upload
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const disconnectTwitterMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("/api/auth/disconnect-twitter", {
+        method: "POST"
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "X account disconnected successfully!" });
+      refetchTwitterStatus();
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error disconnecting X account", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const postTweetMutation = useMutation({
+    mutationFn: async (text: string) => {
+      return apiRequest("/api/social/post-tweet", {
+        method: "POST",
+        body: { text }
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Tweet posted successfully!" });
+      setTweetText("");
+      setShowTweetComposer(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error posting tweet", description: error.message, variant: "destructive" });
+    }
+  });
+
+  // Event handlers
+  const handleUsernameEdit = () => {
+    setNewUsername(currentUser?.username || "");
+    setIsEditingUsername(true);
+  };
+
+  const handleUsernameSubmit = () => {
+    if (isUsernameValid && newUsername) {
+      updateUsernameMutation.mutate(newUsername);
+    }
+  };
+
+  const handleEmailEdit = () => {
+    setNewEmail(currentUser?.email || "");
+    setIsEditingEmail(true);
+  };
+
+  const handleEmailSubmit = () => {
+    updateEmailMutation.mutate(newEmail);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
-          title: "File Too Large",
-          description: "Please select an image smaller than 5MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Invalid File Type",
-          description: "Please select an image file.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      uploadProfilePictureMutation.mutate(file);
+      uploadProfileImageMutation.mutate(file);
     }
   };
 
-  // Handle username save
-  const handleUsernameSave = async () => {
-    if (await validateUsername(newUsername)) {
-      updateProfileMutation.mutate({ username: newUsername });
+  const handleTwitterConnect = () => {
+    setIsConnecting(true);
+    window.location.href = '/api/auth/twitter';
+  };
+
+  const handlePostTweet = () => {
+    if (tweetText.trim()) {
+      postTweetMutation.mutate(tweetText);
     }
   };
 
-  // Handle email save
-  const handleEmailSave = () => {
-    if (newEmail && newEmail.includes("@")) {
-      updateProfileMutation.mutate({ email: newEmail });
-    } else {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const currentUser = user as any;
-  const isTwitterConnected = currentUser?.twitterId && currentUser?.twitterAccessToken;
-
-  // Get aura level info
-  const currentAuraLevel = auraLevels?.find((level: any) => 
-    currentUser?.auraPoints >= level.minPoints && 
-    currentUser?.auraPoints <= level.maxPoints
-  ) || auraLevels?.[0];
+  const characterCount = tweetText.length;
+  const maxCharacters = 280;
+  const isOverLimit = characterCount > maxCharacters;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
-      {/* Animated background orbs */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 relative overflow-hidden">
+      {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full blur-2xl animate-float"></div>
@@ -251,216 +251,173 @@ export default function Settings() {
             <p className="text-white/60 text-lg">Manage your profile and account preferences</p>
           </div>
 
-          {/* Settings Tabs */}
-          <Tabs defaultValue="account" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-black/50 border border-purple-500/30">
-              <TabsTrigger 
-                value="account" 
-                className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white"
-              >
-                <Settings2 className="w-4 h-4" />
-                Account Settings
-              </TabsTrigger>
-              <TabsTrigger 
-                value="social" 
-                className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white"
-              >
-                <Share className="w-4 h-4" />
-                Social Sharing
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Account Settings Tab */}
-            <TabsContent value="account">
-              <div className="space-y-8">
-                {/* Profile Information */}
-                <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+          <div className="space-y-8">
+            {/* Profile Information */}
+            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
                   <User className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-3xl font-black text-white">Profile Information</h2>
+                <h2 className="text-2xl font-black text-white">Profile Information</h2>
               </div>
 
-              {/* Profile Picture Section */}
-              <div className="flex flex-col items-center mb-8">
-                <div className="relative group mb-4">
-                  <div className="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl flex items-center justify-center relative overflow-hidden">
-                    {currentUser?.profileImageUrl ? (
-                      <img 
-                        src={currentUser.profileImageUrl} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover rounded-3xl"
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Profile Image */}
+                <div className="space-y-6">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-gradient-to-br from-purple-500 to-pink-600 shadow-2xl">
+                        <img
+                          src={currentUser?.profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.username}`}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadProfileImageMutation.isPending}
+                        className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 border-4 border-black/20"
+                        size="sm"
+                      >
+                        <Camera className="w-4 h-4" />
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
                       />
-                    ) : (
-                      <User className="w-16 h-16 text-white" />
-                    )}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center">
-                      <Camera className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white/60 text-sm">Click camera icon to update</p>
                     </div>
                   </div>
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadProfilePictureMutation.isPending}
-                    className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 p-0 border-2 border-white/20"
-                  >
-                    <Camera className="w-5 h-5" />
-                  </Button>
                 </div>
-                <p className="text-white/60 text-sm text-center">Click to change your profile picture</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </div>
 
-              {/* Form Fields */}
-              <div className="grid lg:grid-cols-3 gap-6">
-                {/* Username */}
-                <div className="space-y-3">
-                  <Label className="text-white font-bold">Username</Label>
-                  {isEditingUsername ? (
-                    <div className="space-y-2">
-                      <Input
-                        value={newUsername}
-                        onChange={(e) => {
-                          setNewUsername(e.target.value);
-                          validateUsername(e.target.value);
-                        }}
-                        className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500"
-                        placeholder="Enter new username"
-                      />
-                      {usernameMessage && (
-                        <p className={`text-sm ${isUsernameValid ? 'text-green-400' : 'text-red-400'}`}>
-                          {usernameMessage}
-                        </p>
+                {/* Profile Details */}
+                <div className="space-y-6">
+                  {/* Username */}
+                  <div className="space-y-2">
+                    <Label className="text-white font-semibold">Username</Label>
+                    <div className="flex items-center gap-3">
+                      {isEditingUsername ? (
+                        <div className="flex-1 space-y-2">
+                          <Input
+                            value={newUsername}
+                            onChange={(e) => {
+                              setNewUsername(e.target.value);
+                              checkUsernameAvailability(e.target.value);
+                            }}
+                            className="bg-black/50 border-purple-500/30 text-white placeholder-white/50"
+                            placeholder="Enter new username"
+                          />
+                          {usernameMessage && (
+                            <p className={`text-sm ${isUsernameValid ? 'text-green-400' : 'text-red-400'}`}>
+                              {usernameMessage}
+                            </p>
+                          )}
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleUsernameSubmit}
+                              disabled={!isUsernameValid || updateUsernameMutation.isPending}
+                              size="sm"
+                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                            >
+                              <Check className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={() => setIsEditingUsername(false)}
+                              variant="outline"
+                              size="sm"
+                              className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex-1 bg-black/50 border border-purple-500/30 rounded-lg px-4 py-3">
+                            <p className="text-white font-medium">{currentUser?.username || 'Not set'}</p>
+                          </div>
+                          <Button
+                            onClick={handleUsernameEdit}
+                            variant="outline"
+                            size="sm"
+                            className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                        </>
                       )}
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleUsernameSave}
-                          disabled={!isUsernameValid || updateProfileMutation.isPending}
-                          size="sm"
-                          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
-                        >
-                          <Check className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => setIsEditingUsername(false)}
-                          size="sm"
-                          variant="outline"
-                          className="border-purple-500/30 text-white hover:bg-purple-500/10"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-between bg-black/30 backdrop-blur-md px-4 py-3 rounded-2xl border border-purple-500/20">
-                      <span className="text-white font-medium">
-                        {currentUser?.username || currentUser?.firstName || "Set username"}
-                      </span>
-                      <Button
-                        onClick={() => {
-                          setIsEditingUsername(true);
-                          setNewUsername(currentUser?.username || currentUser?.firstName || "");
-                        }}
-                        size="sm"
-                        variant="ghost"
-                        className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Email */}
-                <div className="space-y-3">
-                  <Label className="text-white font-bold">Email</Label>
-                  {isEditingEmail ? (
-                    <div className="space-y-2">
-                      <Input
-                        type="email"
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        className="bg-black/30 border-purple-500/30 text-white placeholder:text-white/40 focus:border-purple-500"
-                        placeholder="Enter email address"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleEmailSave}
-                          disabled={!newEmail.includes("@") || updateProfileMutation.isPending}
-                          size="sm"
-                          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
-                        >
-                          <Check className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => setIsEditingEmail(false)}
-                          size="sm"
-                          variant="outline"
-                          className="border-purple-500/30 text-white hover:bg-purple-500/10"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label className="text-white font-semibold">Email</Label>
+                    <div className="flex items-center gap-3">
+                      {isEditingEmail ? (
+                        <div className="flex-1 space-y-2">
+                          <Input
+                            type="email"
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                            className="bg-black/50 border-purple-500/30 text-white placeholder-white/50"
+                            placeholder="Enter email address"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleEmailSubmit}
+                              disabled={updateEmailMutation.isPending}
+                              size="sm"
+                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                            >
+                              <Check className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={() => setIsEditingEmail(false)}
+                              variant="outline"
+                              size="sm"
+                              className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex-1 bg-black/50 border border-purple-500/30 rounded-lg px-4 py-3">
+                            <p className="text-white font-medium">{currentUser?.email || 'Not set'}</p>
+                          </div>
+                          <Button
+                            onClick={handleEmailEdit}
+                            variant="outline"
+                            size="sm"
+                            className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-between bg-black/30 backdrop-blur-md px-4 py-3 rounded-2xl border border-purple-500/20">
-                      <span className="text-white font-medium">
-                        {currentUser?.email || "Add email"}
-                      </span>
-                      <Button
-                        onClick={() => {
-                          setIsEditingEmail(true);
-                          setNewEmail(currentUser?.email || "");
-                        }}
-                        size="sm"
-                        variant="ghost"
-                        className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Wallet */}
-                <div className="space-y-3">
-                  <Label className="text-white font-bold">Wallet Address</Label>
-                  <div className="flex items-center justify-between bg-black/30 backdrop-blur-md px-4 py-3 rounded-2xl border border-purple-500/20">
-                    <span className="text-white font-mono text-sm">
-                      {currentUser?.walletAddress 
-                        ? `${currentUser.walletAddress.slice(0, 6)}...${currentUser.walletAddress.slice(-4)}`
-                        : currentUser?.id?.substring(7, 20) + "..." || "Not connected"}
-                    </span>
-                    <Button
-                      onClick={() => navigator.clipboard.writeText(currentUser?.walletAddress || currentUser?.id || "")}
-                      size="sm"
-                      variant="ghost"
-                      className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </Button>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Social Connections */}
-            <div className="bg-gradient-to-br from-blue-800/30 to-purple-900/30 backdrop-blur-xl rounded-3xl p-8 border border-blue-500/20 shadow-2xl">
+            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-3xl font-black text-white">Social Connections</h2>
+                <h2 className="text-2xl font-black text-white">Social Connections</h2>
               </div>
 
               <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-blue-500/20">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -471,7 +428,7 @@ export default function Settings() {
                       <h3 className="text-xl font-black text-white">X (Twitter)</h3>
                       <p className="text-white/60">
                         {isTwitterConnected 
-                          ? `Connected as @${currentUser?.twitterUsername || 'Unknown'}` 
+                          ? `Connected as @${twitterStatus?.username || 'Unknown'}` 
                           : 'Connect your X account for enhanced features'}
                       </p>
                     </div>
@@ -498,24 +455,114 @@ export default function Settings() {
                         disabled={isConnecting}
                         className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold"
                       >
-                        Connect X
+                        {isConnecting ? "Connecting..." : "Connect X Account"}
                       </Button>
                     )}
                   </div>
                 </div>
+
+                {/* X API Sharing Features */}
+                {isTwitterConnected && (
+                  <div className="space-y-4 border-t border-white/10 pt-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-lg font-bold text-white">Share with X</h4>
+                      <Button
+                        onClick={() => setShowTweetComposer(!showTweetComposer)}
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-500/30 text-white hover:bg-blue-500/10"
+                      >
+                        <Twitter className="w-4 h-4 mr-2" />
+                        Compose Tweet
+                      </Button>
+                    </div>
+
+                    {/* Tweet Composer */}
+                    {showTweetComposer && (
+                      <div className="bg-black/30 rounded-xl p-4 border border-blue-500/20">
+                        <div className="space-y-3">
+                          <Textarea
+                            value={tweetText}
+                            onChange={(e) => setTweetText(e.target.value)}
+                            placeholder="What's happening in your Aura journey?"
+                            className="bg-black/50 border-blue-500/30 text-white placeholder-white/50 resize-none"
+                            rows={3}
+                          />
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm">
+                              <span className={`${isOverLimit ? 'text-red-400' : 'text-white/60'}`}>
+                                {characterCount}/{maxCharacters}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                onClick={() => {
+                                  setTweetText("");
+                                  setShowTweetComposer(false);
+                                }}
+                                variant="outline"
+                                size="sm"
+                                className="border-white/20 text-white hover:bg-white/10"
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                onClick={handlePostTweet}
+                                disabled={!tweetText.trim() || isOverLimit || postTweetMutation.isPending}
+                                size="sm"
+                                className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700"
+                              >
+                                <Send className="w-4 h-4 mr-2" />
+                                Tweet
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quick Share Options */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Button
+                        onClick={() => {
+                          const shareText = `Just completed today's lesson on Aura! 🚀 Building my Web3 knowledge one day at a time. Current streak: ${currentUser?.currentStreak || 0} days! #AuraLearning #Web3Education`;
+                          postTweetMutation.mutate(shareText);
+                        }}
+                        disabled={postTweetMutation.isPending}
+                        variant="outline"
+                        className="border-green-500/30 text-white hover:bg-green-500/10 justify-start"
+                      >
+                        <Star className="w-4 h-4 mr-2" />
+                        Share Lesson Completion
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const shareText = `Level up! 💪 Just reached ${currentUser?.auraPoints || 0} Aura points on the Aura platform. Join me in building Web3 reputation! #AuraPoints #Web3Journey`;
+                          postTweetMutation.mutate(shareText);
+                        }}
+                        disabled={postTweetMutation.isPending}
+                        variant="outline"
+                        className="border-purple-500/30 text-white hover:bg-purple-500/10 justify-start"
+                      >
+                        <Trophy className="w-4 h-4 mr-2" />
+                        Share Aura Milestone
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Account Statistics */}
-            <div className="bg-gradient-to-br from-emerald-800/30 to-cyan-900/30 backdrop-blur-xl rounded-3xl p-8 border border-emerald-500/20 shadow-2xl">
+            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl flex items-center justify-center">
-                  <Trophy className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-3xl font-black text-white">Account Statistics</h2>
+                <h2 className="text-2xl font-black text-white">Account Statistics</h2>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-emerald-500/20 text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Star className="w-6 h-6 text-white" />
@@ -558,15 +605,8 @@ export default function Settings() {
                   <div className="text-white/60 font-bold">ETH Received</div>
                 </div>
               </div>
-              </div>
             </div>
-            </TabsContent>
-
-            {/* Social Sharing Tab */}
-            <TabsContent value="social">
-              <SocialSharing />
-            </TabsContent>
-          </Tabs>
+          </div>
         </div>
       </main>
     </div>
