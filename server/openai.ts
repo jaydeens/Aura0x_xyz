@@ -25,23 +25,52 @@ export async function generateDailyLessons(count: number = 1): Promise<DailyLess
     
     console.log('Starting lesson generation...');
     
-    const prompt = `Generate ${count} comprehensive Web3 aura-building lesson that teaches users practical strategies for building their reputation and credibility in the Web3 space. Return JSON in this exact format:
+    const topics = [
+      "DeFi yield farming strategies and risk management",
+      "NFT trading psychology and market analysis", 
+      "Layer 2 scaling solutions and gas optimization",
+      "Smart contract security best practices",
+      "Crypto trading indicators and technical analysis",
+      "Staking rewards optimization across chains",
+      "Web3 wallet security and seed phrase management",
+      "Understanding liquidity pools and impermanent loss",
+      "Cross-chain bridge protocols and safety",
+      "Tokenomics analysis for investment decisions",
+      "DAO governance and voting strategies",
+      "On-chain analytics for alpha generation",
+      "MEV (Maximum Extractable Value) understanding",
+      "Crypto tax strategies and record keeping",
+      "Building on Ethereum vs alternative chains",
+      "Understanding AMMs and DEX mechanics",
+      "Crypto derivatives and futures trading",
+      "Web3 privacy tools and techniques",
+      "Understanding blockchain consensus mechanisms",
+      "Crypto portfolio diversification strategies",
+      "Flash loan mechanics and arbitrage",
+      "Understanding cryptocurrency mining",
+      "Web3 development career pathways",
+      "Crypto market cycles and psychology",
+      "Understanding stablecoins and their risks"
+    ];
+    
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    console.log(`Selected random topic: ${randomTopic}`);
+    
+    const prompt = `Generate ${count} comprehensive cryptocurrency and Web3 educational lesson about: "${randomTopic}". This should be practical educational content that teaches users valuable skills in the crypto/Web3 space. Return JSON in this exact format:
 
 {
   "lessons": [
     {
-      "title": "Clear, educational title about building Web3 aura/reputation",
-      "content": "3-4 detailed paragraphs that actually teach something valuable. Include:\n- Specific strategies and tactics\n- Real examples and case studies\n- Step-by-step guidance\n- Common mistakes to avoid\n- Practical tips users can implement immediately\nMake this educational content that users will genuinely learn from and want to share.",
+      "title": "Clear, educational title about the crypto/Web3 topic",
+      "content": "3-4 detailed paragraphs that actually teach something valuable about ${randomTopic}. Include:\n- Specific technical knowledge and strategies\n- Real examples from the crypto space\n- Step-by-step guidance for implementation\n- Common mistakes beginners make\n- Practical tips users can apply immediately\n- Current market context and trends\nMake this educational content that crypto enthusiasts will genuinely learn from.",
       "keyTakeaways": ["specific actionable insight 1", "specific actionable insight 2", "specific actionable insight 3", "specific actionable insight 4"],
-      "difficulty": "intermediate",
+      "difficulty": "intermediate", 
       "estimatedReadTime": 15
     }
   ]
 }
 
-Focus on topics like: Building authentic relationships in Web3 communities, Creating valuable content that establishes expertise, Networking strategies for Web3 professionals, Building trust through consistent helpful actions, Developing thought leadership in crypto spaces, Supporting others to build your own reputation, Long-term reputation building strategies, Personal branding in DeFi, Community management tactics, Influencer collaboration strategies, Content creation for Web3 audiences, Social media optimization for crypto, Building credibility through transparency, Leveraging NFT communities, GameFi reputation building, DAO participation strategies, or Cross-platform presence building. 
-
-Ensure each lesson offers completely unique content and perspective. Avoid repeating similar advice or examples from previous lessons. Make each lesson genuinely educational and valuable with fresh insights.`;
+Focus on practical knowledge that helps users succeed in crypto markets, understand blockchain technology, or navigate the Web3 ecosystem. Avoid generic advice and provide specific, actionable information about ${randomTopic}.`;
 
     console.log('Calling OpenAI API...');
     const startTime = Date.now();
@@ -52,7 +81,7 @@ Ensure each lesson offers completely unique content and perspective. Avoid repea
         messages: [
           {
             role: "system",
-            content: "You are an expert Web3 educator specializing in teaching users how to build their aura and reputation in the Web3 space. Focus on practical strategies for gaining credibility, influence, and respect in crypto communities."
+            content: "You are an expert cryptocurrency and Web3 educator. Create comprehensive technical educational content about blockchain technology, DeFi protocols, trading strategies, smart contracts, and the broader crypto ecosystem. Focus on practical knowledge that helps users understand and succeed in crypto markets."
           },
           {
             role: "user",
