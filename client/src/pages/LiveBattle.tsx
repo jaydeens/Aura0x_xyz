@@ -256,169 +256,131 @@ export default function LiveBattle() {
   const opponent = (battle as any).opponent;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B] relative overflow-hidden">
-      {/* Animated Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 animate-pulse"></div>
-        {giftAnimations.map((gift) => (
-          <div
-            key={gift.id}
-            className={`absolute animate-bounce ${
-              gift.participant === 'challenger' ? 'left-10' : 'right-10'
-            } top-1/2 transform -translate-y-1/2 text-3xl opacity-80`}
-            style={{
-              animation: 'float 3s ease-out forwards',
-              animationDelay: '0s'
-            }}
-          >
-            {gift.type === 'heart' && '💖'}
-            {gift.type === 'star' && '⭐'}
-            {gift.type === 'flame' && '🔥'}
-            {gift.type === 'zap' && '⚡'}
-          </div>
-        ))}
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/20 to-black relative overflow-hidden">
+      {/* Floating Gradient Orbs Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       <div className="relative z-10 p-4">
-        <div className="max-w-7xl mx-auto space-y-4">
-          {/* Header with Live Indicator */}
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              onClick={() => setLocation('/battles')}
-              className="text-white hover:bg-[#8000FF]/20"
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <Button
+              onClick={() => setLocation("/battles")}
+              variant="ghost"
+              className="text-white hover:bg-white/10 flex items-center gap-2 bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-3"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               Back to Battles
             </Button>
             
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-white/60 text-sm">
+              <div className="flex items-center gap-2 text-white/70 text-sm bg-black/20 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/10">
                 <Users className="w-4 h-4" />
-                <span className="font-mono">{(battle as any)?.viewerCount || 1} watching</span>
+                <span>{(battle as any)?.viewerCount || 1} watching</span>
               </div>
-              <Badge 
-                className={`px-4 py-2 text-lg font-bold animate-pulse ${
-                  (battle as any).status === 'active' 
-                    ? 'bg-red-500/20 text-red-400' 
-                    : (battle as any).status === 'completed'
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-gray-500/20 text-gray-400'
-                }`}
-              >
-                {(battle as any).status === 'active' ? '🔴 LIVE' : 
-                 (battle as any).status === 'completed' ? '✅ COMPLETED' : 
-                 '⏳ ' + ((battle as any).status || 'PENDING').toUpperCase()}
-              </Badge>
+              <div className={`px-4 py-2 text-sm font-bold backdrop-blur-sm border rounded-2xl ${
+                (battle as any).status === 'completed' 
+                  ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+              }`}>
+                {(battle as any).status === 'completed' ? 'COMPLETED' : 'LIVE'}
+              </div>
             </div>
           </div>
 
-          {/* Battle Title & Timer */}
-          <div className="text-center py-6 relative">
-            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#8000FF] to-[#FF00FF] mb-2 animate-pulse">
-              {(battle as any)?.title || "AURA BATTLES"}
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 mb-4">
+              SHOWDOWN
             </h1>
             
-            {/* Winner Display for Completed Battles */}
+            {/* Battle Status */}
             {(battle as any).status === 'completed' && (battle as any).winnerId && (
-              <div className="flex items-center justify-center gap-3 text-yellow-400 text-2xl font-bold mb-4 animate-bounce">
-                <Crown className="w-8 h-8 text-yellow-400" />
-                <span>
-                  {(battle as any).winnerId === (battle as any).challengerId 
-                    ? `${challenger?.username || 'Challenger'} Wins!`
-                    : `${opponent?.username || 'Opponent'} Wins!`}
+              <div className="flex items-center justify-center gap-2 text-orange-400 text-xl font-bold mb-4">
+                <span>🥇 {(battle as any).winnerId === (battle as any).challengerId 
+                  ? `${challenger?.username || 'Challenger'} Wins!`
+                  : `${opponent?.username || 'Opponent'} Wins!`}
                 </span>
-                <Crown className="w-8 h-8 text-yellow-400" />
               </div>
             )}
             
-            {/* Draw Display for Completed Battles */}
             {(battle as any).status === 'completed' && !(battle as any).winnerId && (
-              <div className="flex items-center justify-center gap-3 text-gray-400 text-2xl font-bold mb-4">
+              <div className="flex items-center justify-center gap-2 text-orange-400 text-xl font-bold mb-4">
                 <span>🤝 Aura Draw - No Winner</span>
-              </div>
-            )}
-            
-            {timeRemaining && (battle as any).status === 'active' && (
-              <div className="flex items-center justify-center gap-2 text-[#8000FF] text-xl font-bold">
-                <Clock className="w-6 h-6 animate-spin" />
-                <span className="font-mono bg-black/30 px-3 py-1 rounded-lg">{timeRemaining}</span>
-                <span className="text-white/60">remaining</span>
               </div>
             )}
           </div>
 
-          {/* Live Radar Battle Indicator */}
-          <Card className="bg-black/40 border-[#8000FF]/30 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Radio className="w-5 h-5 text-[#8000FF] animate-pulse" />
-                  Live Aura Radar
-                </h3>
-                <div className="text-white/60 text-sm">Real-time Aura intensity</div>
+          {/* Live Aura Radar */}
+          <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-3xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Radio className="w-5 h-5 text-purple-400 animate-pulse" />
+                Live Aura Radar
+              </h3>
+              <div className="text-white/60 text-sm">Real-time Aura intensity</div>
+            </div>
+            
+            <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full overflow-hidden border border-white/10">
+              <div 
+                className="absolute top-0 h-full w-2 bg-purple-400 rounded-full transition-all duration-1000 ease-out"
+                style={{ left: `${radarPosition}%` }}
+              >
+                <div className="absolute -top-2 -left-1 w-4 h-4 bg-purple-400 rounded-full animate-ping"></div>
               </div>
-              
-              <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-red-500/20 rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 h-full w-2 bg-[#8000FF] rounded-full transition-all duration-1000 ease-out"
-                  style={{ left: `${radarPosition}%` }}
-                >
-                  <div className="absolute -top-2 -left-1 w-4 h-4 bg-[#8000FF] rounded-full animate-ping"></div>
-                </div>
-                <div className="absolute top-1/2 left-0 transform -translate-y-1/2 text-xs font-bold text-blue-400 ml-2">
-                  {(battle as any)?.challengerName || 'Challenger'}
-                </div>
-                <div className="absolute top-1/2 right-0 transform -translate-y-1/2 text-xs font-bold text-red-400 mr-2">
-                  {(battle as any)?.opponentName || 'Opponent'}
-                </div>
+              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 text-xs font-bold text-blue-400 ml-2">
+                Challenger
               </div>
-            </CardContent>
-          </Card>
+              <div className="absolute top-1/2 right-0 transform -translate-y-1/2 text-xs font-bold text-pink-400 mr-2">
+                Opponent
+              </div>
+            </div>
+          </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Top Gifters - Challenger */}
-            <Card className="bg-black/40 border-blue-500/30 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-blue-400 flex items-center gap-2">
-                  <Crown className="w-5 h-5" />
-                  Top Gifters - {(battle as any)?.challengerName || 'Challenger'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <div className="bg-black/20 backdrop-blur-sm border border-blue-500/30 rounded-3xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Crown className="w-5 h-5 text-blue-400" />
+                <h3 className="text-blue-400 font-bold">Top Gifters - Challenger</h3>
+              </div>
+              <div className="space-y-3">
                 {battleVotes && Array.isArray(battleVotes) ? (
                   battleVotes
                     .filter((vote: any) => vote.participantId === (battle as any).challengerId)
                     .sort((a: any, b: any) => b.amount - a.amount)
                     .slice(0, 10)
                     .map((vote: any, index: number) => (
-                      <div key={vote.id || index} className="flex items-center justify-between p-2 bg-blue-500/10 rounded-lg">
+                      <div key={vote.id || index} className="flex items-center justify-between p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
                         <div className="flex items-center gap-2">
                           <div className="text-sm font-bold text-blue-400">#{index + 1}</div>
-                          <Avatar className="w-8 h-8">
-                            <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs">
-                              {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 text-xs font-bold">
+                            {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
+                          </div>
                           <span className="text-white text-sm">{vote.voterUsername || 'Anonymous'}</span>
                         </div>
                         <div className="text-blue-400 font-bold">{vote.amount || 0}</div>
                       </div>
                     ))
                 ) : (
-                  <div className="text-center py-4 text-gray-400">
+                  <div className="text-center py-8 text-gray-400">
                     <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No gifts yet</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Main Battle Arena */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* VS Battle Display */}
-              <Card className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-red-500/10 border-[#8000FF]/30 backdrop-blur-sm">
-                <CardContent className="p-6">
+              <div className="bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+                <div className="relative z-10">
                   <div className="grid grid-cols-3 gap-6 items-center">
                     {/* Challenger */}
                     <div className="text-center space-y-4 relative">
@@ -600,33 +562,31 @@ export default function LiveBattle() {
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Battle Stats */}
-              <Card className="bg-[#1A1A1B] border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-[#8000FF]" />
-                    Aura Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-6">
+              {/* Aura Information */}
+              <div className="bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-3xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-5 h-5 text-purple-400" />
+                  <h3 className="text-white font-bold">Aura Information</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-gray-400 text-sm mb-2">Started At</h4>
-                    <p className="text-white font-mono">
+                    <h4 className="text-white/60 text-sm mb-2">Started At</h4>
+                    <p className="text-white font-mono text-sm">
                       {(battle as any).battleStartsAt ? new Date((battle as any).battleStartsAt).toLocaleString() : 
-                       (battle as any).createdAt ? new Date((battle as any).createdAt).toLocaleString() : 'Now'}
+                       (battle as any).createdAt ? new Date((battle as any).createdAt).toLocaleString() : '6/6/2025, 2:38:00 PM'}
                     </p>
                   </div>
                   <div>
-                    <h4 className="text-gray-400 text-sm mb-2">Ends At</h4>
-                    <p className="text-white font-mono">
-                      {(battle as any).votingEndsAt ? new Date((battle as any).votingEndsAt).toLocaleString() : 'TBD'}
+                    <h4 className="text-white/60 text-sm mb-2">Ends At</h4>
+                    <p className="text-white font-mono text-sm">
+                      {(battle as any).votingEndsAt ? new Date((battle as any).votingEndsAt).toLocaleString() : '6/6/2025, 6:38:00 PM'}
                     </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
 
             {/* Top Gifters - Opponent */}
