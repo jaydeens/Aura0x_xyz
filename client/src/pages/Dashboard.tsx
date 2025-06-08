@@ -73,7 +73,7 @@ export default function Dashboard() {
             <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">Your Aura Dashboard</h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Welcome back, {user?.firstName || user?.username || 'Creator'}! 
-              Ready to build your viral empire and climb the fame ladder?
+              Ready to build your viral empire and climb the Aura ladder?
             </p>
           </div>
 
@@ -82,7 +82,7 @@ export default function Dashboard() {
             {/* Fame Points Card - Larger */}
             <div className="md:col-span-2 bg-gray-800 rounded-2xl p-8 border border-gray-700">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold">🔥 Fame Score</h3>
+                <h3 className="text-white font-bold">🔥 Aura Points</h3>
                 <Coins className="w-6 h-6 text-purple-400" />
               </div>
               <div className="text-3xl font-black text-white mb-1">{user?.auraPoints?.toLocaleString() || "0"}</div>
