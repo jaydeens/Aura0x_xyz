@@ -22,9 +22,13 @@ import {
   Heart,
   Shield,
   Mail,
-  Phone
+  Phone,
+  Share,
+  Twitter
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navigation from "@/components/Navigation";
+import SocialSharing from "@/components/SocialSharing";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -247,9 +251,30 @@ export default function Settings() {
             <p className="text-white/60 text-lg">Manage your profile and account preferences</p>
           </div>
 
-          <div className="space-y-8">
-            {/* Profile Information */}
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+          {/* Settings Tabs */}
+          <Tabs defaultValue="account" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8 bg-black/50 border border-purple-500/30">
+              <TabsTrigger 
+                value="account" 
+                className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+              >
+                <Settings2 className="w-4 h-4" />
+                Account Settings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="social" 
+                className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+              >
+                <Share className="w-4 h-4" />
+                Social Sharing
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Account Settings Tab */}
+            <TabsContent value="account">
+              <div className="space-y-8">
+                {/* Profile Information */}
+                <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
                   <User className="w-6 h-6 text-white" />
@@ -533,8 +558,15 @@ export default function Settings() {
                   <div className="text-white/60 font-bold">ETH Received</div>
                 </div>
               </div>
+              </div>
             </div>
-          </div>
+            </TabsContent>
+
+            {/* Social Sharing Tab */}
+            <TabsContent value="social">
+              <SocialSharing />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>

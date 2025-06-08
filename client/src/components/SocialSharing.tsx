@@ -29,11 +29,15 @@ export default function SocialSharing() {
 
   // Post custom tweet mutation
   const postTweetMutation = useMutation({
-    mutationFn: (data: { content: string; includeAuraTag: boolean }) =>
-      apiRequest("/api/social/post-tweet", {
+    mutationFn: async (data: { content: string; includeAuraTag: boolean }) => {
+      const response = await fetch("/api/social/post-tweet", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    },
     onSuccess: (data: any) => {
       toast({
         title: "Tweet Posted!",
@@ -53,11 +57,15 @@ export default function SocialSharing() {
 
   // Share lesson completion mutation
   const shareLessonMutation = useMutation({
-    mutationFn: (data: { lessonTitle: string; auraEarned: number; streakDays?: number }) =>
-      apiRequest("/api/lessons/share-completion", {
+    mutationFn: async (data: { lessonTitle: string; auraEarned: number; streakDays?: number }) => {
+      const response = await fetch("/api/lessons/share-completion", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    },
     onSuccess: () => {
       toast({
         title: "Achievement Shared!",
@@ -75,11 +83,15 @@ export default function SocialSharing() {
 
   // Share milestone mutation
   const shareMilestoneMutation = useMutation({
-    mutationFn: (data: { milestone: string; totalAura: number; rank?: number }) =>
-      apiRequest("/api/achievements/share-milestone", {
+    mutationFn: async (data: { milestone: string; totalAura: number; rank?: number }) => {
+      const response = await fetch("/api/achievements/share-milestone", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    },
     onSuccess: () => {
       toast({
         title: "Milestone Shared!",
