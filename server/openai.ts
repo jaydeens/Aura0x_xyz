@@ -15,6 +15,16 @@ export interface DailyLesson {
 
 export async function generateDailyLessons(count: number = 1): Promise<DailyLesson[]> {
   try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    console.log('OpenAI API Key exists:', !!apiKey);
+    console.log('OpenAI API Key length:', apiKey ? apiKey.length : 0);
+    
+    if (!apiKey || apiKey === "default_key") {
+      throw new Error("OpenAI API key is not properly configured");
+    }
+    
+    console.log('Starting lesson generation...');
+    
     const prompt = `Generate ${count} comprehensive Web3 aura-building lesson that teaches users practical strategies for building their reputation and credibility in the Web3 space. Return JSON in this exact format:
 
 {
@@ -31,22 +41,32 @@ export async function generateDailyLessons(count: number = 1): Promise<DailyLess
 
 Focus on topics like: Building authentic relationships in Web3 communities, Creating valuable content that establishes expertise, Networking strategies for Web3 professionals, Building trust through consistent helpful actions, Developing thought leadership in crypto spaces, Supporting others to build your own reputation, or Long-term reputation building strategies. Make each lesson genuinely educational and valuable.`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert Web3 educator specializing in teaching users how to build their aura and reputation in the Web3 space. Focus on practical strategies for gaining credibility, influence, and respect in crypto communities."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 2000
-    });
+    console.log('Calling OpenAI API...');
+    const startTime = Date.now();
+    
+    const response = await Promise.race([
+      openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert Web3 educator specializing in teaching users how to build their aura and reputation in the Web3 space. Focus on practical strategies for gaining credibility, influence, and respect in crypto communities."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 2000
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('OpenAI API timeout after 30 seconds')), 30000)
+      )
+    ]) as any;
+    
+    console.log('OpenAI API response received, parsing...');
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
