@@ -724,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if we need to generate new lessons
       // Generate if: no lessons for today, force refresh, or if lesson is older than today
       const shouldGenerateNew = lessons.length === 0 || forceRefresh || 
-        (lessons.length > 0 && new Date(lessons[0].createdAt).toDateString() !== today.toDateString());
+        (lessons.length > 0 && new Date(lessons[0].createdAt).toISOString().split('T')[0] !== today.toISOString().split('T')[0]);
       
       if (shouldGenerateNew) {
         console.log(`Generating daily lessons for ${today.toISOString().split('T')[0]}...`);
