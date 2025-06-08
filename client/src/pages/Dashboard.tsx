@@ -66,7 +66,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-black">
       <Navigation />
-      <main className="container mx-auto px-4 py-8">
+      <main className="pt-24 pb-8">
         <div className="max-w-full mx-auto px-8">
           {/* Hero Section */}
           <div className="text-center mb-16">
