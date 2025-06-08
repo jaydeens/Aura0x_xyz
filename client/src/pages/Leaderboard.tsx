@@ -109,9 +109,7 @@ export default function Leaderboard() {
         <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
       </div>
-
       <Navigation />
-      
       <main className="relative z-10 pt-20 pb-8">
         <div className="max-w-full mx-auto px-8">
           {/* TikTok-Style Header */}
@@ -149,7 +147,7 @@ export default function Leaderboard() {
             {/* Total Fame */}
             <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-wider">⚡ Fame</h3>
+                <h3 className="text-sm font-black uppercase tracking-wider">⚡ Aura</h3>
                 <Zap className="w-6 h-6 text-white/80" />
               </div>
               <div className="text-3xl font-black mb-1">{Math.floor((stats?.totalAura || 0) / 1000)}K</div>
