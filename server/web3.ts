@@ -13,22 +13,12 @@ export const POLYGON_TESTNET = {
   blockExplorer: "https://mumbai.polygonscan.com/",
 };
 
-// USDT contract address on Polygon Mumbai testnet
-export const USDT_CONTRACT_ADDRESS = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // This is a common testnet USDT address
+// ETH is the native currency, no contract address needed for testnet
 
 // Platform wallet address (should be set in environment variables)
 export const PLATFORM_WALLET = process.env.PLATFORM_WALLET_ADDRESS || "0x0000000000000000000000000000000000000000";
 
-// USDT ABI (minimal for transfers)
-export const USDT_ABI = [
-  "function transfer(address to, uint256 amount) returns (bool)",
-  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
-  "function balanceOf(address account) view returns (uint256)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function decimals() view returns (uint8)",
-  "event Transfer(address indexed from, address indexed to, uint256 value)",
-];
+// ETH ABI not needed for native transfers
 
 export interface VouchTransaction {
   from: string;
@@ -63,18 +53,15 @@ export class Web3Service {
   }
 
   /**
-   * Get USDT balance for an address
+   * Get ETH balance for an address
    */
-  async getUSDTBalance(address: string): Promise<string> {
+  async getETHBalance(address: string): Promise<string> {
     try {
-      const provider = this.initProvider();
-      const contract = new ethers.Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, provider);
-      const balance = await contract.balanceOf(address);
-      const decimals = await contract.decimals();
-      return ethers.formatUnits(balance, decimals);
+      const balance = await this.provider.getBalance(address);
+      return ethers.formatEther(balance);
     } catch (error) {
-      console.error("Error getting USDT balance:", error);
-      throw new Error("Failed to get USDT balance");
+      console.error("Error getting ETH balance:", error);
+      return "0";
     }
   }
 
@@ -107,34 +94,14 @@ export class Web3Service {
         return { isValid: false };
       }
 
-      // For USDT transfers, we need to parse the logs
-      const contract = new ethers.Contract(USDT_CONTRACT_ADDRESS, USDT_ABI, this.provider);
-      const logs = receipt.logs;
-      
-      for (const log of logs) {
-        try {
-          const parsedLog = contract.interface.parseLog({
-            topics: log.topics,
-            data: log.data
-          });
-          
-          if (parsedLog && parsedLog.name === "Transfer") {
-            const decimals = await contract.decimals();
-            return {
-              isValid: true,
-              from: parsedLog.args[0],
-              to: parsedLog.args[1],
-              amount: ethers.formatUnits(parsedLog.args[2], decimals),
-              blockNumber: receipt.blockNumber
-            };
-          }
-        } catch (parseError) {
-          // Continue to next log if this one can't be parsed
-          continue;
-        }
-      }
-
-      return { isValid: false };
+      // For ETH transfers, we can get the amount directly from the transaction
+      return {
+        isValid: true,
+        from: tx.from,
+        to: tx.to,
+        amount: ethers.formatEther(tx.value),
+        blockNumber: receipt.blockNumber
+      };
     } catch (error) {
       console.error("Error verifying transaction:", error);
       return { isValid: false };
@@ -144,14 +111,14 @@ export class Web3Service {
   /**
    * Calculate vouch distribution (60% to KOL, 40% to platform)
    */
-  calculateVouchDistribution(usdtAmount: number): {
+  calculateVouchDistribution(ethAmount: number): {
     kolAmount: number;
     platformAmount: number;
     auraPoints: number;
   } {
-    const kolAmount = usdtAmount * 0.6;
-    const platformAmount = usdtAmount * 0.4;
-    const auraPoints = Math.floor(usdtAmount * 10); // 1 USDT = 10 Aura Points
+    const kolAmount = ethAmount * 0.6;
+    const platformAmount = ethAmount * 0.4;
+    const auraPoints = Math.floor(ethAmount * 1000); // 1 ETH = 1000 Aura Points
 
     return {
       kolAmount,

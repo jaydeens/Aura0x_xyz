@@ -280,7 +280,7 @@ export default function SteezeStack() {
           </div>
 
           {/* Balance Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Total Balance */}
             <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
@@ -311,25 +311,7 @@ export default function SteezeStack() {
               <div className="text-white/80 text-sm">non-redeemable</div>
             </div>
 
-            {/* Total Spent */}
-            <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-wider">📊 Spent</h3>
-                <Target className="w-6 h-6 text-white/80" />
-              </div>
-              <div className="text-3xl font-black mb-1">${((user?.purchasedSteeze || 0) * 0.01).toFixed(2)}</div>
-              <div className="text-white/80 text-sm">USD invested</div>
-            </div>
 
-            {/* Redeemable Value */}
-            <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-wider">💰 Value</h3>
-                <ArrowUpRight className="w-6 h-6 text-white/80" />
-              </div>
-              <div className="text-3xl font-black mb-1">${((user?.battleEarnedSteeze || 0) * 0.01).toFixed(2)}</div>
-              <div className="text-white/80 text-sm">can withdraw</div>
-            </div>
           </div>
 
           {/* Trading Interface */}
