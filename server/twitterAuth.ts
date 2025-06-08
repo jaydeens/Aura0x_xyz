@@ -15,7 +15,7 @@ export function setupTwitterAuth(app: Express) {
     tokenURL: 'https://api.twitter.com/2/oauth2/token',
     clientID: process.env.TWITTER_CLIENT_ID,
     clientSecret: process.env.TWITTER_CLIENT_SECRET,
-    callbackURL: `https://d0cff2cc-08d4-40e9-8970-8c2e7510e34d-00-2ejxen6586xhw.kirk.replit.dev/api/auth/twitter/callback`,
+    callbackURL: `https://aura0x.xyz/api/auth/twitter/callback`,
     scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access'],
     state: true,
     pkce: true,
