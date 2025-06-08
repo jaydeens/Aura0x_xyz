@@ -1682,6 +1682,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check username availability
+  app.get("/api/check-username", async (req: any, res) => {
+    try {
+      const { username } = req.query;
+      
+      if (!username || username.length < 3) {
+        return res.json({ available: false, message: "Username must be at least 3 characters long" });
+      }
+
+      // Get current user ID to exclude from check
+      let currentUserId: string | null = null;
+      if (req.session?.user?.id) {
+        currentUserId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        currentUserId = req.user.claims.sub;
+      }
+
+      const isAvailable = await storage.checkUsernameAvailability(username, currentUserId || undefined);
+      res.json({ available: isAvailable });
+    } catch (error: any) {
+      console.error("Error checking username:", error);
+      res.status(500).json({ available: false, message: "Error checking username" });
+    }
+  });
+
+  // Upload profile image
+  app.post("/api/upload-profile-image", upload.single('profileImage'), async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Generate public URL for the uploaded file
+      const imageUrl = `/uploads/${req.file.filename}`;
+      
+      res.json({ imageUrl });
+    } catch (error: any) {
+      console.error("Error uploading profile image:", error);
+      res.status(500).json({ message: "Failed to upload image" });
+    }
+  });
+
+  // Update profile information
+  app.put("/api/profile", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { username, email, profileImageUrl, twitterUsername } = req.body;
+      const updateData: any = {};
+
+      // Validate and add username if provided
+      if (username !== undefined) {
+        if (username.length < 3) {
+          return res.status(400).json({ message: "Username must be at least 3 characters long" });
+        }
+        
+        // Check if username is available
+        const isAvailable = await storage.checkUsernameAvailability(username, userId);
+        if (!isAvailable) {
+          return res.status(400).json({ message: "Username already taken" });
+        }
+        
+        updateData.username = username;
+      }
+
+      // Add email if provided
+      if (email !== undefined) {
+        if (!email.includes("@")) {
+          return res.status(400).json({ message: "Invalid email address" });
+        }
+        updateData.email = email;
+      }
+
+      // Add profile image URL if provided
+      if (profileImageUrl !== undefined) {
+        updateData.profileImageUrl = profileImageUrl;
+      }
+
+      // Add Twitter username if provided
+      if (twitterUsername !== undefined) {
+        updateData.twitterUsername = twitterUsername;
+      }
+
+      // Update user profile
+      const updatedUser = await storage.updateUserProfile(userId, updateData);
+      
+      res.json({ user: updatedUser });
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // X (Twitter) OAuth disconnect route
   app.post("/api/auth/twitter/disconnect", async (req: any, res) => {
     try {
@@ -1699,8 +1814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Clear Twitter OAuth tokens from user profile
       await storage.updateUserProfile(userId, {
-        twitterAccessToken: null,
-        twitterRefreshToken: null,
+        twitterUsername: undefined,
       });
 
       res.json({ message: "X account disconnected successfully" });
