@@ -64,59 +64,49 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800">
       <Navigation />
       <main className="pt-24 pb-8">
         <div className="max-w-full mx-auto px-8">
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">Your Aura Dashboard</h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Your Aura Dashboard</h1>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Welcome back, {user?.firstName || user?.username || 'Creator'}! 
               Ready to build your viral empire and climb the Aura ladder?
             </p>
           </div>
 
           {/* Stats Overview - Expanded Horizontal Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
-            {/* Fame Points Card - Larger */}
-            <div className="md:col-span-2 bg-gray-800 rounded-2xl p-8 border border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            {/* Aura Points Card - Larger */}
+            <div className="md:col-span-2 bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold">🔥 Aura Points</h3>
-                <Coins className="w-6 h-6 text-purple-400" />
+                <Coins className="w-6 h-6 text-pink-400" />
               </div>
               <div className="text-3xl font-black text-white mb-1">{user?.auraPoints?.toLocaleString() || "0"}</div>
-              <div className="text-gray-400 text-sm">APs</div>
+              <div className="text-purple-200 text-sm">APs</div>
             </div>
 
             {/* Streak Card */}
-            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
+            <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold">🔥 Streak</h3>
                 <Flame className="w-6 h-6 text-orange-400" />
               </div>
               <div className="text-2xl font-black text-white mb-1">{user?.currentStreak || 0}</div>
-              <div className="text-gray-400 text-sm">days</div>
+              <div className="text-purple-200 text-sm">days</div>
             </div>
 
             {/* Earnings Card */}
-            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
+            <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold">💰 Earnings</h3>
                 <Target className="w-6 h-6 text-green-400" />
               </div>
               <div className="text-2xl font-black text-white mb-1">${user?.totalUsdtEarned || "0.00"}</div>
-              <div className="text-gray-400 text-sm">USDT</div>
-            </div>
-
-            {/* Battle Wins Card */}
-            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold">🏆 Wins</h3>
-                <Trophy className="w-6 h-6 text-yellow-400" />
-              </div>
-              <div className="text-2xl font-black text-white mb-1">{user?.totalBattlesWon || 0}</div>
-              <div className="text-gray-400 text-sm">battles</div>
+              <div className="text-purple-200 text-sm">USDT</div>
             </div>
           </div>
 
@@ -127,9 +117,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-3xl font-black text-white mb-2">📚 Level Up Today</h2>
-                  <p className="text-gray-400">Complete daily lessons to maintain your viral streak and earn fame points</p>
+                  <p className="text-purple-200">Complete daily lessons to maintain your viral streak and earn Aura points</p>
                 </div>
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full px-4 py-2">
+                <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-4 py-2">
                   <span className="text-white font-bold text-sm">🔥 {user?.currentStreak || 0} day streak</span>
                 </div>
               </div>
