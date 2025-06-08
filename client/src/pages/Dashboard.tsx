@@ -122,10 +122,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Main Content Sections - Wide Layout */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* Today's Learning Section - Takes 2/3 width */}
-            <section className="xl:col-span-2">
+          {/* Main Content Sections - Full Width Layout */}
+          <div>
+            {/* Today's Learning Section - Full Width */}
+            <section>
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-3xl font-black text-white mb-2">📚 Level Up Today</h2>
@@ -136,7 +136,7 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-4 gap-6">
                 {lessonsLoading ? (
                   [...Array(3)].map((_, i) => (
                     <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
@@ -150,7 +150,7 @@ export default function Dashboard() {
                     <LessonCard key={lesson.id} lesson={lesson} />
                   ))
                 ) : (
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-4">
                     <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
                       <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
                         <BookOpen className="w-8 h-8 text-gray-400" />
@@ -198,9 +198,9 @@ export default function Dashboard() {
                 </Link>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-4 gap-6">
                 {battlesLoading ? (
-                  [...Array(2)].map((_, i) => (
+                  [...Array(4)].map((_, i) => (
                     <div key={i} className="bg-gray-800/50 rounded-3xl p-6 animate-pulse">
                       <div className="h-40 bg-gray-700 rounded-2xl mb-4"></div>
                       <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
@@ -208,7 +208,7 @@ export default function Dashboard() {
                     </div>
                   ))
                 ) : recentBattles && recentBattles.length > 0 ? (
-                  recentBattles.slice(0, 2).map((battle: any) => (
+                  recentBattles.slice(0, 4).map((battle: any) => (
                     <div key={battle.id} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-gray-700 hover:border-pink-500/50 transition-all duration-300">
                       <div className="flex items-center justify-between mb-4">
                         <Badge className="bg-pink-500/20 text-pink-400">
@@ -221,7 +221,7 @@ export default function Dashboard() {
                     </div>
                   ))
                 ) : (
-                  <div className="md:col-span-2 text-center py-16">
+                  <div className="md:col-span-4 text-center py-16">
                     <Trophy className="w-20 h-20 text-gray-500 mx-auto mb-6" />
                     <h3 className="text-2xl font-bold text-gray-300 mb-4">No Active Battles</h3>
                     <p className="text-gray-500 text-lg">Be the first to start a viral showdown!</p>
