@@ -40,19 +40,15 @@ export default function Dashboard() {
     },
   });
 
-  // Fetch recent battles
-  const { data: recentBattles, isLoading: battlesLoading } = useQuery({
-    queryKey: ["/api/battles"],
-    enabled: isAuthenticated,
-  });
+
 
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-500 mx-auto mb-4"></div>
-          <p className="text-white text-lg font-bold">Loading your fame dashboard...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto mb-4"></div>
+          <p className="text-white text-lg font-bold">Loading your Aura dashboard...</p>
         </div>
       </div>
     );
@@ -127,10 +123,10 @@ export default function Dashboard() {
               <div className="grid md:grid-cols-12 gap-6">
                 {lessonsLoading ? (
                   [...Array(3)].map((_, i) => (
-                    <div key={i} className="md:col-span-8 bg-gray-800/50 rounded-3xl p-6 animate-pulse">
-                      <div className="h-32 bg-gray-700 rounded-2xl mb-4"></div>
-                      <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                    <div key={i} className="md:col-span-8 bg-gradient-to-br from-purple-800/30 to-pink-800/30 backdrop-blur-sm rounded-3xl p-6 animate-pulse border border-purple-500/20">
+                      <div className="h-32 bg-purple-700/50 rounded-2xl mb-4"></div>
+                      <div className="h-4 bg-purple-700/50 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-purple-700/50 rounded w-1/2"></div>
                     </div>
                   ))
                 ) : dailyLessons && dailyLessons.length > 0 ? (
@@ -141,23 +137,23 @@ export default function Dashboard() {
                   ))
                 ) : (
                   <div className="md:col-span-12">
-                    <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
-                      <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                        <BookOpen className="w-8 h-8 text-gray-400" />
+                    <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30 text-center">
+                      <div className="bg-purple-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                        <BookOpen className="w-8 h-8 text-purple-200" />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-3">Level Up Today</h3>
-                      <p className="text-gray-400 mb-6">New lessons drop daily to help you master the viral game</p>
+                      <p className="text-purple-200 mb-6">New lessons drop daily to help you master the crypto space</p>
                       <div className="space-y-3">
-                        <div className="bg-gray-700/50 rounded-lg p-4 text-left">
+                        <div className="bg-purple-700/30 rounded-lg p-4 text-left">
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="text-white font-semibold">Today's Lesson</h4>
-                              <p className="text-gray-400 text-sm">Check back soon for new content</p>
+                              <p className="text-purple-200 text-sm">Check back soon for new content</p>
                             </div>
-                            <Clock className="w-5 h-5 text-gray-400" />
+                            <Clock className="w-5 h-5 text-purple-200" />
                           </div>
                         </div>
-                        <div className="text-gray-500 text-sm">
+                        <div className="text-purple-300 text-sm">
                           Lessons reset daily at midnight
                         </div>
                       </div>
@@ -171,47 +167,7 @@ export default function Dashboard() {
 
           </div>
 
-          {/* Bottom Section - Live Battles */}
-          <div className="mt-16">
 
-            {/* Live Battles Section */}
-            <section>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-black text-white mb-2">🥊 Live Showdowns</h2>
-                  <p className="text-gray-400">Join the action and vote on viral battles happening right now</p>
-                </div>
-                <Link href="/battles">
-                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-6 py-3 hover:scale-105 transition-transform cursor-pointer">
-                    <span className="text-white font-bold">View All Battles</span>
-                  </div>
-                </Link>
-              </div>
-              
-              <div className="grid md:grid-cols-12 gap-6">
-                {battlesLoading ? (
-                  [...Array(4)].map((_, i) => (
-                    <div key={i} className="md:col-span-6 bg-gray-800/50 rounded-3xl p-6 animate-pulse">
-                      <div className="h-40 bg-gray-700 rounded-2xl mb-4"></div>
-                      <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
-                    </div>
-                  ))
-                ) : recentBattles && recentBattles.length > 0 ? (
-                  recentBattles.slice(0, 2).map((battle: any) => (
-                    <div key={battle.id} className="md:col-span-6">
-                    </div>
-                  ))
-                ) : (
-                  <div className="md:col-span-12 text-center py-16">
-                    <Trophy className="w-20 h-20 text-gray-500 mx-auto mb-6" />
-                    <h3 className="text-2xl font-bold text-gray-300 mb-4">No Active Battles</h3>
-                    <p className="text-gray-500 text-lg">Be the first to start a viral showdown!</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
         </div>
       </main>
     </div>
