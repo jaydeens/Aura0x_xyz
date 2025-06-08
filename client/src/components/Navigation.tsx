@@ -16,6 +16,7 @@ import { Link, useLocation } from "wouter";
 import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings } from "lucide-react";
 import { useState } from "react";
 import auraLogo from "@assets/AURA PNG (1)_1749403291114.png";
+import auraTextLogo from "@assets/FULL AURA (1)_1749403707745.png";
 
 export default function Navigation() {
   const { user, isAuthenticated } = useAuth();
@@ -56,11 +57,12 @@ export default function Navigation() {
                   alt="AURA Logo" 
                   className="w-10 h-10 rounded-xl shadow-lg animate-pulse"
                 />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
-              <span className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
-                AURA
-              </span>
+              <img 
+                src={auraTextLogo} 
+                alt="AURA" 
+                className="h-8 w-auto"
+              />
             </div>
           </Link>
 
