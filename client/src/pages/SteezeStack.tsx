@@ -257,77 +257,79 @@ export default function SteezeStack() {
   const recentTransactions = transactions?.slice(0, 5) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0A0B] via-[#8000FF]/10 to-[#0A0A0B]">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
+      {/* Animated background orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full blur-2xl animate-float"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-gradient-to-br from-pink-600/25 to-orange-600/25 rounded-full blur-3xl animate-pulse-slow delay-1000"></div>
+      </div>
+
       <Navigation />
       
-      <main className="pt-20 pb-8">
-        <div className="max-w-full mx-auto px-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Steeze Stack
+      <main className="relative pt-20 pb-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-6xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              💎 STEEZE RECHARGE 💎
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Purchase and trade Steeze tokens to support your friends in battles
+            <p className="text-2xl text-white/80 font-semibold">
+              Power up your battles with premium Steeze tokens
             </p>
           </div>
 
-          {/* Balance Breakdown - Expanded */}
-          <div className="grid md:grid-cols-5 gap-6 mb-8">
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Total Steeze Balance</CardTitle>
-                <Wallet className="h-4 w-4 text-[#8000FF]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#8000FF]">{steezeBalance.toLocaleString()}</div>
-                <p className="text-xs text-gray-500">Total Steeze tokens</p>
-              </CardContent>
-            </Card>
+          {/* Balance Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+            {/* Total Balance */}
+            <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">💎 Total</h3>
+                <Wallet className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">{steezeBalance.toLocaleString()}</div>
+              <div className="text-white/80 text-sm">Steeze tokens</div>
+            </div>
 
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Aura Challenge Steeze</CardTitle>
-                <TrendingUp className="h-4 w-4 text-[#00FF88]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#00FF88]">{(user?.battleEarnedSteeze || 0).toLocaleString()}</div>
-                <p className="text-xs text-gray-500">Redeemable from battles</p>
-              </CardContent>
-            </Card>
+            {/* Battle Earned */}
+            <div className="bg-gradient-to-br from-green-500 to-cyan-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">⚔️ Battle</h3>
+                <TrendingUp className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">{(user?.battleEarnedSteeze || 0).toLocaleString()}</div>
+              <div className="text-white/80 text-sm">redeemable</div>
+            </div>
 
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Purchased Steeze</CardTitle>
-                <DollarSign className="h-4 w-4 text-[#FF6B6B]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#FF6B6B]">{(user?.purchasedSteeze || 0).toLocaleString()}</div>
-                <p className="text-xs text-gray-500">Non-redeemable</p>
-              </CardContent>
-            </Card>
+            {/* Purchased */}
+            <div className="bg-gradient-to-br from-pink-500 to-rose-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">💳 Bought</h3>
+                <DollarSign className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">{(user?.purchasedSteeze || 0).toLocaleString()}</div>
+              <div className="text-white/80 text-sm">non-redeemable</div>
+            </div>
 
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Total Spent</CardTitle>
-                <Target className="h-4 w-4 text-[#FFD700]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#FFD700]">${((user?.purchasedSteeze || 0) * 0.01).toFixed(2)}</div>
-                <p className="text-xs text-gray-500">USD invested</p>
-              </CardContent>
-            </Card>
+            {/* Total Spent */}
+            <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">📊 Spent</h3>
+                <Target className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">${((user?.purchasedSteeze || 0) * 0.01).toFixed(2)}</div>
+              <div className="text-white/80 text-sm">USD invested</div>
+            </div>
 
-            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Redeemable Value</CardTitle>
-                <TrendingUp className="h-4 w-4 text-[#40E0D0]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#40E0D0]">${((user?.battleEarnedSteeze || 0) * 0.01).toFixed(2)}</div>
-                <p className="text-xs text-gray-500">Can withdraw</p>
-              </CardContent>
-            </Card>
+            {/* Redeemable Value */}
+            <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider">💰 Value</h3>
+                <ArrowUpRight className="w-6 h-6 text-white/80" />
+              </div>
+              <div className="text-3xl font-black mb-1">${((user?.battleEarnedSteeze || 0) * 0.01).toFixed(2)}</div>
+              <div className="text-white/80 text-sm">can withdraw</div>
+            </div>
           </div>
 
           {/* Trading Interface */}

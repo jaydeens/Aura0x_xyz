@@ -35,7 +35,7 @@ export default function Navigation() {
     { path: "/", label: "Feed", icon: Home },
     { path: "/battles", label: "Live Battles", icon: Sword },
     { path: "/leaderboard", label: "Trending", icon: Trophy },
-    { path: "/steeze-stack", label: "Creator Fund", icon: Coins },
+    { path: "/steeze-stack", label: "Steeze Recharge", icon: Coins },
   ];
 
   const isActive = (path: string) => {
