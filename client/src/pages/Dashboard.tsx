@@ -177,125 +177,60 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* Right Sidebar - Visual Elements & Motivation */}
-            <aside className="xl:col-span-1 space-y-6">
-              {/* Achievement Visualization */}
-              <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm">
-                <div className="text-center mb-6">
-                  <div className="relative mx-auto w-24 h-24 mb-4">
-                    {/* Circular Progress Ring */}
-                    <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="transparent"
-                        className="text-gray-700"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="transparent"
-                        strokeDasharray={`${(user?.currentStreak || 0) * 10} 251.2`}
-                        className="text-gradient-to-r from-purple-400 to-pink-400"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl">🚀</span>
-                    </div>
-                  </div>
-                  <h3 className="text-white font-bold text-lg">Streak Power</h3>
-                  <p className="text-gray-400 text-sm">Keep going to unlock bonuses</p>
+            {/* Right Sidebar - Simple Vector Graphics */}
+            <aside className="xl:col-span-1 flex items-center justify-center">
+              <div className="space-y-8">
+                {/* Simple Learning Vector */}
+                <div className="text-center">
+                  <svg width="120" height="120" viewBox="0 0 120 120" className="mx-auto mb-4">
+                    <defs>
+                      <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#8B5CF6" />
+                        <stop offset="100%" stopColor="#EC4899" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="30" y="20" width="60" height="80" rx="4" fill="url(#bookGrad)" opacity="0.8" />
+                    <rect x="25" y="25" width="60" height="80" rx="4" fill="url(#bookGrad)" opacity="0.9" />
+                    <rect x="20" y="30" width="60" height="80" rx="4" fill="url(#bookGrad)" />
+                    <line x1="35" y1="50" x2="65" y2="50" stroke="white" strokeWidth="2" opacity="0.7" />
+                    <line x1="35" y1="60" x2="70" y2="60" stroke="white" strokeWidth="2" opacity="0.7" />
+                    <line x1="35" y1="70" x2="60" y2="70" stroke="white" strokeWidth="2" opacity="0.7" />
+                  </svg>
                 </div>
-              </div>
 
-              {/* Quick Stats Visualization */}
-              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
-                <h3 className="text-white font-bold mb-4 flex items-center">
-                  <Target className="w-5 h-5 mr-2 text-yellow-400" />
-                  Goals Progress
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-400">Daily Learning</span>
-                      <span className="text-white">1/1</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full w-full"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-400">Weekly Battles</span>
-                      <span className="text-white">2/5</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full w-2/5"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-400">Social Connections</span>
-                      <span className="text-white">7/10</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full w-3/4"></div>
-                    </div>
-                  </div>
+                {/* Simple Rocket Vector */}
+                <div className="text-center">
+                  <svg width="100" height="120" viewBox="0 0 100 120" className="mx-auto">
+                    <defs>
+                      <linearGradient id="rocketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#06B6D4" />
+                        <stop offset="100%" stopColor="#3B82F6" />
+                      </linearGradient>
+                    </defs>
+                    <ellipse cx="50" cy="25" rx="15" ry="20" fill="url(#rocketGrad)" />
+                    <rect x="35" y="25" width="30" height="40" fill="url(#rocketGrad)" />
+                    <polygon points="35,65 50,85 65,65" fill="#EF4444" opacity="0.8" />
+                    <polygon points="40,65 50,80 60,65" fill="#F59E0B" opacity="0.9" />
+                    <circle cx="45" cy="35" r="3" fill="white" opacity="0.8" />
+                    <circle cx="55" cy="45" r="3" fill="white" opacity="0.8" />
+                  </svg>
                 </div>
-              </div>
 
-              {/* Motivational Card */}
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10"></div>
-                <div className="relative z-10">
-                  <div className="text-center mb-4">
-                    <div className="text-4xl mb-2">⭐</div>
-                    <h3 className="text-white font-bold">Level Up Tip</h3>
-                  </div>
-                  <p className="text-gray-300 text-sm text-center leading-relaxed">
-                    "Consistency beats intensity. Complete daily lessons to build unstoppable momentum and unlock exclusive rewards."
-                  </p>
-                  <div className="flex justify-center mt-4">
-                    <div className="flex space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <div key={i} className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-yellow-400' : 'bg-gray-600'}`}></div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Achievement Badges */}
-              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
-                <h3 className="text-white font-bold mb-4 flex items-center">
-                  <Trophy className="w-5 h-5 mr-2 text-yellow-400" />
-                  Recent Achievements
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg p-3 text-center border border-purple-500/30">
-                    <div className="text-2xl mb-1">🔥</div>
-                    <div className="text-white text-xs font-semibold">Streak Master</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-3 text-center border border-blue-500/30">
-                    <div className="text-2xl mb-1">🎯</div>
-                    <div className="text-white text-xs font-semibold">Goal Crusher</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg p-3 text-center border border-green-500/30">
-                    <div className="text-2xl mb-1">💰</div>
-                    <div className="text-white text-xs font-semibold">Earner</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-lg p-3 text-center border border-pink-500/30">
-                    <div className="text-2xl mb-1">⚡</div>
-                    <div className="text-white text-xs font-semibold">Rising Star</div>
-                  </div>
+                {/* Simple Trophy Vector */}
+                <div className="text-center">
+                  <svg width="100" height="120" viewBox="0 0 100 120" className="mx-auto">
+                    <defs>
+                      <linearGradient id="trophyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#F59E0B" />
+                        <stop offset="100%" stopColor="#EAB308" />
+                      </linearGradient>
+                    </defs>
+                    <ellipse cx="50" cy="35" rx="20" ry="25" fill="url(#trophyGrad)" />
+                    <rect x="45" y="60" width="10" height="20" fill="url(#trophyGrad)" />
+                    <rect x="35" y="80" width="30" height="8" fill="url(#trophyGrad)" />
+                    <circle cx="50" cy="35" r="12" fill="#FCD34D" opacity="0.8" />
+                    <polygon points="45,30 50,25 55,30 52,35 48,35" fill="white" opacity="0.9" />
+                  </svg>
                 </div>
               </div>
             </aside>
