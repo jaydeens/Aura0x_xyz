@@ -1533,12 +1533,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const { amount } = req.body;
-      const purchaseRate = 0.01; // 1 Steeze = 0.01 USDT
-      const usdtAmount = amount * purchaseRate;
+      const purchaseRate = 0.0001; // 1 Steeze = 0.0001 ETH
+      const ethAmount = amount * purchaseRate;
       
       // Create payment intent with Stripe
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(usdtAmount * 100), // Convert to cents
+        amount: Math.round(ethAmount * 100), // Convert to cents
         currency: "usd",
         metadata: {
           userId: userId,
@@ -1549,7 +1549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         clientSecret: paymentIntent.client_secret,
-        usdtAmount,
+        ethAmount,
         steezeAmount: amount
       });
     } catch (error: any) {
@@ -1574,7 +1574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const amount = parseInt(paymentIntent.metadata.steezeAmount);
-      const usdtAmount = amount * 0.01;
+      const ethAmount = amount * 0.0001;
 
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
@@ -1593,8 +1593,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         type: "purchase",
         amount,
-        usdtAmount: usdtAmount.toString(),
-        rate: "0.01",
+        usdtAmount: ethAmount.toString(),
+        rate: "0.0001",
         status: "completed"
       });
 
@@ -1625,8 +1625,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { amount } = req.body;
-      const redeemRate = 0.007; // 1 Steeze = 0.007 USDT
-      const usdtAmount = amount * redeemRate;
+      const redeemRate = 0.00007; // 1 Steeze = 0.00007 ETH
+      const ethAmount = amount * redeemRate;
       
       // Get current user and check balance
       const user = await storage.getUser(userId);
@@ -1641,8 +1641,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         type: "redeem",
         amount,
-        usdtAmount: usdtAmount.toString(),
-        rate: "0.007",
+        usdtAmount: ethAmount.toString(),
+        rate: "0.00007",
         status: "completed"
       });
 
