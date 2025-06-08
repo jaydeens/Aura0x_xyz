@@ -113,7 +113,7 @@ export default function Leaderboard() {
       <Navigation />
       
       <main className="relative z-10 pt-20 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-full mx-auto px-8">
           {/* TikTok-Style Header */}
           <div className="text-center mb-16 relative">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">

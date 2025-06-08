@@ -67,7 +67,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-black">
       <Navigation />
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-full mx-auto px-8">
           {/* Hero Section */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
@@ -79,10 +79,10 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Stats Overview - Simplified Colors */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {/* Fame Points Card */}
-            <div className="md:col-span-2 bg-gray-800 rounded-2xl p-6 border border-gray-700">
+          {/* Stats Overview - Expanded Horizontal Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
+            {/* Fame Points Card - Larger */}
+            <div className="md:col-span-2 bg-gray-800 rounded-2xl p-8 border border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold">🔥 Fame Score</h3>
                 <Coins className="w-6 h-6 text-purple-400" />
@@ -92,7 +92,7 @@ export default function Dashboard() {
             </div>
 
             {/* Streak Card */}
-            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold">🔥 Streak</h3>
                 <Flame className="w-6 h-6 text-orange-400" />
@@ -102,13 +102,23 @@ export default function Dashboard() {
             </div>
 
             {/* Earnings Card */}
-            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold">💰 Earnings</h3>
                 <Target className="w-6 h-6 text-green-400" />
               </div>
               <div className="text-2xl font-black text-white mb-1">${user?.totalUsdtEarned || "0.00"}</div>
               <div className="text-gray-400 text-sm">USDT</div>
+            </div>
+
+            {/* Battle Wins Card */}
+            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-bold">🏆 Wins</h3>
+                <Trophy className="w-6 h-6 text-yellow-400" />
+              </div>
+              <div className="text-2xl font-black text-white mb-1">{user?.totalBattlesWon || 0}</div>
+              <div className="text-gray-400 text-sm">battles</div>
             </div>
           </div>
 
