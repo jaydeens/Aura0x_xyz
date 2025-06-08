@@ -2,15 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import Navigation from "@/components/Navigation";
-import LeaderboardTable from "@/components/LeaderboardTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Trophy, Crown, TrendingUp, Users, Zap, Target, Flame, Search, User } from "lucide-react";
+import { Trophy, Crown, Users, Zap, Target, Flame, Search, User } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 
@@ -20,22 +17,6 @@ export default function Leaderboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
-
   const [selectedTab, setSelectedTab] = useState("all-time");
 
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery({
@@ -49,46 +30,10 @@ export default function Leaderboard() {
     retry: false,
   });
 
-  if (isLoading || !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div className="text-3xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
-            LOADING HALL OF FAME...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const getUserRank = () => {
-    if (!user || !leaderboard) return null;
-    const rank = leaderboard.findIndex((u: any) => u.id === user.id) + 1;
-    return rank > 0 ? rank : null;
-  };
-
-  // Function to get user's Aura level based on streak
-  const getUserAuraLevel = (currentStreak: number) => {
-    if (currentStreak >= 30) return { name: 'Aura Vader', color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/20' };
-    if (currentStreak >= 15) return { name: 'Grinder', color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/20' };
-    if (currentStreak >= 10) return { name: 'Dedicated', color: 'text-[#34D399]', bg: 'bg-[#34D399]/20' };
-    if (currentStreak >= 5) return { name: 'Attention Seeker', color: 'text-[#F97316]', bg: 'bg-[#F97316]/20' };
-    return { name: 'Clout Chaser', color: 'text-[#9CA3AF]', bg: 'bg-[#9CA3AF]/20' };
-  };
-
-  // Function to format numbers intelligently
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    } else {
-      return num.toString();
-    }
-  };
+  const { data: stats } = useQuery({
+    queryKey: ['/api/stats'],
+    retry: false,
+  });
 
   // Search for users
   const searchUsers = async (query: string) => {
@@ -123,86 +68,100 @@ export default function Leaderboard() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const getLeaderboardStats = () => {
-    if (!leaderboard || leaderboard.length === 0) return null;
-    
-    const totalAura = leaderboard.reduce((sum: number, user: any) => sum + (user.auraPoints || 0), 0);
-    const avgAura = Math.floor(totalAura / leaderboard.length);
-    const totalBattles = leaderboard.reduce((sum: number, user: any) => 
-      sum + (user.totalBattlesWon || 0) + (user.totalBattlesLost || 0), 0);
-    
-    return {
-      totalUsers: leaderboard.length,
-      totalAura,
-      avgAura,
-      totalBattles,
-    };
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
+
+  // Function to get user's Aura level based on streak
+  const getUserAuraLevel = (currentStreak: number) => {
+    if (currentStreak >= 30) return { name: 'Aura Vader', color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/20' };
+    if (currentStreak >= 15) return { name: 'Grinder', color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/20' };
+    if (currentStreak >= 10) return { name: 'Dedicated', color: 'text-[#34D399]', bg: 'bg-[#34D399]/20' };
+    if (currentStreak >= 5) return { name: 'Attention Seeker', color: 'text-[#F97316]', bg: 'bg-[#F97316]/20' };
+    return { name: 'Clout Chaser', color: 'text-[#9CA3AF]', bg: 'bg-[#9CA3AF]/20' };
+  };
+
+  // Function to format numbers intelligently
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    } else {
+      return num.toString();
+    }
+  };
+
+  const getUserRank = () => {
+    if (!user || !leaderboard) return null;
+    const rank = leaderboard.findIndex((u: any) => u.id === user.id) + 1;
+    return rank > 0 ? rank : null;
   };
 
   const userRank = getUserRank();
-  const stats = getLeaderboardStats();
 
-  // Filter leaderboard by different criteria
-  const getTopByBattles = () => {
-    if (!leaderboard) return [];
-    return [...leaderboard]
-      .sort((a: any, b: any) => (b.totalBattlesWon || 0) - (a.totalBattlesWon || 0))
-      .slice(0, 10);
-  };
-
-  const getTopByStreak = () => {
-    if (!leaderboard) return [];
-    return [...leaderboard]
-      .sort((a: any, b: any) => (b.currentStreak || 0) - (a.currentStreak || 0))
-      .slice(0, 10);
-  };
-
-
+  if (isLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="text-3xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
+            LOADING HALL OF FAME...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 relative overflow-hidden">
-      {/* TikTok Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
+      {/* Animated background orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full blur-2xl animate-float"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-gradient-to-br from-pink-600/25 to-orange-600/25 rounded-full blur-3xl animate-pulse-slow delay-1000"></div>
       </div>
+
       <Navigation />
-      <main className="relative z-10 pt-20 pb-8">
-        <div className="max-w-full mx-auto px-8">
-          {/* TikTok-Style Header */}
-          <div className="text-center mb-16 relative">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
-              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
-              <span className="text-white font-black text-sm tracking-wider">HALL OF FAME</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-black mb-6 text-white leading-tight">
-              TOP
-              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
-                CREATORS
-              </span>
-              <span className="block text-white">GOING VIRAL</span>
+      
+      <main className="relative pt-20 pb-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-6xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              🏆 AURA LEADERBOARD 🏆
             </h1>
-            
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">
-              The legends who made it to the top of the fame ladder 🔥 See who's trending in the viral universe
+            <p className="text-2xl text-white/80 font-semibold">
+              Rise through the ranks and claim your spot among the elite
             </p>
           </div>
 
-          {/* Community Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {/* Main Community Card */}
-            <div className="md:col-span-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-8 text-white group hover:scale-105 transition-all duration-300">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Total Users */}
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-black uppercase tracking-wider">👥 Community</h3>
-                <Users className="w-8 h-8 text-white/80" />
+                <h3 className="text-sm font-black uppercase tracking-wider">👥 Creators</h3>
+                <Users className="w-6 h-6 text-white/80" />
               </div>
-              <div className="text-5xl font-black mb-2">{stats?.totalUsers?.toLocaleString() || "0"}</div>
-              <div className="text-white/80 font-medium">Creators Going Viral</div>
+              <div className="text-3xl font-black mb-1">{stats?.totalUsers || 0}</div>
+              <div className="text-white/80 text-sm">registered</div>
             </div>
 
-            {/* Total Fame */}
+            {/* Total Aura */}
             <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-6 text-white group hover:scale-105 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-black uppercase tracking-wider">⚡ Aura</h3>
@@ -218,7 +177,7 @@ export default function Leaderboard() {
                 <h3 className="text-sm font-black uppercase tracking-wider">🎯 Average</h3>
                 <Target className="w-6 h-6 text-white/80" />
               </div>
-              <div className="text-3xl font-black mb-1">{stats?.avgAura?.toLocaleString() || "0"}</div>
+              <div className="text-3xl font-black mb-1">{stats?.averageAuraPerUser?.toLocaleString() || "0"}</div>
               <div className="text-white/80 text-sm">per creator</div>
             </div>
           </div>
