@@ -21,6 +21,8 @@ export function setupTwitterAuth(app: Express) {
     pkce: true,
   }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
     try {
+      console.log("Attempting to fetch user profile with access token");
+      
       // Fetch user profile from Twitter API
       const userResponse = await fetch('https://api.twitter.com/2/users/me?user.fields=profile_image_url,public_metrics,verified', {
         headers: {
@@ -29,11 +31,16 @@ export function setupTwitterAuth(app: Express) {
         },
       });
       
+      console.log("Twitter API response status:", userResponse.status);
+      
       if (!userResponse.ok) {
-        throw new Error('Failed to fetch Twitter user profile');
+        const errorText = await userResponse.text();
+        console.error("Twitter API error response:", errorText);
+        throw new Error(`Failed to fetch Twitter user profile: ${userResponse.status} - ${errorText}`);
       }
       
       const userData = await userResponse.json();
+      console.log("Twitter user data received:", userData);
       const twitterUser = userData.data;
       
       // Create or update user with Twitter data
