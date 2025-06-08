@@ -260,7 +260,7 @@ export default function SteezeStack() {
       <Navigation />
       
       <main className="pt-20 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-full mx-auto px-8">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
@@ -271,8 +271,8 @@ export default function SteezeStack() {
             </p>
           </div>
 
-          {/* Balance Breakdown */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {/* Balance Breakdown - Expanded */}
+          <div className="grid md:grid-cols-5 gap-6 mb-8">
             <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-gray-400">Total Steeze Balance</CardTitle>
@@ -303,6 +303,28 @@ export default function SteezeStack() {
               <CardContent>
                 <div className="text-2xl font-bold text-[#FF6B6B]">{(user?.purchasedSteeze || 0).toLocaleString()}</div>
                 <p className="text-xs text-gray-500">Non-redeemable</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-400">Total Spent</CardTitle>
+                <Target className="h-4 w-4 text-[#FFD700]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-[#FFD700]">${((user?.purchasedSteeze || 0) * 0.01).toFixed(2)}</div>
+                <p className="text-xs text-gray-500">USD invested</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#1A1A1B] border-[#8000FF]/20">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-400">Redeemable Value</CardTitle>
+                <TrendingUp className="h-4 w-4 text-[#40E0D0]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-[#40E0D0]">${((user?.battleEarnedSteeze || 0) * 0.01).toFixed(2)}</div>
+                <p className="text-xs text-gray-500">Can withdraw</p>
               </CardContent>
             </Card>
           </div>

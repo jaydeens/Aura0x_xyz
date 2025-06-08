@@ -78,7 +78,7 @@ export default function Settings() {
     <div className="min-h-screen bg-transparent">
       <Navigation />
       <main className="pt-20 pb-8">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-full mx-auto px-8">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-black text-white mb-2">⚙️ Account Settings</h1>
@@ -98,7 +98,7 @@ export default function Settings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <Label htmlFor="username" className="text-white">Username</Label>
                     <Input
@@ -114,6 +114,15 @@ export default function Settings() {
                     <Input
                       id="email"
                       value={(user as any)?.email || "Not connected"}
+                      className="bg-gray-700 border-gray-600 text-white"
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="wallet" className="text-white">Wallet ID</Label>
+                    <Input
+                      id="wallet"
+                      value={(user as any)?.id?.substring(0, 20) + "..." || "Not connected"}
                       className="bg-gray-700 border-gray-600 text-white"
                       readOnly
                     />
@@ -191,22 +200,30 @@ export default function Settings() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  <div className="text-center p-6 bg-gray-700 rounded-lg">
                     <div className="text-2xl font-bold text-white">{(user as any)?.auraPoints || 0}</div>
                     <div className="text-sm text-gray-400">Fame Points</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                  <div className="text-center p-6 bg-gray-700 rounded-lg">
                     <div className="text-2xl font-bold text-white">{(user as any)?.currentStreak || 0}</div>
                     <div className="text-sm text-gray-400">Day Streak</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                  <div className="text-center p-6 bg-gray-700 rounded-lg">
                     <div className="text-2xl font-bold text-white">{(user as any)?.totalBattlesWon || 0}</div>
                     <div className="text-sm text-gray-400">Battles Won</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-700 rounded-lg">
+                  <div className="text-center p-6 bg-gray-700 rounded-lg">
                     <div className="text-2xl font-bold text-white">${(user as any)?.totalUsdtEarned || "0.00"}</div>
                     <div className="text-sm text-gray-400">USDT Earned</div>
+                  </div>
+                  <div className="text-center p-6 bg-gray-700 rounded-lg">
+                    <div className="text-2xl font-bold text-white">{(user as any)?.totalBattlesLost || 0}</div>
+                    <div className="text-sm text-gray-400">Battles Lost</div>
+                  </div>
+                  <div className="text-center p-6 bg-gray-700 rounded-lg">
+                    <div className="text-2xl font-bold text-white">{(user as any)?.purchasedSteeze || 0}</div>
+                    <div className="text-sm text-gray-400">Steeze Tokens</div>
                   </div>
                 </div>
               </CardContent>
