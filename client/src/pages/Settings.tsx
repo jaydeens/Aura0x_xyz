@@ -130,7 +130,7 @@ export default function Settings() {
       const formData = new FormData();
       formData.append('profileImage', file);
       
-      const response = await fetch('/api/auth/upload-profile-image', {
+      const response = await fetch('/api/user/upload-profile-image', {
         method: 'POST',
         body: formData
       });

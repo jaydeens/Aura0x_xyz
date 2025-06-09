@@ -701,6 +701,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate the image URL (accessible via static file serving)
       const imageUrl = `/uploads/${req.file.filename}`;
 
+      // Update user's profile with the new image URL
+      await storage.updateUserProfile(userId, { profileImageUrl: imageUrl });
+
       res.json({ 
         imageUrl,
         message: "Profile image uploaded successfully" 
