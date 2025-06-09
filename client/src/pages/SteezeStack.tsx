@@ -807,6 +807,11 @@ export default function SteezeStack() {
                           <p className="text-white/60 text-sm">
                             {new Date(tx.createdAt).toLocaleDateString()}
                           </p>
+                          {tx.transactionHash && (
+                            <p className="text-white/40 text-xs mt-1 font-mono">
+                              {tx.transactionHash.slice(0, 10)}...{tx.transactionHash.slice(-8)}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -814,14 +819,16 @@ export default function SteezeStack() {
                           {tx.status}
                         </Badge>
                         {tx.transactionHash && (
-                          <a
-                            href={`${BASE_SEPOLIA.blockExplorer}tx/${tx.transactionHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 text-sm mt-1"
-                          >
-                            View <ExternalLink className="w-3 h-3" />
-                          </a>
+                          <div className="mt-1">
+                            <a
+                              href={`${BASE_SEPOLIA.blockExplorer}tx/${tx.transactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 text-sm underline"
+                            >
+                              View on Explorer <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
                         )}
                       </div>
                     </div>
