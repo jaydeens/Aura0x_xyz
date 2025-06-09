@@ -52,6 +52,7 @@ function Router() {
       <Route path="/arena" component={Battles} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/profile" component={Profile} />
+      <Route path="/profile/:userId" component={UserProfilePage} />
       <Route path="/user/:userId" component={UserProfilePage} />
       <Route path="/steeze-stack" component={SteezeStack} />
       <Route path="/settings" component={Settings} />
