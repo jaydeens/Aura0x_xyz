@@ -47,11 +47,14 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       return response.json();
     },
     onSuccess: (data) => {
+      const message = data.message || (linkMode 
+        ? "Successfully linked your wallet to your account."
+        : "Successfully authenticated with your wallet.");
+      
       toast({
-        title: linkMode ? "Wallet Linked" : "Wallet Connected",
-        description: linkMode 
-          ? "Successfully linked your wallet to your account."
-          : "Successfully authenticated with your wallet.",
+        title: data.bonusAwarded ? "🎉 Wallet Connected!" : (linkMode ? "Wallet Linked" : "Wallet Connected"),
+        description: message,
+        duration: data.bonusAwarded ? 6000 : 3000
       });
       onConnect?.(address);
       if (!linkMode) {
