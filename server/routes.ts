@@ -1758,18 +1758,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create a new vouch with ETH payment
+  app.post('/api/vouch/create', isAuthenticated, async (req: any, res) => {
+    try {
+      const { vouchedUserId, ethAmount, transactionHash } = req.body;
+      const voucherId = req.session?.user?.id || req.user?.claims?.sub;
+
+      if (!voucherId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Validate ETH amount (must be exactly 0.0001 ETH)
+      const requiredAmount = 0.0001;
+      if (Math.abs(ethAmount - requiredAmount) > 0.000001) {
+        return res.status(400).json({ 
+          message: `Vouching amount must be exactly ${requiredAmount} ETH` 
+        });
+      }
+
+      // Get voucher and vouched user details
+      const voucher = await storage.getUser(voucherId);
+      const vouchedUser = await storage.getUser(vouchedUserId);
+
+      if (!voucher || !vouchedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (!voucher.walletAddress) {
+        return res.status(400).json({ message: "Voucher must have a connected wallet" });
+      }
+
+      // Get voucher's aura level to determine multiplier
+      const auraLevels = await storage.getAuraLevels();
+      const userLevel = auraLevels.find(level => 
+        voucher.streakDays >= level.minDays && voucher.streakDays <= level.maxDays
+      ) || auraLevels[0]; // Default to first level if none found
+
+      // Calculate aura points with level multiplier
+      const baseAuraPoints = 50;
+      const finalAuraPoints = Math.round(baseAuraPoints * userLevel.vouchingMultiplier);
+
+      // Create vouch record
+      const vouch = await storage.createVouch({
+        voucherId,
+        vouchedUserId,
+        ethAmount,
+        auraPoints: finalAuraPoints,
+        transactionHash,
+        status: 'completed'
+      });
+
+      // Award aura points to the vouched user
+      await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
+
+      // Create notification for vouched user
+      await storage.createNotification({
+        userId: vouchedUserId,
+        type: 'vouch_received',
+        title: 'You received a vouch!',
+        message: `${voucher.username} vouched for you with ${ethAmount} ETH and awarded ${finalAuraPoints} aura points!`,
+        isRead: false
+      });
+
+      res.json({
+        success: true,
+        vouch,
+        auraAwarded: finalAuraPoints,
+        multiplier: userLevel.vouchingMultiplier,
+        levelName: userLevel.name
+      });
+    } catch (error: any) {
+      console.error("Error creating vouch:", error);
+      res.status(500).json({ message: "Failed to create vouch" });
+    }
+  });
+
   // Get vouching contract info
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: web3Service.VOUCHING_CONTRACT?.address || "0x0000000000000000000000000000000000000000",
+        contractAddress: "0x0000000000000000000000000000000000000000", // Contract not deployed yet
         chainId: 84532,
         networkName: "Base Sepolia",
-        platformFee: 40 // 40% to platform, 60% to vouched user
+        platformFee: 40, // 40% to platform, 60% to vouched user
+        requiredAmount: 0.0001,
+        baseAuraPoints: 50
       });
     } catch (error: any) {
       console.error("Error getting vouch contract info:", error);
       res.status(500).json({ message: "Failed to get contract information" });
+    }
+  });
+
+  // Get vouching stats for a user
+  app.get('/api/vouch/stats/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const vouches = await storage.getUserVouches(userId);
+      const user = await storage.getUser(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Calculate stats
+      const vouchesGiven = vouches.filter(v => v.voucherId === userId);
+      const vouchesReceived = vouches.filter(v => v.vouchedUserId === userId);
+      
+      const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + v.ethAmount, 0);
+      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (v.ethAmount * 0.6), 0); // 60% to user
+      const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
+
+      res.json({
+        vouchesGiven: vouchesGiven.length,
+        vouchesReceived: vouchesReceived.length,
+        totalEthGiven,
+        totalEthReceived,
+        totalAuraReceived,
+        recentVouches: vouches.slice(0, 10)
+      });
+    } catch (error: any) {
+      console.error("Error getting vouch stats:", error);
+      res.status(500).json({ message: "Failed to get vouch stats" });
     }
   });
 

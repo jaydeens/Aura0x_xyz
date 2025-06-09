@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +26,8 @@ import {
   Trophy, 
   Star,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Wallet
 } from "lucide-react";
 
 interface VouchFormProps {
@@ -35,20 +36,45 @@ interface VouchFormProps {
 
 export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const [selectedUserId, setSelectedUserId] = useState(preselectedUserId || "");
-  const [ethAmount, setEthAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fixed ETH amount for vouching
+  const REQUIRED_ETH_AMOUNT = 0.0001;
 
   const { data: leaderboard } = useQuery({
     queryKey: ["/api/leaderboard"],
     retry: false,
   });
 
+  const { data: auraLevels } = useQuery({
+    queryKey: ["/api/aura-levels"],
+    retry: false,
+  });
+
+  const { data: contractInfo } = useQuery({
+    queryKey: ["/api/vouch/contract-info"],
+    retry: false,
+  });
+
+  // Get current user's aura level and multiplier
+  const getUserLevel = () => {
+    if (!user || !auraLevels) return null;
+    return auraLevels.find(level => 
+      (user.streakDays || 0) >= level.minDays && (user.streakDays || 0) <= level.maxDays
+    ) || auraLevels[0];
+  };
+
+  const userLevel = getUserLevel();
+  const baseAuraPoints = 50;
+  const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * userLevel.vouchingMultiplier) : baseAuraPoints;
+
   const vouchMutation = useMutation({
-    mutationFn: async (data: { toUserId: string; usdtAmount: number; transactionHash: string }) => {
-      return await apiRequest("POST", "/api/vouch", data);
+    mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
+      return await apiRequest("POST", "/api/vouch/create", data);
     },
     onSuccess: (data) => {
       toast({

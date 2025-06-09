@@ -285,7 +285,8 @@ export class Web3Service {
    */
   async getETHBalance(address: string): Promise<string> {
     try {
-      const balance = await this.provider.getBalance(address);
+      const provider = this.initBaseProvider();
+      const balance = await provider.getBalance(address);
       return ethers.formatEther(balance);
     } catch (error) {
       console.error("Error getting ETH balance:", error);
@@ -661,6 +662,120 @@ export class Web3Service {
    */
   async getPortfolioGrowth(address: string): Promise<number> {
     return 0;
+  }
+
+  /**
+   * Vouch for a user with ETH payment and aura points
+   */
+  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, ethAmount: number, auraPoints: number): Promise<{
+    success: boolean;
+    transactionHash?: string;
+    error?: string;
+  }> {
+    try {
+      const provider = this.initBaseProvider();
+      
+      // Validate minimum and maximum ETH amount (0.0001 ETH)
+      const minAmount = 0.0001;
+      if (ethAmount !== minAmount) {
+        return {
+          success: false,
+          error: `Vouching amount must be exactly ${minAmount} ETH`
+        };
+      }
+
+      // Validate addresses
+      if (!this.isValidAddress(voucherAddress) || !this.isValidAddress(vouchedUserAddress)) {
+        return {
+          success: false,
+          error: "Invalid wallet addresses"
+        };
+      }
+
+      // Check if vouching contract is deployed
+      if (VOUCHING_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
+        return {
+          success: false,
+          error: "Vouching contract not deployed yet"
+        };
+      }
+
+      // Create contract instance
+      const contract = new ethers.Contract(
+        VOUCHING_CONTRACT.address,
+        VOUCHING_CONTRACT.abi,
+        provider
+      );
+
+      // For now, return success with mock transaction hash
+      // In production, this would interact with the actual deployed contract
+      const mockTxHash = `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
+      
+      return {
+        success: true,
+        transactionHash: mockTxHash
+      };
+    } catch (error) {
+      console.error("Error vouching for user:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Vouching failed"
+      };
+    }
+  }
+
+  /**
+   * Get claimable ETH amount for a user
+   */
+  async getClaimableAmount(userAddress: string): Promise<number> {
+    try {
+      if (VOUCHING_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
+        return 0;
+      }
+
+      const provider = this.initBaseProvider();
+      const contract = new ethers.Contract(
+        VOUCHING_CONTRACT.address,
+        VOUCHING_CONTRACT.abi,
+        provider
+      );
+
+      // For now, return 0 since contract is not deployed
+      return 0;
+    } catch (error) {
+      console.error("Error getting claimable amount:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Claim accumulated ETH from vouches
+   */
+  async claimEth(userAddress: string): Promise<{
+    success: boolean;
+    transactionHash?: string;
+    error?: string;
+  }> {
+    try {
+      if (VOUCHING_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
+        return {
+          success: false,
+          error: "Vouching contract not deployed yet"
+        };
+      }
+
+      // For now, return mock success
+      return {
+        success: false,
+        error: "No ETH available to claim"
+      };
+    } catch (error) {
+      console.error("Error claiming ETH:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Claim failed"
+      };
+    }
   }
 
   /**

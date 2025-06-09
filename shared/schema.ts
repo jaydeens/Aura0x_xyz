@@ -141,6 +141,7 @@ export const auraLevels = pgTable("aura_levels", {
   minDays: integer("min_days").notNull(),
   maxDays: integer("max_days"),
   multiplier: decimal("multiplier").notNull(),
+  vouchingMultiplier: decimal("vouching_multiplier").notNull().default("1.0"),
   color: varchar("color").notNull(),
   description: text("description"),
 });
