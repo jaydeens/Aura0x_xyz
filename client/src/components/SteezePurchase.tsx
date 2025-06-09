@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Zap, Loader2, ExternalLink } from "lucide-react";
+import { ethers } from "ethers";
 
 declare global {
   interface Window {
@@ -228,7 +229,15 @@ export default function SteezePurchase({
         return;
       }
 
-      // Convert ETH to Wei
+      // Calculate Steeze amount based on ETH input and rate
+      const steezeAmount = Math.floor(ethValue * (purchaseInfo?.steezePerEth || 10000));
+      
+      // Encode buySteeze(uint256 amount) function call
+      const ABI = ["function buySteeze(uint256 amount)"];
+      const iface = new ethers.Interface(ABI);
+      const data = iface.encodeFunctionData("buySteeze", [steezeAmount]);
+      
+      // Calculate required ETH value based on buy price
       const weiAmount = (ethValue * 1e18).toString();
 
       // Send transaction to smart contract
@@ -236,7 +245,7 @@ export default function SteezePurchase({
         to: purchaseInfo?.contractAddress,
         from: walletAddress,
         value: '0x' + BigInt(weiAmount).toString(16),
-        data: '0x' + 'bea9849e', // purchaseSteeze() function selector
+        data: data,
       };
 
       const txHash = await window.ethereum.request({

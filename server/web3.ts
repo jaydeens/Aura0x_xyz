@@ -30,11 +30,18 @@ export const BASE_SEPOLIA = {
 export const STEEZE_CONTRACT = {
   address: process.env.STEEZE_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000",
   abi: [
-    "function purchaseSteeze() external payable",
-    "function getSteezeRate() external view returns (uint256)",
+    "function buySteeze(uint256 amount) external payable",
+    "function buyPrice() external view returns (uint256)",
+    "function sellPrice() external view returns (uint256)",
     "function steezeBalance(address user) external view returns (uint256)",
-    "function totalSupply() external view returns (uint256)",
-    "event SteezePurchased(address indexed user, uint256 ethAmount, uint256 steezeAmount)"
+    "function withdrawSteeze(uint256 amount) external",
+    "function owner() external view returns (address)",
+    "function setBuyPrice(uint256 newBuyPrice) external",
+    "function setSellPrice(uint256 newSellPrice) external",
+    "function transferOwnership(address newOwner) external",
+    "event Bought(address indexed buyer, uint256 amount)",
+    "event Withdrawn(address indexed user, uint256 amount)",
+    "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)"
   ]
 };
 
@@ -236,8 +243,12 @@ export class Web3Service {
       const provider = this.initBaseProvider();
       const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
       
-      const rate = await contract.getSteezeRate();
-      return parseInt(rate.toString());
+      const buyPrice = await contract.buyPrice();
+      // buyPrice is the cost in wei per 1 Steeze token
+      // So rate = 1 ETH (1e18 wei) / buyPrice = tokens per ETH
+      const oneEth = ethers.parseEther("1");
+      const rate = Number(oneEth) / Number(buyPrice);
+      return Math.floor(rate);
     } catch (error) {
       console.error("Error getting Steeze rate:", error);
       // Default rate: 10000 Steeze per 1 ETH
