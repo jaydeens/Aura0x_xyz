@@ -129,7 +129,7 @@ export function setupTwitterAuth(app: Express) {
         existingUserId = (req.session as any).user.id;
       }
 
-      let user;
+      let user: any;
       
       if (existingUserId) {
         // This is a binding request - bind Twitter to existing user
@@ -151,8 +151,16 @@ export function setupTwitterAuth(app: Express) {
         
         // Keep existing session but refresh user data
         (req.session as any).user = user;
-        console.log("Twitter account successfully bound to user:", existingUserId);
-        res.redirect("/settings?twitter_connected=true");
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error:", err);
+          }
+          console.log("Twitter account successfully bound to user:", existingUserId);
+          // Add small delay to ensure session is persisted
+          setTimeout(() => {
+            res.redirect("/settings?twitter_connected=true");
+          }, 100);
+        });
       } else {
         // This is a new login - check if Twitter user already exists
         const existingTwitterUser = await storage.getUserByTwitter(twitterUser.id);
@@ -180,10 +188,18 @@ export function setupTwitterAuth(app: Express) {
           });
         }
         
-        // Set up session
+        // Set up session and save before redirect
         (req.session as any).user = user;
-        console.log("Twitter authentication successful for user:", user.id);
-        res.redirect("/dashboard");
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error:", err);
+          }
+          console.log("Twitter authentication successful for user:", user.id);
+          // Add small delay to ensure session is persisted
+          setTimeout(() => {
+            res.redirect("/dashboard");
+          }, 100);
+        });
       }
       
     } catch (error) {
