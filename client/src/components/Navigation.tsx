@@ -73,13 +73,13 @@ export default function Navigation() {
               return (
                 <Link key={item.path} href={item.path}>
                   <div
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-2xl transition-all cursor-pointer font-bold text-sm uppercase tracking-wide ${
+                    className={`group flex items-center space-x-2 px-4 py-2 rounded-2xl transition-all duration-300 ease-in-out cursor-pointer font-bold text-sm uppercase tracking-wide ${
                       isActive(item.path)
                         ? "text-white bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg transform scale-105"
-                        : "text-gray-300 hover:text-pink-400 hover:bg-pink-500/10"
+                        : "text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 hover:scale-102 hover:shadow-md"
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4 transition-transform duration-300 ease-in-out group-hover:scale-110" />
                     <span>{item.label}</span>
                   </div>
                 </Link>
@@ -185,19 +185,24 @@ export default function Navigation() {
         </div>
 
         {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-primary/20">
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}>
+          <div className="py-4 border-t border-primary/20">
             <div className="space-y-2">
-              {navItems.map((item) => {
+              {navItems.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <Link key={item.path} href={item.path}>
                     <div
-                      className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors cursor-pointer ${
+                      className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-300 ease-in-out cursor-pointer transform ${
+                        mobileMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
+                      } ${
                         isActive(item.path)
-                          ? "text-primary bg-primary/10"
-                          : "text-gray-300 hover:text-primary hover:bg-primary/5"
+                          ? "text-primary bg-primary/10 scale-105"
+                          : "text-gray-300 hover:text-primary hover:bg-primary/5 hover:scale-102"
                       }`}
+                      style={{ transitionDelay: `${index * 50}ms` }}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Icon className="w-5 h-5" />
@@ -220,7 +225,7 @@ export default function Navigation() {
               )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );
