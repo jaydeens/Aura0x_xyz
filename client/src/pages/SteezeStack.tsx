@@ -116,17 +116,38 @@ export default function SteezeStack() {
 
   // Switch to Base Sepolia network
   const switchToBaseSepolia = async () => {
-    if (!window.ethereum) return;
+    if (!window.ethereum) {
+      toast({
+        title: "Wallet Not Found",
+        description: "Please install MetaMask or another Web3 wallet",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
+      console.log(`Switching to Base Sepolia (Chain ID: ${BASE_SEPOLIA.chainId})`);
+      
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${BASE_SEPOLIA.chainId.toString(16)}` }],
       });
-      setCurrentChainId(BASE_SEPOLIA.chainId);
+      
+      // Update chain ID after successful switch
+      const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+      setCurrentChainId(parseInt(newChainId, 16));
+      
+      toast({
+        title: "Network Switched",
+        description: "Successfully switched to Base Sepolia",
+      });
     } catch (error: any) {
+      console.error("Network switch error:", error);
+      
       if (error.code === 4902) {
+        // Network not added yet, try to add it
         try {
+          console.log("Adding Base Sepolia network...");
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
             params: [{
@@ -141,8 +162,17 @@ export default function SteezeStack() {
               },
             }],
           });
-          setCurrentChainId(BASE_SEPOLIA.chainId);
+          
+          // Update chain ID after successful add
+          const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+          setCurrentChainId(parseInt(newChainId, 16));
+          
+          toast({
+            title: "Network Added",
+            description: "Base Sepolia network added and switched successfully",
+          });
         } catch (addError: any) {
+          console.error("Network add error:", addError);
           toast({
             title: "Network Add Failed",
             description: addError.message || "Failed to add Base Sepolia network",
@@ -162,8 +192,16 @@ export default function SteezeStack() {
   // Purchase mutation
   const purchaseMutation = useMutation({
     mutationFn: async ({ ethValue, steezeAmount }: { ethValue: number; steezeAmount: number }) => {
-      if (!window.ethereum || !isConnected || currentChainId !== BASE_SEPOLIA.chainId) {
-        throw new Error("Please connect wallet and switch to Base Sepolia");
+      if (!window.ethereum) {
+        throw new Error("MetaMask not detected. Please install MetaMask.");
+      }
+      
+      if (!isConnected) {
+        throw new Error("Please connect your wallet first");
+      }
+      
+      if (currentChainId !== BASE_SEPOLIA.chainId) {
+        throw new Error(`Please switch to Base Sepolia network. Current network: ${currentChainId}`);
       }
 
       // Verify wallet matches user account
@@ -384,6 +422,17 @@ export default function SteezeStack() {
   };
 
   const isOnCorrectNetwork = currentChainId === BASE_SEPOLIA.chainId;
+  
+  // Debug logging (remove in production)
+  useEffect(() => {
+    console.log("Wallet State:", { 
+      isConnected, 
+      walletAddress, 
+      currentChainId, 
+      expectedChainId: BASE_SEPOLIA.chainId,
+      isOnCorrectNetwork 
+    });
+  }, [isConnected, walletAddress, currentChainId, isOnCorrectNetwork]);
 
   // Initialize wallet connection on page load
   useEffect(() => {
