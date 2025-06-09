@@ -461,6 +461,34 @@ export default function SteezeStack() {
             <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                    <ArrowUpRight className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/60">Purchased</p>
+                    <p className="text-2xl font-bold text-white">{purchasedSteeze.toLocaleString()} STEEZE</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/60">Earned</p>
+                    <p className="text-2xl font-bold text-white">{earnedSteeze.toLocaleString()} STEEZE</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center">
                     <Target className="w-6 h-6 text-white" />
                   </div>
