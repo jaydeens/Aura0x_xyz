@@ -2017,6 +2017,13 @@ Building my Web3 knowledge one lesson at a time! 🚀
 
 #AuraLearning #Web3Education #BuildingMyAura #LearnToEarn`;
 
+      // Check if user has proper Twitter API access
+      if (!user.twitterAccessToken || !user.twitterRefreshToken) {
+        return res.status(400).json({ 
+          message: "Twitter posting requires reconnecting your account with posting permissions. Please disconnect and reconnect your X account." 
+        });
+      }
+
       // Post to X using Twitter API v2
       const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
         method: 'POST',
@@ -2030,9 +2037,19 @@ Building my Web3 knowledge one lesson at a time! 🚀
       });
 
       if (!tweetResponse.ok) {
-        const errorData = await tweetResponse.json();
+        const errorData = await tweetResponse.json().catch(() => ({}));
         console.error("X posting error:", errorData);
-        return res.status(500).json({ message: "Failed to post to X" });
+        
+        // Check if it's an authentication issue
+        if (tweetResponse.status === 401 || tweetResponse.status === 403) {
+          return res.status(400).json({ 
+            message: "Twitter posting permissions expired. Please disconnect and reconnect your X account to enable posting." 
+          });
+        }
+        
+        return res.status(500).json({ 
+          message: "Failed to post to X. Please try again or reconnect your account." 
+        });
       }
 
       const tweetData = await tweetResponse.json();

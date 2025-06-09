@@ -443,6 +443,22 @@ export default function Settings() {
                       </Button>
                     </div>
 
+                    {/* Twitter Posting Permission Notice */}
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="text-amber-400 font-semibold mb-1">Posting Permissions Required</h5>
+                          <p className="text-amber-300/80 text-sm mb-3">
+                            If you're getting errors when sharing tweets, your X account needs to be reconnected with posting permissions.
+                          </p>
+                          <p className="text-amber-300/60 text-xs">
+                            Click "Disconnect" above, then reconnect your account to enable posting.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Tweet Composer */}
                     {showTweetComposer && (
                       <div className="bg-black/30 rounded-xl p-4 border border-blue-500/20">

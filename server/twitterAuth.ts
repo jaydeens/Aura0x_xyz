@@ -33,7 +33,7 @@ export function setupTwitterAuth(app: Express) {
         response_type: 'code',
         client_id: process.env.TWITTER_CLIENT_ID!,
         redirect_uri: 'https://aura0x.xyz/api/auth/twitter/callback',
-        scope: 'tweet.read users.read offline.access',
+        scope: 'tweet.read tweet.write users.read offline.access',
         state: state,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256'
