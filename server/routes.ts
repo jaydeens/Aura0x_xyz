@@ -2109,10 +2109,17 @@ Ready for the next challenger!
 
 #AuraBattle #Web3Gaming #Victory #CryptoChampion`;
 
+      // Check if user has proper Twitter API access
+      if (!twitterUser?.twitterAccessToken || !twitterUser?.twitterRefreshToken) {
+        return res.status(400).json({ 
+          message: "Twitter posting requires reconnecting your account with posting permissions. Please disconnect and reconnect your X account." 
+        });
+      }
+
       const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Authorization': `Bearer ${twitterUser.twitterAccessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text: tweetText }),
