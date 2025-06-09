@@ -309,14 +309,6 @@ export default function UserProfile({ userId }: UserProfileProps) {
                         {REQUIRED_ETH_AMOUNT} ETH
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/80">They receive:</span>
-                      <span className="text-green-400">{(parseFloat(REQUIRED_ETH_AMOUNT) * 0.7).toFixed(6)} ETH (70%)</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/80">Platform fee:</span>
-                      <span className="text-white/60">{(parseFloat(REQUIRED_ETH_AMOUNT) * 0.3).toFixed(6)} ETH (30%)</span>
-                    </div>
                     {currentUserLevel && (
                       <div className="flex items-center justify-between">
                         <span className="text-white/80">Your Level:</span>
@@ -344,7 +336,6 @@ export default function UserProfile({ userId }: UserProfileProps) {
                       <li>Click "Vouch Now" to open your wallet</li>
                       <li>Confirm the transaction for {REQUIRED_ETH_AMOUNT} ETH</li>
                       <li>The smart contract automatically distributes funds</li>
-                      <li>You'll receive aura points based on your level multiplier</li>
                     </ol>
                   </div>
 
