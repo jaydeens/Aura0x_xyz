@@ -242,7 +242,7 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Wallet className="w-5 h-5 text-cyan-400" />
-                    <span className="font-bold">{(profileUser?.totalEthEarned || 0).toFixed(4)} ETH Earned</span>
+                    <span className="font-bold">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} ETH Earned</span>
                   </div>
                 </div>
 
@@ -366,12 +366,12 @@ export default function Profile() {
               
               <div className="grid grid-cols-2 gap-4 text-center mb-4">
                 <div>
-                  <div className="text-2xl font-black text-white">{(profileUser?.totalEthReceived || 0).toFixed(4)} ETH</div>
+                  <div className="text-2xl font-black text-white">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
                   <div className="text-white/60 text-sm">Received</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-black text-white">{(profileUser?.totalEthGiven || 0).toFixed(4)} ETH</div>
-                  <div className="text-white/60 text-sm">Given</div>
+                  <div className="text-2xl font-black text-white">{Number((profileUser as any)?.totalVouchesReceived || 0).toFixed(0)}</div>
+                  <div className="text-white/60 text-sm">Vouches</div>
                 </div>
               </div>
               
