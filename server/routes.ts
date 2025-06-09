@@ -170,6 +170,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Seed aura levels on startup
   await storage.seedAuraLevels();
 
+  // Get user by ID endpoint
+  app.get('/api/users/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Return user data (excluding sensitive fields)
+      const publicUser = {
+        id: user.id,
+        username: user.username,
+        walletAddress: user.walletAddress,
+        profileImageUrl: user.profileImageUrl,
+        auraPoints: user.auraPoints,
+        currentStreak: user.currentStreak,
+        totalVouchesReceived: user.totalVouchesReceived,
+        totalUsdtEarned: user.totalUsdtEarned,
+        createdAt: user.createdAt,
+        twitterUsername: user.twitterUsername,
+        twitterDisplayName: user.twitterDisplayName,
+        isVerified: user.isVerified
+      };
+
+      res.json(publicUser);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Wallet authentication route
   app.post('/api/auth/wallet', async (req, res) => {
     try {
