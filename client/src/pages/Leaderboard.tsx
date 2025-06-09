@@ -332,8 +332,8 @@ export default function Leaderboard() {
                         'bg-gray-800/50 border border-gray-700/50'
                       }`}>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg ${
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-black text-sm sm:text-lg flex-shrink-0 ${
                               index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
                               index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' :
                               index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
@@ -341,28 +341,29 @@ export default function Leaderboard() {
                             }`}>
                               {index < 3 ? (index === 0 ? '👑' : index === 1 ? '🥈' : '🥉') : `#${index + 1}`}
                             </div>
-                            <div>
-                              <h3 className="text-white font-bold text-lg">
-                                {user.username?.substring(0, 20) || 'Anonymous Creator'}
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-white font-bold text-base sm:text-lg truncate">
+                                {user.username?.substring(0, 15) || 'Anonymous Creator'}
                                 {index === 0 && ' 👑'}
                               </h3>
-                              <div className="flex items-center space-x-4 text-sm text-gray-400">
-                                <span>{user.auraPoints?.toLocaleString() || 0} Aura</span>
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-xs sm:text-sm text-gray-400">
+                                <span className="whitespace-nowrap">{user.auraPoints?.toLocaleString() || 0} Aura</span>
                                 {user.currentStreak > 0 && (
                                   <div className="flex items-center">
-                                    <Flame className="w-4 h-4 text-orange-400 mr-1" />
-                                    <span className="text-orange-400">{user.currentStreak} streak</span>
+                                    <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 mr-1" />
+                                    <span className="text-orange-400 whitespace-nowrap">{user.currentStreak} streak</span>
                                   </div>
                                 )}
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex-shrink-0 ml-2">
                             {(() => {
                               const auraLevel = getUserAuraLevel(user.currentStreak || 0);
                               return (
-                                <div className={`px-3 py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
-                                  {auraLevel.name.toUpperCase()}
+                                <div className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
+                                  <span className="hidden sm:inline">{auraLevel.name.toUpperCase()}</span>
+                                  <span className="sm:hidden">{auraLevel.name.substring(0, 8).toUpperCase()}</span>
                                 </div>
                               );
                             })()}
@@ -394,13 +395,13 @@ export default function Leaderboard() {
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {auraLevels && auraLevels.length > 0 ? 
                     [...new Map(auraLevels.map((level: any) => [level.name, level])).values()]
                     .sort((a: any, b: any) => a.minDays - b.minDays)
                     .map((level: any) => (
                       <div key={level.name} className={cn(
-                        "text-center p-4 rounded-lg border",
+                        "text-center p-3 sm:p-4 rounded-lg border",
                         level.name === 'Clout Chaser' && 'border-[#9CA3AF]/40 bg-[#9CA3AF]/10',
                         level.name === 'Attention Seeker' && 'border-[#F97316]/40 bg-[#F97316]/10',
                         level.name === 'Dedicated' && 'border-[#34D399]/40 bg-[#34D399]/10',
@@ -411,7 +412,7 @@ export default function Leaderboard() {
                         boxShadow: '0 0 20px #8B5CF6, 0 0 40px #8B5CF6, 0 0 80px #8B5CF6'
                       } : {}}>
                         <div className={cn(
-                          "w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center",
+                          "w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 rounded-full flex items-center justify-center",
                           level.name === 'Clout Chaser' && 'bg-[#9CA3AF]/20',
                           level.name === 'Attention Seeker' && 'bg-[#F97316]/20',
                           level.name === 'Dedicated' && 'bg-[#34D399]/20',
@@ -419,7 +420,7 @@ export default function Leaderboard() {
                           level.name === 'Aura Vader' && 'bg-[#8B5CF6]/20'
                         )}>
                           <Crown className={cn(
-                            "w-6 h-6",
+                            "w-5 h-5 sm:w-6 sm:h-6",
                             level.name === 'Clout Chaser' && 'text-[#9CA3AF]',
                             level.name === 'Attention Seeker' && 'text-[#F97316]',
                             level.name === 'Dedicated' && 'text-[#34D399]',
@@ -428,7 +429,7 @@ export default function Leaderboard() {
                           )} />
                         </div>
                         <h4 className={cn(
-                          "font-bold mb-1",
+                          "font-bold mb-1 text-sm sm:text-base",
                           level.name === 'Clout Chaser' && 'text-[#9CA3AF]',
                           level.name === 'Attention Seeker' && 'text-[#F97316]',
                           level.name === 'Dedicated' && 'text-[#34D399]',
@@ -437,7 +438,7 @@ export default function Leaderboard() {
                         )}>
                           {level.name}
                         </h4>
-                        <p className="text-sm text-gray-400 mb-2">
+                        <p className="text-xs sm:text-sm text-gray-400 mb-2">
                           {level.name === 'Clout Chaser' ? 'Default level (0 days)' :
                            level.name === 'Attention Seeker' ? '5-day streak' :
                            level.name === 'Dedicated' ? '10-day streak' :
