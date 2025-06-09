@@ -465,7 +465,7 @@ export default function SteezeStack() {
 
   const calculateEthAmount = () => {
     if (!steezeAmount) return 0;
-    return parseFloat(steezeAmount) / 10000; // Fixed rate: 10000 Steeze per ETH
+    return parseFloat(steezeAmount) * 0.00007; // Redeem rate: 1 Steeze = 0.00007 ETH
   };
   
   // Debug logging (remove in production)
