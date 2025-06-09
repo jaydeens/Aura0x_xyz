@@ -67,7 +67,6 @@ export default function Dashboard() {
         <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
       </div>
-      
       <Navigation />
       <main className="relative z-10 pt-20 pb-8">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -109,7 +108,7 @@ export default function Dashboard() {
                 <Target className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
               </div>
               <div className="text-xl sm:text-2xl font-black text-white mb-1">{Number((user as any)?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
-              <div className="text-purple-200 text-xs sm:text-sm">earned</div>
+              <div className="text-purple-200 text-xs sm:text-sm">earned from vouches</div>
             </div>
           </div>
 
