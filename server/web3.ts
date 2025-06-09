@@ -283,15 +283,24 @@ export class Web3Service {
     blockNumber?: number;
   }> {
     try {
+      console.log(`[Web3] Verifying transaction: ${transactionHash}`);
       const provider = this.initBaseProvider();
       const receipt = await provider.getTransactionReceipt(transactionHash);
       
+      console.log(`[Web3] Receipt status: ${receipt?.status}, to: ${receipt?.to}`);
+      
       if (!receipt || receipt.status !== 1) {
+        console.log("[Web3] Transaction not found or failed");
         return { isValid: false };
       }
 
       // Check if transaction was to the Steeze contract
-      if (receipt.to?.toLowerCase() !== STEEZE_CONTRACT.address.toLowerCase()) {
+      const contractAddress = STEEZE_CONTRACT.address.toLowerCase();
+      const receiptTo = receipt.to?.toLowerCase();
+      console.log(`[Web3] Contract: ${contractAddress}, Receipt to: ${receiptTo}`);
+      
+      if (receiptTo !== contractAddress) {
+        console.log("[Web3] Transaction not to Steeze contract");
         return { isValid: false };
       }
 
