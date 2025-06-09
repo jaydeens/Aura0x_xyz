@@ -78,7 +78,49 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
   };
 
+  const connectMobileWallet = async (walletType: string) => {
+    setIsConnecting(true);
+    try {
+      if (walletType === 'metamask' && !window.ethereum) {
+        window.open(`https://metamask.app.link/dapp/${window.location.host}`, '_blank');
+        toast({
+          title: "Opening MetaMask",
+          description: "Please connect your wallet in the MetaMask app",
+        });
+        return;
+      }
+      
+      if (walletType === 'trust' && !window.ethereum) {
+        window.open(`https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(window.location.href)}`, '_blank');
+        toast({
+          title: "Opening Trust Wallet",
+          description: "Please connect your wallet in the Trust Wallet app",
+        });
+        return;
+      }
+      
+      if (walletType === 'coinbase' && !window.ethereum) {
+        window.open(`https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(window.location.href)}`, '_blank');
+        toast({
+          title: "Opening Coinbase Wallet",
+          description: "Please connect your wallet in the Coinbase Wallet app",
+        });
+        return;
+      }
 
+      // If wallet provider is available, proceed with connection
+      await connectWallet();
+    } catch (error: any) {
+      console.error("Mobile wallet connection error:", error);
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to connect to wallet",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   useEffect(() => {
     checkConnection();
