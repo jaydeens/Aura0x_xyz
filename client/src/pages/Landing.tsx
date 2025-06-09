@@ -368,7 +368,7 @@ export default function Landing() {
               <span className="block bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
                 CREATORS
               </span>
-              <span className="block text-gray-900">GOING AURA</span>
+              <span className="block text-gray-900">FARMING AURA</span>
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto font-medium">
               The hottest creators breaking the internet right now 🔥 See who's trending and climb the ranks to join them
