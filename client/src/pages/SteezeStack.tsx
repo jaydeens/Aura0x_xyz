@@ -813,9 +813,9 @@ export default function SteezeStack() {
                         <Badge variant={tx.status === 'completed' ? 'default' : 'secondary'}>
                           {tx.status}
                         </Badge>
-                        {tx.txHash && (
+                        {tx.transactionHash && (
                           <a
-                            href={`${BASE_SEPOLIA.blockExplorer}/tx/${tx.txHash}`}
+                            href={`${BASE_SEPOLIA.blockExplorer}tx/${tx.transactionHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 text-sm mt-1"
