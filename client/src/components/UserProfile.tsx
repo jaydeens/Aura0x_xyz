@@ -84,14 +84,16 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
   const checkIfVouched = async () => {
     try {
-      if (window.ethereum && contractInfo?.abi && contractInfo?.contractAddress) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+      if (window.ethereum && contractInfo?.abi && contractInfo?.contractAddress && currentUser?.walletAddress && profileUser?.walletAddress) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
         const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, provider);
-        const hasVouchedResult = await contract.hasVouched(currentUser?.walletAddress, profileUser?.walletAddress);
+        const hasVouchedResult = await contract.hasVouched(currentUser.walletAddress, profileUser.walletAddress);
         setHasVouched(hasVouchedResult);
       }
     } catch (error) {
       console.error("Error checking vouch status:", error);
+      // If we can't check, assume false to allow vouching attempt
+      setHasVouched(false);
     }
   };
 
@@ -153,22 +155,22 @@ export default function UserProfile({ userId }: UserProfileProps) {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       
       // Check network
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
-      const targetChainId = 84532; // Base Sepolia
+      const targetChainId = 84532n; // Base Sepolia
       
       if (network.chainId !== targetChainId) {
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: ethers.utils.hexValue(targetChainId) }],
+            params: [{ chainId: `0x${targetChainId.toString(16)}` }],
           });
         } catch (switchError: any) {
           if (switchError.code === 4902) {
             await window.ethereum.request({
               method: 'wallet_addEthereumChain',
               params: [{
-                chainId: ethers.utils.hexValue(targetChainId),
+                chainId: `0x${targetChainId.toString(16)}`,
                 chainName: 'Base Sepolia',
                 nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
                 rpcUrls: ['https://sepolia.base.org'],
@@ -182,12 +184,12 @@ export default function UserProfile({ userId }: UserProfileProps) {
       }
 
       // Create contract instance
-      const signer = provider.getSigner();
+      const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
 
       // Call vouch function
       const tx = await contract.vouch(profileUser.walletAddress, {
-        value: ethers.utils.parseEther(REQUIRED_ETH_AMOUNT)
+        value: ethers.parseEther(REQUIRED_ETH_AMOUNT)
       });
 
       // Wait for transaction confirmation
