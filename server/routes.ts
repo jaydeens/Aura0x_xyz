@@ -1876,6 +1876,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/steeze/redeem-confirm", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { txHash } = req.body;
+      
+      // Verify transaction on Base Sepolia
+      const verification = await web3Service.verifySteezeTransaction(txHash);
+      
+      if (!verification.isValid) {
+        return res.status(400).json({ message: "Invalid transaction" });
+      }
+
+      // Create redeem transaction record
+      const transaction = await storage.createSteezeTransaction({
+        userId,
+        type: "redeem",
+        amount: verification.steezeAmount || 0,
+        usdtAmount: (verification.ethAmount || 0).toString(),
+        rate: "auto",
+        status: "completed",
+        txHash
+      });
+
+      // Update user's Steeze balance (subtract redeemed amount)
+      const user = await storage.getUser(userId);
+      const currentBalance = user?.steezeBalance || 0;
+      await storage.updateUserSteezeBalance(userId, Math.max(0, currentBalance - (verification.steezeAmount || 0)));
+
+      res.json({ 
+        transaction,
+        ethReceived: verification.ethAmount || 0,
+        newBalance: Math.max(0, currentBalance - (verification.steezeAmount || 0))
+      });
+    } catch (error: any) {
+      console.error("Error confirming Steeze redeem:", error);
+      res.status(500).json({ message: "Failed to confirm redeem" });
+    }
+  });
+
   app.post("/api/steeze/redeem", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
