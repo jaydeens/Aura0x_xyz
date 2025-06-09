@@ -47,7 +47,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/battles" component={Battles} />
-      <Route path="/battle/:id" component={LiveBattle} />
+      <Route path="/battles/:id" component={LiveBattle} />
       <Route path="/arena" component={Battles} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/profile" component={Profile} />
