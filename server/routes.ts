@@ -45,6 +45,11 @@ function getClientIP(req: any): string {
 }
 
 // Validation schemas
+const completeLessonSchema = z.object({
+  lessonId: z.number(),
+  tweetUrl: z.string(),
+});
+
 const createBattleSchema = z.object({
   opponentId: z.string(),
   stakeAmount: z.number().min(1),
@@ -62,14 +67,7 @@ const vouchSchema = z.object({
   transactionHash: z.string(),
 });
 
-const completeLessonSchema = z.object({
-  lessonId: z.number(),
-  tweetUrl: z.string().refine((url) => {
-    return url === "shared" || url.includes('twitter.com') || url.includes('x.com');
-  }, {
-    message: "Must be 'shared' or a valid Twitter/X URL"
-  }),
-});
+
 
 // Battle presence tracking
 interface BattleViewer {
@@ -1108,7 +1106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId;
       if (req.session?.user?.id) {
         userId = req.session.user.id;
-      } else if (req.isAuthenticated() && req.user?.claims?.sub) {
+      } else if (req.user?.claims?.sub) {
         userId = req.user.claims.sub;
       } else {
         return res.status(401).json({ message: "Please log in to complete the lesson" });
