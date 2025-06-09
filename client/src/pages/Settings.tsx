@@ -72,7 +72,7 @@ export default function Settings() {
     }
 
     try {
-      const response = await fetch(`/api/auth/check-username?username=${username}&excludeUserId=${currentUser?.id}`);
+      const response = await fetch(`/api/check-username?username=${username}&excludeUserId=${currentUser?.id}`);
       const data = await response.json();
       
       if (data.available) {
