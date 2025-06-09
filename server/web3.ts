@@ -26,6 +26,113 @@ export const BASE_SEPOLIA = {
   blockExplorer: "https://sepolia-explorer.base.org/",
 };
 
+// Vouching Contract Configuration
+export const VOUCHING_CONTRACT = {
+  address: process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000", // To be deployed
+  abi: [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{"indexed": true, "internalType": "address", "name": "user", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "EthClaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{"indexed": true, "internalType": "address", "name": "owner", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "PlatformFeesWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{"indexed": true, "internalType": "uint256", "name": "vouchId", "type": "uint256"}, {"indexed": true, "internalType": "address", "name": "voucher", "type": "address"}, {"indexed": true, "internalType": "address", "name": "vouchedUser", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}, {"indexed": false, "internalType": "uint256", "name": "auraPoints", "type": "uint256"}],
+      "name": "VouchCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "claimEth",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
+      "name": "getClaimableAmount",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getContractStats",
+      "outputs": [{"internalType": "uint256", "name": "totalVouches", "type": "uint256"}, {"internalType": "uint256", "name": "totalVolume", "type": "uint256"}, {"internalType": "uint256", "name": "platformBalance", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
+      "name": "getUserVouchStats",
+      "outputs": [{"internalType": "uint256", "name": "totalVouchedAmount", "type": "uint256"}, {"internalType": "uint256", "name": "totalReceivedAmount", "type": "uint256"}, {"internalType": "uint256", "name": "claimable", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "uint256", "name": "_vouchId", "type": "uint256"}],
+      "name": "getVouch",
+      "outputs": [{"components": [{"internalType": "address", "name": "voucher", "type": "address"}, {"internalType": "address", "name": "vouchedUser", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}, {"internalType": "uint256", "name": "timestamp", "type": "uint256"}, {"internalType": "uint256", "name": "auraPoints", "type": "uint256"}], "internalType": "struct VouchingContract.Vouch", "name": "", "type": "tuple"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformFeePercentage",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "uint256", "name": "_percentage", "type": "uint256"}],
+      "name": "setPlatformFeePercentage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "_newOwner", "type": "address"}],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "_vouchedUser", "type": "address"}, {"internalType": "uint256", "name": "_auraPoints", "type": "uint256"}],
+      "name": "vouchForUser",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawPlatformFees",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+};
+
 // Steeze Contract Configuration
 export const STEEZE_CONTRACT = {
   address: process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962",
@@ -275,6 +382,83 @@ export class Web3Service {
       multiplier,
       level
     };
+  }
+
+  /**
+   * Verify vouching transaction on Base Sepolia
+   */
+  async verifyVouchTransaction(transactionHash: string): Promise<{
+    isValid: boolean;
+    voucher?: string;
+    vouchedUser?: string;
+    ethAmount?: number;
+    auraPoints?: number;
+    vouchId?: number;
+    blockNumber?: number;
+  }> {
+    try {
+      const provider = this.initBaseProvider();
+      const receipt = await provider.getTransactionReceipt(transactionHash);
+      
+      if (!receipt || receipt.status !== 1) {
+        return { isValid: false };
+      }
+
+      const contract = new ethers.Contract(VOUCHING_CONTRACT.address, VOUCHING_CONTRACT.abi, provider);
+      
+      // Parse VouchCreated event from logs
+      for (const log of receipt.logs) {
+        try {
+          if (log.address.toLowerCase() === VOUCHING_CONTRACT.address.toLowerCase()) {
+            const parsedLog = contract.interface.parseLog(log);
+            
+            if (parsedLog && parsedLog.name === 'VouchCreated') {
+              return {
+                isValid: true,
+                voucher: parsedLog.args.voucher,
+                vouchedUser: parsedLog.args.vouchedUser,
+                ethAmount: parseFloat(ethers.formatEther(parsedLog.args.amount)),
+                auraPoints: parseInt(parsedLog.args.auraPoints.toString()),
+                vouchId: parseInt(parsedLog.args.vouchId.toString()),
+                blockNumber: receipt.blockNumber
+              };
+            }
+          }
+        } catch (parseError) {
+          console.log("Log parsing failed, trying next log");
+        }
+      }
+      
+      return { isValid: false };
+    } catch (error) {
+      console.error("Error verifying vouch transaction:", error);
+      return { isValid: false };
+    }
+  }
+
+  /**
+   * Get user's vouching stats from contract
+   */
+  async getUserVouchStats(userAddress: string): Promise<{
+    totalVouched: number;
+    totalReceived: number;
+    claimable: number;
+  }> {
+    try {
+      const provider = this.initBaseProvider();
+      const contract = new ethers.Contract(VOUCHING_CONTRACT.address, VOUCHING_CONTRACT.abi, provider);
+      
+      const stats = await contract.getUserVouchStats(userAddress);
+      
+      return {
+        totalVouched: parseFloat(ethers.formatEther(stats.totalVouchedAmount)),
+        totalReceived: parseFloat(ethers.formatEther(stats.totalReceivedAmount)),
+        claimable: parseFloat(ethers.formatEther(stats.claimable))
+      };
+    } catch (error) {
+      console.error("Error getting user vouch stats:", error);
+      return { totalVouched: 0, totalReceived: 0, claimable: 0 };
+    }
   }
 
   /**

@@ -1681,56 +1681,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Vouch routes
-  app.post('/api/vouch', isAuthenticated, async (req: any, res) => {
+  // Vouch routes - Smart Contract Integration
+  app.post('/api/vouch/confirm', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const { toUserId, ethAmount, transactionHash } = vouchSchema.parse(req.body);
-      
-      // Verify transaction
-      const txVerification = await web3Service.verifyTransaction(transactionHash);
-      if (!txVerification.isValid) {
-        return res.status(400).json({ message: "Invalid transaction" });
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
       }
       
-      // Get user for multiplier calculation
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { transactionHash } = req.body;
+      
+      if (!transactionHash) {
+        return res.status(400).json({ message: "Transaction hash is required" });
+      }
+      
+      // Verify vouching transaction on Base Sepolia
+      const verification = await web3Service.verifyVouchTransaction(transactionHash);
+      
+      if (!verification.isValid) {
+        return res.status(400).json({ message: "Invalid vouching transaction" });
+      }
+
+      // Ensure the voucher matches the authenticated user's wallet
       const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!user?.walletAddress || user.walletAddress.toLowerCase() !== verification.voucher?.toLowerCase()) {
+        return res.status(400).json({ message: "Transaction not from authenticated wallet" });
       }
-      
-      // Calculate aura points with multiplier
-      const basePoints = web3Service.calculateVouchDistribution(ethAmount).auraPoints;
-      const { finalAuraPoints, multiplier } = web3Service.applyStreakMultiplier(basePoints, user.currentStreak || 0);
+
+      // Find or create the vouched user based on wallet address
+      let vouchedUser = await storage.getUserByWallet(verification.vouchedUser!);
+      if (!vouchedUser) {
+        // Auto-create user for vouched wallet
+        vouchedUser = await storage.upsertUser({
+          id: `wallet_${verification.vouchedUser!.toLowerCase()}`,
+          walletAddress: verification.vouchedUser!,
+          username: verification.vouchedUser!.slice(0, 6) + '...' + verification.vouchedUser!.slice(-4),
+          currentStreak: 0,
+          auraPoints: 0
+        });
+      }
       
       // Create vouch record
       const vouch = await storage.createVouch({
         fromUserId: userId,
-        toUserId,
-        usdtAmount: ethAmount.toString(), // Keep field name for now to avoid DB migration
-        auraPoints: finalAuraPoints,
-        multiplier: multiplier.toString(),
+        toUserId: vouchedUser.id,
+        usdtAmount: verification.ethAmount!.toString(),
+        auraPoints: verification.auraPoints!,
+        multiplier: "1.0",
         transactionHash,
       });
       
-      // Award aura points to recipient and track ETH earnings
-      await storage.updateUserAura(toUserId, finalAuraPoints, 'vouching');
+      // Award aura points to recipient
+      await storage.updateUserAura(vouchedUser.id, verification.auraPoints!, 'vouching');
       
-      // Calculate and track ETH earnings (60% to recipient)
-      const ethEarnings = ethAmount * 0.6;
-      await storage.updateUserUsdtEarnings(toUserId, ethEarnings);
+      // Track ETH earnings (60% goes to vouched user as per contract)
+      const ethEarnings = verification.ethAmount! * 0.6;
+      await storage.updateUserUsdtEarnings(vouchedUser.id, ethEarnings);
       
       res.json({
+        success: true,
         vouch,
-        auraAwarded: finalAuraPoints,
-        multiplier,
+        auraAwarded: verification.auraPoints,
+        ethAmount: verification.ethAmount,
+        vouchedUser: vouchedUser.walletAddress
       });
-    } catch (error) {
-      console.error("Error creating vouch:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to create vouch" });
+    } catch (error: any) {
+      console.error("Error confirming vouch:", error);
+      res.status(500).json({ message: "Failed to confirm vouch" });
+    }
+  });
+
+  // Get vouching contract info
+  app.get('/api/vouch/contract-info', async (req, res) => {
+    try {
+      res.json({
+        contractAddress: web3Service.VOUCHING_CONTRACT?.address || "0x0000000000000000000000000000000000000000",
+        chainId: 84532,
+        networkName: "Base Sepolia",
+        platformFee: 40 // 40% to platform, 60% to vouched user
+      });
+    } catch (error: any) {
+      console.error("Error getting vouch contract info:", error);
+      res.status(500).json({ message: "Failed to get contract information" });
     }
   });
 
