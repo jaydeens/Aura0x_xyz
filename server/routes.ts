@@ -1867,9 +1867,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionHash
       });
 
-      // Update user's Steeze balance
-      const currentBalance = user?.steezeBalance || 0;
-      await storage.updateUserSteezeBalance(userId, currentBalance + steezeAmount);
+      // Update user's purchased Steeze balance
+      const currentPurchased = user?.purchasedSteeze || 0;
+      await storage.updateUserProfile(userId, { 
+        purchasedSteeze: currentPurchased + steezeAmount 
+      });
 
       res.json({ 
         success: true,

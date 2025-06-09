@@ -262,9 +262,10 @@ export default function SteezeStack() {
   // Confirm purchase mutation
   const confirmPurchaseMutation = useMutation({
     mutationFn: (txHash: string) => 
-      apiRequest(`/api/steeze/confirm`, {
+      apiRequest(`/api/steeze/confirm-purchase`, {
         method: "POST",
-        body: { txHash }
+        body: JSON.stringify({ transactionHash: txHash }),
+        headers: { "Content-Type": "application/json" }
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
@@ -291,7 +292,8 @@ export default function SteezeStack() {
     mutationFn: (txHash: string) => 
       apiRequest(`/api/steeze/redeem-confirm`, {
         method: "POST",
-        body: { txHash }
+        body: JSON.stringify({ transactionHash: txHash }),
+        headers: { "Content-Type": "application/json" }
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
@@ -438,8 +440,9 @@ export default function SteezeStack() {
                     <Wallet className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-white/60">Current Balance</p>
-                    <p className="text-2xl font-bold text-white">{userBalance.toLocaleString()} STEEZE</p>
+                    <p className="text-sm text-white/60">Total Balance</p>
+                    <p className="text-2xl font-bold text-white">{totalBalance.toLocaleString()} STEEZE</p>
+                    <p className="text-xs text-white/40">Purchased: {purchasedSteeze} | Earned: {earnedSteeze}</p>
                   </div>
                 </div>
               </CardContent>
@@ -452,10 +455,8 @@ export default function SteezeStack() {
                     <TrendingUp className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-white/60">Exchange Rate</p>
-                    <p className="text-2xl font-bold text-white">
-                      {purchaseInfo?.steezePerEth ? `${purchaseInfo.steezePerEth.toLocaleString()} STEEZE/ETH` : "Loading..."}
-                    </p>
+                    <p className="text-sm text-white/60">Fixed Rate</p>
+                    <p className="text-2xl font-bold text-white">10,000 STEEZE/ETH</p>
                   </div>
                 </div>
               </CardContent>
