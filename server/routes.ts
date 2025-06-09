@@ -1814,6 +1814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create notification for vouched user
       await storage.createNotification({
+        id: `vouch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
@@ -1825,7 +1826,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         vouch,
         auraAwarded: finalAuraPoints,
-        multiplier: userLevel.vouchingMultiplier,
+        multiplier: parseFloat(userLevel.vouchingMultiplier || "1.0"),
         levelName: userLevel.name
       });
     } catch (error: any) {
@@ -1863,11 +1864,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Calculate stats
-      const vouchesGiven = vouches.filter(v => v.voucherId === userId);
-      const vouchesReceived = vouches.filter(v => v.vouchedUserId === userId);
+      const vouchesGiven = vouches.filter(v => v.fromUserId === userId);
+      const vouchesReceived = vouches.filter(v => v.toUserId === userId);
       
-      const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + v.ethAmount, 0);
-      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (v.ethAmount * 0.6), 0); // 60% to user
+      const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
+      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.6), 0); // 60% to user
       const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
 
       res.json({

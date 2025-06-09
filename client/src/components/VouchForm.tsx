@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,15 +62,16 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
 
   // Get current user's aura level and multiplier
   const getUserLevel = () => {
-    if (!user || !auraLevels) return null;
-    return auraLevels.find(level => 
-      (user.streakDays || 0) >= level.minDays && (user.streakDays || 0) <= level.maxDays
+    if (!user || !auraLevels || !Array.isArray(auraLevels)) return null;
+    return auraLevels.find((level: any) => 
+      (user.currentStreak || 0) >= level.minDays && 
+      (level.maxDays === null || (user.currentStreak || 0) <= level.maxDays)
     ) || auraLevels[0];
   };
 
   const userLevel = getUserLevel();
   const baseAuraPoints = 50;
-  const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * userLevel.vouchingMultiplier) : baseAuraPoints;
+  const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
 
   const vouchMutation = useMutation({
     mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
@@ -79,15 +80,14 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     onSuccess: (data) => {
       toast({
         title: "Vouch Successful!",
-        description: `${data.auraAwarded} Aura Points awarded with ${data.multiplier}x multiplier!`,
+        description: `Awarded ${data.auraAwarded} aura points (${data.multiplier}x multiplier)`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setEthAmount("");
+      setSelectedUserId("");
       setTransactionHash("");
-      setSelectedUserId(preselectedUserId || "");
+      queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Vouch Failed",
         description: error.message || "Please try again",
@@ -96,108 +96,154 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     },
   });
 
-  const getStreakLevel = (streak: number) => {
-    if (streak >= 30) return { name: "Aura Vader", color: "#FFD700", icon: Crown, multiplier: 2.0 };
-    if (streak >= 15) return { name: "Grinder", color: "#00FF88", icon: Trophy, multiplier: 1.5 };
-    if (streak >= 5) return { name: "Attention Seeker", color: "#9933FF", icon: Star, multiplier: 1.25 };
-    return { name: "Clout Chaser", color: "#8000FF", icon: Zap, multiplier: 1.0 };
-  };
-
-  const getUserDisplayName = (targetUser: any) => {
-    return targetUser?.firstName || targetUser?.username || `User ${targetUser?.id?.slice(0, 6)}`;
-  };
-
-  const selectedUser = leaderboard?.find((u: any) => u.id === selectedUserId);
-  const userStreakLevel = getStreakLevel(user?.currentStreak || 0);
-  const amount = parseFloat(ethAmount) || 0;
-  const baseAuraPoints = amount * 1000; // 1 ETH = 1000 Aura Points
-  const finalAuraPoints = Math.floor(baseAuraPoints * userStreakLevel.multiplier);
-  const userAmount = (amount * 0.6).toFixed(4);
-  const platformFee = (amount * 0.4).toFixed(4);
-
-  const handleVouch = () => {
-    if (!selectedUserId) {
+  const handleSubmit = async () => {
+    if (!selectedUserId || !transactionHash) {
       toast({
-        title: "Select a User",
-        description: "Please choose a user to vouch for",
+        title: "Missing Information",
+        description: "Please select a user and enter transaction hash",
         variant: "destructive",
       });
       return;
     }
 
-    if (!amount || amount <= 0) {
+    if (!user?.walletAddress) {
       toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid ETH amount",
+        title: "Wallet Required",
+        description: "Please connect your wallet to vouch for users",
         variant: "destructive",
       });
       return;
     }
 
-    if (!transactionHash.trim()) {
+    const selectedUser = leaderboard?.find((u: any) => u.id === selectedUserId);
+    if (!selectedUser) {
       toast({
-        title: "Transaction Hash Required",
-        description: "Please provide the transaction hash from your USDT transfer",
+        title: "User Not Found",
+        description: "Please select a valid user",
         variant: "destructive",
       });
       return;
     }
 
-    vouchMutation.mutate({
-      toUserId: selectedUserId,
-      usdtAmount: amount,
-      transactionHash: transactionHash.trim(),
-    });
-  };
+    // Calculate final aura points for preview
+    const userAuraLevel = auraLevels?.find((level: any) => 
+      (user.currentStreak || 0) >= level.minDays && 
+      (level.maxDays === null || (user.currentStreak || 0) <= level.maxDays)
+    ) || auraLevels?.[0];
+    
+    const finalAura = userAuraLevel ? 
+      Math.round(50 * parseFloat(userAuraLevel.vouchingMultiplier || "1.0")) : 50;
 
-  const openPolygonScan = () => {
-    if (transactionHash.trim()) {
-      window.open(`https://mumbai.polygonscan.com/tx/${transactionHash.trim()}`, "_blank");
+    setIsProcessing(true);
+    try {
+      await vouchMutation.mutateAsync({
+        vouchedUserId: selectedUserId,
+        ethAmount: REQUIRED_ETH_AMOUNT,
+        transactionHash
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
+
+  const getLevelIcon = (level: string) => {
+    switch (level) {
+      case "Aura Vader": return <Crown className="w-4 h-4" />;
+      case "Grinder": return <Trophy className="w-4 h-4" />;
+      case "Dedicated": return <Star className="w-4 h-4" />;
+      case "Attention Seeker": return <TrendingUp className="w-4 h-4" />;
+      default: return <User className="w-4 h-4" />;
+    }
+  };
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case "Aura Vader": return "text-yellow-400";
+      case "Grinder": return "text-green-400";
+      case "Dedicated": return "text-emerald-400";
+      case "Attention Seeker": return "text-purple-400";
+      default: return "text-blue-400";
+    }
+  };
+
+  if (!user || !user.walletAddress) {
+    return (
+      <Card className="bg-black/40 border border-purple-500/20">
+        <CardContent className="pt-6">
+          <div className="text-center text-white/60">
+            <Wallet className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+            <p>Connect your wallet to vouch for other users</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="bg-card border-primary/20 max-w-2xl mx-auto">
+    <Card className="bg-black/40 border border-purple-500/20">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-white flex items-center">
-          <Coins className="w-6 h-6 mr-2 text-warning" />
-          Vouch for a Friend
+        <CardTitle className="text-white flex items-center gap-2">
+          <Coins className="w-5 h-5 text-purple-400" />
+          Vouch with ETH
         </CardTitle>
-        <p className="text-gray-400">
-          Support your friends with ETH and boost their Aura Points
-        </p>
       </CardHeader>
-
       <CardContent className="space-y-6">
+        {/* Vouching Info */}
+        <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-white/80">Required Amount:</span>
+            <Badge variant="outline" className="text-purple-400 border-purple-400">
+              {REQUIRED_ETH_AMOUNT} ETH
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-white/80">Base Aura Points:</span>
+            <span className="text-white">{baseAuraPoints}</span>
+          </div>
+          {userLevel && (
+            <div className="flex items-center justify-between">
+              <span className="text-white/80">Your Level:</span>
+              <div className="flex items-center gap-2">
+                <span className={`${getLevelColor(userLevel.name)}`}>
+                  {getLevelIcon(userLevel.name)}
+                </span>
+                <span className="text-white">{userLevel.name}</span>
+                <Badge variant="outline" className="text-green-400 border-green-400">
+                  {parseFloat(userLevel.vouchingMultiplier || "1.0")}x
+                </Badge>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
+            <span className="text-white font-medium">Final Aura Award:</span>
+            <span className="text-purple-400 font-bold">{finalAuraPoints} points</span>
+          </div>
+        </div>
+
         {/* User Selection */}
-        <div className="space-y-2">
-          <Label className="text-white font-medium">Select User to Vouch For</Label>
+        <div className="space-y-3">
+          <Label className="text-white">Select User to Vouch For</Label>
           <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-            <SelectTrigger className="bg-background border-primary/30 focus:border-primary">
+            <SelectTrigger className="bg-black/20 border-white/20 text-white">
               <SelectValue placeholder="Choose a user..." />
             </SelectTrigger>
-            <SelectContent className="bg-card border-primary/20">
-              {leaderboard?.map((targetUser: any) => {
-                const level = getStreakLevel(targetUser.currentStreak);
-                const LevelIcon = level.icon;
-                
+            <SelectContent className="bg-black/90 border-white/20">
+              {leaderboard && Array.isArray(leaderboard) && leaderboard.map((userData: any) => {
+                if (userData.id === user.id) return null; // Don't allow self-vouching
                 return (
-                  <SelectItem key={targetUser.id} value={targetUser.id}>
-                    <div className="flex items-center space-x-3 py-1">
-                      <Avatar className="w-8 h-8 border border-primary/20">
-                        <AvatarImage src={targetUser.profileImageUrl} />
-                        <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                          <User className="w-4 h-4" />
+                  <SelectItem key={userData.id} value={userData.id} className="text-white hover:bg-white/10">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage src={userData.profileImageUrl} />
+                        <AvatarFallback className="bg-purple-500 text-white text-xs">
+                          {userData.username?.[0]?.toUpperCase() || "?"}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="font-medium text-white">
-                          {getUserDisplayName(targetUser)}
-                        </div>
-                        <div className="text-xs text-gray-400 flex items-center">
-                          <LevelIcon className="w-3 h-3 mr-1" />
-                          {targetUser.auraPoints?.toLocaleString()} Aura • {level.name}
-                        </div>
+                      <div>
+                        <span className="font-medium">{userData.username || "Anonymous"}</span>
+                        <span className="text-purple-400 ml-2">
+                          {userData.totalAura} aura
+                        </span>
                       </div>
                     </div>
                   </SelectItem>
@@ -207,164 +253,49 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           </Select>
         </div>
 
-        {/* Selected User Preview */}
-        {selectedUser && (
-          <Card className="bg-muted/50 border-primary/20">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-4">
-                <Avatar className="w-16 h-16 border-2 border-primary/20">
-                  <AvatarImage src={selectedUser.profileImageUrl} />
-                  <AvatarFallback className="bg-primary/20 text-primary">
-                    <User className="w-8 h-8" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="font-bold text-white text-lg">
-                    {getUserDisplayName(selectedUser)}
-                  </h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-400">
-                    <div className="flex items-center">
-                      <Coins className="w-4 h-4 mr-1 text-primary" />
-                      {selectedUser.auraPoints?.toLocaleString()} Aura
-                    </div>
-                    <div className="flex items-center">
-                      <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
-                      +{selectedUser.portfolioGrowth}%
-                    </div>
-                    <Badge 
-                      variant="outline"
-                      style={{ 
-                        color: getStreakLevel(selectedUser.currentStreak).color,
-                        borderColor: `${getStreakLevel(selectedUser.currentStreak).color}40`,
-                        backgroundColor: `${getStreakLevel(selectedUser.currentStreak).color}20`
-                      }}
-                    >
-                      {selectedUser.currentStreak} day streak
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ETH Amount */}
-        <div className="space-y-2">
-          <Label className="text-white font-medium">Vouch Amount (ETH)</Label>
-          <div className="relative">
-            <Input
-              type="number"
-              placeholder="0.01"
-              step="0.001"
-              value={ethAmount}
-              onChange={(e) => setEthAmount(e.target.value)}
-              className="bg-background border-primary/30 focus:border-primary pr-16"
-            />
-            <span className="absolute right-4 top-3 text-gray-400">ETH</span>
-          </div>
-          <p className="text-xs text-gray-500">
-            Minimum: 0.001 ETH • 1 ETH = 1000 Base Aura Points
-          </p>
-        </div>
-
         {/* Transaction Hash */}
-        <div className="space-y-2">
-          <Label className="text-white font-medium">Transaction Hash</Label>
-          <div className="flex space-x-2">
-            <Input
-              placeholder="0x..."
-              value={transactionHash}
-              onChange={(e) => setTransactionHash(e.target.value)}
-              className="flex-1 bg-background border-primary/30 focus:border-primary"
-            />
-            {transactionHash.trim() && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={openPolygonScan}
-                className="border-primary/40 text-primary hover:bg-primary hover:text-white"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-          <p className="text-xs text-gray-500">
-            Paste the transaction hash from your USDT transfer on Polygon Mumbai testnet
+        <div className="space-y-3">
+          <Label className="text-white">Transaction Hash</Label>
+          <Input
+            value={transactionHash}
+            onChange={(e) => setTransactionHash(e.target.value)}
+            placeholder="Enter blockchain transaction hash..."
+            className="bg-black/20 border-white/20 text-white placeholder:text-white/40"
+          />
+          <p className="text-white/60 text-sm">
+            Send exactly {REQUIRED_ETH_AMOUNT} ETH to the selected user's wallet, then paste the transaction hash here.
           </p>
         </div>
 
-        {/* Vouch Breakdown */}
-        {amount > 0 && (
-          <Card className="bg-primary/10 border-primary/20">
-            <CardContent className="p-4">
-              <h4 className="font-semibold text-white mb-3 flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2 text-success" />
-                Vouch Breakdown
-              </h4>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Base Aura Points:</span>
-                  <span className="text-white">{baseAuraPoints}</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Your Multiplier ({userStreakLevel.name}):</span>
-                  <span 
-                    className="font-semibold"
-                    style={{ color: userStreakLevel.color }}
-                  >
-                    {userStreakLevel.multiplier}x
-                  </span>
-                </div>
-                
-                <Separator className="bg-primary/20" />
-                
-                <div className="flex justify-between font-semibold">
-                  <span className="text-gray-300">KOL receives:</span>
-                  <span className="text-success">{finalAuraPoints} Aura Points</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-400">ETH to User (60%):</span>
-                  <span className="text-white">{userAmount} ETH</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Platform fee (40%):</span>
-                  <span className="text-gray-400">{platformFee} ETH</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <Separator className="bg-white/20" />
 
         {/* Submit Button */}
         <Button
-          onClick={handleVouch}
-          disabled={!selectedUserId || !amount || !transactionHash.trim() || vouchMutation.isPending}
-          className="w-full bg-gradient-to-r from-warning to-orange-500 hover:from-warning/80 hover:to-orange-500/80 text-black font-semibold py-3"
+          onClick={handleSubmit}
+          disabled={!selectedUserId || !transactionHash || isProcessing || vouchMutation.isPending}
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
         >
-          {vouchMutation.isPending ? (
-            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2" />
+          {isProcessing || vouchMutation.isPending ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Processing Vouch...
+            </div>
           ) : (
-            <Coins className="w-5 h-5 mr-2" />
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Confirm Vouch ({finalAuraPoints} aura)
+            </div>
           )}
-          {vouchMutation.isPending ? "Processing Vouch..." : "Submit Vouch"}
         </Button>
 
-        {/* Instructions */}
-        <Card className="bg-muted/30 border-accent/20">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-accent mb-2">How to Vouch:</h4>
-            <ol className="text-sm text-gray-400 space-y-1 list-decimal list-inside">
-              <li>Send USDT to your friend's wallet address on Polygon Mumbai testnet</li>
-              <li>Copy the transaction hash from the blockchain explorer</li>
-              <li>Paste the transaction hash above and submit your vouch</li>
-              <li>Your friend will receive Aura Points with your streak multiplier applied</li>
-            </ol>
-          </CardContent>
-        </Card>
+        {/* Info Note */}
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+          <p className="text-blue-300 text-sm">
+            <strong>How it works:</strong> You send {REQUIRED_ETH_AMOUNT} ETH directly to another user's wallet. 
+            They receive 60% ({(REQUIRED_ETH_AMOUNT * 0.6).toFixed(6)} ETH) while 40% goes to the platform. 
+            They also get {finalAuraPoints} aura points based on your level multiplier.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
