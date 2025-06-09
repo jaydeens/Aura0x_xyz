@@ -65,19 +65,19 @@ export default function Landing() {
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-purple-500/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="relative">
                 <img 
                   src="/attached_assets/AURA PNG (1)_1749403291114.png" 
                   alt="Aura Logo" 
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl shadow-lg animate-pulse"
+                  className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg brightness-110 saturate-110 animate-pulse"
                 />
                 <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
               <img 
                 src="/attached_assets/FULL AURA (1)_1749403707745.png" 
                 alt="Aura" 
-                className="h-5 sm:h-6 w-auto"
+                className="h-7 sm:h-8 w-auto drop-shadow-lg brightness-110 saturate-110"
               />
             </div>
             
@@ -264,19 +264,19 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12">
             <div className="space-y-6">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <div className="relative">
                   <img 
                     src="/attached_assets/AURA PNG (1)_1749403291114.png" 
                     alt="Aura Logo" 
-                    className="w-16 h-16 rounded-3xl shadow-xl animate-pulse"
+                    className="w-16 h-16 drop-shadow-2xl brightness-110 saturate-110 animate-pulse"
                   />
                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full animate-ping"></div>
                 </div>
                 <img 
                   src="/attached_assets/FULL AURA (1)_1749403707745.png" 
                   alt="Aura" 
-                  className="h-10 w-auto"
+                  className="h-12 w-auto drop-shadow-2xl brightness-110 saturate-110"
                 />
               </div>
               <p className="text-gray-300 font-bold leading-relaxed text-lg">The aura app that's breaking the internet. Build your brand, go aura, and become legendary.</p>
