@@ -64,15 +64,17 @@ export default function SteezeStack() {
     enabled: !!user,
   });
 
-  const purchasedSteeze = balanceData?.purchasedSteeze || 0;
-  const earnedSteeze = balanceData?.battleEarnedSteeze || 0;
+  const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
+  const earnedSteeze = (balanceData as any)?.battleEarnedSteeze || 0;
   const totalBalance = purchasedSteeze + earnedSteeze;
 
   // Fetch transaction history
-  const { data: transactions = [] } = useQuery({
+  const { data: transactionsData = [] } = useQuery({
     queryKey: ["/api/steeze/transactions"],
     enabled: !!user,
   });
+
+  const transactions = (transactionsData as any[]) || [];
 
   // Connect wallet
   const connectWallet = async () => {
