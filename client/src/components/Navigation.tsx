@@ -69,8 +69,8 @@ export default function Navigation() {
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-xl border-b border-pink-500/30">
-      <div className="max-w-full mx-auto px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center cursor-pointer space-x-3">

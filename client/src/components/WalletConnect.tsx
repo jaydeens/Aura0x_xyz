@@ -117,12 +117,38 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     }
   };
 
-  const connectMobileWallet = async (walletType: 'metamask' | 'trust' | 'coinbase') => {
+  const connectMobileWallet = async (walletType: 'metamask' | 'trust' | 'coinbase' | 'walletconnect') => {
     const deepLinks = {
       metamask: `https://metamask.app.link/dapp/${window.location.host}`,
       trust: `https://link.trustwallet.com/open_url?coin_id=60&url=https://${window.location.host}`,
-      coinbase: `https://go.cb-w.com/dapp?cb_url=https://${window.location.host}`
+      coinbase: `https://go.cb-w.com/dapp?cb_url=https://${window.location.host}`,
+      walletconnect: `wc://` // WalletConnect protocol
     };
+
+    // Check for Trust Wallet specifically
+    if (walletType === 'trust' && (window as any).trustWallet) {
+      try {
+        const accounts = await (window as any).trustWallet.request({
+          method: 'eth_requestAccounts',
+        });
+        if (accounts.length > 0) {
+          const walletAddress = accounts[0];
+          setAddress(walletAddress);
+          setIsConnected(true);
+          await switchToBaseSepolia();
+          if (showBalance) await fetchBalance(walletAddress);
+          onConnect?.(walletAddress);
+          authenticateWallet.mutate(walletAddress);
+          toast({
+            title: "Trust Wallet Connected",
+            description: `Connected to ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`,
+          });
+        }
+        return;
+      } catch (error) {
+        console.error("Trust Wallet connection failed:", error);
+      }
+    }
 
     if (isMobile && !window.ethereum) {
       // Open mobile wallet app
@@ -170,8 +196,8 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
         setAddress(walletAddress);
         setIsConnected(true);
         
-        // Switch to Polygon network if needed
-        await switchToPolygon();
+        // Switch to Base Sepolia network if needed
+        await switchToBaseSepolia();
         
         if (showBalance) {
           await fetchBalance(walletAddress);
@@ -199,11 +225,11 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     }
   };
 
-  const switchToPolygon = async () => {
+  const switchToBaseSepolia = async () => {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x89' }], // Polygon Mainnet
+        params: [{ chainId: '0x14A34' }], // Base Sepolia
       });
     } catch (switchError: any) {
       // This error code indicates that the chain has not been added to MetaMask
@@ -212,19 +238,19 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: '0x89',
-              chainName: 'Polygon Mainnet',
+              chainId: '0x14A34',
+              chainName: 'Base Sepolia',
               nativeCurrency: {
-                name: 'MATIC',
-                symbol: 'MATIC',
+                name: 'ETH',
+                symbol: 'ETH',
                 decimals: 18,
               },
-              rpcUrls: ['https://polygon-rpc.com/'],
-              blockExplorerUrls: ['https://polygonscan.com/'],
+              rpcUrls: ['https://sepolia.base.org'],
+              blockExplorerUrls: ['https://sepolia-explorer.base.org'],
             }],
           });
         } catch (addError) {
-          console.error("Error adding Polygon network:", addError);
+          console.error("Error adding Base Sepolia network:", addError);
         }
       }
     }
@@ -288,29 +314,96 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className={`w-full ${mobileOptimized ? 'max-w-full mx-2' : 'max-w-md'}`}>
+      <CardHeader className={mobileOptimized ? 'pb-3' : ''}>
+        <CardTitle className="flex items-center gap-2 text-lg">
           <Wallet className="h-5 w-5" />
           Connect Wallet
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Connect your Web3 wallet to participate in vouching and battles
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button 
-          onClick={connectWallet} 
-          disabled={isConnecting}
-          className="w-full"
-        >
-          {isConnecting ? "Connecting..." : "Connect Wallet"}
-        </Button>
-        {!window.ethereum && (
+      <CardContent className="space-y-3">
+        {/* Mobile wallet options */}
+        {isMobile ? (
+          <div className="space-y-3">
+            <Button 
+              onClick={() => connectMobileWallet('metamask')} 
+              disabled={isConnecting}
+              className="w-full flex items-center gap-3 h-12 text-left justify-start bg-orange-500 hover:bg-orange-600"
+            >
+              <Smartphone className="h-5 w-5" />
+              <div>
+                <div className="font-semibold">MetaMask</div>
+                <div className="text-xs opacity-80">Most popular wallet</div>
+              </div>
+            </Button>
+            
+            <Button 
+              onClick={() => connectMobileWallet('trust')} 
+              disabled={isConnecting}
+              variant="outline"
+              className="w-full flex items-center gap-3 h-12 text-left justify-start"
+            >
+              <Smartphone className="h-5 w-5" />
+              <div>
+                <div className="font-semibold">Trust Wallet</div>
+                <div className="text-xs opacity-70">Mobile-first wallet</div>
+              </div>
+            </Button>
+            
+            <Button 
+              onClick={() => connectMobileWallet('walletconnect')} 
+              disabled={isConnecting}
+              variant="outline"
+              className="w-full flex items-center gap-3 h-12 text-left justify-start"
+            >
+              <QrCode className="h-5 w-5" />
+              <div>
+                <div className="font-semibold">WalletConnect</div>
+                <div className="text-xs opacity-70">Scan QR code</div>
+              </div>
+            </Button>
+            
+            <Button 
+              onClick={() => connectMobileWallet('coinbase')} 
+              disabled={isConnecting}
+              variant="outline"
+              className="w-full flex items-center gap-3 h-12 text-left justify-start"
+            >
+              <Smartphone className="h-5 w-5" />
+              <div>
+                <div className="font-semibold">Coinbase Wallet</div>
+                <div className="text-xs opacity-70">Easy to use</div>
+              </div>
+            </Button>
+          </div>
+        ) : (
+          /* Desktop wallet connection */
+          <Button 
+            onClick={connectWallet} 
+            disabled={isConnecting}
+            className="w-full h-12"
+          >
+            {isConnecting ? "Connecting..." : "Connect Wallet"}
+          </Button>
+        )}
+        
+        {!window.ethereum && !isMobile && (
           <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
             <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
               <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">MetaMask not detected</span>
+              <span className="text-sm">Please install a Web3 wallet extension</span>
+            </div>
+          </div>
+        )}
+        
+        {isMobile && (
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+              <Smartphone className="h-4 w-4" />
+              <span className="text-sm">Choose your preferred mobile wallet above</span>
             </div>
           </div>
         )}
