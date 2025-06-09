@@ -456,19 +456,7 @@ export default function SteezeStack() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/60">Fixed Rate</p>
-                    <p className="text-2xl font-bold text-white">10,000 STEEZE/ETH</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
               <CardContent className="p-6">
