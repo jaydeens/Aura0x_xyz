@@ -276,7 +276,7 @@ export default function Leaderboard() {
                                   </div>
                                 );
                               })()}
-                              <Link href={`/profile/${searchUser.username || searchUser.id}`}>
+                              <Link href={`/user/${searchUser.id}`}>
                                 <Button size="sm" className="bg-[#8000FF] hover:bg-[#6B00E6] text-white">
                                   View Profile
                                 </Button>
@@ -324,7 +324,7 @@ export default function Leaderboard() {
               ) : leaderboard && leaderboard.length > 0 ? (
                 <div className="space-y-3">
                   {leaderboard.map((user: any, index: number) => (
-                    <Link key={user.id} href={`/profile/${user.username || user.id}`}>
+                    <Link key={user.id} href={`/user/${user.id}`}>
                       <div className={`rounded-2xl p-4 transition-all duration-300 hover:scale-105 cursor-pointer ${
                         index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
                         index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30' :
