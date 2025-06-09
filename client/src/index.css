@@ -6,6 +6,32 @@ body {
   background: linear-gradient(to bottom, #8B5CF6 0%, #000000 100%);
   background-attachment: fixed;
   min-height: 100vh;
+  /* Mobile optimizations */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll; /* Fixed backgrounds can cause issues on mobile */
+  }
+  
+  /* Improve touch targets */
+  button, .btn, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better text sizing on mobile */
+  html {
+    font-size: 16px;
+  }
+  
+  /* Prevent zoom on inputs */
+  input, textarea, select {
+    font-size: 16px;
+  }
 }
 
 :root {

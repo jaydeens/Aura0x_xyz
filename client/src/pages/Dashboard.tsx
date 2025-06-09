@@ -68,8 +68,8 @@ export default function Dashboard() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
       </div>
       <Navigation />
-      <main className="relative z-10 pt-20 pb-8">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="relative z-10 pt-16 sm:pt-20 pb-8">
+        <div className="max-w-full mx-auto px-3 sm:px-4 lg:px-8">
           {/* Hero Section */}
           <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white mb-2 sm:mb-4 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent leading-tight">Your Aura Dashboard</h1>

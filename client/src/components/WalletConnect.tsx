@@ -74,16 +74,16 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     },
   });
 
+  const detectMobile = () => {
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  };
+
+
+
   useEffect(() => {
     checkConnection();
     detectMobile();
   }, []);
-
-  const detectMobile = () => {
-    const userAgent = navigator.userAgent || navigator.vendor;
-    const mobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-    setIsMobile(mobile);
-  };
 
   const checkConnection = async () => {
     if (window.ethereum) {
@@ -117,52 +117,7 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     }
   };
 
-  const connectMobileWallet = async (walletType: 'metamask' | 'trust' | 'coinbase' | 'walletconnect') => {
-    const deepLinks = {
-      metamask: `https://metamask.app.link/dapp/${window.location.host}`,
-      trust: `https://link.trustwallet.com/open_url?coin_id=60&url=https://${window.location.host}`,
-      coinbase: `https://go.cb-w.com/dapp?cb_url=https://${window.location.host}`,
-      walletconnect: `wc://` // WalletConnect protocol
-    };
 
-    // Check for Trust Wallet specifically
-    if (walletType === 'trust' && (window as any).trustWallet) {
-      try {
-        const accounts = await (window as any).trustWallet.request({
-          method: 'eth_requestAccounts',
-        });
-        if (accounts.length > 0) {
-          const walletAddress = accounts[0];
-          setAddress(walletAddress);
-          setIsConnected(true);
-          await switchToBaseSepolia();
-          if (showBalance) await fetchBalance(walletAddress);
-          onConnect?.(walletAddress);
-          authenticateWallet.mutate(walletAddress);
-          toast({
-            title: "Trust Wallet Connected",
-            description: `Connected to ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`,
-          });
-        }
-        return;
-      } catch (error) {
-        console.error("Trust Wallet connection failed:", error);
-      }
-    }
-
-    if (isMobile && !window.ethereum) {
-      // Open mobile wallet app
-      window.open(deepLinks[walletType], '_blank');
-      toast({
-        title: "Opening Wallet App",
-        description: `Opening ${walletType} app. Please connect your wallet and return to this page.`,
-      });
-      return;
-    }
-
-    // If wallet is available, proceed with normal connection
-    await connectWallet();
-  };
 
   const connectWallet = async () => {
     // Mobile-specific wallet detection
