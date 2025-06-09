@@ -28,20 +28,98 @@ export const BASE_SEPOLIA = {
 
 // Steeze Contract Configuration
 export const STEEZE_CONTRACT = {
-  address: process.env.STEEZE_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000",
+  address: process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962",
   abi: [
-    "function buySteeze(uint256 amount) external payable",
-    "function buyPrice() external view returns (uint256)",
-    "function sellPrice() external view returns (uint256)",
-    "function steezeBalance(address user) external view returns (uint256)",
-    "function withdrawSteeze(uint256 amount) external",
-    "function owner() external view returns (address)",
-    "function setBuyPrice(uint256 newBuyPrice) external",
-    "function setSellPrice(uint256 newSellPrice) external",
-    "function transferOwnership(address newOwner) external",
-    "event Bought(address indexed buyer, uint256 amount)",
-    "event Withdrawn(address indexed user, uint256 amount)",
-    "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)"
+    {
+      "inputs": [{"internalType": "uint256", "name": "_buyPrice", "type": "uint256"}, {"internalType": "uint256", "name": "_sellPrice", "type": "uint256"}],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{"indexed": true, "internalType": "address", "name": "buyer", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "Bought",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{"indexed": true, "internalType": "address", "name": "previousOwner", "type": "address"}, {"indexed": true, "internalType": "address", "name": "newOwner", "type": "address"}],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{"indexed": true, "internalType": "address", "name": "user", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "Withdrawn",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "buyPrice",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "buySteeze",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sellPrice",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "uint256", "name": "newBuyPrice", "type": "uint256"}],
+      "name": "setBuyPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "uint256", "name": "newSellPrice", "type": "uint256"}],
+      "name": "setSellPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+      "name": "steezeBalance",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "newOwner", "type": "address"}],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "withdrawSteeze",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
   ]
 };
 
@@ -309,7 +387,7 @@ export class Web3Service {
         return { isValid: false };
       }
 
-      // Parse the SteezePurchased event from logs
+      // Parse the Bought event from logs
       const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
       const logs = receipt.logs;
       
@@ -320,12 +398,16 @@ export class Web3Service {
             data: log.data
           });
           
-          if (parsedLog && parsedLog.name === 'SteezePurchased') {
+          if (parsedLog && parsedLog.name === 'Bought') {
+            const buyerAddress = parsedLog.args[0];
+            const steezeAmount = parseInt(parsedLog.args[1].toString());
+            const ethAmount = parseFloat(ethers.formatEther(transaction.value));
+            
             return {
               isValid: true,
-              userAddress: parsedLog.args[0],
-              ethAmount: parseFloat(ethers.formatEther(parsedLog.args[1])),
-              steezeAmount: parseInt(parsedLog.args[2].toString()),
+              userAddress: buyerAddress,
+              ethAmount: ethAmount,
+              steezeAmount: steezeAmount,
               blockNumber: receipt.blockNumber,
             };
           }

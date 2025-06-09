@@ -1814,6 +1814,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test transaction verification endpoint
+  app.post("/api/steeze/test-verify", async (req: any, res) => {
+    try {
+      const { transactionHash } = req.body;
+      
+      if (!transactionHash) {
+        return res.status(400).json({ message: "Transaction hash is required" });
+      }
+
+      console.log(`Testing verification for: ${transactionHash}`);
+      
+      // Test the verification
+      const verification = await web3Service.verifySteezeTransaction(transactionHash);
+      console.log("Verification result:", verification);
+
+      res.json({
+        transactionHash,
+        verification,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("Error in test verification:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Manual balance fix endpoint
   app.post("/api/steeze/manual-fix", async (req: any, res) => {
     try {
