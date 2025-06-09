@@ -1997,7 +1997,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { lessonTitle, auraEarned, streakDays } = req.body;
       const user = await storage.getUser(userId);
 
-      if (!user?.twitterAccessToken) {
+      // For bidirectional auth, check if this user has a linked Twitter account
+      let twitterUser = user;
+      if (!user?.twitterAccessToken && user?.twitterId) {
+        // If wallet user has linked Twitter ID, get the Twitter user account
+        twitterUser = await storage.getUserByTwitter(user.twitterId);
+      }
+
+      if (!twitterUser?.twitterAccessToken) {
         return res.status(400).json({ message: "X account not connected" });
       }
 
@@ -2018,7 +2025,7 @@ Building my Web3 knowledge one lesson at a time! 🚀
 #AuraLearning #Web3Education #BuildingMyAura #LearnToEarn`;
 
       // Check if user has proper Twitter API access
-      if (!user.twitterAccessToken || !user.twitterRefreshToken) {
+      if (!twitterUser?.twitterAccessToken || !twitterUser?.twitterRefreshToken) {
         return res.status(400).json({ 
           message: "Twitter posting requires reconnecting your account with posting permissions. Please disconnect and reconnect your X account." 
         });
@@ -2028,7 +2035,7 @@ Building my Web3 knowledge one lesson at a time! 🚀
       const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Authorization': `Bearer ${twitterUser?.twitterAccessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -2080,7 +2087,14 @@ Building my Web3 knowledge one lesson at a time! 🚀
       const { battleId, opponentUsername, auraEarned } = req.body;
       const user = await storage.getUser(userId);
 
-      if (!user?.twitterAccessToken) {
+      // For bidirectional auth, check if this user has a linked Twitter account
+      let twitterUser = user;
+      if (!user?.twitterAccessToken && user?.twitterId) {
+        // If wallet user has linked Twitter ID, get the Twitter user account
+        twitterUser = await storage.getUserByTwitter(user.twitterId);
+      }
+
+      if (!twitterUser?.twitterAccessToken) {
         return res.status(400).json({ message: "X account not connected" });
       }
 
