@@ -108,7 +108,7 @@ export default function Landing() {
             {/* Mobile-Optimized Badge */}
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 animate-bounce">
               <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-ping"></div>
-              <span className="text-white font-black text-xs sm:text-sm tracking-wider">GOING VIRAL</span>
+              <span className="text-white font-black text-xs sm:text-sm tracking-wider">GROW YOUR AURA</span>
             </div>
             
             {/* Mobile-Optimized Headline */}
