@@ -1953,22 +1953,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { ethAmount = 0, steezeAmount = 0, userAddress } = txVerification;
 
-      // Verify the transaction sender matches the authenticated user's wallet
-      const user = await storage.getUser(userId);
-      if (user?.walletAddress && userAddress?.toLowerCase() !== user.walletAddress.toLowerCase()) {
-        return res.status(400).json({ message: "Transaction wallet does not match user wallet" });
+      if (!userAddress) {
+        return res.status(400).json({ message: "Could not determine transaction sender" });
       }
 
-      // Check if transaction already processed
-      const existingTransactions = await storage.getUserSteezeTransactions(userId);
-      const duplicate = existingTransactions.find(tx => tx.transactionHash === transactionHash);
+      // Find or create user based on wallet address from transaction
+      let transactionUser = await storage.getUserByWallet(userAddress.toLowerCase());
+      if (!transactionUser) {
+        // Create new user for this wallet address
+        transactionUser = await storage.upsertUser({
+          id: `wallet_${userAddress.toLowerCase()}`,
+          username: "",
+          email: "",
+          walletAddress: userAddress.toLowerCase(),
+          purchasedSteeze: 0,
+          battleEarnedSteeze: 0
+        });
+      }
+
+      // Check if transaction already processed across all users
+      const allUsers = await storage.searchUsers("", "");
+      let duplicate = false;
+      for (const u of allUsers) {
+        const userTransactions = await storage.getUserSteezeTransactions(u.id);
+        if (userTransactions.find(tx => tx.transactionHash === transactionHash)) {
+          duplicate = true;
+          break;
+        }
+      }
+
       if (duplicate) {
         return res.status(400).json({ message: "Transaction already processed" });
       }
 
-      // Create transaction record
+      // Create transaction record for the actual transaction sender
       const transaction = await storage.createSteezeTransaction({
-        userId,
+        userId: transactionUser.id,
         type: "purchase",
         amount: steezeAmount,
         usdtAmount: ethAmount.toString(),
@@ -1977,11 +1997,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionHash
       });
 
-      // Update user's purchased Steeze balance
-      const currentPurchased = user?.purchasedSteeze || 0;
-      await storage.updateUserProfile(userId, { 
+      // Update the correct user's purchased Steeze balance
+      const currentPurchased = transactionUser.purchasedSteeze || 0;
+      await storage.updateUserProfile(transactionUser.id, { 
         purchasedSteeze: currentPurchased + steezeAmount 
       });
+
+      console.log(`Successfully processed purchase: ${steezeAmount} STEEZE for ${userAddress}`);
 
       res.json({ 
         success: true,
