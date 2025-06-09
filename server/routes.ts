@@ -1813,12 +1813,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
 
       // Create notification for vouched user
+      const voucherName = voucher.username || voucher.walletAddress?.slice(0, 6) + '...' + voucher.walletAddress?.slice(-4) || 'Someone';
       await storage.createNotification({
         id: `vouch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucher.username} vouched for you with ${ethAmount} ETH and awarded ${finalAuraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${ethAmount} ETH and awarded ${finalAuraPoints} aura points!`,
         isRead: false
       });
 
