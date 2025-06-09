@@ -17,9 +17,7 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
     window.location.href = "/api/auth/twitter";
   };
 
-  const handleReplit = () => {
-    window.location.href = "/api/login";
-  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,16 +48,7 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
             <WalletConnect showBalance={false} />
           </div>
 
-          <Separator className="bg-[#8000FF]/20" />
 
-          {/* Replit Fallback */}
-          <Button
-            onClick={handleReplit}
-            variant="outline"
-            className="w-full border-[#8000FF]/50 text-[#8000FF] hover:bg-[#8000FF]/10"
-          >
-            Continue with Replit Account
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
