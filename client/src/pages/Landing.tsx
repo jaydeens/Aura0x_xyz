@@ -403,18 +403,18 @@ export default function Landing() {
                             {isTopThree ? rankIcons[index] : index + 1}
                           </div>
                           <div>
-                            <div className="font-black text-2xl text-gray-900">{user.username || 'Viral Creator'}</div>
-                            <div className="text-gray-700 font-bold text-lg">{user.totalBattlesWon || 0} viral moments</div>
+                            <div className="font-black text-2xl text-gray-900">{user.username || 'Aura Creator'}</div>
+                            <div className="text-gray-700 font-bold text-lg">{user.totalBattlesWon || 0} aura moments</div>
                           </div>
                           {isTopThree && (
                             <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 font-black text-lg animate-bounce">
-                              VIRAL
+                              AURA
                             </Badge>
                           )}
                         </div>
                         <div className="text-right">
                           <div className="font-black text-3xl bg-gradient-to-r from-cyan-500 to-purple-600 bg-clip-text text-transparent">{user.auraPoints || 0}</div>
-                          <div className="text-gray-500 font-black text-sm uppercase tracking-wide">FAME POINTS</div>
+                          <div className="text-gray-500 font-black text-sm uppercase tracking-wide">AURA POINTS</div>
                           <div className="text-pink-600 font-black text-lg">{user.currentStreak || 0} day streak</div>
                         </div>
                       </div>
@@ -426,14 +426,14 @@ export default function Landing() {
                   <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-cyan-400/20 to-purple-500/20 rounded-full flex items-center justify-center animate-pulse">
                     <Trophy className="w-16 h-16 text-cyan-500" />
                   </div>
-                  <h3 className="text-4xl font-black mb-6 text-gray-900">BE THE FIRST TO GO VIRAL</h3>
-                  <p className="text-xl text-gray-700 mb-8 max-w-md mx-auto font-medium">No viral creators yet... Will you be the first to break the internet and start the trend?</p>
+                  <h3 className="text-4xl font-black mb-6 text-gray-900">BE THE FIRST TO GO AURA</h3>
+                  <p className="text-xl text-gray-700 mb-8 max-w-md mx-auto font-medium">No aura creators yet... Will you be the first to break the internet and start the trend?</p>
                   <Button 
                     onClick={handleLogin}
                     className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-black text-2xl px-16 py-6 rounded-3xl shadow-2xl hover:shadow-cyan-500/25 transform hover:scale-110 transition-all duration-300 animate-pulse"
                   >
                     <Trophy className="w-8 h-8 mr-4" />
-                    START YOUR VIRAL JOURNEY
+                    START YOUR AURA JOURNEY
                   </Button>
                 </div>
               )}
@@ -457,7 +457,7 @@ export default function Landing() {
                   AURA
                 </span>
               </div>
-              <p className="text-gray-300 font-bold leading-relaxed text-lg">The viral app that's breaking the internet. Build your brand, go viral, and become legendary.</p>
+              <p className="text-gray-300 font-bold leading-relaxed text-lg">The aura app that's breaking the internet. Build your brand, go aura, and become legendary.</p>
               <div className="flex space-x-4">
                 <a href="#" className="w-14 h-14 bg-gradient-to-br from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 rounded-2xl flex items-center justify-center transition-all group hover:scale-110">
                   <svg className="w-7 h-7 text-pink-400 group-hover:text-pink-300" fill="currentColor" viewBox="0 0 24 24">
@@ -478,10 +478,10 @@ export default function Landing() {
             </div>
 
             <div>
-              <h4 className="font-black mb-6 text-pink-400 text-xl uppercase tracking-wide">VIRAL FEATURES</h4>
+              <h4 className="font-black mb-6 text-pink-400 text-xl uppercase tracking-wide">AURA FEATURES</h4>
               <ul className="space-y-4 text-gray-300">
                 <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Creator Dashboard</a></li>
-                <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Viral Challenges</a></li>
+                <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Aura Challenges</a></li>
                 <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Live Battles</a></li>
                 <li><a href="#" className="hover:text-pink-400 transition-colors font-bold text-lg">Trending Page</a></li>
               </ul>
@@ -493,7 +493,7 @@ export default function Landing() {
                 <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Creator Profiles</a></li>
                 <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Brand Deals</a></li>
                 <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Creator Support</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Fame FAQ</a></li>
+                <li><a href="#" className="hover:text-purple-400 transition-colors font-bold text-lg">Aura FAQ</a></li>
               </ul>
             </div>
 
