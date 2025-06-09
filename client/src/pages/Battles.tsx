@@ -300,15 +300,15 @@ export default function Battles() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
       </div>
       <Navigation />
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
-        {/* TikTok-Style Header */}
-        <div className="text-center mb-16 relative">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-6 py-3 mb-6 animate-bounce">
-            <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
-            <span className="text-white font-black text-sm tracking-wider">LIVE BATTLES</span>
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pt-20 sm:pt-24">
+        {/* Mobile-Optimized Header */}
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16 relative">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-3 sm:px-6 py-2 sm:py-3 mb-4 sm:mb-6 animate-bounce">
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-ping"></div>
+            <span className="text-white font-black text-xs sm:text-sm tracking-wider">LIVE BATTLES</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-black mb-6 text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-4 sm:mb-6 text-white leading-tight">
             EPIC
             <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
               SHOWDOWNS
@@ -316,11 +316,11 @@ export default function Battles() {
             <span className="block text-white">GOING VIRAL</span>
           </h1>
           
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-8">Real Challenges, real drama, real aura🔥 Watch legends clash live and see who becomes the next sensation</p>
+          <p className="text-sm sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-6 sm:mb-8 px-4">Real Challenges, real drama, real aura🔥 Watch legends clash live and see who becomes the next sensation</p>
         </div>
 
-        {/* Enhanced Battle Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+        {/* Mobile-Optimized Battle Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-16">
           <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">

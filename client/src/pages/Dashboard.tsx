@@ -69,47 +69,47 @@ export default function Dashboard() {
       </div>
       
       <Navigation />
-      <main className="relative z-10 pt-24 pb-8">
-        <div className="max-w-full mx-auto px-8">
+      <main className="relative z-10 pt-20 pb-8">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Your Aura Dashboard</h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white mb-2 sm:mb-4 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent leading-tight">Your Aura Dashboard</h1>
+            <p className="text-sm sm:text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto px-4">
               Welcome back, {user?.firstName || user?.username || 'Creator'}! 
               Ready to build your viral empire and climb the Aura ladder?
             </p>
           </div>
 
-          {/* Stats Overview - Expanded Horizontal Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            {/* Aura Points Card - Larger */}
-            <div className="md:col-span-2 bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold">🔥 Aura Points</h3>
-                <Coins className="w-6 h-6 text-pink-400" />
+          {/* Stats Overview - Mobile Optimized Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            {/* Aura Points Card - Mobile Optimized */}
+            <div className="sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-500/30">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-white font-bold text-sm sm:text-base">🔥 Aura Points</h3>
+                <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400" />
               </div>
-              <div className="text-3xl font-black text-white mb-1">{user?.auraPoints?.toLocaleString() || "0"}</div>
-              <div className="text-purple-200 text-sm">APs</div>
+              <div className="text-2xl sm:text-3xl font-black text-white mb-1">{user?.auraPoints?.toLocaleString() || "0"}</div>
+              <div className="text-purple-200 text-xs sm:text-sm">APs</div>
             </div>
 
             {/* Streak Card */}
-            <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold">🔥 Streak</h3>
-                <Flame className="w-6 h-6 text-orange-400" />
+            <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-500/30">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-white font-bold text-sm sm:text-base">🔥 Streak</h3>
+                <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
               </div>
-              <div className="text-2xl font-black text-white mb-1">{user?.currentStreak || 0}</div>
-              <div className="text-purple-200 text-sm">days</div>
+              <div className="text-xl sm:text-2xl font-black text-white mb-1">{user?.currentStreak || 0}</div>
+              <div className="text-purple-200 text-xs sm:text-sm">days</div>
             </div>
 
             {/* Earnings Card */}
-            <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold">💰 Earnings</h3>
-                <Target className="w-6 h-6 text-green-400" />
+            <div className="bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-500/30">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-white font-bold text-sm sm:text-base">💰 Earnings</h3>
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
               </div>
-              <div className="text-2xl font-black text-white mb-1">{Number(user?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
-              <div className="text-purple-200 text-sm">earned</div>
+              <div className="text-xl sm:text-2xl font-black text-white mb-1">{Number(user?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
+              <div className="text-purple-200 text-xs sm:text-sm">earned</div>
             </div>
           </div>
 
