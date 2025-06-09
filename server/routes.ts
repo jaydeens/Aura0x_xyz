@@ -1790,22 +1790,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get voucher's aura level to determine multiplier
       const auraLevels = await storage.getAuraLevels();
+      const userStreakDays = voucher.currentStreak || 0;
       const userLevel = auraLevels.find(level => 
-        voucher.streakDays >= level.minDays && voucher.streakDays <= level.maxDays
+        userStreakDays >= level.minDays && (level.maxDays === null || userStreakDays <= level.maxDays)
       ) || auraLevels[0]; // Default to first level if none found
 
       // Calculate aura points with level multiplier
       const baseAuraPoints = 50;
-      const finalAuraPoints = Math.round(baseAuraPoints * userLevel.vouchingMultiplier);
+      const finalAuraPoints = Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
 
       // Create vouch record
       const vouch = await storage.createVouch({
-        voucherId,
-        vouchedUserId,
-        ethAmount,
+        fromUserId: voucherId,
+        toUserId: vouchedUserId,
+        usdtAmount: ethAmount.toString(),
         auraPoints: finalAuraPoints,
         transactionHash,
-        status: 'completed'
+        multiplier: userLevel.vouchingMultiplier
       });
 
       // Award aura points to the vouched user
