@@ -219,51 +219,7 @@ export default function SocialSharing() {
         </CardContent>
       </Card>
 
-      {/* Quick Share Actions */}
-      {xStatus?.connected && (
-        <Card className="bg-gradient-to-br from-gray-900/90 to-black/90 border-pink-500/30 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white">
-              <Share className="w-5 h-5 text-pink-400" />
-              <span>Quick Share</span>
-            </CardTitle>
-            <CardDescription className="text-gray-300">
-              Share your achievements with one click
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button
-                onClick={handleShareSampleLesson}
-                disabled={shareLessonMutation.isPending}
-                className="bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-500/30 text-white hover:from-blue-500/30 hover:to-purple-600/30 h-auto p-4 justify-start"
-              >
-                <div className="flex items-center space-x-3">
-                  <Target className="w-5 h-5 text-blue-400" />
-                  <div className="text-left">
-                    <p className="font-medium">Share Lesson Complete</p>
-                    <p className="text-sm text-gray-400">Post your learning progress</p>
-                  </div>
-                </div>
-              </Button>
 
-              <Button
-                onClick={handleShareSampleMilestone}
-                disabled={shareMilestoneMutation.isPending}
-                className="bg-gradient-to-r from-yellow-500/20 to-orange-600/20 border border-yellow-500/30 text-white hover:from-yellow-500/30 hover:to-orange-600/30 h-auto p-4 justify-start"
-              >
-                <div className="flex items-center space-x-3">
-                  <Trophy className="w-5 h-5 text-yellow-400" />
-                  <div className="text-left">
-                    <p className="font-medium">Share Milestone</p>
-                    <p className="text-sm text-gray-400">Celebrate achievements</p>
-                  </div>
-                </div>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Custom Tweet Composer */}
       {xStatus?.connected && (

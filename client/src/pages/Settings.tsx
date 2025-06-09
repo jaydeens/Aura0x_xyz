@@ -504,33 +504,7 @@ export default function Settings() {
                       </div>
                     )}
 
-                    {/* Quick Share Options */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Button
-                        onClick={() => {
-                          const shareText = `Just completed today's lesson on Aura! 🚀 Building my Web3 knowledge one day at a time. Current streak: ${currentUser?.currentStreak || 0} days! #AuraLearning #Web3Education`;
-                          postTweetMutation.mutate(shareText);
-                        }}
-                        disabled={postTweetMutation.isPending}
-                        variant="outline"
-                        className="border-green-500/30 text-white hover:bg-green-500/10 justify-start"
-                      >
-                        <Star className="w-4 h-4 mr-2" />
-                        Share Lesson Completion
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          const shareText = `Level up! 💪 Just reached ${currentUser?.auraPoints || 0} Aura points on the Aura platform. Join me in building Web3 reputation! #AuraPoints #Web3Journey`;
-                          postTweetMutation.mutate(shareText);
-                        }}
-                        disabled={postTweetMutation.isPending}
-                        variant="outline"
-                        className="border-purple-500/30 text-white hover:bg-purple-500/10 justify-start"
-                      >
-                        <Trophy className="w-4 h-4 mr-2" />
-                        Share Aura Milestone
-                      </Button>
-                    </div>
+
                   </div>
                 )}
               </div>

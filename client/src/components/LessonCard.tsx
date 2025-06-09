@@ -404,69 +404,31 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   </div>
                 )}
 
-                {/* X (Twitter) Sharing Section */}
+                {/* Direct Lesson Completion */}
                 {quizCompleted && !lessonStatus?.completed && (
-                  <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-6 space-y-4">
-                    <h3 className="font-semibold text-white flex items-center gap-2">
-                      <X className="w-5 h-5 text-blue-400" />
-                      Share on X
-                    </h3>
-                    
-                    <div className="space-y-4">
-                      <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                        <p className="text-slate-300 text-sm mb-3">
-                          Share your completion on X to unlock your aura points:
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={copyTweetText}
-                            variant="outline"
-                            size="sm"
-                            className="border-slate-600 text-slate-300 hover:bg-slate-800"
-                          >
-                            Copy Tweet Text
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just completed "${lesson.title}" on Aura! 🚀\n\nKey Web3 insights gained today. Building my aura in the decentralized future! 💪\n\n#Web3 #Aura #DeFi #Learning`)}`);
-                            }}
-                            size="sm"
-                            className="bg-black hover:bg-gray-800 text-white"
-                          >
-                            <ExternalLink className="w-4 h-4 mr-1" />
-                            Post Now
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3 space-y-3">
-                        <p className="text-amber-300 text-sm text-center">
-                          After posting, claim your aura points below:
-                        </p>
-                        <Button
-                          onClick={() => {
-                            completeLesson.mutate({
-                              lessonId: lesson.id,
-                              tweetUrl: "shared",
-                            });
-                          }}
-                          disabled={isCompleting}
-                          className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
-                        >
-                          {isCompleting ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Claiming...
-                            </>
-                          ) : (
-                            <>
-                              <Zap className="w-4 h-4 mr-2" />
-                              Claim +{lesson.auraReward} APs
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
+                  <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-lg p-6">
+                    <Button
+                      onClick={() => {
+                        completeLesson.mutate({
+                          lessonId: lesson.id,
+                          tweetUrl: "completed",
+                        });
+                      }}
+                      disabled={isCompleting}
+                      className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                    >
+                      {isCompleting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-4 h-4 mr-2" />
+                          Claim +{lesson.auraReward} APs
+                        </>
+                      )}
+                    </Button>
                   </div>
                 )}
               </div>
