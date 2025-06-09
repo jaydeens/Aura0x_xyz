@@ -67,14 +67,18 @@ export default function Landing() {
           <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
-                  <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-                </div>
+                <img 
+                  src="/attached_assets/AURA PNG (1)_1749403291114.png" 
+                  alt="Aura Logo" 
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl shadow-lg animate-pulse"
+                />
                 <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
-              <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
-                AURA
-              </span>
+              <img 
+                src="/attached_assets/FULL AURA (1)_1749403707745.png" 
+                alt="Aura" 
+                className="h-5 sm:h-6 w-auto"
+              />
             </div>
             
 
@@ -262,14 +266,18 @@ export default function Landing() {
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl animate-pulse">
-                    <Trophy className="w-8 h-8 text-white" />
-                  </div>
+                  <img 
+                    src="/attached_assets/AURA PNG (1)_1749403291114.png" 
+                    alt="Aura Logo" 
+                    className="w-16 h-16 rounded-3xl shadow-xl animate-pulse"
+                  />
                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full animate-ping"></div>
                 </div>
-                <span className="text-4xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
-                  AURA
-                </span>
+                <img 
+                  src="/attached_assets/FULL AURA (1)_1749403707745.png" 
+                  alt="Aura" 
+                  className="h-10 w-auto"
+                />
               </div>
               <p className="text-gray-300 font-bold leading-relaxed text-lg">The aura app that's breaking the internet. Build your brand, go aura, and become legendary.</p>
               <div className="flex space-x-4">
