@@ -1773,7 +1773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const rate = await web3Service.getSteezeRate();
       
       res.json({ 
-        contractAddress: process.env.STEEZE_CONTRACT_ADDRESS,
+        contractAddress: STEEZE_CONTRACT.address,
         chainId: 84532, // Base Sepolia
         steezePerEth: rate,
         networkName: "Base Sepolia"
@@ -1785,23 +1785,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/steeze/confirm-purchase", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     try {
-      const { paymentIntentId } = req.body;
-      
-      // Verify payment with Stripe
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
-      if (paymentIntent.status !== 'succeeded') {
-        return res.status(400).json({ message: "Payment not completed" });
-      }
-
-      const amount = parseInt(paymentIntent.metadata.steezeAmount);
-      const ethAmount = amount * 0.0001;
-
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
       if (req.session?.user?.id) {
@@ -1814,22 +1798,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
+      const { transactionHash } = req.body;
+      
+      if (!transactionHash) {
+        return res.status(400).json({ message: "Transaction hash is required" });
+      }
+
+      // Verify transaction on Base Sepolia
+      const txVerification = await web3Service.verifySteezeTransaction(transactionHash);
+      
+      if (!txVerification.isValid) {
+        return res.status(400).json({ message: "Invalid transaction" });
+      }
+
+      const { ethAmount = 0, steezeAmount = 0, userAddress } = txVerification;
+
+      // Verify the transaction sender matches the authenticated user's wallet
+      const user = await storage.getUser(userId);
+      if (user?.walletAddress && userAddress?.toLowerCase() !== user.walletAddress.toLowerCase()) {
+        return res.status(400).json({ message: "Transaction wallet does not match user wallet" });
+      }
+
+      // Check if transaction already processed
+      const existingTransactions = await storage.getUserSteezeTransactions(userId);
+      const duplicate = existingTransactions.find(tx => tx.transactionHash === transactionHash);
+      if (duplicate) {
+        return res.status(400).json({ message: "Transaction already processed" });
+      }
+
       // Create transaction record
       const transaction = await storage.createSteezeTransaction({
         userId,
         type: "purchase",
-        amount,
+        amount: steezeAmount,
         usdtAmount: ethAmount.toString(),
-        rate: "0.0001",
-        status: "completed"
+        rate: (ethAmount > 0 ? (steezeAmount / ethAmount).toString() : "10000"),
+        status: "completed",
+        transactionHash
       });
 
       // Update user's Steeze balance
-      const user = await storage.getUser(userId);
       const currentBalance = user?.steezeBalance || 0;
-      await storage.updateUserSteezeBalance(userId, currentBalance + amount);
+      await storage.updateUserSteezeBalance(userId, currentBalance + steezeAmount);
 
-      res.json({ transaction, newBalance: currentBalance + amount });
+      res.json({ 
+        success: true,
+        transaction,
+        steezeAmount,
+        ethAmount,
+        newBalance: currentBalance + steezeAmount
+      });
     } catch (error: any) {
       console.error("Error confirming Steeze purchase:", error);
       res.status(500).json({ message: "Failed to confirm purchase" });
