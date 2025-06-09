@@ -1878,7 +1878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transaction,
         steezeAmount,
         ethAmount,
-        newBalance: currentBalance + steezeAmount
+        newBalance: currentPurchased + steezeAmount
       });
     } catch (error: any) {
       console.error("Error confirming Steeze purchase:", error);
@@ -1942,10 +1942,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         txHash
       });
 
-      // Update user's Steeze balance (subtract redeemed amount)
+      // Update user's earned Steeze balance (subtract redeemed amount from earned balance only)
       const user = await storage.getUser(userId);
-      const currentBalance = user?.steezeBalance || 0;
-      await storage.updateUserSteezeBalance(userId, Math.max(0, currentBalance - (verification.steezeAmount || 0)));
+      const currentEarned = user?.battleEarnedSteeze || 0;
+      await storage.updateUserProfile(userId, { 
+        battleEarnedSteeze: Math.max(0, currentEarned - (verification.steezeAmount || 0))
+      });
 
       res.json({ 
         transaction,

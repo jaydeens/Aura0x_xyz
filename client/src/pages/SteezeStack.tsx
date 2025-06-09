@@ -177,7 +177,7 @@ export default function SteezeStack() {
 
       // Send transaction to smart contract
       const transactionParameters = {
-        to: purchaseInfo?.contractAddress,
+        to: "0x52e660400626d8cfd85D1F88F189662b57b56962",
         from: walletAddress,
         value: '0x' + BigInt(weiAmount).toString(16),
         data: data,
@@ -261,12 +261,15 @@ export default function SteezeStack() {
 
   // Confirm purchase mutation
   const confirmPurchaseMutation = useMutation({
-    mutationFn: (txHash: string) => 
-      apiRequest(`/api/steeze/confirm-purchase`, {
-        method: "POST",
-        body: JSON.stringify({ transactionHash: txHash }),
-        headers: { "Content-Type": "application/json" }
-      }),
+    mutationFn: async (txHash: string) => {
+      const response = await fetch('/api/steeze/confirm-purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionHash: txHash })
+      });
+      if (!response.ok) throw new Error('Failed to confirm purchase');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/transactions"] });
@@ -289,12 +292,15 @@ export default function SteezeStack() {
 
   // Confirm redeem mutation
   const confirmRedeemMutation = useMutation({
-    mutationFn: (txHash: string) => 
-      apiRequest(`/api/steeze/redeem-confirm`, {
-        method: "POST",
-        body: JSON.stringify({ transactionHash: txHash }),
-        headers: { "Content-Type": "application/json" }
-      }),
+    mutationFn: async (txHash: string) => {
+      const response = await fetch('/api/steeze/redeem-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionHash: txHash })
+      });
+      if (!response.ok) throw new Error('Failed to confirm redeem');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/transactions"] });
