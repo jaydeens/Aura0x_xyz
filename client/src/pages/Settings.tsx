@@ -160,8 +160,13 @@ export default function Settings() {
     mutationFn: async (walletAddress: string) => {
       return apiRequest("POST", "/api/auth/bind-wallet", { walletAddress });
     },
-    onSuccess: () => {
-      toast({ title: "Wallet connected successfully!" });
+    onSuccess: (data: any) => {
+      const message = data.message || "Wallet connected successfully!";
+      toast({ 
+        title: data.bonusAwarded ? "🎉 Wallet Connected!" : "Wallet Connected!", 
+        description: message,
+        duration: data.bonusAwarded ? 6000 : 3000
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
     onError: (error: any) => {

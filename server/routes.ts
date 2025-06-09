@@ -259,6 +259,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This wallet address is already linked to another user" });
       }
 
+      // Check wallet age and award bonus if eligible
+      let bonusAwarded = false;
+      let bonusMessage = "";
+      
+      try {
+        const currentUser = await storage.getUser(userId);
+        const walletAge = await web3Service.getWalletAge(walletAddress);
+        console.log(`Wallet ${walletAddress} age: ${walletAge} days`);
+        
+        // If wallet is at least 60 days old and user doesn't already have wallet connected
+        if (walletAge >= 60 && (!currentUser || !currentUser.walletAddress)) {
+          await storage.updateUserAura(userId, 100, 'vouching');
+          bonusAwarded = true;
+          bonusMessage = "🎉 Wallet bonus: +100 Aura Points for connecting a mature wallet!";
+          console.log(`Awarded 100 Aura Points to user ${userId} for connecting mature wallet`);
+        }
+      } catch (error) {
+        console.error("Error checking wallet age:", error);
+        // Continue with wallet linking even if age check fails
+      }
+
       // Update current user with wallet address and IP
       const clientIP = getClientIP(req);
       const updatedUser = await storage.upsertUser({
@@ -267,7 +288,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ipAddress: clientIP,
       });
 
-      res.json({ user: updatedUser });
+      res.json({ 
+        user: updatedUser,
+        message: bonusAwarded ? bonusMessage : "Wallet linked successfully!",
+        bonusAwarded
+      });
     } catch (error) {
       console.error("Error linking wallet address:", error);
       res.status(500).json({ message: "Failed to link wallet address" });
@@ -327,6 +352,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Check wallet age and award bonus if eligible
+      let bonusAwarded = false;
+      let bonusMessage = "";
+      
+      try {
+        const walletAge = await web3Service.getWalletAge(walletAddress);
+        console.log(`Wallet ${walletAddress} age: ${walletAge} days`);
+        
+        // If wallet is at least 60 days old and user doesn't already have wallet connected
+        if (walletAge >= 60 && (!currentUser || !currentUser.walletAddress)) {
+          await storage.updateUserAura(userId, 100, 'vouching');
+          bonusAwarded = true;
+          bonusMessage = "🎉 Wallet bonus: +100 Aura Points for connecting a mature wallet!";
+          console.log(`Awarded 100 Aura Points to user ${userId} for connecting mature wallet`);
+        }
+      } catch (error) {
+        console.error("Error checking wallet age:", error);
+        // Continue with wallet binding even if age check fails
+      }
+
       // Update current user with wallet address
       const clientIP = getClientIP(req);
       const updatedUser = await storage.updateUserProfile(userId, {
@@ -336,8 +381,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         success: true, 
-        message: "Wallet connected successfully!",
-        user: updatedUser 
+        message: bonusAwarded ? bonusMessage : "Wallet connected successfully!",
+        user: updatedUser,
+        bonusAwarded
       });
     } catch (error) {
       console.error("Error binding wallet address:", error);
