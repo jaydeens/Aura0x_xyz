@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Link wallet address to existing user
+  // Link wallet address to existing user (OAuth only)
   app.post("/api/auth/link-wallet", isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
@@ -271,6 +271,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error linking wallet address:", error);
       res.status(500).json({ message: "Failed to link wallet address" });
+    }
+  });
+
+  // Bind wallet address to existing user (works with both OAuth and session auth)
+  app.post("/api/auth/bind-wallet", async (req: any, res) => {
+    try {
+      const { walletAddress } = req.body;
+
+      if (!walletAddress) {
+        return res.status(400).json({ message: "Wallet address is required" });
+      }
+
+      // Validate wallet address format
+      if (!web3Service.isValidAddress(walletAddress)) {
+        return res.status(400).json({ message: "Invalid wallet address format" });
+      }
+
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized - please login first" });
+      }
+
+      // Check if wallet is already linked to another user
+      const existingWalletUser = await storage.getUserByWallet(walletAddress);
+      if (existingWalletUser && existingWalletUser.id !== userId) {
+        return res.status(400).json({ 
+          message: "This wallet address is already linked to another account. Please use a different wallet.",
+          success: false 
+        });
+      }
+
+      // Check if this is a wallet user trying to bind to another wallet account
+      const currentUser = await storage.getUser(userId);
+      if (currentUser && currentUser.walletAddress && currentUser.walletAddress !== walletAddress.toLowerCase()) {
+        return res.status(400).json({ 
+          message: "Your account is already linked to a different wallet address.",
+          success: false 
+        });
+      }
+
+      // If wallet user already exists and is the same as current user, just return success
+      if (existingWalletUser && existingWalletUser.id === userId) {
+        return res.json({ 
+          success: true, 
+          message: "Wallet already connected to this account",
+          user: existingWalletUser 
+        });
+      }
+
+      // Update current user with wallet address
+      const clientIP = getClientIP(req);
+      const updatedUser = await storage.updateUserProfile(userId, {
+        walletAddress: walletAddress.toLowerCase(),
+        ipAddress: clientIP,
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Wallet connected successfully!",
+        user: updatedUser 
+      });
+    } catch (error) {
+      console.error("Error binding wallet address:", error);
+      res.status(500).json({ 
+        message: "Failed to connect wallet",
+        success: false 
+      });
     }
   });
 

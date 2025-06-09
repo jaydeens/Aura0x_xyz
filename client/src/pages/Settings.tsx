@@ -471,6 +471,136 @@ export default function Settings() {
               </div>
             </div>
 
+            {/* Wallet Connections */}
+            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                  <Wallet className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-black text-white">Wallet Connections</h2>
+              </div>
+
+              <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                      <Wallet className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-white">Ethereum Wallet</h3>
+                      <p className="text-white/60">
+                        {currentUser?.walletAddress 
+                          ? `Connected: ${currentUser.walletAddress.slice(0, 6)}...${currentUser.walletAddress.slice(-4)}` 
+                          : 'Connect your wallet to access Web3 features'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    {currentUser?.walletAddress ? (
+                      <>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 font-bold">
+                          Connected
+                        </Badge>
+                        <Button
+                          onClick={() => {
+                            // Disconnect wallet functionality will be implemented
+                            toast({ 
+                              title: "Wallet disconnected", 
+                              description: "Your wallet has been disconnected from this account." 
+                            });
+                          }}
+                          variant="outline"
+                          className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                        >
+                          Disconnect
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => {
+                          // Connect wallet functionality
+                          if (typeof window !== 'undefined' && window.ethereum) {
+                            window.ethereum.request({ method: 'eth_requestAccounts' })
+                              .then((accounts: string[]) => {
+                                if (accounts.length > 0) {
+                                  // Send wallet address to backend to bind with current user
+                                  fetch('/api/auth/bind-wallet', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ walletAddress: accounts[0] })
+                                  })
+                                  .then(res => res.json())
+                                  .then(data => {
+                                    if (data.success) {
+                                      toast({ 
+                                        title: "Wallet connected successfully!", 
+                                        description: "You can now login with either X or your wallet." 
+                                      });
+                                      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                                    } else {
+                                      toast({ 
+                                        title: "Connection failed", 
+                                        description: data.message || "Failed to connect wallet",
+                                        variant: "destructive"
+                                      });
+                                    }
+                                  })
+                                  .catch(error => {
+                                    toast({ 
+                                      title: "Connection failed", 
+                                      description: "Failed to connect wallet",
+                                      variant: "destructive"
+                                    });
+                                  });
+                                }
+                              })
+                              .catch((error: any) => {
+                                toast({ 
+                                  title: "Wallet connection failed", 
+                                  description: "Please make sure MetaMask is installed and unlocked",
+                                  variant: "destructive"
+                                });
+                              });
+                          } else {
+                            toast({ 
+                              title: "No wallet detected", 
+                              description: "Please install MetaMask or another Web3 wallet",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                        className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold"
+                      >
+                        Connect Wallet
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Wallet Benefits */}
+                <div className="space-y-4 border-t border-white/10 pt-6">
+                  <h4 className="text-lg font-bold text-white">Wallet Benefits</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-black/20 rounded-xl p-4 border border-purple-500/20">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Trophy className="w-5 h-5 text-purple-400" />
+                        <span className="text-white font-semibold">Battle Rewards</span>
+                      </div>
+                      <p className="text-white/60 text-sm">Receive ETH rewards directly to your wallet from battle wins</p>
+                    </div>
+                    <div className="bg-black/20 rounded-xl p-4 border border-purple-500/20">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Heart className="w-5 h-5 text-pink-400" />
+                        <span className="text-white font-semibold">Vouch Payments</span>
+                      </div>
+                      <p className="text-white/60 text-sm">Send and receive vouches in ETH to build reputation</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Account Statistics */}
             <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
               <div className="flex items-center gap-3 mb-8">

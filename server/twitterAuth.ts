@@ -123,25 +123,68 @@ export function setupTwitterAuth(app: Express) {
       console.log("Twitter user data received:", userData);
       const twitterUser = userData.data;
       
-      // Create or update user with Twitter data
-      const user = await storage.upsertUser({
-        id: `twitter_${twitterUser.id}`,
-        email: null,
-        firstName: twitterUser.name?.split(' ')[0] || twitterUser.username,
-        lastName: twitterUser.name?.split(' ').slice(1).join(' ') || null,
-        profileImageUrl: twitterUser.profile_image_url || null,
-        username: twitterUser.username,
-        twitterId: twitterUser.id,
-        twitterUsername: twitterUser.username,
-        twitterAccessToken: tokenData.access_token,
-        twitterRefreshToken: tokenData.refresh_token,
-        isVerified: twitterUser.verified || false,
-      });
+      // Check if this is a binding request from an existing authenticated user
+      let existingUserId: string | null = null;
+      if ((req.session as any)?.user?.id) {
+        existingUserId = (req.session as any).user.id;
+      }
+
+      let user;
       
-      // Set up session
-      (req.session as any).user = user;
-      console.log("Twitter authentication successful for user:", user.id);
-      res.redirect("/dashboard");
+      if (existingUserId) {
+        // This is a binding request - bind Twitter to existing user
+        console.log("Binding Twitter account to existing user:", existingUserId);
+        
+        // Check if Twitter account is already linked to another user
+        const existingTwitterUser = await storage.getUserByTwitter(twitterUser.id);
+        if (existingTwitterUser && existingTwitterUser.id !== existingUserId) {
+          return res.redirect("/?error=twitter_bind_error&details=" + encodeURIComponent("This Twitter account is already linked to another user"));
+        }
+        
+        // Update existing user with Twitter data
+        user = await storage.updateUserProfile(existingUserId, {
+          twitterId: twitterUser.id,
+          twitterUsername: twitterUser.username,
+          twitterAccessToken: tokenData.access_token,
+          twitterRefreshToken: tokenData.refresh_token,
+        });
+        
+        // Keep existing session but refresh user data
+        (req.session as any).user = user;
+        console.log("Twitter account successfully bound to user:", existingUserId);
+        res.redirect("/settings?twitter_connected=true");
+      } else {
+        // This is a new login - check if Twitter user already exists
+        const existingTwitterUser = await storage.getUserByTwitter(twitterUser.id);
+        
+        if (existingTwitterUser) {
+          // Update existing Twitter user with fresh tokens
+          user = await storage.updateUserProfile(existingTwitterUser.id, {
+            twitterAccessToken: tokenData.access_token,
+            twitterRefreshToken: tokenData.refresh_token,
+          });
+        } else {
+          // Create new user with Twitter data
+          user = await storage.upsertUser({
+            id: `twitter_${twitterUser.id}`,
+            email: null,
+            firstName: twitterUser.name?.split(' ')[0] || twitterUser.username,
+            lastName: twitterUser.name?.split(' ').slice(1).join(' ') || null,
+            profileImageUrl: twitterUser.profile_image_url || null,
+            username: twitterUser.username,
+            twitterId: twitterUser.id,
+            twitterUsername: twitterUser.username,
+            twitterAccessToken: tokenData.access_token,
+            twitterRefreshToken: tokenData.refresh_token,
+            isVerified: twitterUser.verified || false,
+          });
+        }
+        
+        // Set up session
+        (req.session as any).user = user;
+        console.log("Twitter authentication successful for user:", user.id);
+        res.redirect("/dashboard");
+      }
       
     } catch (error) {
       console.error("Twitter callback error:", error);
