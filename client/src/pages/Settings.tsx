@@ -37,9 +37,7 @@ export default function Settings() {
   
   // Form states
   const [isEditingUsername, setIsEditingUsername] = useState(false);
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [newUsername, setNewUsername] = useState("");
-  const [newEmail, setNewEmail] = useState("");
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
@@ -93,10 +91,7 @@ export default function Settings() {
   // Mutations
   const updateUsernameMutation = useMutation({
     mutationFn: async (username: string) => {
-      return apiRequest("/api/auth/update-profile", {
-        method: "POST",
-        body: { username }
-      });
+      return apiRequest("POST", "/api/auth/update-profile", { username });
     },
     onSuccess: () => {
       toast({ title: "Username updated successfully!" });
@@ -105,23 +100,6 @@ export default function Settings() {
     },
     onError: (error: any) => {
       toast({ title: "Error updating username", description: error.message, variant: "destructive" });
-    }
-  });
-
-  const updateEmailMutation = useMutation({
-    mutationFn: async (email: string) => {
-      return apiRequest("/api/auth/update-profile", {
-        method: "POST",
-        body: { email }
-      });
-    },
-    onSuccess: () => {
-      toast({ title: "Email updated successfully!" });
-      setIsEditingEmail(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-    },
-    onError: (error: any) => {
-      toast({ title: "Error updating email", description: error.message, variant: "destructive" });
     }
   });
 
@@ -152,9 +130,7 @@ export default function Settings() {
 
   const disconnectTwitterMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("/api/auth/disconnect-twitter", {
-        method: "POST"
-      });
+      return apiRequest("POST", "/api/auth/disconnect-twitter");
     },
     onSuccess: () => {
       toast({ title: "X account disconnected successfully!" });
@@ -168,10 +144,7 @@ export default function Settings() {
 
   const postTweetMutation = useMutation({
     mutationFn: async (text: string) => {
-      return apiRequest("/api/social/post-tweet", {
-        method: "POST",
-        body: { text }
-      });
+      return apiRequest("POST", "/api/social/post-tweet", { text });
     },
     onSuccess: () => {
       toast({ title: "Tweet posted successfully!" });
@@ -195,14 +168,7 @@ export default function Settings() {
     }
   };
 
-  const handleEmailEdit = () => {
-    setNewEmail(currentUser?.email || "");
-    setIsEditingEmail(true);
-  };
 
-  const handleEmailSubmit = () => {
-    updateEmailMutation.mutate(newEmail);
-  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -354,55 +320,7 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label className="text-white font-semibold">Email</Label>
-                    <div className="flex items-center gap-3">
-                      {isEditingEmail ? (
-                        <div className="flex-1 space-y-2">
-                          <Input
-                            type="email"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                            className="bg-black/50 border-purple-500/30 text-white placeholder-white/50"
-                            placeholder="Enter email address"
-                          />
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={handleEmailSubmit}
-                              disabled={updateEmailMutation.isPending}
-                              size="sm"
-                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                            >
-                              <Check className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              onClick={() => setIsEditingEmail(false)}
-                              variant="outline"
-                              size="sm"
-                              className="border-purple-500/30 text-white hover:bg-purple-500/10"
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex-1 bg-black/50 border border-purple-500/30 rounded-lg px-4 py-3">
-                            <p className="text-white font-medium">{currentUser?.email || 'Not set'}</p>
-                          </div>
-                          <Button
-                            onClick={handleEmailEdit}
-                            variant="outline"
-                            size="sm"
-                            className="border-purple-500/30 text-white hover:bg-purple-500/10"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>
