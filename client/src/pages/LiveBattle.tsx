@@ -220,10 +220,10 @@ export default function LiveBattle() {
   // Show loading state while fetching data
   if (isLoading || !battle) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-700">Loading battle details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-white/80">Loading battle details...</p>
         </div>
       </div>
     );
@@ -232,15 +232,15 @@ export default function LiveBattle() {
   // Only show error if we explicitly have an error or confirmed empty response
   if (error || (battle && !(battle as any).id)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 flex items-center justify-center">
-        <Card className="bg-white/90 backdrop-blur-sm border-purple-200/50 shadow-xl">
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black flex items-center justify-center">
+        <Card className="bg-black/40 backdrop-blur-sm border-purple-500/30 shadow-xl">
           <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Battle Not Found</h2>
-            <p className="text-gray-600">The battle you're looking for doesn't exist.</p>
+            <h2 className="text-xl font-bold text-white mb-2">Battle Not Found</h2>
+            <p className="text-white/70">The battle you're looking for doesn't exist.</p>
             <Button 
               variant="outline" 
               onClick={() => window.history.back()}
-              className="mt-4 border-purple-300 text-purple-700 hover:bg-purple-100"
+              className="mt-4 border-purple-500/50 text-purple-400 hover:bg-purple-500/20"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
@@ -256,7 +256,7 @@ export default function LiveBattle() {
   const opponent = (battle as any).opponent;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black relative overflow-hidden">
       {/* Floating Gradient Orbs Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"></div>
