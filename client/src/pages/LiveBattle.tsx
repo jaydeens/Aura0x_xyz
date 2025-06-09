@@ -39,7 +39,7 @@ import {
 export default function LiveBattle() {
   const [, params] = useRoute("/battles/:id");
   const battleId = params?.id;
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
@@ -217,25 +217,7 @@ export default function LiveBattle() {
     return () => clearInterval(interval);
   }, []);
 
-  // Handle authentication loading
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-white/80">Authenticating...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated
-  if (!isAuthenticated || !user) {
-    window.location.href = "/api/login";
-    return null;
-  }
-
-  // Show loading state while fetching battle data
+  // Show loading state while fetching data
   if (isLoading || !battle) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black flex items-center justify-center">
