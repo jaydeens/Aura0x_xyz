@@ -1842,13 +1842,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contractAddress: "0x0000000000000000000000000000000000000000", // Contract not deployed yet
         chainId: 84532,
         networkName: "Base Sepolia",
-        platformFee: 40, // 40% to platform, 60% to vouched user
+        platformFee: 30, // 30% to platform, 70% to vouched user
+        platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
         requiredAmount: 0.0001,
         baseAuraPoints: 50
       });
     } catch (error: any) {
       console.error("Error getting vouch contract info:", error);
       res.status(500).json({ message: "Failed to get contract information" });
+    }
+  });
+
+  // Get individual user profile
+  app.get('/api/users/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json(user);
+    } catch (error: any) {
+      console.error("Error getting user profile:", error);
+      res.status(500).json({ message: "Failed to get user profile" });
     }
   });
 
@@ -1868,7 +1886,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouchesReceived = vouches.filter(v => v.toUserId === userId);
       
       const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
-      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.6), 0); // 60% to user
+      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
       const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
 
       res.json({

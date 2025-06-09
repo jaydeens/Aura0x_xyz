@@ -3,7 +3,9 @@ pragma solidity ^0.8.0;
 
 contract VouchingContract {
     address public owner;
-    uint256 public platformFeePercentage = 40; // 40% to platform, 60% to vouched user
+    address public constant PLATFORM_WALLET = 0x1c11262B204EE2d0146315A05b4cf42CA61D33e4;
+    uint256 public constant PLATFORM_FEE_PERCENTAGE = 30; // 30% to platform, 70% to vouched user
+    uint256 public constant REQUIRED_ETH_AMOUNT = 0.0001 ether; // Fixed amount for vouching
     
     struct Vouch {
         address voucher;
@@ -16,7 +18,6 @@ contract VouchingContract {
     mapping(uint256 => Vouch) public vouches;
     mapping(address => uint256) public totalVouched;
     mapping(address => uint256) public totalReceived;
-    mapping(address => uint256) public claimableAmount;
     
     uint256 public nextVouchId = 1;
     uint256 public totalVouchVolume;
@@ -29,15 +30,7 @@ contract VouchingContract {
         uint256 auraPoints
     );
     
-    event EthClaimed(
-        address indexed user,
-        uint256 amount
-    );
-    
-    event PlatformFeesWithdrawn(
-        address indexed owner,
-        uint256 amount
-    );
+    event PlatformFeePaid(uint256 amount);
     
     constructor() {
         owner = msg.sender;
@@ -49,12 +42,20 @@ contract VouchingContract {
     }
     
     function vouchForUser(address _vouchedUser, uint256 _auraPoints) external payable {
-        require(msg.value > 0, "Must send ETH to vouch");
+        require(msg.value == REQUIRED_ETH_AMOUNT, "Must send exactly 0.0001 ETH to vouch");
         require(_vouchedUser != address(0), "Invalid vouched user address");
         require(_vouchedUser != msg.sender, "Cannot vouch for yourself");
         
-        uint256 platformFee = (msg.value * platformFeePercentage) / 100;
+        uint256 platformFee = (msg.value * PLATFORM_FEE_PERCENTAGE) / 100;
         uint256 userAmount = msg.value - platformFee;
+        
+        // Send 70% directly to vouched user
+        (bool userSuccess, ) = payable(_vouchedUser).call{value: userAmount}("");
+        require(userSuccess, "Transfer to vouched user failed");
+        
+        // Send 30% directly to platform wallet
+        (bool platformSuccess, ) = payable(PLATFORM_WALLET).call{value: platformFee}("");
+        require(platformSuccess, "Transfer to platform failed");
         
         // Create vouch record
         vouches[nextVouchId] = Vouch({
@@ -67,39 +68,21 @@ contract VouchingContract {
         
         // Update tracking
         totalVouched[msg.sender] += msg.value;
-        totalReceived[_vouchedUser] += msg.value;
-        claimableAmount[_vouchedUser] += userAmount;
+        totalReceived[_vouchedUser] += userAmount;
         totalVouchVolume += msg.value;
         
         emit VouchCreated(nextVouchId, msg.sender, _vouchedUser, msg.value, _auraPoints);
+        emit PlatformFeePaid(platformFee);
         nextVouchId++;
-    }
-    
-    function claimEth() external {
-        uint256 amount = claimableAmount[msg.sender];
-        require(amount > 0, "No ETH to claim");
-        
-        claimableAmount[msg.sender] = 0;
-        
-        (bool success, ) = payable(msg.sender).call{value: amount}("");
-        require(success, "ETH transfer failed");
-        
-        emit EthClaimed(msg.sender, amount);
-    }
-    
-    function getClaimableAmount(address _user) external view returns (uint256) {
-        return claimableAmount[_user];
     }
     
     function getUserVouchStats(address _user) external view returns (
         uint256 totalVouchedAmount,
-        uint256 totalReceivedAmount,
-        uint256 claimable
+        uint256 totalReceivedAmount
     ) {
         return (
             totalVouched[_user],
-            totalReceived[_user],
-            claimableAmount[_user]
+            totalReceived[_user]
         );
     }
     
@@ -107,19 +90,12 @@ contract VouchingContract {
         return vouches[_vouchId];
     }
     
-    function withdrawPlatformFees() external onlyOwner {
-        uint256 balance = address(this).balance;
-        require(balance > 0, "No fees to withdraw");
-        
-        (bool success, ) = payable(owner).call{value: balance}("");
-        require(success, "ETH transfer failed");
-        
-        emit PlatformFeesWithdrawn(owner, balance);
+    function getRequiredAmount() external pure returns (uint256) {
+        return REQUIRED_ETH_AMOUNT;
     }
     
-    function setPlatformFeePercentage(uint256 _percentage) external onlyOwner {
-        require(_percentage <= 50, "Platform fee cannot exceed 50%");
-        platformFeePercentage = _percentage;
+    function getPlatformWallet() external pure returns (address) {
+        return PLATFORM_WALLET;
     }
     
     function transferOwnership(address _newOwner) external onlyOwner {
