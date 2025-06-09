@@ -52,6 +52,7 @@ export default function SteezeStack() {
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
+  const isOnCorrectNetwork = currentChainId === BASE_SEPOLIA.chainId;
 
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
@@ -122,25 +123,39 @@ export default function SteezeStack() {
         description: "Please install MetaMask or another Web3 wallet",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     try {
       console.log(`Switching to Base Sepolia (Chain ID: ${BASE_SEPOLIA.chainId})`);
+      
+      // First ensure wallet is connected
+      if (!isConnected) {
+        await connectWallet();
+      }
       
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: `0x${BASE_SEPOLIA.chainId.toString(16)}` }],
       });
       
+      // Wait a moment for the switch to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Update chain ID after successful switch
       const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
-      setCurrentChainId(parseInt(newChainId, 16));
+      const parsedChainId = parseInt(newChainId, 16);
+      setCurrentChainId(parsedChainId);
       
-      toast({
-        title: "Network Switched",
-        description: "Successfully switched to Base Sepolia",
-      });
+      if (parsedChainId === BASE_SEPOLIA.chainId) {
+        toast({
+          title: "Network Switched",
+          description: "Successfully switched to Base Sepolia",
+        });
+        return true;
+      }
+      
+      return false;
     } catch (error: any) {
       console.error("Network switch error:", error);
       
@@ -163,14 +178,23 @@ export default function SteezeStack() {
             }],
           });
           
+          // Wait a moment for the add to complete
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           // Update chain ID after successful add
           const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
-          setCurrentChainId(parseInt(newChainId, 16));
+          const parsedChainId = parseInt(newChainId, 16);
+          setCurrentChainId(parsedChainId);
           
-          toast({
-            title: "Network Added",
-            description: "Base Sepolia network added and switched successfully",
-          });
+          if (parsedChainId === BASE_SEPOLIA.chainId) {
+            toast({
+              title: "Network Added",
+              description: "Base Sepolia network added and switched successfully",
+            });
+            return true;
+          }
+          
+          return false;
         } catch (addError: any) {
           console.error("Network add error:", addError);
           toast({
@@ -178,13 +202,23 @@ export default function SteezeStack() {
             description: addError.message || "Failed to add Base Sepolia network",
             variant: "destructive",
           });
+          return false;
         }
+      } else if (error.code === 4001) {
+        // User rejected the request
+        toast({
+          title: "Network Switch Cancelled",
+          description: "Please switch to Base Sepolia to continue",
+          variant: "destructive",
+        });
+        return false;
       } else {
         toast({
           title: "Network Switch Failed",
           description: error.message || "Failed to switch to Base Sepolia",
           variant: "destructive",
         });
+        return false;
       }
     }
   };
@@ -376,10 +410,23 @@ export default function SteezeStack() {
       return;
     }
 
-    // Check if on correct network
-    if (currentChainId !== BASE_SEPOLIA.chainId) {
-      await switchToBaseSepolia();
+    // Ensure wallet is connected
+    if (!isConnected) {
+      await connectWallet();
       return;
+    }
+
+    // Check if on correct network and switch if needed
+    if (currentChainId !== BASE_SEPOLIA.chainId) {
+      const switchSuccessful = await switchToBaseSepolia();
+      if (!switchSuccessful) {
+        toast({
+          title: "Network Required",
+          description: "Please switch to Base Sepolia to continue",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     const steezeAmount = Math.floor(ethValue * 10000); // Fixed rate: 10000 Steeze per ETH
@@ -420,8 +467,6 @@ export default function SteezeStack() {
     if (!steezeAmount) return 0;
     return parseFloat(steezeAmount) / 10000; // Fixed rate: 10000 Steeze per ETH
   };
-
-  const isOnCorrectNetwork = currentChainId === BASE_SEPOLIA.chainId;
   
   // Debug logging (remove in production)
   useEffect(() => {
@@ -432,7 +477,7 @@ export default function SteezeStack() {
       expectedChainId: BASE_SEPOLIA.chainId,
       isOnCorrectNetwork 
     });
-  }, [isConnected, walletAddress, currentChainId, isOnCorrectNetwork]);
+  }, [isConnected, walletAddress, currentChainId]);
 
   // Initialize wallet connection on page load
   useEffect(() => {
