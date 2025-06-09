@@ -61,33 +61,33 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* TikTok-Style Navigation */}
+      {/* Mobile-Optimized Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-purple-500/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
-                  <Trophy className="w-6 h-6 text-white" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
+                  <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping"></div>
               </div>
-              <span className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
+              <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
                 AURA
               </span>
             </div>
             
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8">
               <a href="#viral" className="text-gray-300 hover:text-pink-400 transition-colors font-bold text-sm uppercase tracking-wide">Viral Content</a>
               <a href="#battles" className="text-gray-300 hover:text-purple-400 transition-colors font-bold text-sm uppercase tracking-wide">Live Battles</a>
               <a href="#trending" className="text-gray-300 hover:text-cyan-400 transition-colors font-bold text-sm uppercase tracking-wide">Trending Now</a>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-3 py-1 animate-bounce">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Badge className="hidden sm:flex bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-2 sm:px-3 py-1 animate-bounce">
                 🔥 TRENDING
               </Badge>
-              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-6 py-2 rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 transition-all">
+              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-3 sm:px-6 py-2 text-sm sm:text-base rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 transition-all">
                 GET VIRAL
               </Button>
             </div>
@@ -103,16 +103,16 @@ export default function Landing() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
         </div>
         
-        <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+        <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-0">
           <div className="text-center max-w-4xl mx-auto">
-            {/* TikTok-style badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-6 py-3 mb-8 animate-bounce">
-              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
-              <span className="text-white font-black text-sm tracking-wider">GOING VIRAL</span>
+            {/* Mobile-Optimized Badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 animate-bounce">
+              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-xs sm:text-sm tracking-wider">GOING VIRAL</span>
             </div>
             
-            {/* Main headline with TikTok energy */}
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black leading-none mb-6">
+            {/* Mobile-Optimized Headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl xl:text-9xl font-black leading-none mb-4 sm:mb-6">
               <span className="block text-white">BUILD YOUR</span>
               <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
                 AURA
@@ -120,29 +120,29 @@ export default function Landing() {
               <span className="block text-white">GO VIRAL</span>
             </h1>
             
-            {/* TikTok-style description */}
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto font-medium">
+            {/* Mobile-Optimized Description */}
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-medium px-4">
               The app that's breaking the internet 🔥 Complete challenges, flex your wins, 
               and build legendary status that everyone talks about
             </p>
 
-            {/* TikTok-style buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            {/* Mobile-Optimized Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16 px-4">
               <Button 
                 onClick={handleLogin}
                 size="lg"
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-xl px-12 py-6 rounded-2xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 animate-pulse"
+                className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-2xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 animate-pulse"
               >
-                <Trophy className="w-7 h-7 mr-3" />
+                <Trophy className="w-5 h-5 sm:w-7 sm:h-7 mr-2 sm:mr-3" />
                 GET FAMOUS NOW
               </Button>
               <Button 
                 variant="outline" 
                 onClick={handleWatchDemo}
                 size="lg"
-                className="border-3 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-black text-xl px-10 py-6 rounded-2xl backdrop-blur-sm"
+                className="w-full sm:w-auto border-3 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-black text-lg sm:text-xl px-6 sm:px-10 py-4 sm:py-6 rounded-2xl backdrop-blur-sm"
               >
-                <Play className="w-6 h-6 mr-3" />
+                <Play className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
                 SEE THE HYPE
               </Button>
             </div>

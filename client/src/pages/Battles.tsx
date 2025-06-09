@@ -322,11 +322,11 @@ export default function Battles() {
         {/* Mobile-Optimized Battle Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-16">
           <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium mb-2">Total Battles</p>
-                  <p className="text-4xl font-black text-foreground group-hover:text-primary transition-colors">
+                  <p className="text-muted-foreground text-xs sm:text-sm font-medium mb-1 sm:mb-2">Total Battles</p>
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground group-hover:text-primary transition-colors">
                     {stats.total}
                   </p>
                 </div>

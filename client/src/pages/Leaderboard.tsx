@@ -137,11 +137,11 @@ export default function Leaderboard() {
 
       <Navigation />
       
-      <main className="relative pt-20 pb-12 px-4">
+      <main className="relative pt-16 sm:pt-20 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-6xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+          {/* Mobile-Optimized Hero Section */}
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-3 sm:mb-4 leading-tight">
               🏆 AURA LEADERBOARD 🏆
             </h1>
             <p className="text-2xl text-white/80 font-semibold">
