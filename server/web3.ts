@@ -13,7 +13,30 @@ export const POLYGON_TESTNET = {
   blockExplorer: "https://mumbai.polygonscan.com/",
 };
 
-// ETH is the native currency, no contract address needed for testnet
+// Base Sepolia testnet configuration
+export const BASE_SEPOLIA = {
+  chainId: 84532,
+  name: "Base Sepolia",
+  rpcUrl: "https://sepolia.base.org",
+  nativeCurrency: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  blockExplorer: "https://sepolia-explorer.base.org/",
+};
+
+// Steeze Contract Configuration
+export const STEEZE_CONTRACT = {
+  address: process.env.STEEZE_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000",
+  abi: [
+    "function purchaseSteeze() external payable",
+    "function getSteezeRate() external view returns (uint256)",
+    "function steezeBalance(address user) external view returns (uint256)",
+    "function totalSupply() external view returns (uint256)",
+    "event SteezePurchased(address indexed user, uint256 ethAmount, uint256 steezeAmount)"
+  ]
+};
 
 // Platform wallet address (should be set in environment variables)
 export const PLATFORM_WALLET = process.env.PLATFORM_WALLET_ADDRESS || "0x0000000000000000000000000000000000000000";
@@ -30,19 +53,32 @@ export interface VouchTransaction {
 }
 
 export class Web3Service {
-  private provider: ethers.JsonRpcProvider;
+  private polygonProvider: ethers.JsonRpcProvider;
+  private baseProvider: ethers.JsonRpcProvider;
 
   constructor() {
-    // Initialize provider as null to avoid connection errors on startup
-    this.provider = null as any;
+    // Initialize providers as null to avoid connection errors on startup
+    this.polygonProvider = null as any;
+    this.baseProvider = null as any;
   }
 
-  private initProvider() {
-    if (!this.provider) {
-      // Use a more reliable RPC endpoint
-      this.provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/polygon_mumbai");
+  private initPolygonProvider() {
+    if (!this.polygonProvider) {
+      this.polygonProvider = new ethers.JsonRpcProvider("https://rpc.ankr.com/polygon_mumbai");
     }
-    return this.provider;
+    return this.polygonProvider;
+  }
+
+  private initBaseProvider() {
+    if (!this.baseProvider) {
+      this.baseProvider = new ethers.JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
+    }
+    return this.baseProvider;
+  }
+
+  // Legacy method for backward compatibility
+  private initProvider() {
+    return this.initPolygonProvider();
   }
 
   /**
@@ -154,6 +190,143 @@ export class Web3Service {
       multiplier,
       level
     };
+  }
+
+  /**
+   * Verify transaction on Base Sepolia network
+   */
+  async verifyBaseSepioliaTransaction(transactionHash: string): Promise<{
+    isValid: boolean;
+    from?: string;
+    to?: string;
+    value?: string;
+    blockNumber?: number;
+  }> {
+    try {
+      const provider = this.initBaseProvider();
+      const receipt = await provider.getTransactionReceipt(transactionHash);
+      
+      if (!receipt) {
+        return { isValid: false };
+      }
+
+      const transaction = await provider.getTransaction(transactionHash);
+      if (!transaction) {
+        return { isValid: false };
+      }
+
+      return {
+        isValid: true,
+        from: transaction.from,
+        to: transaction.to || undefined,
+        value: ethers.formatEther(transaction.value),
+        blockNumber: receipt.blockNumber,
+      };
+    } catch (error) {
+      console.error("Error verifying Base Sepolia transaction:", error);
+      return { isValid: false };
+    }
+  }
+
+  /**
+   * Get Steeze rate from contract
+   */
+  async getSteezeRate(): Promise<number> {
+    try {
+      const provider = this.initBaseProvider();
+      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
+      
+      const rate = await contract.getSteezeRate();
+      return parseInt(rate.toString());
+    } catch (error) {
+      console.error("Error getting Steeze rate:", error);
+      // Default rate: 10000 Steeze per 1 ETH
+      return 10000;
+    }
+  }
+
+  /**
+   * Get user's Steeze balance from contract
+   */
+  async getUserSteezeBalance(userAddress: string): Promise<number> {
+    try {
+      const provider = this.initBaseProvider();
+      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
+      
+      const balance = await contract.steezeBalance(userAddress);
+      return parseInt(balance.toString());
+    } catch (error) {
+      console.error("Error getting user Steeze balance:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Verify Steeze purchase transaction and extract details
+   */
+  async verifySteezeTransaction(transactionHash: string): Promise<{
+    isValid: boolean;
+    userAddress?: string;
+    ethAmount?: number;
+    steezeAmount?: number;
+    blockNumber?: number;
+  }> {
+    try {
+      const provider = this.initBaseProvider();
+      const receipt = await provider.getTransactionReceipt(transactionHash);
+      
+      if (!receipt || receipt.status !== 1) {
+        return { isValid: false };
+      }
+
+      // Check if transaction was to the Steeze contract
+      if (receipt.to?.toLowerCase() !== STEEZE_CONTRACT.address.toLowerCase()) {
+        return { isValid: false };
+      }
+
+      const transaction = await provider.getTransaction(transactionHash);
+      if (!transaction) {
+        return { isValid: false };
+      }
+
+      // Parse the SteezePurchased event from logs
+      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
+      const logs = receipt.logs;
+      
+      for (const log of logs) {
+        try {
+          const parsedLog = contract.interface.parseLog({
+            topics: log.topics,
+            data: log.data
+          });
+          
+          if (parsedLog && parsedLog.name === 'SteezePurchased') {
+            return {
+              isValid: true,
+              userAddress: parsedLog.args[0],
+              ethAmount: parseFloat(ethers.formatEther(parsedLog.args[1])),
+              steezeAmount: parseInt(parsedLog.args[2].toString()),
+              blockNumber: receipt.blockNumber,
+            };
+          }
+        } catch (parseError) {
+          // Continue to next log if this one can't be parsed
+          continue;
+        }
+      }
+
+      // If no event found, but transaction was successful, extract basic info
+      return {
+        isValid: true,
+        userAddress: transaction.from,
+        ethAmount: parseFloat(ethers.formatEther(transaction.value)),
+        steezeAmount: 0, // Will need to be calculated
+        blockNumber: receipt.blockNumber,
+      };
+    } catch (error) {
+      console.error("Error verifying Steeze transaction:", error);
+      return { isValid: false };
+    }
   }
 
   /**

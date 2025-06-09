@@ -1734,33 +1734,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Steeze Stack API routes
-  app.post("/api/steeze/purchase", isAuthenticated, async (req: any, res) => {
+  // Steeze Stack API routes - Base Sepolia Contract Integration
+  app.get("/api/steeze/rate", async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const { amount } = req.body;
-      const purchaseRate = 0.0001; // 1 Steeze = 0.0001 ETH
-      const ethAmount = amount * purchaseRate;
-      
-      // Create payment intent with Stripe
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(ethAmount * 100), // Convert to cents
-        currency: "usd",
-        metadata: {
-          userId: userId,
-          steezeAmount: amount.toString(),
-          type: "steeze_purchase"
-        }
-      });
+      const rate = await web3Service.getSteezeRate();
+      res.json({ steezePerEth: rate });
+    } catch (error: any) {
+      console.error("Error getting Steeze rate:", error);
+      res.status(500).json({ message: "Failed to get Steeze rate" });
+    }
+  });
 
+  app.get("/api/steeze/balance/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      const balance = await web3Service.getUserSteezeBalance(address);
+      res.json({ balance });
+    } catch (error: any) {
+      console.error("Error getting Steeze balance:", error);
+      res.status(500).json({ message: "Failed to get Steeze balance" });
+    }
+  });
+
+  app.post("/api/steeze/purchase", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const rate = await web3Service.getSteezeRate();
+      
       res.json({ 
-        clientSecret: paymentIntent.client_secret,
-        ethAmount,
-        steezeAmount: amount
+        contractAddress: process.env.STEEZE_CONTRACT_ADDRESS,
+        chainId: 84532, // Base Sepolia
+        steezePerEth: rate,
+        networkName: "Base Sepolia"
       });
     } catch (error: any) {
-      console.error("Error creating Steeze purchase:", error);
-      res.status(500).json({ message: "Failed to create payment intent" });
+      console.error("Error getting purchase info:", error);
+      res.status(500).json({ message: "Failed to get purchase information" });
     }
   });
 
