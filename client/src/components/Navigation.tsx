@@ -19,7 +19,7 @@ import auraLogo from "@assets/AURA PNG (1)_1749403291114.png";
 import auraTextLogo from "@assets/FULL AURA (1)_1749403707745.png";
 
 export default function Navigation() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -90,7 +90,7 @@ export default function Navigation() {
           {/* User Section */}
           <div className="flex items-center space-x-4">
             {/* Aura Points Display */}
-            {isAuthenticated && currentUser && (
+            {!isLoading && isAuthenticated && currentUser && (
               <div className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-4 py-2 rounded-2xl border border-pink-500/30 backdrop-blur-sm">
                 <Coins className="w-4 h-4 text-pink-400" />
                 <span className="text-sm font-black text-white">
@@ -101,10 +101,10 @@ export default function Navigation() {
             )}
 
             {/* Notification Bell */}
-            {isAuthenticated && <NotificationBell />}
+            {!isLoading && isAuthenticated && <NotificationBell />}
 
             {/* Wallet Status */}
-            {isAuthenticated && currentUser?.walletAddress ? (
+            {!isLoading && isAuthenticated && currentUser?.walletAddress ? (
               <div className="hidden sm:flex items-center space-x-2 bg-card px-3 py-2 rounded-lg border border-green-500/30">
                 <Zap className="w-4 h-4 text-green-500" />
                 <span className="text-sm font-medium text-green-500">
@@ -114,7 +114,13 @@ export default function Navigation() {
             ) : null}
 
             {/* User Menu */}
-            {isAuthenticated && currentUser ? (
+            {isLoading ? (
+              // Show loading skeleton during auth check
+              <div className="flex items-center space-x-4">
+                <div className="hidden sm:block w-20 h-8 bg-gradient-to-r from-pink-500/20 to-purple-600/20 rounded-2xl animate-pulse"></div>
+                <div className="w-10 h-10 bg-gradient-to-r from-pink-500/20 to-purple-600/20 rounded-full animate-pulse"></div>
+              </div>
+            ) : isAuthenticated && currentUser ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
