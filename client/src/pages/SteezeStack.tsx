@@ -225,7 +225,7 @@ export default function SteezeStack() {
 
       // Send transaction to smart contract
       const transactionParameters = {
-        to: purchaseInfo?.contractAddress,
+        to: "0x52e660400626d8cfd85D1F88F189662b57b56962",
         from: walletAddress,
         value: '0x0',
         data: data,
@@ -604,7 +604,7 @@ export default function SteezeStack() {
                     {/* Steeze Input */}
                     <div className="space-y-2">
                       <Label htmlFor="steeze-amount" className="text-white">
-                        Steeze Amount (Max: {userBalance.toLocaleString()})
+                        Steeze Amount (Max: {earnedSteeze.toLocaleString()} earned)
                       </Label>
                       <Input
                         id="steeze-amount"
@@ -630,7 +630,7 @@ export default function SteezeStack() {
                     {/* Redeem Button */}
                     <Button
                       onClick={handleRedeem}
-                      disabled={!steezeAmount || isRedeeming || parseFloat(steezeAmount) > userBalance}
+                      disabled={!steezeAmount || isRedeeming || parseFloat(steezeAmount) > earnedSteeze}
                       className="w-full mt-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700"
                     >
                       {isRedeeming ? (

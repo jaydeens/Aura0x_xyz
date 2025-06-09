@@ -1922,10 +1922,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { txHash } = req.body;
+      const { transactionHash } = req.body;
       
       // Verify transaction on Base Sepolia
-      const verification = await web3Service.verifySteezeTransaction(txHash);
+      const verification = await web3Service.verifySteezeTransaction(transactionHash);
       
       if (!verification.isValid) {
         return res.status(400).json({ message: "Invalid transaction" });
@@ -1939,7 +1939,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         usdtAmount: (verification.ethAmount || 0).toString(),
         rate: "auto",
         status: "completed",
-        txHash
+        transactionHash
       });
 
       // Update user's earned Steeze balance (subtract redeemed amount from earned balance only)
@@ -1952,7 +1952,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         transaction,
         ethReceived: verification.ethAmount || 0,
-        newBalance: Math.max(0, currentBalance - (verification.steezeAmount || 0))
+        newBalance: Math.max(0, currentEarned - (verification.steezeAmount || 0))
       });
     } catch (error: any) {
       console.error("Error confirming Steeze redeem:", error);
