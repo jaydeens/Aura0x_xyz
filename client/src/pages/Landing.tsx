@@ -228,14 +228,14 @@ export default function Landing() {
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-black mb-4 text-gray-900">Viral Analytics</h3>
-                <p className="text-gray-700 mb-6 font-medium">Track your viral moments in real-time. See your influence grow and monitor your legendary status across all platforms.</p>
+                <h3 className="text-2xl font-black mb-4 text-gray-900">Aura Analytics</h3>
+                <p className="text-gray-700 mb-6 font-medium">Track your aura moments in real-time. See your influence grow and monitor your legendary status across all platforms.</p>
                 
                 <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-4 border border-purple-200">
                   <div className="text-xs text-purple-700 font-black mb-2 uppercase tracking-wide">INFLUENCER METRICS</div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-700 font-bold">Viral Score</span>
+                      <span className="text-gray-700 font-bold">Aura Score</span>
                       <span className="text-purple-600 font-black">Live</span>
                     </div>
                     <div className="flex justify-between">
@@ -298,10 +298,10 @@ export default function Landing() {
               <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
                 SHOWDOWNS
               </span>
-              <span className="block text-white">GOING VIRAL</span>
+              <span className="block text-white">GOING AURA</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
-              Real battles, real drama, real fame 🔥 Watch legends clash live and see who becomes the next viral sensation
+              Real battles, real drama, real aura 🔥 Watch legends clash live and see who becomes the next aura sensation
             </p>
           </div>
 
@@ -314,22 +314,22 @@ export default function Landing() {
                     <h3 className="text-3xl font-black text-white">LIVE NOW 🔴</h3>
                     <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-3 text-lg font-black animate-pulse">
                       <div className="w-3 h-3 bg-white rounded-full mr-2 animate-ping"></div>
-                      {activeBattles.length} VIRAL BATTLES
+                      {activeBattles.length} AURA BATTLES
                     </Badge>
                   </div>
                   {activeBattles.slice(0, 3).map((battle: any) => (
                     <div key={battle.id} className="bg-gradient-to-r from-purple-800/50 to-pink-800/50 rounded-3xl p-8 border border-pink-500/30 hover:border-pink-500/60 transition-all duration-300 hover:scale-105">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-8">
-                          <div className="text-2xl font-black text-pink-400">{battle.challengerName || 'Viral Star'}</div>
+                          <div className="text-2xl font-black text-pink-400">{battle.challengerName || 'Aura Star'}</div>
                           <div className="text-center">
                             <div className="text-white font-black text-2xl animate-bounce">⚡ VS ⚡</div>
-                            <div className="text-xs text-gray-400 font-black uppercase tracking-wide">VIRAL CLASH</div>
+                            <div className="text-xs text-gray-400 font-black uppercase tracking-wide">AURA CLASH</div>
                           </div>
                           <div className="text-2xl font-black text-cyan-400">{battle.opponentName || 'Rising Legend'}</div>
                         </div>
                         <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 text-xl font-black rounded-2xl animate-pulse">
-                          🏆 {battle.stakeAmount || 0} FAME
+                          🏆 {battle.stakeAmount || 0} AP
                         </Badge>
                       </div>
                     </div>
@@ -341,13 +341,13 @@ export default function Landing() {
                     <Trophy className="w-16 h-16 text-pink-400" />
                   </div>
                   <h3 className="text-4xl font-black mb-6 text-white">NO BATTLES RIGHT NOW</h3>
-                  <p className="text-xl text-gray-300 mb-8 max-w-md mx-auto font-medium">The stage is empty... Will you be the first to start the next viral battle that breaks the internet?</p>
+                  <p className="text-xl text-gray-300 mb-8 max-w-md mx-auto font-medium">The stage is empty... Will you be the first to start the next aura battle that breaks the internet?</p>
                   <Button 
                     onClick={handleLogin}
                     className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-2xl px-16 py-6 rounded-3xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-110 transition-all duration-300 animate-pulse"
                   >
                     <Trophy className="w-8 h-8 mr-4" />
-                    START VIRAL BATTLE
+                    START AURA BATTLE
                   </Button>
                 </div>
               )}
@@ -368,7 +368,7 @@ export default function Landing() {
               <span className="block bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
                 CREATORS
               </span>
-              <span className="block text-gray-900">GOING VIRAL</span>
+              <span className="block text-gray-900">GOING AURA</span>
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto font-medium">
               The hottest creators breaking the internet right now 🔥 See who's trending and climb the ranks to join them
@@ -380,8 +380,8 @@ export default function Landing() {
               {leaderboard && Array.isArray(leaderboard) && leaderboard.length > 0 ? (
                 <div className="space-y-6">
                   <div className="text-center mb-10">
-                    <h3 className="text-3xl font-black mb-3 text-gray-900">VIRAL RANKINGS 🔥</h3>
-                    <p className="text-gray-700 text-lg font-medium">Ranked by viral moments, fan engagement, and legendary status achieved</p>
+                    <h3 className="text-3xl font-black mb-3 text-gray-900">AURA RANKINGS 🔥</h3>
+                    <p className="text-gray-700 text-lg font-medium">Ranked by aura moments, fan engagement, and legendary status achieved</p>
                   </div>
                   {leaderboard.slice(0, 5).map((user: any, index: number) => {
                     const isTopThree = index < 3;
