@@ -20,7 +20,7 @@ const isAuthenticated = (req: any, res: any, next: any) => {
   // In a production app, you might want to implement proper session management
   return next();
 };
-import { web3Service } from "./web3";
+import { web3Service, STEEZE_CONTRACT } from "./web3";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -1851,6 +1851,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error confirming Steeze purchase:", error);
       res.status(500).json({ message: "Failed to confirm purchase" });
+    }
+  });
+
+  app.get("/api/steeze/transactions", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const transactions = await storage.getUserSteezeTransactions(userId);
+      res.json(transactions);
+    } catch (error: any) {
+      console.error("Error getting Steeze transactions:", error);
+      res.status(500).json({ message: "Failed to get transactions" });
     }
   });
 

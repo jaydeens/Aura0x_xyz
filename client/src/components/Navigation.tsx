@@ -58,6 +58,7 @@ export default function Navigation() {
     { path: "/", label: "Dashboard", icon: Home },
     { path: "/battles", label: "Live Battles", icon: Sword },
     { path: "/leaderboard", label: "Trending", icon: Trophy },
+    { path: "/steeze", label: "Steeze Tokens", icon: Zap },
     { path: "/steeze-stack", label: "Steeze Recharge", icon: Coins },
   ];
 
