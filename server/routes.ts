@@ -1812,6 +1812,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to the vouched user
       await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
 
+      // Update ETH earnings (70% of vouched amount goes to the user)
+      const ethEarnings = ethAmount * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUserId, ethEarnings);
+
       // Create notification for vouched user
       const voucherName = voucher.username || voucher.walletAddress?.slice(0, 6) + '...' + voucher.walletAddress?.slice(-4) || 'Someone';
       await storage.createNotification({
