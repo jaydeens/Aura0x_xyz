@@ -21,7 +21,8 @@ import {
   Info,
   Zap,
   ExternalLink,
-  Loader2
+  Loader2,
+  Trophy
 } from "lucide-react";
 import { ethers } from "ethers";
 
