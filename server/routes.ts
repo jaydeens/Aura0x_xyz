@@ -1839,13 +1839,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: "0x0000000000000000000000000000000000000000", // Contract not deployed yet
+        contractAddress: "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8",
         chainId: 84532,
         networkName: "Base Sepolia",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
         requiredAmount: 0.0001,
-        baseAuraPoints: 50
+        baseAuraPoints: 50,
+        abi: [
+          {
+            "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],
+            "name": "vouch",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+          },
+          {
+            "anonymous": false,
+            "inputs": [
+              {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+              {"indexed": true, "internalType": "address", "name": "creator", "type": "address"},
+              {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}
+            ],
+            "name": "Vouched",
+            "type": "event"
+          },
+          {
+            "inputs": [],
+            "name": "VOUCH_FEE",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"internalType": "address", "name": "", "type": "address"},
+              {"internalType": "address", "name": "", "type": "address"}
+            ],
+            "name": "hasVouched",
+            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ]
       });
     } catch (error: any) {
       console.error("Error getting vouch contract info:", error);

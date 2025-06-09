@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { 
   User, 
   TrendingUp, 
@@ -17,11 +16,17 @@ import {
   Trophy, 
   Star,
   Wallet,
-  ExternalLink,
   Coins,
   CheckCircle,
   Heart
 } from "lucide-react";
+import { ethers } from "ethers";
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 interface UserProfileProps {
   userId: string;
@@ -29,13 +34,13 @@ interface UserProfileProps {
 
 export default function UserProfile({ userId }: UserProfileProps) {
   const [isVouchDialogOpen, setIsVouchDialogOpen] = useState(false);
-  const [transactionHash, setTransactionHash] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hasVouched, setHasVouched] = useState(false);
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const REQUIRED_ETH_AMOUNT = 0.0001;
+  const REQUIRED_ETH_AMOUNT = "0.0001";
 
   const { data: profileUser } = useQuery({
     queryKey: [`/api/users/${userId}`],
@@ -70,6 +75,26 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const baseAuraPoints = 50;
   const finalAuraPoints = currentUserLevel ? Math.round(baseAuraPoints * parseFloat(currentUserLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
 
+  // Check if user has already vouched
+  useEffect(() => {
+    if (contractInfo?.contractAddress && currentUser?.walletAddress && profileUser?.walletAddress) {
+      checkIfVouched();
+    }
+  }, [contractInfo, currentUser, profileUser]);
+
+  const checkIfVouched = async () => {
+    try {
+      if (window.ethereum && contractInfo?.abi && contractInfo?.contractAddress) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, provider);
+        const hasVouchedResult = await contract.hasVouched(currentUser?.walletAddress, profileUser?.walletAddress);
+        setHasVouched(hasVouchedResult);
+      }
+    } catch (error) {
+      console.error("Error checking vouch status:", error);
+    }
+  };
+
   const vouchMutation = useMutation({
     mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
@@ -79,8 +104,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
         title: "Vouch Successful!",
         description: `Awarded ${data.auraAwarded} aura points with ${data.multiplier}x multiplier`,
       });
-      setTransactionHash("");
       setIsVouchDialogOpen(false);
+      setHasVouched(true);
       queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
       queryClient.invalidateQueries({ queryKey: [`/api/vouch/stats/${userId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
@@ -95,19 +120,28 @@ export default function UserProfile({ userId }: UserProfileProps) {
   });
 
   const handleVouchSubmit = async () => {
-    if (!transactionHash) {
+    if (!window.ethereum) {
       toast({
-        title: "Missing Transaction",
-        description: "Please enter the transaction hash",
+        title: "Wallet Required",
+        description: "Please install MetaMask or another Web3 wallet",
         variant: "destructive",
       });
       return;
     }
 
-    if (!currentUser?.walletAddress) {
+    if (!currentUser?.walletAddress || !profileUser?.walletAddress) {
       toast({
         title: "Wallet Required",
-        description: "Please connect your wallet to vouch",
+        description: "Both users must have connected wallets",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!contractInfo?.contractAddress || !contractInfo?.abi) {
+      toast({
+        title: "Contract Error",
+        description: "Vouching contract not available",
         variant: "destructive",
       });
       return;
@@ -115,10 +149,63 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
     setIsProcessing(true);
     try {
+      // Connect to wallet
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      // Check network
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const network = await provider.getNetwork();
+      const targetChainId = 84532; // Base Sepolia
+      
+      if (network.chainId !== targetChainId) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: ethers.utils.hexValue(targetChainId) }],
+          });
+        } catch (switchError: any) {
+          if (switchError.code === 4902) {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: ethers.utils.hexValue(targetChainId),
+                chainName: 'Base Sepolia',
+                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                rpcUrls: ['https://sepolia.base.org'],
+                blockExplorerUrls: ['https://sepolia-explorer.base.org'],
+              }],
+            });
+          } else {
+            throw switchError;
+          }
+        }
+      }
+
+      // Create contract instance
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
+
+      // Call vouch function
+      const tx = await contract.vouch(profileUser.walletAddress, {
+        value: ethers.utils.parseEther(REQUIRED_ETH_AMOUNT)
+      });
+
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+
+      // Record vouch in backend
       await vouchMutation.mutateAsync({
         vouchedUserId: userId,
-        ethAmount: REQUIRED_ETH_AMOUNT,
-        transactionHash
+        ethAmount: parseFloat(REQUIRED_ETH_AMOUNT),
+        transactionHash: receipt.transactionHash
+      });
+
+    } catch (error: any) {
+      console.error("Vouching error:", error);
+      toast({
+        title: "Transaction Failed",
+        description: error.message || "Failed to complete vouch transaction",
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
@@ -168,7 +255,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const canVouch = currentUser && 
                   currentUser.id !== userId && 
                   currentUser.walletAddress && 
-                  profileUser.walletAddress;
+                  profileUser.walletAddress &&
+                  !hasVouched;
 
   return (
     <Card className="bg-black/40 border border-purple-500/20">
@@ -221,11 +309,11 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-white/80">They receive:</span>
-                      <span className="text-green-400">{(REQUIRED_ETH_AMOUNT * 0.7).toFixed(6)} ETH (70%)</span>
+                      <span className="text-green-400">{(parseFloat(REQUIRED_ETH_AMOUNT) * 0.7).toFixed(6)} ETH (70%)</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-white/80">Platform fee:</span>
-                      <span className="text-white/60">{(REQUIRED_ETH_AMOUNT * 0.3).toFixed(6)} ETH (30%)</span>
+                      <span className="text-white/60">{(parseFloat(REQUIRED_ETH_AMOUNT) * 0.3).toFixed(6)} ETH (30%)</span>
                     </div>
                     {currentUserLevel && (
                       <div className="flex items-center justify-between">
@@ -249,30 +337,19 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
                   {/* Instructions */}
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                    <h4 className="text-blue-300 font-medium mb-2">How to vouch:</h4>
+                    <h4 className="text-blue-300 font-medium mb-2">Smart Contract Vouching:</h4>
                     <ol className="text-blue-200 text-sm space-y-1 list-decimal list-inside">
-                      <li>Send exactly {REQUIRED_ETH_AMOUNT} ETH to their wallet:</li>
-                      <li className="ml-4 text-purple-300 font-mono break-all">{profileUser.walletAddress}</li>
-                      <li>Copy the transaction hash and paste it below</li>
-                      <li>Click "Confirm Vouch" to complete the process</li>
+                      <li>Click "Vouch Now" to open your wallet</li>
+                      <li>Confirm the transaction for {REQUIRED_ETH_AMOUNT} ETH</li>
+                      <li>The smart contract automatically distributes funds</li>
+                      <li>You'll receive aura points based on your level multiplier</li>
                     </ol>
-                  </div>
-
-                  {/* Transaction Hash Input */}
-                  <div className="space-y-3">
-                    <label className="text-white text-sm font-medium">Transaction Hash</label>
-                    <input
-                      value={transactionHash}
-                      onChange={(e) => setTransactionHash(e.target.value)}
-                      placeholder="Enter blockchain transaction hash..."
-                      className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white placeholder:text-white/40 focus:border-purple-400 focus:outline-none"
-                    />
                   </div>
 
                   {/* Submit Button */}
                   <Button
                     onClick={handleVouchSubmit}
-                    disabled={!transactionHash || isProcessing || vouchMutation.isPending}
+                    disabled={isProcessing || vouchMutation.isPending}
                     className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
                   >
                     {isProcessing || vouchMutation.isPending ? (
@@ -283,13 +360,19 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     ) : (
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" />
-                        Confirm Vouch ({finalAuraPoints} aura)
+                        Vouch Now ({finalAuraPoints} aura)
                       </div>
                     )}
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
+          )}
+
+          {hasVouched && (
+            <Badge variant="outline" className="text-green-400 border-green-400">
+              Already Vouched
+            </Badge>
           )}
         </div>
       </CardHeader>
@@ -345,6 +428,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
             <p className="text-orange-300 text-sm">
               {!currentUser.walletAddress && "You need to connect your wallet to vouch for users."}
               {!profileUser.walletAddress && "This user needs to connect their wallet to receive vouches."}
+              {hasVouched && "You have already vouched for this user."}
             </p>
           </div>
         )}
