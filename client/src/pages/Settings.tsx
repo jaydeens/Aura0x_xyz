@@ -156,6 +156,19 @@ export default function Settings() {
     }
   });
 
+  const connectWalletMutation = useMutation({
+    mutationFn: async (walletAddress: string) => {
+      return apiRequest("POST", "/api/auth/bind-wallet", { walletAddress });
+    },
+    onSuccess: () => {
+      toast({ title: "Wallet connected successfully!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error connecting wallet", description: error.message, variant: "destructive" });
+    }
+  });
+
   // Event handlers
   const handleUsernameEdit = () => {
     setNewUsername(currentUser?.username || "");
@@ -185,6 +198,36 @@ export default function Settings() {
   const handlePostTweet = () => {
     if (tweetText.trim()) {
       postTweetMutation.mutate(tweetText);
+    }
+  };
+
+  const handleWalletConnect = async () => {
+    try {
+      // Check if MetaMask is installed
+      if (typeof window.ethereum === 'undefined') {
+        toast({ 
+          title: "MetaMask not found", 
+          description: "Please install MetaMask to connect your wallet", 
+          variant: "destructive" 
+        });
+        return;
+      }
+
+      // Request account access
+      const accounts = await window.ethereum.request({ 
+        method: 'eth_requestAccounts' 
+      });
+      
+      if (accounts.length > 0) {
+        const walletAddress = accounts[0];
+        connectWalletMutation.mutate(walletAddress);
+      }
+    } catch (error: any) {
+      toast({ 
+        title: "Error connecting wallet", 
+        description: error.message || "Failed to connect wallet", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -518,61 +561,11 @@ export default function Settings() {
                       </>
                     ) : (
                       <Button
-                        onClick={() => {
-                          // Connect wallet functionality
-                          if (typeof window !== 'undefined' && window.ethereum) {
-                            window.ethereum.request({ method: 'eth_requestAccounts' })
-                              .then((accounts: string[]) => {
-                                if (accounts.length > 0) {
-                                  // Send wallet address to backend to bind with current user
-                                  fetch('/api/auth/bind-wallet', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ walletAddress: accounts[0] })
-                                  })
-                                  .then(res => res.json())
-                                  .then(data => {
-                                    if (data.success) {
-                                      toast({ 
-                                        title: "Wallet connected successfully!", 
-                                        description: "You can now login with either X or your wallet." 
-                                      });
-                                      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-                                    } else {
-                                      toast({ 
-                                        title: "Connection failed", 
-                                        description: data.message || "Failed to connect wallet",
-                                        variant: "destructive"
-                                      });
-                                    }
-                                  })
-                                  .catch(error => {
-                                    toast({ 
-                                      title: "Connection failed", 
-                                      description: "Failed to connect wallet",
-                                      variant: "destructive"
-                                    });
-                                  });
-                                }
-                              })
-                              .catch((error: any) => {
-                                toast({ 
-                                  title: "Wallet connection failed", 
-                                  description: "Please make sure MetaMask is installed and unlocked",
-                                  variant: "destructive"
-                                });
-                              });
-                          } else {
-                            toast({ 
-                              title: "No wallet detected", 
-                              description: "Please install MetaMask or another Web3 wallet",
-                              variant: "destructive"
-                            });
-                          }
-                        }}
+                        onClick={handleWalletConnect}
+                        disabled={connectWalletMutation.isPending}
                         className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold"
                       >
-                        Connect Wallet
+                        {connectWalletMutation.isPending ? "Connecting..." : "Connect Wallet"}
                       </Button>
                     )}
                   </div>
