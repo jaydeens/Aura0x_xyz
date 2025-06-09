@@ -441,65 +441,68 @@ export default function SteezeStack() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/60">Total Balance</p>
-                    <p className="text-2xl font-bold text-white">{totalBalance.toLocaleString()} STEEZE</p>
-                    <p className="text-xs text-white/40">Purchased: {purchasedSteeze} | Earned: {earnedSteeze}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="mb-8">
+            <div className="flex justify-between items-start mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+                <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                        <Wallet className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-white/60">Total Balance</p>
+                        <p className="text-2xl font-bold text-white">{totalBalance.toLocaleString()} STEEZE</p>
+                        <p className="text-xs text-white/40">Purchased: {purchasedSteeze} | Earned: {earnedSteeze}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
+                <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                        <ArrowUpRight className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-white/60">Purchased</p>
+                        <p className="text-2xl font-bold text-white">{purchasedSteeze.toLocaleString()} STEEZE</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
+                <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center">
+                        <Trophy className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-white/60">Earned</p>
+                        <p className="text-2xl font-bold text-white">{earnedSteeze.toLocaleString()} STEEZE</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                    <ArrowUpRight className="w-6 h-6 text-white" />
+              {/* Small Network Card - Top Right */}
+              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20 ml-6 w-48">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-white/60">Network</p>
+                      <p className="text-sm font-bold text-white">Base Sepolia</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-white/60">Purchased</p>
-                    <p className="text-2xl font-bold text-white">{purchasedSteeze.toLocaleString()} STEEZE</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center">
-                    <Trophy className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/60">Earned</p>
-                    <p className="text-2xl font-bold text-white">{earnedSteeze.toLocaleString()} STEEZE</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/60">Network</p>
-                    <p className="text-2xl font-bold text-white">Base Sepolia</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Buy/Redeem Interface */}
