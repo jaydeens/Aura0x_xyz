@@ -26,7 +26,8 @@ import {
   Phone,
   Share,
   Twitter,
-  Send
+  Send,
+  AlertTriangle
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 
