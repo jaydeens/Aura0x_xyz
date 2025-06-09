@@ -25,8 +25,31 @@ export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentUser = user as any;
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        // Redirect to home page after successful logout
+        window.location.href = "/";
+      } else {
+        toast({
+          title: "Logout failed",
+          description: "Please try again",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Logout failed", 
+        description: "Please try again",
+        variant: "destructive"
+      });
+    }
   };
 
 
@@ -167,7 +190,7 @@ export default function Navigation() {
             ) : (
               <Button
                 className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white"
-                onClick={() => (window.location.href = "/api/login")}
+                onClick={() => window.location.href = "/"}
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Connect
