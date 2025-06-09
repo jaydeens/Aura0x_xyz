@@ -847,6 +847,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile update route for auth (called by Settings page)
+  app.post("/api/auth/update-profile", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { username, email, profileImageUrl, twitterUsername } = req.body;
+      const updateData: any = {};
+
+      // Validate and add username if provided
+      if (username !== undefined) {
+        if (username.length < 3) {
+          return res.status(400).json({ message: "Username must be at least 3 characters long" });
+        }
+        
+        // Check if username is available
+        const isAvailable = await storage.checkUsernameAvailability(username, userId);
+        if (!isAvailable) {
+          return res.status(400).json({ message: "Username already taken" });
+        }
+        
+        updateData.username = username;
+      }
+
+      // Add other fields if provided
+      if (email !== undefined) updateData.email = email;
+      if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl;
+      if (twitterUsername !== undefined) updateData.twitterUsername = twitterUsername;
+
+      // Update the user profile
+      const updatedUser = await storage.updateUserProfile(userId, updateData);
+      
+      // Update session if using wallet auth
+      if (req.session?.user) {
+        req.session.user = updatedUser;
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Lesson routes
   app.get('/api/lessons', async (req, res) => {
     try {
@@ -1861,7 +1914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload profile image
-  app.post("/api/upload-profile-image", upload.single('profileImage'), async (req: any, res) => {
+  app.post("/api/user/upload-profile-image", upload.single('profileImage'), async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
