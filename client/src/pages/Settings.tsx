@@ -560,7 +560,7 @@ export default function Settings() {
                   <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Heart className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-3xl font-black text-white mb-2">{(currentUser?.totalEthReceived || 0).toFixed(4)}</div>
+                  <div className="text-3xl font-black text-white mb-2">{Number((currentUser as any)?.totalUsdtEarned || 0).toFixed(4)}</div>
                   <div className="text-white/60 font-bold">ETH Received</div>
                 </div>
               </div>
