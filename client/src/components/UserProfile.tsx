@@ -42,7 +42,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
   const REQUIRED_ETH_AMOUNT = "0.0001";
 
-  const { data: profileUser } = useQuery({
+  const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: [`/api/users/${userId}`],
     retry: false,
   });
@@ -244,11 +244,26 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
   const userLevel = getUserLevel(profileUser);
 
-  if (!profileUser) {
+  // Handle loading state
+  if (profileLoading) {
     return (
       <Card className="bg-black/40 border border-purple-500/20">
         <CardContent className="pt-6">
           <div className="text-center text-white/60">Loading user profile...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle error state
+  if (profileError || !profileUser) {
+    return (
+      <Card className="bg-black/40 border border-red-500/20">
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <div className="text-red-400 text-xl mb-2">User Not Found</div>
+            <div className="text-white/60">The user profile you're looking for doesn't exist or couldn't be loaded.</div>
+          </div>
         </CardContent>
       </Card>
     );
