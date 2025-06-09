@@ -512,59 +512,7 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Account Statistics */}
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-2xl font-black text-white">Account Statistics</h2>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-emerald-500/20 text-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Star className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-3xl font-black text-white mb-2">{currentUser?.auraPoints || 0}</div>
-                  <div className="text-white/60 font-bold">Aura Points</div>
-                  {currentAuraLevel && (
-                    <Badge 
-                      className="mt-2 text-xs border-0"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${currentAuraLevel.color}, ${currentAuraLevel.color}80)` 
-                      }}
-                    >
-                      {currentAuraLevel.name}
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-emerald-500/20 text-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Target className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-3xl font-black text-white mb-2">{currentUser?.currentStreak || 0}</div>
-                  <div className="text-white/60 font-bold">Day Streak</div>
-                </div>
-
-                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-emerald-500/20 text-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Wallet className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-3xl font-black text-white mb-2">{(currentUser?.totalEthEarned || 0).toFixed(4)}</div>
-                  <div className="text-white/60 font-bold">ETH Earned</div>
-                </div>
-
-                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-emerald-500/20 text-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-3xl font-black text-white mb-2">{Number((currentUser as any)?.totalUsdtEarned || 0).toFixed(4)}</div>
-                  <div className="text-white/60 font-bold">ETH Received</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </main>
