@@ -383,7 +383,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
         {/* User Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 text-center">
-            <div className="text-purple-400 text-2xl font-bold">{profileUser.totalAura || 0}</div>
+            <div className="text-purple-400 text-2xl font-bold">{(profileUser as any).auraPoints || 0}</div>
             <div className="text-white/60 text-sm">Total Aura</div>
           </div>
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-center">
