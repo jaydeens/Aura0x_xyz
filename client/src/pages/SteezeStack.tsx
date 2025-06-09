@@ -52,17 +52,21 @@ export default function SteezeStack() {
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
 
-  // Fetch user's Steeze balance
-  const { data: userBalance = 0 } = useQuery({
+  // Fetch user's Steeze balances
+  const { data: balanceData } = useQuery({
     queryKey: ["/api/steeze/balance"],
     enabled: !!user,
   });
 
-  // Fetch purchase information and rates
+  // Fetch purchase information
   const { data: purchaseInfo } = useQuery({
     queryKey: ["/api/steeze/purchase"],
     enabled: !!user,
   });
+
+  const purchasedSteeze = balanceData?.purchasedSteeze || 0;
+  const earnedSteeze = balanceData?.battleEarnedSteeze || 0;
+  const totalBalance = purchasedSteeze + earnedSteeze;
 
   // Fetch transaction history
   const { data: transactions = [] } = useQuery({
@@ -329,7 +333,7 @@ export default function SteezeStack() {
       return;
     }
 
-    const steezeAmount = Math.floor(ethValue * (purchaseInfo?.steezePerEth || 10000));
+    const steezeAmount = Math.floor(ethValue * 10000); // Fixed rate: 10000 Steeze per ETH
     setIsPurchasing(true);
     purchaseMutation.mutate({ ethValue, steezeAmount });
   };
@@ -339,10 +343,10 @@ export default function SteezeStack() {
     if (!steezeAmount) return;
 
     const steezeValue = parseFloat(steezeAmount);
-    if (steezeValue <= 0 || steezeValue > userBalance) {
+    if (steezeValue <= 0 || steezeValue > earnedSteeze) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid Steeze amount",
+        description: "Please enter a valid Steeze amount. Only earned Steeze can be redeemed.",
         variant: "destructive",
       });
       return;
@@ -359,13 +363,13 @@ export default function SteezeStack() {
   };
 
   const calculateSteezeAmount = () => {
-    if (!ethAmount || !purchaseInfo?.steezePerEth) return 0;
-    return parseFloat(ethAmount) * purchaseInfo.steezePerEth;
+    if (!ethAmount) return 0;
+    return parseFloat(ethAmount) * 10000; // Fixed rate: 10000 Steeze per ETH
   };
 
   const calculateEthAmount = () => {
-    if (!steezeAmount || !purchaseInfo?.steezePerEth) return 0;
-    return parseFloat(steezeAmount) / purchaseInfo.steezePerEth;
+    if (!steezeAmount) return 0;
+    return parseFloat(steezeAmount) / 10000; // Fixed rate: 10000 Steeze per ETH
   };
 
   const isOnCorrectNetwork = currentChainId === BASE_SEPOLIA.chainId;

@@ -1745,6 +1745,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/steeze/balance", async (req: any, res) => {
+    try {
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(userId);
+      const purchasedSteeze = user?.purchasedSteeze || 0;
+      const battleEarnedSteeze = user?.battleEarnedSteeze || 0;
+      const totalBalance = purchasedSteeze + battleEarnedSteeze;
+      
+      res.json({ 
+        purchasedSteeze,
+        battleEarnedSteeze,
+        totalBalance
+      });
+    } catch (error: any) {
+      console.error("Error getting Steeze balance:", error);
+      res.status(500).json({ message: "Failed to get Steeze balance" });
+    }
+  });
+
   app.get("/api/steeze/balance/:address", async (req, res) => {
     try {
       const { address } = req.params;
