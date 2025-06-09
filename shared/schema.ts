@@ -59,6 +59,7 @@ export const users = pgTable("users", {
   steezeBalance: integer("steeze_balance").default(0),
   battleEarnedSteeze: integer("battle_earned_steeze").default(0),
   purchasedSteeze: integer("purchased_steeze").default(0),
+  ipAddress: varchar("ip_address", { length: 45 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

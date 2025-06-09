@@ -22,6 +22,16 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// Utility function to extract IP address
+function getClientIP(req: any): string {
+  return req.ip || 
+         req.connection?.remoteAddress || 
+         req.socket?.remoteAddress ||
+         req.headers['x-forwarded-for']?.split(',')[0] ||
+         req.headers['x-real-ip'] ||
+         'unknown';
+}
+
 // Validation schemas
 const createBattleSchema = z.object({
   opponentId: z.string(),
@@ -236,10 +246,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This wallet address is already linked to another user" });
       }
 
-      // Update current user with wallet address
+      // Update current user with wallet address and IP
+      const clientIP = getClientIP(req);
       const updatedUser = await storage.upsertUser({
         id: userId,
         walletAddress,
+        ipAddress: clientIP,
       });
 
       res.json({ user: updatedUser });
