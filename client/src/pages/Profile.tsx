@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { 
   User, 
   Trophy, 
@@ -382,6 +383,7 @@ export default function Profile() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { Link } from "wouter";
 import Navigation from "@/components/Navigation";
 import LessonCard from "@/components/LessonCard";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -176,6 +177,7 @@ export default function Dashboard() {
 
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
