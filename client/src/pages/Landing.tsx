@@ -287,8 +287,9 @@ export default function Landing() {
                   </svg>
                 </a>
                 <a href="https://aura-13.gitbook.io/aura/" target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 hover:from-purple-500/30 hover:to-cyan-500/30 rounded-2xl flex items-center justify-center transition-all group hover:scale-110">
-                  <svg className="w-7 h-7 text-purple-400 group-hover:text-purple-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10.8 15.9c-1.3 0-2.1-.9-2.1-2.1s.8-2.1 2.1-2.1c1.3 0 2.1.9 2.1 2.1s-.8 2.1-2.1 2.1zm5.1 0c-1.3 0-2.1-.9-2.1-2.1s.8-2.1 2.1-2.1c1.3 0 2.1.9 2.1 2.1s-.8 2.1-2.1 2.1zm2.1-6.3c.8 0 1.5.7 1.5 1.5v6c0 .8-.7 1.5-1.5 1.5H6c-.8 0-1.5-.7-1.5-1.5v-6c0-.8.7-1.5 1.5-1.5h12zm-12-3c-2.5 0-4.5 2-4.5 4.5v6c0 2.5 2 4.5 4.5 4.5h12c2.5 0 4.5-2 4.5-4.5v-6c0-2.5-2-4.5-4.5-4.5H6z"/>
+                  <svg className="w-7 h-7 text-purple-400 group-hover:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                   </svg>
                 </a>
               </div>
