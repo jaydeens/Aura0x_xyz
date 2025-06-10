@@ -7,6 +7,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import Navigation from "@/components/Navigation";
 import BattleCard from "@/components/BattleCard";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -868,6 +869,7 @@ export default function Battles() {
           </DialogContent>
         </Dialog>
       </div>
+      <Footer />
     </div>
   );
 }

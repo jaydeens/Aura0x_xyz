@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import Footer from "@/components/Footer";
 import { 
   Settings2, 
   User, 
@@ -516,6 +517,7 @@ export default function Settings() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
