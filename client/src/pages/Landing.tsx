@@ -148,24 +148,24 @@ export default function Landing() {
             </div>
 
             {/* Viral stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
               <div className="text-center">
-                <div className="text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {(stats as any)?.totalUsers || 0}
                 </div>
-                <div className="text-sm text-gray-400 font-bold uppercase tracking-wide">LEGENDS</div>
+                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LEGENDS</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   AURA
                 </div>
-                <div className="text-sm text-gray-400 font-bold uppercase tracking-wide">STATUS</div>
+                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">STATUS</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {(stats as any)?.activeBattles || 0}
                 </div>
-                <div className="text-sm text-gray-400 font-bold uppercase tracking-wide">LIVE NOW</div>
+                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LIVE NOW</div>
               </div>
             </div>
           </div>
@@ -174,32 +174,32 @@ export default function Landing() {
 
 
       {/* Trending Creators */}
-      <section id="trending" className="py-24 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50">
+      <section id="trending" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full px-6 py-3 mb-6 animate-pulse">
-              <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
-              <span className="text-white font-black text-sm tracking-wider">TRENDING NOW</span>
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-4 sm:mb-6 animate-pulse">
+              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-ping"></div>
+              <span className="text-white font-black text-xs sm:text-sm tracking-wider">TRENDING NOW</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-900">
-              TOP
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 text-gray-900 leading-tight">
+              <span className="block">TOP</span>
               <span className="block bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
                 CREATORS
               </span>
               <span className="block text-gray-900">FARMING AURA</span>
             </h2>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto font-medium px-4">
               The hottest creators breaking the internet right now 🔥 See who's trending and climb the ranks to join them
             </p>
           </div>
 
           <Card className="bg-white border-2 border-cyan-200 max-w-5xl mx-auto shadow-2xl">
-            <CardContent className="p-10">
+            <CardContent className="p-4 sm:p-6 lg:p-10">
               {leaderboard && Array.isArray(leaderboard) && leaderboard.length > 0 ? (
-                <div className="space-y-6">
-                  <div className="text-center mb-10">
-                    <h3 className="text-3xl font-black mb-3 text-gray-900">AURA RANKINGS 🔥</h3>
-                    <p className="text-gray-700 text-lg font-medium">Ranked by aura moments, fan engagement, and legendary status achieved</p>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="text-center mb-6 sm:mb-10">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black mb-2 sm:mb-3 text-gray-900">AURA RANKINGS 🔥</h3>
+                    <p className="text-gray-700 text-sm sm:text-base lg:text-lg font-medium px-2">Ranked by aura moments, fan engagement, and legendary status achieved</p>
                   </div>
                   {leaderboard.slice(0, 5).map((user: any, index: number) => {
                     const isTopThree = index < 3;
@@ -207,33 +207,33 @@ export default function Landing() {
                     const rankIcons = ['🔥', '⭐', '💎'];
                     
                     return (
-                      <div key={user.id} className={`flex items-center justify-between p-8 rounded-3xl border-2 transition-all duration-300 hover:scale-105 ${
+                      <div key={user.id} className={`flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border-2 transition-all duration-300 hover:scale-105 ${
                         isTopThree 
                           ? 'bg-gradient-to-r from-cyan-50 to-purple-50 border-cyan-300 shadow-xl' 
                           : 'bg-gray-50 border-gray-200'
                       }`}>
-                        <div className="flex items-center space-x-6">
-                          <div className={`flex items-center justify-center w-20 h-20 rounded-3xl font-black text-white text-2xl shadow-xl animate-pulse ${
+                        <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6 w-full sm:w-auto">
+                          <div className={`flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl sm:rounded-3xl font-black text-white text-lg sm:text-xl lg:text-2xl shadow-xl animate-pulse ${
                             isTopThree 
                               ? `bg-gradient-to-br ${rankColors[index]}` 
                               : 'bg-gradient-to-br from-gray-500 to-gray-600'
                           }`}>
                             {isTopThree ? rankIcons[index] : index + 1}
                           </div>
-                          <div>
-                            <div className="font-black text-2xl text-gray-900">{user.username || 'Aura Creator'}</div>
-                            <div className="text-gray-700 font-bold text-lg">{user.totalBattlesWon || 0} aura moments</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-black text-lg sm:text-xl lg:text-2xl text-gray-900 truncate">{user.username || 'Aura Creator'}</div>
+                            <div className="text-gray-700 font-bold text-sm sm:text-base lg:text-lg">{user.totalBattlesWon || 0} aura moments</div>
                           </div>
                           {isTopThree && (
-                            <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 font-black text-lg animate-bounce">
+                            <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 sm:px-4 sm:py-2 lg:px-6 lg:py-3 font-black text-sm sm:text-base lg:text-lg animate-bounce">
                               AURA
                             </Badge>
                           )}
                         </div>
-                        <div className="text-right">
-                          <div className="font-black text-3xl bg-gradient-to-r from-cyan-500 to-purple-600 bg-clip-text text-transparent">{user.auraPoints || 0}</div>
-                          <div className="text-gray-500 font-black text-sm uppercase tracking-wide">AURA POINTS</div>
-                          <div className="text-pink-600 font-black text-lg">{user.currentStreak || 0} day streak</div>
+                        <div className="text-center sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
+                          <div className="font-black text-2xl sm:text-3xl bg-gradient-to-r from-cyan-500 to-purple-600 bg-clip-text text-transparent">{user.auraPoints || 0}</div>
+                          <div className="text-gray-500 font-black text-xs sm:text-sm uppercase tracking-wide">AURA POINTS</div>
+                          <div className="text-pink-600 font-black text-sm sm:text-base lg:text-lg">{user.currentStreak || 0} day streak</div>
                         </div>
                       </div>
                     );
