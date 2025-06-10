@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "wouter";
-import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings } from "lucide-react";
+import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings, Book } from "lucide-react";
 import { useState } from "react";
 import auraLogo from "@assets/AURA PNG (1)_1749403291114.png";
 import auraTextLogo from "@assets/FULL AURA (1)_1749403707745.png";
@@ -112,6 +112,33 @@ export default function Navigation() {
 
           {/* User Section */}
           <div className="flex items-center space-x-4">
+            {/* Social Links */}
+            <div className="hidden md:flex items-center space-x-2">
+              {/* X (Twitter) Logo */}
+              <a
+                href="https://x.com/aura"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg hover:bg-gray-800/50 transition-colors group"
+                title="Follow us on X"
+              >
+                <svg className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+
+              {/* Gitbook Logo */}
+              <a
+                href="https://aura-13.gitbook.io/aura/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg hover:bg-gray-800/50 transition-colors group"
+                title="Read Documentation"
+              >
+                <Book className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+              </a>
+            </div>
+
             {/* Aura Points Display */}
             {!isLoading && isAuthenticated && currentUser && (
               <div className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-4 py-2 rounded-2xl border border-pink-500/30 backdrop-blur-sm">
