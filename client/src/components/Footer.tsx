@@ -42,10 +42,7 @@ export default function Footer() {
               </a>
             </Button>
 
-            <div className="flex items-center space-x-2 text-gray-400 text-sm">
-              <span>Learn more about</span>
-              <span className="text-purple-400 font-semibold">Aura Protocol</span>
-            </div>
+
           </div>
 
           {/* Footer Text */}
