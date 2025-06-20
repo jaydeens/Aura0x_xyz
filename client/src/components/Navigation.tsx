@@ -86,12 +86,6 @@ export default function Navigation() {
                 alt="AURA" 
                 className="h-6 w-auto"
               />
-              <Badge 
-                variant="secondary" 
-                className="ml-2 bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wide"
-              >
-                BETA
-              </Badge>
             </div>
           </Link>
 
