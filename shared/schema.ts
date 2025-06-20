@@ -41,6 +41,12 @@ export const users = pgTable("users", {
   twitterAccessToken: text("twitter_access_token"),
   twitterRefreshToken: text("twitter_refresh_token"),
   isVerified: boolean("is_verified").default(false),
+  // Beta access control
+  hasBetaAccess: boolean("has_beta_access").default(false),
+  betaInviteCode: varchar("beta_invite_code"),
+  betaRequestedAt: timestamp("beta_requested_at"),
+  betaApprovedAt: timestamp("beta_approved_at"),
+  betaApprovedBy: varchar("beta_approved_by"),
   auraPoints: integer("aura_points").default(0),
   currentStreak: integer("current_streak").default(0),
   lastLessonDate: timestamp("last_lesson_date"),
@@ -172,6 +178,23 @@ export const steezeTransactions = pgTable("steeze_transactions", {
   battleId: varchar("battle_id").references(() => battles.id), // For battle support transactions
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Wallet whitelist table for closed beta
+export const walletWhitelist = pgTable("wallet_whitelist", {
+  id: serial("id").primaryKey(),
+  walletAddress: varchar("wallet_address", { length: 42 }).unique().notNull(),
+  addedBy: varchar("added_by").references(() => users.id),
+  note: text("note"), // Optional note about why this wallet was whitelisted
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Schema exports
+export const insertWalletWhitelistSchema = createInsertSchema(walletWhitelist);
+export const selectWalletWhitelistSchema = createSelectSchema(walletWhitelist);
+export type InsertWalletWhitelist = z.infer<typeof insertWalletWhitelistSchema>;
+export type WalletWhitelist = typeof walletWhitelist.$inferSelect;
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

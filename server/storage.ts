@@ -8,6 +8,7 @@ import {
   auraLevels,
   notifications,
   steezeTransactions,
+  walletWhitelist,
   type User,
   type UpsertUser,
   type InsertLesson,
@@ -26,6 +27,8 @@ import {
   type InsertNotification,
   type SteezeTransaction,
   type InsertSteezeTransaction,
+  type WalletWhitelist,
+  type InsertWalletWhitelist,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and, or, sql, gt, lt, gte, lte, isNotNull } from "drizzle-orm";
@@ -98,6 +101,13 @@ export interface IStorage {
   createSteezeTransaction(transaction: InsertSteezeTransaction): Promise<SteezeTransaction>;
   getUserSteezeTransactions(userId: string): Promise<SteezeTransaction[]>;
   updateUserSteezeBalance(userId: string, amount: number): Promise<void>;
+  
+  // Wallet whitelist operations for closed beta
+  isWalletWhitelisted(walletAddress: string): Promise<boolean>;
+  addWalletToWhitelist(whitelist: InsertWalletWhitelist): Promise<WalletWhitelist>;
+  removeWalletFromWhitelist(walletAddress: string): Promise<void>;
+  getWhitelistedWallets(): Promise<WalletWhitelist[]>;
+  checkBetaAccess(walletAddress: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -602,6 +612,55 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ steezeBalance: amount })
       .where(eq(users.id, userId));
+  }
+
+  // Wallet whitelist operations for closed beta
+  async isWalletWhitelisted(walletAddress: string): Promise<boolean> {
+    const [result] = await db
+      .select()
+      .from(walletWhitelist)
+      .where(and(
+        eq(walletWhitelist.walletAddress, walletAddress.toLowerCase()),
+        eq(walletWhitelist.isActive, true)
+      ));
+    return !!result;
+  }
+
+  async addWalletToWhitelist(whitelistData: InsertWalletWhitelist): Promise<WalletWhitelist> {
+    const [whitelist] = await db
+      .insert(walletWhitelist)
+      .values({
+        ...whitelistData,
+        walletAddress: whitelistData.walletAddress.toLowerCase(),
+      })
+      .returning();
+    return whitelist;
+  }
+
+  async removeWalletFromWhitelist(walletAddress: string): Promise<void> {
+    await db
+      .update(walletWhitelist)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(walletWhitelist.walletAddress, walletAddress.toLowerCase()));
+  }
+
+  async getWhitelistedWallets(): Promise<WalletWhitelist[]> {
+    return await db
+      .select()
+      .from(walletWhitelist)
+      .where(eq(walletWhitelist.isActive, true))
+      .orderBy(desc(walletWhitelist.createdAt));
+  }
+
+  async checkBetaAccess(walletAddress: string): Promise<boolean> {
+    // Check if user already exists (grandfathered access)
+    const existingUser = await this.getUserByWallet(walletAddress);
+    if (existingUser) {
+      return true;
+    }
+
+    // Check if wallet is whitelisted for new access
+    return await this.isWalletWhitelisted(walletAddress);
   }
 }
 
