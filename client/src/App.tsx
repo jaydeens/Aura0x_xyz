@@ -46,6 +46,8 @@ function Router() {
   }
 
   // If authenticated, show app routes wrapped in beta access gate
+  console.log("User object in App:", user);
+  console.log("Wallet address being passed:", user?.walletAddress);
   return (
     <BetaAccessGate walletAddress={user?.walletAddress || undefined}>
       <Switch>

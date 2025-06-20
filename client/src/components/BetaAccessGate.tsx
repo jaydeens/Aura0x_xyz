@@ -29,8 +29,10 @@ export function BetaAccessGate({ children, walletAddress }: BetaAccessGateProps)
   const checkBetaAccess = async (address: string) => {
     try {
       setIsChecking(true);
+      console.log("Checking beta access for wallet:", address);
       const response = await fetch(`/api/beta-access/${address}`);
       const data = await response.json();
+      console.log("Beta access result:", data);
       setHasAccess(data.hasAccess);
     } catch (error) {
       console.error("Error checking beta access:", error);
