@@ -653,10 +653,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async checkBetaAccess(walletAddress: string): Promise<boolean> {
-    // Check if user already exists (grandfathered access)
+    // Check if user already exists and was created before beta system (grandfathered access)
     const existingUser = await this.getUserByWallet(walletAddress);
     if (existingUser) {
-      return true;
+      // Only grant grandfathered access to users created before the beta system was implemented
+      // Users created before June 20, 2025 get automatic access
+      const betaSystemDate = new Date('2025-06-20T12:00:00Z');
+      if (existingUser.createdAt && new Date(existingUser.createdAt) < betaSystemDate) {
+        return true;
+      }
     }
 
     // Check if wallet is whitelisted for new access

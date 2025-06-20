@@ -219,6 +219,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let user = await storage.getUserByWallet(walletAddress);
       
       if (!user) {
+        // Check beta access before creating new user
+        const hasBetaAccess = await storage.checkBetaAccess(walletAddress);
+        if (!hasBetaAccess) {
+          return res.status(403).json({ 
+            message: "Beta access required",
+            code: "BETA_ACCESS_REQUIRED"
+          });
+        }
+
         // Create new user with wallet
         const walletAge = Math.floor(Math.random() * 365) + 30; // Random age to avoid network calls
         user = await storage.upsertUser({
@@ -232,6 +241,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           portfolioGrowth: "0",
           totalVouchesReceived: "0",
         });
+      } else {
+        // For existing users, still check beta access based on creation date
+        const hasBetaAccess = await storage.checkBetaAccess(walletAddress);
+        if (!hasBetaAccess) {
+          return res.status(403).json({ 
+            message: "Beta access required",
+            code: "BETA_ACCESS_REQUIRED"
+          });
+        }
       }
 
       // Store user in session

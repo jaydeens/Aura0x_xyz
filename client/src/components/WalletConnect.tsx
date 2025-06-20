@@ -41,6 +41,9 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        if (response.status === 403 && errorData.code === "BETA_ACCESS_REQUIRED") {
+          throw new Error("BETA_ACCESS_REQUIRED");
+        }
         throw new Error(errorData.message || `${response.status}: ${response.statusText}`);
       }
       
@@ -64,6 +67,17 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     },
     onError: (error) => {
       console.error("Wallet operation error:", error);
+      
+      if (error.message === "BETA_ACCESS_REQUIRED") {
+        toast({
+          title: "Beta Access Required",
+          description: "This wallet address is not whitelisted for the closed beta. Check your access status or contact support.",
+          variant: "destructive",
+          duration: 6000,
+        });
+        return;
+      }
+      
       toast({
         title: linkMode ? "Linking Failed" : "Authentication Failed",
         description: error.message || (linkMode 

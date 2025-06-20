@@ -72,7 +72,7 @@ export function BetaAccessGate({ children, walletAddress }: BetaAccessGateProps)
       <div className="relative">
         {children}
         {/* Beta indicator */}
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed bottom-4 right-4 z-50">
           <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
             <div className="flex items-center gap-1">
               <CheckCircle className="w-3 h-3" />
