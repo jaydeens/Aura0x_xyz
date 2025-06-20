@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { BetaAccessGate } from "@/components/BetaAccessGate";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Battles from "@/pages/Battles";
@@ -43,21 +44,23 @@ function Router() {
     );
   }
 
-  // If authenticated, show app routes
+  // If authenticated, show app routes wrapped in beta access gate
   return (
-    <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/battles" component={Battles} />
-      <Route path="/battles/:id" component={LiveBattle} />
-      <Route path="/arena" component={Battles} />
-      <Route path="/leaderboard" component={Leaderboard} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/profile/:userId" component={UserProfilePage} />
-      <Route path="/user/:userId" component={UserProfilePage} />
-      <Route path="/steeze-stack" component={SteezeStack} />
-      <Route path="/settings" component={Settings} />
-      <Route path="*" component={NotFound} />
-    </Switch>
+    <BetaAccessGate walletAddress={user?.walletAddress}>
+      <Switch>
+        <Route path="/" component={Dashboard} />
+        <Route path="/battles" component={Battles} />
+        <Route path="/battles/:id" component={LiveBattle} />
+        <Route path="/arena" component={Battles} />
+        <Route path="/leaderboard" component={Leaderboard} />
+        <Route path="/profile" component={Profile} />
+        <Route path="/profile/:userId" component={UserProfilePage} />
+        <Route path="/user/:userId" component={UserProfilePage} />
+        <Route path="/steeze-stack" component={SteezeStack} />
+        <Route path="/settings" component={Settings} />
+        <Route path="*" component={NotFound} />
+      </Switch>
+    </BetaAccessGate>
   );
 }
 

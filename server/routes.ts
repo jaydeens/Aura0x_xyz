@@ -3103,6 +3103,69 @@ Building my Web3 empire one achievement at a time! 🚀
     }
   });
 
+  // Wallet whitelist management routes for closed beta
+  app.get('/api/whitelist', async (req, res) => {
+    try {
+      const wallets = await storage.getWhitelistedWallets();
+      res.json(wallets);
+    } catch (error) {
+      console.error("Error fetching whitelisted wallets:", error);
+      res.status(500).json({ message: "Failed to fetch whitelisted wallets" });
+    }
+  });
+
+  app.post('/api/whitelist', async (req, res) => {
+    try {
+      const { walletAddress, note } = req.body;
+      
+      if (!walletAddress) {
+        return res.status(400).json({ message: "Wallet address is required" });
+      }
+
+      // Get admin user ID if available
+      let addedBy = null;
+      if (req.session?.user?.id) {
+        addedBy = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        addedBy = req.user.claims.sub;
+      }
+
+      const whitelist = await storage.addWalletToWhitelist({
+        walletAddress,
+        addedBy,
+        note: note || null,
+        isActive: true
+      });
+
+      res.json(whitelist);
+    } catch (error) {
+      console.error("Error adding wallet to whitelist:", error);
+      res.status(500).json({ message: "Failed to add wallet to whitelist" });
+    }
+  });
+
+  app.delete('/api/whitelist/:walletAddress', async (req, res) => {
+    try {
+      const walletAddress = req.params.walletAddress;
+      await storage.removeWalletFromWhitelist(walletAddress);
+      res.json({ message: "Wallet removed from whitelist" });
+    } catch (error) {
+      console.error("Error removing wallet from whitelist:", error);
+      res.status(500).json({ message: "Failed to remove wallet from whitelist" });
+    }
+  });
+
+  app.get('/api/beta-access/:walletAddress', async (req, res) => {
+    try {
+      const walletAddress = req.params.walletAddress;
+      const hasAccess = await storage.checkBetaAccess(walletAddress);
+      res.json({ hasAccess });
+    } catch (error) {
+      console.error("Error checking beta access:", error);
+      res.status(500).json({ message: "Failed to check beta access" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Start automatic battle status checker - runs every 30 seconds
