@@ -32,20 +32,23 @@ export default function WhitelistAdmin() {
   // Fetch whitelist entries
   const { data: whitelist = [], isLoading } = useQuery({
     queryKey: ['/api/whitelist'],
-    queryFn: async () => {
+    queryFn: async (): Promise<WhitelistEntry[]> => {
       const response = await fetch('/api/whitelist');
       if (!response.ok) throw new Error('Failed to fetch whitelist');
-      return response.json() as WhitelistEntry[];
+      return await response.json();
     }
   });
 
   // Add wallet mutation
   const addWalletMutation = useMutation({
     mutationFn: async (data: { walletAddress: string; note?: string }) => {
-      return await apiRequest('/api/whitelist', {
+      const response = await fetch('/api/whitelist', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
+      if (!response.ok) throw new Error('Failed to add wallet');
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/whitelist'] });
@@ -68,9 +71,11 @@ export default function WhitelistAdmin() {
   // Remove wallet mutation
   const removeWalletMutation = useMutation({
     mutationFn: async (walletAddress: string) => {
-      return await apiRequest(`/api/whitelist/${walletAddress}`, {
+      const response = await fetch(`/api/whitelist/${walletAddress}`, {
         method: 'DELETE'
       });
+      if (!response.ok) throw new Error('Failed to remove wallet');
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/whitelist'] });

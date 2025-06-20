@@ -47,7 +47,7 @@ function Router() {
 
   // If authenticated, show app routes wrapped in beta access gate
   return (
-    <BetaAccessGate walletAddress={user?.walletAddress}>
+    <BetaAccessGate walletAddress={user?.walletAddress || undefined}>
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/battles" component={Battles} />
@@ -59,6 +59,7 @@ function Router() {
         <Route path="/user/:userId" component={UserProfilePage} />
         <Route path="/steeze-stack" component={SteezeStack} />
         <Route path="/settings" component={Settings} />
+        <Route path="/admin/whitelist" component={WhitelistAdmin} />
         <Route path="*" component={NotFound} />
       </Switch>
     </BetaAccessGate>
