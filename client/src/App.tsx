@@ -14,6 +14,7 @@ import Profile from "@/pages/Profile";
 import UserProfilePage from "@/pages/UserProfilePage";
 import SteezeStack from "@/pages/SteezeStack";
 import Settings from "@/pages/Settings";
+import WhitelistAdmin from "@/pages/WhitelistAdmin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
