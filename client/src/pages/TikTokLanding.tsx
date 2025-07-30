@@ -206,11 +206,7 @@ export default function TikTokLanding() {
               Earn Steeze • Conquer Challenges • Dominate Web3
             </p>
             
-            <div className="inline-flex items-center space-x-3 px-6 py-3 bg-black/40 border border-purple-500/50 rounded-full backdrop-blur-md shadow-lg">
-              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-              <span className="text-purple-300 font-medium">Live Now</span>
-              <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-300"></div>
-            </div>
+            
           </div>
 
           {/* Improved CTA Section */}
