@@ -35,58 +35,58 @@ export default function Footer() {
           </div>
 
           {/* Social Links */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap justify-center">
+          <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap justify-center max-w-4xl w-full">
             <Button
               asChild
               variant="outline"
-              size="lg"
-              className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/40 hover:to-pink-600/40 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 group"
+              size="sm"
+              className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/40 hover:to-pink-600/40 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
             >
               <a
                 href="https://aura-13.gitbook.io/aura/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3"
+                className="flex items-center space-x-2"
               >
-                <GitBookLogo className="w-6 h-6 group-hover:text-purple-300 transition-colors" />
-                <span className="font-semibold">GitBook Documentation</span>
-                <ExternalLink className="w-4 h-4 group-hover:text-purple-300 transition-colors" />
+                <GitBookLogo className="w-5 h-5 group-hover:text-purple-300 transition-colors" />
+                <span className="font-semibold">GitBook</span>
+                <ExternalLink className="w-3 h-3 group-hover:text-purple-300 transition-colors" />
               </a>
             </Button>
 
             <Button
               asChild
               variant="outline"
-              size="lg"
-              className="bg-gradient-to-r from-blue-600/20 to-sky-600/20 border-blue-500/30 text-white hover:bg-gradient-to-r hover:from-blue-600/40 hover:to-sky-600/40 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 group"
+              size="sm"
+              className="bg-gradient-to-r from-blue-600/20 to-sky-600/20 border-blue-500/30 text-white hover:bg-gradient-to-r hover:from-blue-600/40 hover:to-sky-600/40 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
             >
               <a
                 href="https://x.com/Aura_0x"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3"
+                className="flex items-center space-x-2"
               >
-                <SiX className="w-5 h-5 group-hover:text-blue-300 transition-colors" />
+                <SiX className="w-4 h-4 group-hover:text-blue-300 transition-colors" />
                 <span className="font-semibold">Follow on X</span>
-                <ExternalLink className="w-4 h-4 group-hover:text-blue-300 transition-colors" />
+                <ExternalLink className="w-3 h-3 group-hover:text-blue-300 transition-colors" />
               </a>
             </Button>
 
             <Button
               asChild
               variant="outline"
-              size="lg"
-              className="bg-gradient-to-r from-indigo-600/20 to-violet-600/20 border-indigo-500/30 text-white hover:bg-gradient-to-r hover:from-indigo-600/40 hover:to-violet-600/40 hover:border-indigo-400/50 transition-all duration-300 hover:scale-105 group"
+              size="sm"
+              className="bg-gradient-to-r from-indigo-600/20 to-violet-600/20 border-indigo-500/30 text-white hover:bg-gradient-to-r hover:from-indigo-600/40 hover:to-violet-600/40 hover:border-indigo-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
             >
               <a
                 href="https://discord.gg/uyWWJPMmWx"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3"
+                className="flex items-center space-x-2"
               >
-                <SiDiscord className="w-5 h-5 group-hover:text-indigo-300 transition-colors" />
+                <SiDiscord className="w-4 h-4 group-hover:text-indigo-300 transition-colors" />
                 <span className="font-semibold">Join Discord</span>
-                <ExternalLink className="w-4 h-4 group-hover:text-indigo-300 transition-colors" />
+                <ExternalLink className="w-3 h-3 group-hover:text-indigo-300 transition-colors" />
               </a>
             </Button>
           </div>
