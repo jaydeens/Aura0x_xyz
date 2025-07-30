@@ -190,7 +190,7 @@ export default function TikTokLanding() {
           {/* Main Headline - Better Mobile Layout */}
           <div className="mb-12 space-y-6 overflow-visible">
             <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black leading-[1.2] tracking-tight">
-              <span className="block text-white drop-shadow-2xl mb-2">Your Reputation</span>
+              <span className="block text-white drop-shadow-2xl mb-2">Your Creativity</span>
               <span className="block relative pt-4 pb-8 mb-4" style={{
                 background: 'linear-gradient(to right, #c084fc, #f472b6)',
                 WebkitBackgroundClip: 'text',
@@ -245,7 +245,6 @@ export default function TikTokLanding() {
           </div>
         </div>
       </section>
-
       {/* How It Works - Mobile-First Layout */}
       <section className="py-20 lg:py-32 px-4 sm:px-8 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950/80 to-black"></div>
@@ -298,7 +297,6 @@ export default function TikTokLanding() {
           </div>
         </div>
       </section>
-
       {/* Challenges Feed - Improved Layout */}
       <section className="py-20 lg:py-32 px-4 sm:px-8 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/10 to-black"></div>
@@ -385,7 +383,6 @@ export default function TikTokLanding() {
           </div>
         </div>
       </section>
-
       {/* Creator Spotlight - Refined Layout */}
       <section className="py-20 lg:py-32 px-4 sm:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950/50 to-black"></div>
@@ -434,7 +431,6 @@ export default function TikTokLanding() {
           </div>
         </div>
       </section>
-
       {/* Why Aura Section */}
       <section className="py-20 px-6 bg-gray-950/50">
         <div className="max-w-6xl mx-auto text-center">
@@ -462,7 +458,6 @@ export default function TikTokLanding() {
           </p>
         </div>
       </section>
-
       {/* Education Section - Duolingo Style */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
@@ -508,7 +503,6 @@ export default function TikTokLanding() {
           </div>
         </div>
       </section>
-
       {/* Global Leaderboard Preview */}
       <section className="py-20 px-6 bg-gray-950/50">
         <div className="max-w-6xl mx-auto">
@@ -560,7 +554,6 @@ export default function TikTokLanding() {
           </div>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="py-16 px-6 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
