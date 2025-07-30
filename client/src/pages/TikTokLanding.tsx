@@ -226,13 +226,6 @@ export default function TikTokLanding() {
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="w-full sm:w-auto border-2 border-purple-400/60 text-purple-300 hover:bg-purple-500/20 backdrop-blur-sm bg-black/20 px-12 py-6 text-xl font-medium rounded-full hover:scale-105 transition-all duration-300"
-              >
-                Connect Wallet
-              </Button>
             </div>
           </div>
 
