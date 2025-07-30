@@ -61,15 +61,15 @@ export default function TikTokLanding() {
             loop
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(0.3) saturate(1.2)' }}
+            style={{ filter: 'brightness(0.4) saturate(1.3)' }}
           >
-            <source src="https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1a9e7c02d&profile_id=139&oauth2_token_id=57447761" type="video/mp4" />
+            <source src="/attached_assets/Fun,_vibrant_scene_where_the_following_texts_pop_up__Challenge,_Learn,_Farm_Aura,_Earn._Using_Purple_seed2620036643_1753876415396.mp4" type="video/mp4" />
             {/* Fallback for when video doesn't load */}
           </video>
           
-          {/* Video overlay gradients */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-black/30 to-pink-900/40"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40"></div>
+          {/* Video overlay gradients - lighter to show more of your custom video */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black/20 to-pink-900/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30"></div>
         </div>
 
         {/* Fallback animated background (shown if video fails) */}
