@@ -2,17 +2,35 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Flame, Star, Play, Heart, Share2, ArrowRight, Zap, Trophy, Users } from "lucide-react";
+import { Flame, Star, Play, Heart, Share2, ArrowRight, Zap, Trophy, Users, LogIn, Wallet } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import auraLogo from "@assets/FULL AURA_1753876565281.png";
 
 export default function TikTokLanding() {
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [showLoginMenu, setShowLoginMenu] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Close login menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Element;
+      if (!target.closest('.login-menu-container')) {
+        setShowLoginMenu(false);
+      }
+    }
+
+    if (showLoginMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showLoginMenu]);
 
   const challenges = [
     {
@@ -98,17 +116,74 @@ export default function TikTokLanding() {
           </Link>
         </div>
 
-        {/* Floating Leaderboard Button */}
+        {/* Login/Profile Button */}
         <div className="absolute top-8 right-8 z-30">
-          <Link href="/leaderboard">
-            <Button 
-              variant="outline" 
-              className="border-2 border-purple-400/60 text-purple-300 hover:bg-purple-500/30 backdrop-blur-md bg-black/20 px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all duration-300 shadow-lg"
-            >
-              <Trophy className="w-4 h-4 mr-2" />
-              Leaderboard
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard">
+              <Button 
+                variant="outline" 
+                className="border-2 border-purple-400/60 text-purple-300 hover:bg-purple-500/30 backdrop-blur-md bg-black/20 px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all duration-300 shadow-lg"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <div className="relative login-menu-container">
+              <Button 
+                onClick={() => setShowLoginMenu(!showLoginMenu)}
+                variant="outline" 
+                className="border-2 border-purple-400/60 text-purple-300 hover:bg-purple-500/30 backdrop-blur-md bg-black/20 px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all duration-300 shadow-lg"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Login
+              </Button>
+
+              {showLoginMenu && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-black/90 backdrop-blur-md border border-purple-500/30 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="p-4 space-y-3">
+                    <p className="text-purple-300 text-sm font-medium text-center">Choose your login method</p>
+                    
+                    <Button 
+                      onClick={() => {
+                        window.location.href = '/api/auth/twitter';
+                        setShowLoginMenu(false);
+                      }}
+                      className="w-full bg-[#1DA1F2] hover:bg-[#1a91da] text-white font-bold py-3 rounded-xl transition-all duration-300"
+                    >
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                      Continue with X
+                    </Button>
+                    
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          if (window.ethereum) {
+                            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                            if (accounts.length > 0) {
+                              window.location.href = '/dashboard';
+                            }
+                          } else {
+                            alert('Please install MetaMask to connect your wallet');
+                          }
+                        } catch (error) {
+                          console.error('Wallet connection failed:', error);
+                        }
+                        setShowLoginMenu(false);
+                      }}
+                      variant="outline"
+                      className="w-full border-purple-500/50 text-purple-300 hover:bg-purple-500/20 font-bold py-3 rounded-xl transition-all duration-300"
+                    >
+                      <Wallet className="w-4 h-4 mr-2" />
+                      Connect Wallet
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className={`relative z-20 max-w-6xl mx-auto px-4 sm:px-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
