@@ -51,27 +51,43 @@ export default function TikTokLanding() {
 
   return (
     <div className="min-h-screen bg-black overflow-x-hidden">
-      {/* Hero Section - Ultra Modern TikTok Style */}
+      {/* Hero Section - Ultra Modern TikTok Style with Video Background */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Clean Animated Background */}
-        <div className="absolute inset-0">
-          {/* Primary gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/15 via-pink-600/10 to-black"></div>
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'brightness(0.3) saturate(1.2)' }}
+          >
+            <source src="https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1a9e7c02d&profile_id=139&oauth2_token_id=57447761" type="video/mp4" />
+            {/* Fallback for when video doesn't load */}
+          </video>
           
-          {/* Simplified mesh gradient */}
+          {/* Video overlay gradients */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-black/30 to-pink-900/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40"></div>
+        </div>
+
+        {/* Fallback animated background (shown if video fails) */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-600/20 via-pink-600/15 to-black">
+          {/* Animated mesh gradient fallback */}
           <div className="absolute inset-0">
-            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-bl from-pink-500/15 to-transparent rounded-full blur-2xl animate-pulse delay-1000"></div>
+            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-500/25 to-transparent rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-bl from-pink-500/20 to-transparent rounded-full blur-2xl animate-pulse delay-1000"></div>
           </div>
           
-          {/* Minimal floating elements */}
+          {/* Floating elements */}
           <div className="absolute top-32 right-20 text-3xl animate-bounce opacity-40 hover:scale-110 transition-transform cursor-default">💎</div>
           <div className="absolute bottom-40 left-20 text-2xl animate-pulse delay-1000 opacity-30 hover:scale-110 transition-transform cursor-default">⚡</div>
           <div className="absolute top-1/2 right-12 text-2xl animate-bounce delay-1500 opacity-35 hover:scale-110 transition-transform cursor-default">✨</div>
         </div>
 
         {/* Floating Leaderboard Button */}
-        <div className="absolute top-8 right-8 z-20">
+        <div className="absolute top-8 right-8 z-30">
           <Link href="/leaderboard">
             <Button 
               variant="outline" 
@@ -83,22 +99,22 @@ export default function TikTokLanding() {
           </Link>
         </div>
 
-        <div className={`relative z-10 max-w-6xl mx-auto px-4 sm:px-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`relative z-20 max-w-6xl mx-auto px-4 sm:px-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           {/* Main Headline - Better Mobile Layout */}
           <div className="mb-12 space-y-6">
-            <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black text-white leading-[0.85] tracking-tight">
-              <span className="block">Your Reputation</span>
-              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative">
+            <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black leading-[0.85] tracking-tight">
+              <span className="block text-white drop-shadow-2xl">Your Reputation</span>
+              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative drop-shadow-2xl">
                 Is Your Edge
-                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400/10 to-pink-400/10 blur-2xl -z-10"></div>
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400/20 to-pink-400/20 blur-2xl -z-10"></div>
               </span>
             </h1>
             
-            <p className="text-xl sm:text-2xl lg:text-3xl text-gray-300 font-semibold max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl sm:text-2xl lg:text-3xl text-gray-200 font-semibold max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
               Earn Steeze • Conquer Challenges • Dominate Web3
             </p>
             
-            <div className="inline-flex items-center space-x-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-full backdrop-blur-sm">
+            <div className="inline-flex items-center space-x-3 px-6 py-3 bg-black/40 border border-purple-500/50 rounded-full backdrop-blur-md shadow-lg">
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
               <span className="text-purple-300 font-medium">Live Now</span>
               <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-300"></div>
@@ -128,22 +144,22 @@ export default function TikTokLanding() {
             </div>
           </div>
 
-          {/* Redesigned stats grid */}
+          {/* Enhanced stats grid with better contrast */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="flex flex-col items-center p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-purple-500/30 transition-colors">
+            <div className="flex flex-col items-center p-6 bg-black/50 backdrop-blur-md rounded-2xl border border-white/20 hover:border-purple-500/50 transition-colors shadow-xl">
               <Users className="w-8 h-8 text-purple-400 mb-2" />
-              <span className="text-3xl font-black text-white">54</span>
-              <span className="text-gray-400 font-medium">Creators</span>
+              <span className="text-3xl font-black text-white drop-shadow-lg">54</span>
+              <span className="text-gray-300 font-medium">Creators</span>
             </div>
-            <div className="flex flex-col items-center p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-pink-500/30 transition-colors">
+            <div className="flex flex-col items-center p-6 bg-black/50 backdrop-blur-md rounded-2xl border border-white/20 hover:border-pink-500/50 transition-colors shadow-xl">
               <Flame className="w-8 h-8 text-pink-400 mb-2" />
-              <span className="text-3xl font-black text-white">5.1K</span>
-              <span className="text-gray-400 font-medium">Aura Earned</span>
+              <span className="text-3xl font-black text-white drop-shadow-lg">5.1K</span>
+              <span className="text-gray-300 font-medium">Aura Earned</span>
             </div>
-            <div className="flex flex-col items-center p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-purple-500/30 transition-colors">
+            <div className="flex flex-col items-center p-6 bg-black/50 backdrop-blur-md rounded-2xl border border-white/20 hover:border-purple-500/50 transition-colors shadow-xl">
               <Star className="w-8 h-8 text-purple-300 mb-2" />
-              <span className="text-3xl font-black text-white">∞</span>
-              <span className="text-gray-400 font-medium">Challenges</span>
+              <span className="text-3xl font-black text-white drop-shadow-lg">∞</span>
+              <span className="text-gray-300 font-medium">Challenges</span>
             </div>
           </div>
         </div>
