@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flame, Star, Play, Heart, Share2, ArrowRight, Zap, Trophy, Users } from "lucide-react";
 import { Link } from "wouter";
+import auraLogo from "@assets/FULL AURA_1753876565281.png";
 
 export default function TikTokLanding() {
   const [currentChallenge, setCurrentChallenge] = useState(0);
@@ -84,6 +85,17 @@ export default function TikTokLanding() {
           <div className="absolute top-32 right-20 text-3xl animate-bounce opacity-40 hover:scale-110 transition-transform cursor-default">💎</div>
           <div className="absolute bottom-40 left-20 text-2xl animate-pulse delay-1000 opacity-30 hover:scale-110 transition-transform cursor-default">⚡</div>
           <div className="absolute top-1/2 right-12 text-2xl animate-bounce delay-1500 opacity-35 hover:scale-110 transition-transform cursor-default">✨</div>
+        </div>
+
+        {/* Logo and Navigation */}
+        <div className="absolute top-8 left-8 z-30">
+          <Link href="/">
+            <img 
+              src={auraLogo} 
+              alt="Aura Logo" 
+              className="h-12 sm:h-16 w-auto hover:scale-105 transition-transform duration-300 drop-shadow-lg"
+            />
+          </Link>
         </div>
 
         {/* Floating Leaderboard Button */}
