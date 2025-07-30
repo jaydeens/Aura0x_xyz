@@ -191,12 +191,11 @@ export default function TikTokLanding() {
           <div className="mb-12 space-y-6 overflow-visible">
             <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black leading-[1.2] tracking-tight">
               <span className="block text-white drop-shadow-2xl mb-2">Your Reputation</span>
-              <span className="block relative py-4" style={{
+              <span className="block relative pt-4 pb-8 mb-4" style={{
                 background: 'linear-gradient(to right, #c084fc, #f472b6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                paddingBottom: '0.5rem'
+                backgroundClip: 'text'
               }}>
                 Is Your Edge
                 <div className="absolute -inset-4 bg-gradient-to-r from-purple-400/20 to-pink-400/20 blur-2xl -z-10"></div>
