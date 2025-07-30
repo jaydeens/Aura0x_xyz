@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import BetaIndicator from "@/components/BetaIndicator";
-import ModernLanding from "@/pages/ModernLanding";
+import TikTokLanding from "@/pages/TikTokLanding";
 import NewDashboard from "@/pages/NewDashboard";
 import ModernBattles from "@/pages/ModernBattles";
 import ModernLeaderboard from "@/pages/ModernLeaderboard";
@@ -39,7 +39,7 @@ function Router() {
   if (!isAuthenticated || !user) {
     return (
       <Switch>
-        <Route path="*" component={ModernLanding} />
+        <Route path="*" component={TikTokLanding} />
       </Switch>
     );
   }

@@ -1,0 +1,111 @@
+Aura Website Layout (TikTok-style for Web3)
+1. Hero Section (Top of Page)
+Vibe: TikTok meets crypto confidence
+
+Fullscreen video loop background (e.g., challenge clips, Steeze gifts flowing, leaderboard action)
+
+Headline:
+“Your Reputation Is Your Edge.”
+
+Subheadline:
+“Earn Steeze. Conquer Challenges. Dominate Web3.”
+
+CTA: [Join Beta] + [Connect Wallet]
+
+Optional: floating Leaderboard button at top right
+
+2. “How It Works” Section (Scroller Visual Flow)
+Vibe: Fun, animated, mobile-first visual storytelling
+
+Use 3–4 vertical phone mockups scrolling TikTok-style
+
+Titles:
+
+Complete a Web3 Challenge
+
+Receive Steeze from Supporters
+
+Redeem Steeze for ETH
+
+Climb the Leaderboard & Build Aura
+
+Use emoji + short phrases. Make it snappy. Visuals matter more than text here.
+
+3. Challenges Feed Preview (Live TikTok Feed Feel)
+Vibe: Dynamic, infinite scroll preview
+
+Think TikTok but for Web3 challenges. Show real challenge cards or video thumbnails.
+
+Filters: Trending, New, Educational, Top Aura
+
+Clicking a challenge → takes user to the challenge page (profile-style)
+
+4. Creator Spotlight Carousel
+Vibe: Twitch-style “featured streamers” meets on-chain credibility
+
+Rotating profiles of creators with high Aura score
+
+Each tile: profile pic + short bio + Aura score + challenge preview
+
+Button: [View Profile]
+
+5. Why Aura? (The “Reputation Not Speculation” Pitch)
+Vibe: Slick and powerful messaging section
+
+Use icons + bold headings:
+
+✅ No more fake engagement
+
+🌍 Community-first economy
+
+📚 Crypto fluency > hype
+
+⚡ Earn from support, not VC handouts
+
+Final line:
+“Reputation is the new alpha.”
+
+6. Education Section
+Vibe: Duolingo for Crypto
+
+Animated cards for each module: “Intro to DeFi”, “What is Governance?”, “Web3 Wallet Safety”, etc.
+
+AI-generated learning + gamified XP tracker
+
+Button: [Start Learning] or [Earn Aura Points]
+
+7. Global Leaderboard + Aura Identity
+Vibe: Social flex meets trust layer
+
+Top 10 Aura users: profile pic + score + badges
+
+Button: [View Full Leaderboard]
+
+Brief explanation of Aura Identity Layer:
+
+“Your on-chain resume of reputation, verified by the community.”
+
+8. Footer
+Content:
+
+About Aura
+
+Docs (Gitbook)
+
+Smart Contract Explorer
+
+Socials (X, TikTok, Discord, Mirror)
+
+Legal: Terms | Privacy
+
+Powered by Base
+
+💡 Bonus Suggestions:
+Dark mode by default with neon gradients (TikTok-style)
+
+Micro-interactions (e.g., button hover animations, leaderboard glow effects)
+
+Use Framer Motion or GSAP for smooth scroll animations
+
+Mobile-first design — 80% of your audience will come from mobile
+
