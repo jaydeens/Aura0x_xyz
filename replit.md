@@ -107,6 +107,8 @@ Key entities include:
 
 ```
 Changelog:
+- July 30, 2025. Added social media links (X/Twitter and Discord) to footer alongside GitBook documentation
+- June 25, 2025. Removed whitelist requirement - platform now open to all users while maintaining beta status
 - June 25, 2025. Initial setup
 ```
 
