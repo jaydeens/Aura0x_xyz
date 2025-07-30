@@ -83,115 +83,118 @@ export default function TikTokLanding() {
           </Link>
         </div>
 
-        <div className={`relative z-10 max-w-5xl mx-auto px-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Main Headline */}
-          <div className="mb-8">
-            <h1 className="text-7xl md:text-9xl font-black text-white mb-4 leading-[0.9] tracking-tight">
-              Your Reputation 
-              <br />
-              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative">
+        <div className={`relative z-10 max-w-6xl mx-auto px-4 sm:px-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* Main Headline - Better Mobile Layout */}
+          <div className="mb-12 space-y-6">
+            <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black text-white leading-[0.85] tracking-tight">
+              <span className="block">Your Reputation</span>
+              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative">
                 Is Your Edge
-                <div className="absolute -inset-2 bg-gradient-to-r from-purple-400/15 to-pink-400/15 blur-xl -z-10"></div>
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400/10 to-pink-400/10 blur-2xl -z-10"></div>
               </span>
             </h1>
             
-            <p className="text-3xl md:text-4xl text-gray-200 font-bold mb-6 bg-gradient-to-r from-gray-200 to-gray-400 bg-clip-text text-transparent">
+            <p className="text-xl sm:text-2xl lg:text-3xl text-gray-300 font-semibold max-w-4xl mx-auto leading-relaxed">
               Earn Steeze • Conquer Challenges • Dominate Web3
             </p>
             
-            <div className="flex items-center justify-center space-x-3 mb-12">
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-ping"></div>
-              <span className="text-xl text-purple-300 font-semibold">Live Now</span>
-              <div className="w-3 h-3 bg-pink-500 rounded-full animate-ping delay-300"></div>
+            <div className="inline-flex items-center space-x-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-full backdrop-blur-sm">
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+              <span className="text-purple-300 font-medium">Live Now</span>
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-300"></div>
             </div>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
-            <Link href="/dashboard">
+          {/* Improved CTA Section */}
+          <div className="mb-16 space-y-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/dashboard">
+                <Button 
+                  size="lg" 
+                  className="group relative w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-12 py-6 text-xl font-bold rounded-full shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  Join Beta
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
               <Button 
+                variant="outline" 
                 size="lg" 
-                className="group relative w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-16 py-8 text-2xl font-black rounded-2xl shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 border-2 border-white/10"
+                className="w-full sm:w-auto border-2 border-purple-400/60 text-purple-300 hover:bg-purple-500/20 backdrop-blur-sm bg-black/20 px-12 py-6 text-xl font-medium rounded-full hover:scale-105 transition-all duration-300"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <Zap className="w-6 h-6 mr-3" />
-                Join Beta
-                <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
+                Connect Wallet
               </Button>
-            </Link>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full sm:w-auto border-3 border-purple-400 text-purple-300 hover:bg-purple-500/20 backdrop-blur-md bg-black/30 px-16 py-8 text-2xl font-bold rounded-2xl hover:scale-105 transition-all duration-300 hover:border-purple-300"
-            >
-              💰 Connect Wallet
-            </Button>
+            </div>
           </div>
 
-          {/* Clean stats ticker */}
-          <div className="flex flex-wrap justify-center items-center gap-8 text-xl font-bold">
-            <div className="flex items-center space-x-3 px-6 py-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-              <Users className="w-6 h-6 text-purple-400" />
-              <span className="text-white">54</span>
-              <span className="text-gray-400">Creators</span>
+          {/* Redesigned stats grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <div className="flex flex-col items-center p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-purple-500/30 transition-colors">
+              <Users className="w-8 h-8 text-purple-400 mb-2" />
+              <span className="text-3xl font-black text-white">54</span>
+              <span className="text-gray-400 font-medium">Creators</span>
             </div>
-            <div className="flex items-center space-x-3 px-6 py-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-              <Flame className="w-6 h-6 text-pink-400" />
-              <span className="text-white">5.1K</span>
-              <span className="text-gray-400">Aura Earned</span>
+            <div className="flex flex-col items-center p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-pink-500/30 transition-colors">
+              <Flame className="w-8 h-8 text-pink-400 mb-2" />
+              <span className="text-3xl font-black text-white">5.1K</span>
+              <span className="text-gray-400 font-medium">Aura Earned</span>
             </div>
-            <div className="flex items-center space-x-3 px-6 py-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-              <Star className="w-6 h-6 text-purple-300" />
-              <span className="text-white">Active</span>
-              <span className="text-gray-400">Challenges</span>
+            <div className="flex flex-col items-center p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-purple-500/30 transition-colors">
+              <Star className="w-8 h-8 text-purple-300 mb-2" />
+              <span className="text-3xl font-black text-white">∞</span>
+              <span className="text-gray-400 font-medium">Challenges</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works - Premium Mobile Scroller Style */}
-      <section className="py-32 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-black/80"></div>
-        <div className="relative max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight">
+      {/* How It Works - Mobile-First Layout */}
+      <section className="py-20 lg:py-32 px-4 sm:px-8 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950/80 to-black"></div>
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center mb-16 lg:mb-24">
+            <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-4 tracking-tight">
               How It Works
             </h2>
-            <p className="text-2xl text-gray-300 max-w-3xl mx-auto">
-              Four simple steps to become a Web3 reputation legend
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-400 max-w-2xl mx-auto">
+              Four steps to Web3 reputation mastery
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="space-y-8 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-8 xl:grid-cols-4">
             {[
               { 
                 emoji: "🎯", 
-                title: "Complete a Web3 Challenge", 
-                desc: "Pick your challenge & show your skills"
+                title: "Complete Challenges", 
+                desc: "Pick your battle & showcase skills"
               },
               { 
                 emoji: "⚡", 
-                title: "Receive Steeze from Supporters", 
-                desc: "Community validates your expertise"
+                title: "Earn Community Steeze", 
+                desc: "Get validated by peers"
               },
               { 
                 emoji: "💰", 
-                title: "Redeem Steeze for ETH", 
-                desc: "Turn reputation into real rewards"
+                title: "Convert to ETH", 
+                desc: "Turn reputation into rewards"
               },
               { 
                 emoji: "👑", 
-                title: "Climb Leaderboard & Build Aura", 
+                title: "Climb Rankings", 
                 desc: "Become a Web3 legend"
               }
             ].map((step, index) => (
-              <Card key={index} className="group relative bg-black/60 border-2 border-gray-800 hover:border-purple-500/50 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="relative p-10 text-center h-full flex flex-col justify-center">
-                  <div className="text-7xl mb-6 group-hover:scale-110 transition-transform duration-500">{step.emoji}</div>
-                  <h3 className="text-2xl font-bold text-white mb-4 leading-tight">{step.title}</h3>
-                  <p className="text-gray-400 text-lg leading-relaxed">{step.desc}</p>
-                  <div className="absolute top-4 right-4 text-gray-600 font-black text-xl">0{index + 1}</div>
+              <Card key={index} className="group relative bg-gray-950/60 border border-gray-800 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
+                <CardContent className="p-8 text-center">
+                  <div className="relative mb-6">
+                    <div className="text-5xl lg:text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">{step.emoji}</div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {index + 1}
+                    </div>
+                  </div>
+                  <h3 className="text-xl lg:text-2xl font-bold text-white mb-3 leading-tight">{step.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{step.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -199,26 +202,27 @@ export default function TikTokLanding() {
         </div>
       </section>
 
-      {/* Challenges Feed Preview - Premium TikTok Style */}
-      <section className="py-32 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-black to-pink-900/5"></div>
-        <div className="relative max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-between mb-16">
-            <div>
-              <h2 className="text-6xl md:text-8xl font-black text-white mb-4 tracking-tight">
+      {/* Challenges Feed - Improved Layout */}
+      <section className="py-20 lg:py-32 px-4 sm:px-8 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/10 to-black"></div>
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center lg:text-left lg:flex lg:items-end lg:justify-between mb-12 lg:mb-16">
+            <div className="mb-8 lg:mb-0">
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-2 tracking-tight">
                 Trending Challenges
               </h2>
-              <p className="text-2xl text-gray-400">Where legends are born</p>
+              <p className="text-lg sm:text-xl text-gray-400">Where legends are born</p>
             </div>
-            <div className="flex flex-wrap gap-3 mt-8 lg:mt-0">
-              {["🔥 Trending", "✨ New", "📚 Educational", "👑 Top Aura"].map((filter, index) => (
+            <div className="flex flex-wrap justify-center lg:justify-end gap-3">
+              {["🔥 Hot", "✨ New", "📚 Learn", "👑 Elite"].map((filter, index) => (
                 <Button 
                   key={filter} 
                   variant="outline" 
-                  className={`border-2 text-lg px-6 py-3 rounded-2xl transition-all duration-300 hover:scale-105 ${
+                  size="sm"
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     index === 0 
                       ? 'border-purple-500 text-purple-300 bg-purple-500/20' 
-                      : 'border-gray-700 text-gray-300 hover:border-gray-500'
+                      : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-300'
                   }`}
                 >
                   {filter}
@@ -227,54 +231,54 @@ export default function TikTokLanding() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
             {challenges.map((challenge, index) => (
-              <Card key={challenge.id} className="group relative bg-black/80 border-2 border-gray-800 hover:border-purple-500/60 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
+              <Card key={challenge.id} className="group relative bg-gray-950/80 border border-gray-800 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] overflow-hidden backdrop-blur-sm">
                 <CardContent className="p-0">
-                  <div className="relative aspect-[9/16] bg-gradient-to-br from-purple-600/15 to-pink-600/10 flex items-center justify-center overflow-hidden">
-                    <div className="text-9xl group-hover:scale-110 transition-transform duration-500">{challenge.thumbnail}</div>
-                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-500"></div>
+                  <div className="relative aspect-[4/5] bg-gradient-to-br from-purple-600/10 to-pink-600/5 flex items-center justify-center overflow-hidden">
+                    <div className="text-6xl lg:text-7xl group-hover:scale-110 transition-transform duration-300">{challenge.thumbnail}</div>
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                     
-                    {/* Floating interaction buttons */}
-                    <div className="absolute bottom-6 right-6 flex flex-col space-y-3">
-                      <Button className="rounded-full w-14 h-14 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 transition-all duration-300 hover:scale-110">
-                        <Heart className="w-6 h-6 text-white" />
+                    {/* Simplified interaction */}
+                    <div className="absolute bottom-4 right-4 flex space-x-2">
+                      <Button size="sm" className="rounded-full w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm">
+                        <Heart className="w-4 h-4 text-white" />
                       </Button>
-                      <Button className="rounded-full w-14 h-14 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 transition-all duration-300 hover:scale-110">
-                        <Share2 className="w-6 h-6 text-white" />
+                      <Button size="sm" className="rounded-full w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm">
+                        <Share2 className="w-4 h-4 text-white" />
                       </Button>
                     </div>
                     
-                    {/* Play button overlay */}
-                    <Button className="absolute inset-0 w-full h-full bg-transparent hover:bg-black/10 transition-colors duration-300 group">
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Play className="w-8 h-8 text-white ml-1" />
+                    {/* Play button */}
+                    <Button className="absolute inset-0 w-full h-full bg-transparent hover:bg-black/5 transition-colors group">
+                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="w-6 h-6 text-white ml-1" />
                       </div>
                     </Button>
                   </div>
                   
-                  <div className="p-6 bg-black/60">
+                  <div className="p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 text-sm font-semibold">
+                      <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs">
                         {challenge.difficulty}
                       </Badge>
-                      <div className="flex items-center space-x-1 text-gray-400">
-                        <Heart className="w-4 h-4" />
-                        <span className="text-sm font-medium">{challenge.likes}</span>
+                      <div className="flex items-center space-x-1 text-gray-500">
+                        <Heart className="w-3 h-3" />
+                        <span className="text-xs">{challenge.likes}</span>
                       </div>
                     </div>
                     
-                    <h3 className="text-xl font-bold text-white mb-2 leading-tight">{challenge.title}</h3>
-                    <p className="text-purple-400 text-sm mb-3 font-medium">@{challenge.creator}</p>
+                    <h3 className="text-lg font-bold text-white mb-1 leading-tight">{challenge.title}</h3>
+                    <p className="text-purple-400 text-sm mb-3">@{challenge.creator}</p>
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Flame className="w-5 h-5 text-pink-400" />
-                        <span className="text-pink-400 font-bold text-lg">{challenge.aura}</span>
-                        <span className="text-gray-400 text-sm">Aura</span>
+                        <Flame className="w-4 h-4 text-pink-400" />
+                        <span className="text-pink-400 font-bold">{challenge.aura}</span>
+                        <span className="text-gray-500 text-sm">Aura</span>
                       </div>
-                      <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full px-4 py-2 text-sm font-bold">
-                        Challenge
+                      <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full px-3 py-1 text-xs font-bold">
+                        Try It
                       </Button>
                     </div>
                   </div>
@@ -285,48 +289,46 @@ export default function TikTokLanding() {
         </div>
       </section>
 
-      {/* Creator Spotlight Carousel - Ultra Premium */}
-      <section className="py-32 px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-black to-pink-900/5"></div>
-        <div className="relative max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight">
-              Creator Legends
+      {/* Creator Spotlight - Refined Layout */}
+      <section className="py-20 lg:py-32 px-4 sm:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950/50 to-black"></div>
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center mb-16 lg:mb-20">
+            <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-4 tracking-tight">
+              Top Creators
             </h2>
-            <p className="text-2xl text-gray-300 max-w-3xl mx-auto">
-              Meet the minds shaping Web3's future, one challenge at a time
+            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto">
+              The legends building Web3's reputation economy
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {topCreators.map((creator, index) => (
-              <Card key={index} className="group relative bg-black/80 border-2 border-gray-800 hover:border-purple-500/60 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardContent className="relative p-10 text-center">
-                  {/* Rank indicator */}
-                  <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-black text-white text-lg">
-                    #{index + 1}
+              <Card key={index} className="group relative bg-gray-950/80 border border-gray-800 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] overflow-hidden backdrop-blur-sm">
+                <CardContent className="relative p-8 text-center">
+                  {/* Rank badge */}
+                  <div className="absolute top-4 left-4 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-bold text-white text-sm">
+                    {index + 1}
                   </div>
                   
-                  {/* Avatar with glow effect */}
-                  <div className="relative mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                    <div className="relative text-8xl group-hover:scale-110 transition-transform duration-500">{creator.avatar}</div>
+                  {/* Avatar */}
+                  <div className="mb-6">
+                    <div className="text-6xl group-hover:scale-110 transition-transform duration-300">{creator.avatar}</div>
                   </div>
                   
-                  <h3 className="text-3xl font-black text-white mb-3">{creator.name}</h3>
+                  <h3 className="text-2xl font-bold text-white mb-2">{creator.name}</h3>
                   
-                  <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 px-4 py-2 text-sm font-bold mb-6">
+                  <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-sm mb-4">
                     {creator.badge}
                   </Badge>
                   
-                  <div className="flex items-center justify-center space-x-3 mb-8 p-4 bg-black/40 rounded-2xl border border-white/10">
-                    <Flame className="w-6 h-6 text-pink-400" />
-                    <span className="text-3xl font-black text-pink-400">{creator.aura.toLocaleString()}</span>
-                    <span className="text-gray-400 text-lg">Aura</span>
+                  <div className="flex items-center justify-center space-x-2 mb-6 p-3 bg-black/30 rounded-xl">
+                    <Flame className="w-5 h-5 text-pink-400" />
+                    <span className="text-2xl font-bold text-pink-400">{creator.aura.toLocaleString()}</span>
+                    <span className="text-gray-400">Aura</span>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 rounded-2xl text-lg transition-all duration-300 hover:scale-105 shadow-lg shadow-purple-500/25">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 rounded-xl transition-all duration-300">
                     View Profile
                   </Button>
                 </CardContent>
