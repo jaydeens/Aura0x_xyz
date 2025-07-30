@@ -189,9 +189,14 @@ export default function ModernProfile() {
       <ModernNavigation />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 relative">
+        {/* Fun Background Elements */}
+        <div className="absolute top-8 right-20 text-3xl animate-pulse opacity-20">✨</div>
+        <div className="absolute top-32 left-16 text-2xl animate-bounce opacity-20">🎮</div>
+        <div className="absolute bottom-20 right-16 text-4xl animate-spin opacity-20">🌟</div>
+        
         {/* Profile Header */}
-        <Card className="bg-gray-900/50 border-gray-800 mb-8">
+        <Card className="bg-gray-900/50 border-gray-800 mb-8 hover:border-purple-500/30 transition-colors">
           <CardContent className="p-8">
             <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
               {/* Avatar */}

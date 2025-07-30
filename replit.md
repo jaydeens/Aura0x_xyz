@@ -107,6 +107,7 @@ Key entities include:
 
 ```
 Changelog:
+- July 30, 2025. Complete fun, creator-focused redesign with Layer3.xyz inspiration - added emojis, animations, hover effects, floating elements, and interactive cards across all pages for engaging user experience
 - July 30, 2025. Added social media links (X/Twitter and Discord) to footer alongside GitBook documentation
 - June 25, 2025. Removed whitelist requirement - platform now open to all users while maintaining beta status
 - June 25, 2025. Initial setup
@@ -116,4 +117,5 @@ Changelog:
 
 ```
 Preferred communication style: Simple, everyday language.
+Design preference: Fun, creator-focused website with engaging animations, emojis, and interactive elements.
 ```

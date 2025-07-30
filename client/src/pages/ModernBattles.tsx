@@ -129,74 +129,82 @@ export default function ModernBattles() {
       <ModernNavigation />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 relative">
+        {/* Fun Background Elements */}
+        <div className="absolute top-10 right-20 text-4xl animate-bounce opacity-20">⚔️</div>
+        <div className="absolute top-32 left-10 text-3xl animate-pulse opacity-20">🏆</div>
+        <div className="absolute bottom-20 right-32 text-2xl animate-spin opacity-20">💫</div>
+        
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 relative">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Battles</h1>
-            <p className="text-gray-400">Challenge others and prove your Web3 knowledge</p>
+            <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
+              ⚔️ Battles 
+              <span className="ml-2 text-2xl animate-bounce">🔥</span>
+            </h1>
+            <p className="text-gray-400">Challenge others and prove your Web3 knowledge! 🚀</p>
           </div>
           <Button 
             onClick={() => setShowCreateBattle(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 animate-pulse hover:animate-none hover:scale-105 transition-transform"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Create Battle
+            Create Battle ⚡
           </Button>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-red-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Live Battles</p>
-                  <p className="text-2xl font-bold text-white">{liveBattles.length}</p>
+                  <p className="text-sm text-gray-400">🔴 Live Battles</p>
+                  <p className="text-2xl font-bold text-white animate-pulse">{liveBattles.length}</p>
                 </div>
-                <div className="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center animate-bounce">
                   <Swords className="w-5 h-5 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-green-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Your Wins</p>
+                  <p className="text-sm text-gray-400">🏆 Your Wins</p>
                   <p className="text-2xl font-bold text-white">{(user as any)?.totalBattlesWon || 0}</p>
                 </div>
-                <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center animate-pulse">
                   <Trophy className="w-5 h-5 text-green-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-blue-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">  
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Total Participants</p>
+                  <p className="text-sm text-gray-400">👥 Total Participants</p>
                   <p className="text-2xl font-bold text-white">{stats?.totalParticipants || 0}</p>
                 </div>
-                <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center animate-bounce delay-200">
                   <Users className="w-5 h-5 text-blue-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-purple-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Aura at Stake</p>
-                  <p className="text-2xl font-bold text-white">{stats?.totalAuraStaked || 0}</p>
+                  <p className="text-sm text-gray-400">🔥 Aura at Stake</p>
+                  <p className="text-2xl font-bold text-white animate-pulse">{stats?.totalAuraStaked || 0}</p>
                 </div>
-                <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center animate-pulse delay-300">
                   <Flame className="w-5 h-5 text-purple-400" />
                 </div>
               </div>

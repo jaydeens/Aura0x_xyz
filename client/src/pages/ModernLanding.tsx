@@ -117,25 +117,36 @@ export default function ModernLanding() {
       <section className="relative pt-20 pb-32 overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          
+          {/* Floating Elements */}
+          <div className="absolute top-32 right-1/4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce delay-300"></div>
+          <div className="absolute top-64 left-1/3 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-bounce delay-700"></div>
+          <div className="absolute bottom-48 left-1/4 w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-bounce delay-1100"></div>
+          
+          {/* Sparkle Effects */}
+          <div className="absolute top-40 right-1/3 text-2xl animate-pulse delay-500">✨</div>
+          <div className="absolute bottom-40 left-1/2 text-3xl animate-pulse delay-1500">🚀</div>
+          <div className="absolute top-56 left-1/5 text-xl animate-pulse delay-2000">⚡</div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 text-center">
-          <Badge variant="outline" className="mb-6 border-purple-500/30 text-purple-400">
-            🎉 Platform now open to everyone!
+          <Badge variant="outline" className="mb-6 border-purple-500/30 text-purple-400 animate-bounce">
+            🎉 Platform now open to everyone! 🔥
           </Badge>
           
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 relative">
             Build Your{" "}
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent animate-pulse">
               Aura
             </span>
+            <div className="absolute -top-2 -right-2 text-3xl animate-spin">🌟</div>
           </h1>
           
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-            The ultimate Web3 learning and reputation platform. Master blockchain concepts through 
-            interactive battles, daily lessons, and community engagement.
+            🎮 The ultimate Web3 learning and reputation platform! Master blockchain concepts through 
+            interactive battles, daily lessons, and community engagement. Level up your crypto knowledge! 🚀
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">

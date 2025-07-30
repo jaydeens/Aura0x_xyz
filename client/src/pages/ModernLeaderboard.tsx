@@ -119,11 +119,19 @@ export default function ModernLeaderboard() {
       <ModernNavigation />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 relative">
+        {/* Fun Background Elements */}
+        <div className="absolute top-5 right-16 text-4xl animate-spin opacity-20">🏆</div>
+        <div className="absolute top-20 left-12 text-3xl animate-bounce opacity-20">⭐</div>
+        <div className="absolute bottom-32 right-24 text-2xl animate-pulse opacity-20">🎯</div>
+        
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Leaderboard</h1>
-          <p className="text-gray-400">See how you rank against the best in the community</p>
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
+            🏆 Leaderboard 
+            <span className="ml-2 text-2xl animate-bounce">👑</span>
+          </h1>
+          <p className="text-gray-400">See how you rank against the best in the community! 🚀</p>
         </div>
 
         {/* Stats Cards */}

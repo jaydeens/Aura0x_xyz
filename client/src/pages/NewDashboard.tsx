@@ -84,56 +84,63 @@ export default function NewDashboard() {
       <ModernNavigation />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 relative">
+        {/* Fun Background Elements */}
+        <div className="absolute top-12 right-24 text-4xl animate-spin opacity-20">🎮</div>
+        <div className="absolute top-40 left-20 text-3xl animate-bounce opacity-20">🚀</div>
+        <div className="absolute bottom-32 right-32 text-2xl animate-pulse opacity-20">✨</div>
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-2">
-            <h1 className="text-3xl font-bold text-white">Welcome back</h1>
-            <Badge variant="secondary" className="bg-purple-500/10 text-purple-400 border-purple-500/20">
-              Level {Math.floor(((user as any)?.auraPoints || 0) / 100) + 1}
+            <h1 className="text-3xl font-bold text-white flex items-center">
+              Welcome back, {(user as any)?.username || (user as any)?.twitterDisplayName || 'Creator'}!
+              <span className="ml-2 animate-bounce">👋</span>
+            </h1>
+            <Badge variant="secondary" className="bg-purple-500/10 text-purple-400 border-purple-500/20 animate-pulse">
+              🎮 Level {Math.floor(((user as any)?.auraPoints || 0) / 100) + 1}
             </Badge>
           </div>
-          <p className="text-gray-400">Build your aura through battles, lessons, and community engagement</p>
+          <p className="text-gray-400">Ready to build your aura today? Let's create something amazing! ✨🚀</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-purple-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Total Aura</p>
-                  <p className="text-2xl font-bold text-white">{(user as any)?.auraPoints || 0}</p>
+                  <p className="text-sm text-gray-400">🔥 Total Aura</p>
+                  <p className="text-2xl font-bold text-white animate-pulse">{(user as any)?.auraPoints || 0}</p>
                 </div>
-                <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center animate-bounce">
                   <Flame className="w-5 h-5 text-purple-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-green-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Battles Won</p>
+                  <p className="text-sm text-gray-400">🏆 Battles Won</p>
                   <p className="text-2xl font-bold text-white">{(user as any)?.totalBattlesWon || 0}</p>
                 </div>
-                <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center animate-pulse delay-200">
                   <Trophy className="w-5 h-5 text-green-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-800">
+          <Card className="bg-gray-900/50 border-gray-800 hover:border-orange-500/50 transition-colors hover:scale-105 transform duration-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Current Streak</p>
+                  <p className="text-sm text-gray-400">🔥 Current Streak</p>
                   <p className="text-2xl font-bold text-white">{(user as any)?.currentStreak || 0}</p>
                 </div>
-                <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center animate-bounce delay-300">
                   <Target className="w-5 h-5 text-orange-400" />
                 </div>
               </div>
@@ -162,8 +169,11 @@ export default function NewDashboard() {
           {/* Daily Lessons */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">Today's Lessons</h2>
-              <Button variant="ghost" size="sm" className="text-purple-400 hover:text-purple-300">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                📚 Today's Lessons 
+                <span className="ml-2 animate-bounce">✨</span>
+              </h2>
+              <Button variant="ghost" size="sm" className="text-purple-400 hover:text-purple-300 hover:scale-105 transition-transform">
                 View all <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
