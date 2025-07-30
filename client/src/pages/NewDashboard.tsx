@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import { Link } from "wouter";
+import ModernNavigation from "@/components/ModernNavigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +17,10 @@ import {
   Users, 
   TrendingUp,
   Award,
-  Zap,
   ArrowRight,
   Clock,
-  Star
+  Star,
+  Plus
 } from "lucide-react";
 
 export default function NewDashboard() {
@@ -81,58 +81,7 @@ export default function NewDashboard() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Modern Navigation */}
-      <nav className="border-b border-gray-800 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Aura
-                </span>
-              </Link>
-
-              {/* Navigation Links */}
-              <div className="hidden md:flex items-center space-x-1">
-                <Link href="/">
-                  <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800">
-                    Discover
-                  </Button>
-                </Link>
-                <Link href="/battles">
-                  <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800">
-                    Battles
-                  </Button>
-                </Link>
-                <Link href="/leaderboard">
-                  <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800">
-                    Leaderboard
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* User Actions */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 px-3 py-1.5 bg-gray-900 rounded-lg">
-                <Flame className="w-4 h-4 text-orange-400" />
-                <span className="text-sm font-medium text-white">{(user as any)?.auraPoints || 0}</span>
-              </div>
-              <Link href="/profile">
-                <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                  <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                    <Users className="w-3 h-3 text-white" />
-                  </div>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <ModernNavigation />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -214,11 +163,9 @@ export default function NewDashboard() {
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Today's Lessons</h2>
-              <Link href="/lessons">
-                <Button variant="ghost" size="sm" className="text-purple-400 hover:text-purple-300">
-                  View all <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
+              <Button variant="ghost" size="sm" className="text-purple-400 hover:text-purple-300">
+                View all <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
             </div>
             
             <div className="space-y-4">
@@ -258,11 +205,9 @@ export default function NewDashboard() {
                             </div>
                           </div>
                         </div>
-                        <Link href={`/lessons/${lesson.id}`}>
-                          <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                            Start
-                          </Button>
-                        </Link>
+                        <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                          Start
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

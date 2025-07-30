@@ -5,15 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import BetaIndicator from "@/components/BetaIndicator";
-import Landing from "@/pages/Landing";
+import ModernLanding from "@/pages/ModernLanding";
 import NewDashboard from "@/pages/NewDashboard";
-import Battles from "@/pages/Battles";
+import ModernBattles from "@/pages/ModernBattles";
+import ModernLeaderboard from "@/pages/ModernLeaderboard";
 import LiveBattle from "@/pages/LiveBattle";
-import Leaderboard from "@/pages/Leaderboard";
-import Profile from "@/pages/Profile";
-import UserProfilePage from "@/pages/UserProfilePage";
+import ModernProfile from "@/pages/ModernProfile";
 import SteezeStack from "@/pages/SteezeStack";
-import Settings from "@/pages/Settings";
+import ModernSettings from "@/pages/ModernSettings";
 import WhitelistAdmin from "@/pages/WhitelistAdmin";
 import NotFound from "@/pages/not-found";
 
@@ -40,7 +39,7 @@ function Router() {
   if (!isAuthenticated || !user) {
     return (
       <Switch>
-        <Route path="*" component={Landing} />
+        <Route path="*" component={ModernLanding} />
       </Switch>
     );
   }
@@ -49,15 +48,15 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={NewDashboard} />
-      <Route path="/battles" component={Battles} />
+      <Route path="/battles" component={ModernBattles} />
       <Route path="/battles/:id" component={LiveBattle} />
-      <Route path="/arena" component={Battles} />
-      <Route path="/leaderboard" component={Leaderboard} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/profile/:userId" component={UserProfilePage} />
-      <Route path="/user/:userId" component={UserProfilePage} />
+      <Route path="/arena" component={ModernBattles} />
+      <Route path="/leaderboard" component={ModernLeaderboard} />
+      <Route path="/profile" component={ModernProfile} />
+      <Route path="/profile/:userId" component={ModernProfile} />
+      <Route path="/user/:userId" component={ModernProfile} />
       <Route path="/steeze-stack" component={SteezeStack} />
-      <Route path="/settings" component={Settings} />
+      <Route path="/settings" component={ModernSettings} />
       <Route path="/admin/whitelist" component={WhitelistAdmin} />
       <Route path="*" component={NotFound} />
     </Switch>
