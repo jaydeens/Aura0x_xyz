@@ -189,9 +189,9 @@ export default function TikTokLanding() {
         <div className={`relative z-20 max-w-6xl mx-auto px-4 sm:px-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           {/* Main Headline - Better Mobile Layout */}
           <div className="mb-12 space-y-6">
-            <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black leading-[0.85] tracking-tight">
+            <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black leading-[0.9] tracking-tight">
               <span className="block text-white drop-shadow-2xl">Your Reputation</span>
-              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative drop-shadow-2xl">
+              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative drop-shadow-2xl pb-2">
                 Is Your Edge
                 <div className="absolute -inset-4 bg-gradient-to-r from-purple-400/20 to-pink-400/20 blur-2xl -z-10"></div>
               </span>
