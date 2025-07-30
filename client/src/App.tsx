@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import BetaIndicator from "@/components/BetaIndicator";
 import Landing from "@/pages/Landing";
-import Dashboard from "@/pages/Dashboard";
+import NewDashboard from "@/pages/NewDashboard";
 import Battles from "@/pages/Battles";
 import LiveBattle from "@/pages/LiveBattle";
 import Leaderboard from "@/pages/Leaderboard";
@@ -48,7 +48,7 @@ function Router() {
   // If authenticated, show app routes
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={NewDashboard} />
       <Route path="/battles" component={Battles} />
       <Route path="/battles/:id" component={LiveBattle} />
       <Route path="/arena" component={Battles} />
