@@ -53,25 +53,21 @@ export default function TikTokLanding() {
     <div className="min-h-screen bg-black overflow-x-hidden">
       {/* Hero Section - Ultra Modern TikTok Style */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Advanced Animated Background */}
+        {/* Clean Animated Background */}
         <div className="absolute inset-0">
           {/* Primary gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-pink-600/15 to-cyan-500/10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/15 via-pink-600/10 to-black"></div>
           
-          {/* Dynamic mesh gradient */}
+          {/* Simplified mesh gradient */}
           <div className="absolute inset-0">
-            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-500/30 to-transparent rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-1/3 right-0 w-80 h-80 bg-gradient-to-bl from-pink-500/25 to-transparent rounded-full blur-2xl animate-pulse delay-1000"></div>
-            <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-gradient-to-tr from-cyan-500/20 to-transparent rounded-full blur-3xl animate-pulse delay-2000"></div>
+            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-bl from-pink-500/15 to-transparent rounded-full blur-2xl animate-pulse delay-1000"></div>
           </div>
           
-          {/* Floating elements with better positioning */}
-          <div className="absolute top-24 right-16 text-4xl animate-bounce opacity-80 hover:scale-110 transition-transform cursor-default">💎</div>
-          <div className="absolute top-1/3 left-12 text-3xl animate-pulse opacity-60 hover:scale-110 transition-transform cursor-default">🔥</div>
-          <div className="absolute bottom-32 right-20 text-5xl animate-bounce delay-500 opacity-70 hover:scale-110 transition-transform cursor-default">⚡</div>
-          <div className="absolute bottom-24 left-16 text-2xl animate-pulse delay-1000 opacity-50 hover:scale-110 transition-transform cursor-default">🚀</div>
-          <div className="absolute top-1/2 right-8 text-3xl animate-bounce delay-1500 opacity-60 hover:scale-110 transition-transform cursor-default">✨</div>
-          <div className="absolute top-40 left-1/3 text-4xl animate-pulse delay-2000 opacity-40 hover:scale-110 transition-transform cursor-default">👑</div>
+          {/* Minimal floating elements */}
+          <div className="absolute top-32 right-20 text-3xl animate-bounce opacity-40 hover:scale-110 transition-transform cursor-default">💎</div>
+          <div className="absolute bottom-40 left-20 text-2xl animate-pulse delay-1000 opacity-30 hover:scale-110 transition-transform cursor-default">⚡</div>
+          <div className="absolute top-1/2 right-12 text-2xl animate-bounce delay-1500 opacity-35 hover:scale-110 transition-transform cursor-default">✨</div>
         </div>
 
         {/* Floating Leaderboard Button */}
@@ -93,9 +89,9 @@ export default function TikTokLanding() {
             <h1 className="text-7xl md:text-9xl font-black text-white mb-4 leading-[0.9] tracking-tight">
               Your Reputation 
               <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent relative">
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative">
                 Is Your Edge
-                <div className="absolute -inset-2 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-cyan-400/20 blur-xl -z-10"></div>
+                <div className="absolute -inset-2 bg-gradient-to-r from-purple-400/15 to-pink-400/15 blur-xl -z-10"></div>
               </span>
             </h1>
             
@@ -132,20 +128,20 @@ export default function TikTokLanding() {
             </Button>
           </div>
 
-          {/* Enhanced stats ticker */}
+          {/* Clean stats ticker */}
           <div className="flex flex-wrap justify-center items-center gap-8 text-xl font-bold">
             <div className="flex items-center space-x-3 px-6 py-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-              <Users className="w-6 h-6 text-blue-400" />
+              <Users className="w-6 h-6 text-purple-400" />
               <span className="text-white">54</span>
               <span className="text-gray-400">Creators</span>
             </div>
             <div className="flex items-center space-x-3 px-6 py-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-              <Flame className="w-6 h-6 text-orange-400" />
+              <Flame className="w-6 h-6 text-pink-400" />
               <span className="text-white">5.1K</span>
               <span className="text-gray-400">Aura Earned</span>
             </div>
             <div className="flex items-center space-x-3 px-6 py-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-              <Star className="w-6 h-6 text-yellow-400" />
+              <Star className="w-6 h-6 text-purple-300" />
               <span className="text-white">Active</span>
               <span className="text-gray-400">Challenges</span>
             </div>
@@ -171,30 +167,26 @@ export default function TikTokLanding() {
               { 
                 emoji: "🎯", 
                 title: "Complete a Web3 Challenge", 
-                desc: "Pick your challenge & show your skills",
-                color: "from-purple-500 to-purple-600" 
+                desc: "Pick your challenge & show your skills"
               },
               { 
                 emoji: "⚡", 
                 title: "Receive Steeze from Supporters", 
-                desc: "Community validates your expertise",
-                color: "from-pink-500 to-pink-600" 
+                desc: "Community validates your expertise"
               },
               { 
                 emoji: "💰", 
                 title: "Redeem Steeze for ETH", 
-                desc: "Turn reputation into real rewards",
-                color: "from-cyan-500 to-cyan-600" 
+                desc: "Turn reputation into real rewards"
               },
               { 
                 emoji: "👑", 
                 title: "Climb Leaderboard & Build Aura", 
-                desc: "Become a Web3 legend",
-                color: "from-yellow-500 to-yellow-600" 
+                desc: "Become a Web3 legend"
               }
             ].map((step, index) => (
-              <Card key={index} className="group relative bg-black/60 border-2 border-gray-800 hover:border-gray-600 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
-                <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+              <Card key={index} className="group relative bg-black/60 border-2 border-gray-800 hover:border-purple-500/50 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <CardContent className="relative p-10 text-center h-full flex flex-col justify-center">
                   <div className="text-7xl mb-6 group-hover:scale-110 transition-transform duration-500">{step.emoji}</div>
                   <h3 className="text-2xl font-bold text-white mb-4 leading-tight">{step.title}</h3>
@@ -209,7 +201,7 @@ export default function TikTokLanding() {
 
       {/* Challenges Feed Preview - Premium TikTok Style */}
       <section className="py-32 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-black to-pink-900/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-black to-pink-900/5"></div>
         <div className="relative max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center justify-between mb-16">
             <div>
@@ -239,7 +231,7 @@ export default function TikTokLanding() {
             {challenges.map((challenge, index) => (
               <Card key={challenge.id} className="group relative bg-black/80 border-2 border-gray-800 hover:border-purple-500/60 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
                 <CardContent className="p-0">
-                  <div className="relative aspect-[9/16] bg-gradient-to-br from-purple-600/20 via-pink-600/15 to-cyan-500/10 flex items-center justify-center overflow-hidden">
+                  <div className="relative aspect-[9/16] bg-gradient-to-br from-purple-600/15 to-pink-600/10 flex items-center justify-center overflow-hidden">
                     <div className="text-9xl group-hover:scale-110 transition-transform duration-500">{challenge.thumbnail}</div>
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-500"></div>
                     
@@ -277,8 +269,8 @@ export default function TikTokLanding() {
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Flame className="w-5 h-5 text-orange-400" />
-                        <span className="text-orange-400 font-bold text-lg">{challenge.aura}</span>
+                        <Flame className="w-5 h-5 text-pink-400" />
+                        <span className="text-pink-400 font-bold text-lg">{challenge.aura}</span>
                         <span className="text-gray-400 text-sm">Aura</span>
                       </div>
                       <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full px-4 py-2 text-sm font-bold">
@@ -295,7 +287,7 @@ export default function TikTokLanding() {
 
       {/* Creator Spotlight Carousel - Ultra Premium */}
       <section className="py-32 px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/10 via-black to-orange-900/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-black to-pink-900/5"></div>
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight">
@@ -308,33 +300,33 @@ export default function TikTokLanding() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {topCreators.map((creator, index) => (
-              <Card key={index} className="group relative bg-black/80 border-2 border-gray-800 hover:border-yellow-500/60 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Card key={index} className="group relative bg-black/80 border-2 border-gray-800 hover:border-purple-500/60 transition-all duration-500 hover:scale-105 overflow-hidden backdrop-blur-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <CardContent className="relative p-10 text-center">
                   {/* Rank indicator */}
-                  <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center font-black text-black text-lg">
+                  <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-black text-white text-lg">
                     #{index + 1}
                   </div>
                   
                   {/* Avatar with glow effect */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"></div>
                     <div className="relative text-8xl group-hover:scale-110 transition-transform duration-500">{creator.avatar}</div>
                   </div>
                   
                   <h3 className="text-3xl font-black text-white mb-3">{creator.name}</h3>
                   
-                  <Badge className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border border-yellow-500/30 px-4 py-2 text-sm font-bold mb-6">
+                  <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 px-4 py-2 text-sm font-bold mb-6">
                     {creator.badge}
                   </Badge>
                   
                   <div className="flex items-center justify-center space-x-3 mb-8 p-4 bg-black/40 rounded-2xl border border-white/10">
-                    <Flame className="w-6 h-6 text-orange-400" />
-                    <span className="text-3xl font-black text-orange-400">{creator.aura.toLocaleString()}</span>
+                    <Flame className="w-6 h-6 text-pink-400" />
+                    <span className="text-3xl font-black text-pink-400">{creator.aura.toLocaleString()}</span>
                     <span className="text-gray-400 text-lg">Aura</span>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-4 rounded-2xl text-lg transition-all duration-300 hover:scale-105 shadow-lg shadow-yellow-500/25">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 rounded-2xl text-lg transition-all duration-300 hover:scale-105 shadow-lg shadow-purple-500/25">
                     View Profile
                   </Button>
                 </CardContent>
