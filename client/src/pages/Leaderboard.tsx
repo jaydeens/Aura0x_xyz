@@ -348,7 +348,7 @@ export default function Leaderboard() {
                                 {index === 0 && ' 👑'}
                               </h3>
                               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-xs sm:text-sm text-gray-400">
-                                <span className="whitespace-nowrap">{user.auraPoints?.toLocaleString() || 0} Aura</span>
+                                <span className="whitespace-nowrap">{user.auraPoints?.toLocaleString() || 0} AP</span>
                                 {user.currentStreak > 0 && (
                                   <div className="flex items-center">
                                     <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 mr-1" />
