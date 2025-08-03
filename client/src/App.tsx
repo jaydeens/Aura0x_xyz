@@ -8,7 +8,6 @@ import BetaIndicator from "@/components/BetaIndicator";
 import Landing from "@/pages/Landing";
 import LandingTest from "@/pages/LandingTest";
 import SimpleTest from "@/pages/SimpleTest";
-import EmergencyLanding from "@/pages/EmergencyLanding";
 import Dashboard from "@/pages/Dashboard";
 import Battles from "@/pages/Battles";
 import LiveBattle from "@/pages/LiveBattle";
@@ -66,7 +65,7 @@ function Router() {
     console.log("🏠 Showing Landing page - user not authenticated");
     return (
       <Switch>
-        <Route path="*" component={EmergencyLanding} />
+        <Route path="*" component={SimpleTest} />
       </Switch>
     );
   }

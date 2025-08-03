@@ -54,20 +54,12 @@ app.use((req, res, next) => {
     log("Failed to initialize Steeze event monitoring:", String(error));
   }
 
-  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(`Error handling request ${req.method} ${req.path}:`, err);
-    
-    // Don't send response if already sent
-    if (res.headersSent) {
-      return next(err);
-    }
-    
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    // Don't throw - just log and let Express handle it
-    console.error(`Request failed with status ${status}: ${message}`);
+    throw err;
   });
 
   // importantly only setup vite in development and after
@@ -220,15 +212,6 @@ app.use((req, res, next) => {
         res.setHeader('X-Content-Type-Options', 'nosniff');
       }
     }));
-    
-    // Add debug routes for testing
-    app.get('/debug', (req, res) => {
-      res.sendFile(path.resolve(process.cwd(), 'debug-simple.html'));
-    });
-    
-    app.get('/minimal-test', (req, res) => {
-      res.sendFile(path.resolve(process.cwd(), 'minimal-test.html'));
-    });
 
     // SPA fallback - MUST be last route
     app.use("*", (req, res) => {

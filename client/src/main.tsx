@@ -48,16 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add error boundary and console logging for debugging deployment issues
-console.log("🚀 Aura app starting - DEBUG MODE...");
+console.log("🚀 Aura app starting - EMERGENCY FIX...");
 
 // Suppress wallet extension errors that interfere with app loading
 suppressWalletErrors();
-
-// Add comprehensive error tracking
-console.log("🔍 Environment check:");
-console.log("- URL:", window.location.href);
-console.log("- User Agent:", navigator.userAgent);
-console.log("- Document ready state:", document.readyState);
 
 // Global error handler for unhandled rejections
 window.addEventListener('unhandledrejection', (event) => {
