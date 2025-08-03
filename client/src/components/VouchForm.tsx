@@ -140,7 +140,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     try {
       await vouchMutation.mutateAsync({
         vouchedUserId: selectedUserId,
-        ethAmount: selectedAmount,
+        usdcAmount: selectedAmount,
         transactionHash
       });
     } finally {

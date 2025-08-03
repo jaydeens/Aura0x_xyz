@@ -1778,7 +1778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouch = await storage.createVouch({
         fromUserId: userId,
         toUserId: vouchedUser.id,
-        usdtAmount: verification.ethAmount!.toString(),
+        usdtAmount: verification.usdcAmount!.toString(),
         auraPoints: verification.auraPoints!,
         multiplier: "1.0",
         transactionHash,
@@ -1787,15 +1787,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to recipient
       await storage.updateUserAura(vouchedUser.id, verification.auraPoints!, 'vouching');
       
-      // Track ETH earnings (60% goes to vouched user as per contract)
-      const ethEarnings = verification.ethAmount! * 0.6;
-      await storage.updateUserUsdtEarnings(vouchedUser.id, ethEarnings);
+      // Track USDC earnings (70% goes to vouched user as per contract)
+      const usdcEarnings = verification.usdcAmount! * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUser.id, usdcEarnings);
       
       res.json({
         success: true,
         vouch,
         auraAwarded: verification.auraPoints,
-        ethAmount: verification.ethAmount,
+        usdcAmount: verification.usdcAmount,
         vouchedUser: vouchedUser.walletAddress
       });
     } catch (error: any) {
@@ -1804,10 +1804,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new vouch with ETH payment
+  // Create a new vouch with USDC payment
   app.post('/api/vouch/create', isAuthenticated, async (req: any, res) => {
     try {
-      const { vouchedUserId, ethAmount, transactionHash } = req.body;
+      const { vouchedUserId, usdcAmount, transactionHash } = req.body;
       const voucherId = req.session?.user?.id || req.user?.claims?.sub;
 
       if (!voucherId) {
@@ -1817,7 +1817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate USDC amount (1-100 USDC range)
       const minAmount = 1;
       const maxAmount = 100;
-      if (ethAmount < minAmount || ethAmount > maxAmount) {
+      if (usdcAmount < minAmount || usdcAmount > maxAmount) {
         return res.status(400).json({ 
           message: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC` 
         });
@@ -1843,7 +1843,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ) || auraLevels[0]; // Default to first level if none found
 
       // Calculate aura points: 1 USDC = 10 APs, with level multiplier
-      const baseAuraPoints = ethAmount * 10; // 10 APs per USDC
+      const baseAuraPoints = usdcAmount * 10; // 10 APs per USDC
       const finalAuraPoints = Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
 
       // Create vouch record
@@ -1860,7 +1860,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
 
       // Update USDC earnings (70% of vouched amount goes to the user)
-      const usdcEarnings = ethAmount * 0.7;
+      const usdcEarnings = usdcAmount * 0.7;
       await storage.updateUserUsdtEarnings(vouchedUserId, usdcEarnings);
 
       // Create notification for vouched user
@@ -1870,7 +1870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${ethAmount} USDC and awarded ${finalAuraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${usdcAmount} USDC and awarded ${finalAuraPoints} aura points!`,
         isRead: false
       });
 

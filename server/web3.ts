@@ -471,7 +471,7 @@ export class Web3Service {
     isValid: boolean;
     voucher?: string;
     vouchedUser?: string;
-    ethAmount?: number;
+    usdcAmount?: number;
     auraPoints?: number;
     vouchId?: number;
     blockNumber?: number;
@@ -497,7 +497,7 @@ export class Web3Service {
                 isValid: true,
                 voucher: parsedLog.args.voucher,
                 vouchedUser: parsedLog.args.vouchedUser,
-                ethAmount: parseFloat(ethers.formatEther(parsedLog.args.amount)),
+                usdcAmount: parseFloat(ethers.formatUnits(parsedLog.args.amount, 6)), // USDC has 6 decimals
                 auraPoints: parseInt(parsedLog.args.auraPoints.toString()),
                 vouchId: parseInt(parsedLog.args.vouchId.toString()),
                 blockNumber: receipt.blockNumber
@@ -744,9 +744,9 @@ export class Web3Service {
   }
 
   /**
-   * Vouch for a user with ETH payment and aura points
+   * Vouch for a user with USDC payment and aura points
    */
-  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, ethAmount: number, auraPoints: number): Promise<{
+  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, usdcAmount: number, auraPoints: number): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;
@@ -757,7 +757,7 @@ export class Web3Service {
       // Validate USDC amount (1-100 USDC range)
       const minAmount = 1;
       const maxAmount = 100;
-      if (ethAmount < minAmount || ethAmount > maxAmount) {
+      if (usdcAmount < minAmount || usdcAmount > maxAmount) {
         return {
           success: false,
           error: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC`
@@ -805,7 +805,7 @@ export class Web3Service {
   }
 
   /**
-   * Get claimable ETH amount for a user
+   * Get claimable USDC amount for a user
    */
   async getClaimableAmount(userAddress: string): Promise<number> {
     try {
@@ -829,9 +829,9 @@ export class Web3Service {
   }
 
   /**
-   * Claim accumulated ETH from vouches
+   * Claim accumulated USDC from vouches
    */
-  async claimEth(userAddress: string): Promise<{
+  async claimUsdc(userAddress: string): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;
@@ -847,10 +847,10 @@ export class Web3Service {
       // For now, return mock success
       return {
         success: false,
-        error: "No ETH available to claim"
+        error: "No USDC available to claim"
       };
     } catch (error) {
-      console.error("Error claiming ETH:", error);
+      console.error("Error claiming USDC:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Claim failed"

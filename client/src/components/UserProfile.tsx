@@ -204,7 +204,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Record vouch in backend
       await vouchMutation.mutateAsync({
         vouchedUserId: userId,
-        ethAmount: parseFloat(vouchAmount),
+        usdcAmount: parseFloat(vouchAmount),
         transactionHash: receipt.transactionHash
       });
 
