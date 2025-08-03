@@ -14,10 +14,6 @@ This document outlines the comprehensive security measures implemented for off-c
 - Users never directly interact with the Steeze smart contract
 
 **Environment Configuration**
-```
-PLATFORM_WALLET_ADDRESS=<backend_wallet_address>
-PLATFORM_PRIVATE_KEY=<secure_private_key>
-```
 
 ### 2. Access Control
 
