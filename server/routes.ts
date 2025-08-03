@@ -220,6 +220,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Seed aura levels on startup
   await storage.seedAuraLevels();
 
+  // User search endpoint (must come before /api/users/:userId to avoid route conflicts)
+  app.get('/api/users/search', async (req: any, res) => {
+    try {
+      const query = req.query.q as string;
+      
+      if (!query || query.trim().length < 2) {
+        return res.json([]);
+      }
+
+      // Get current user ID from either wallet session or OAuth
+      let currentUserId: string | null = null;
+      if (req.session?.user?.id) {
+        currentUserId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        currentUserId = req.user.claims.sub;
+      }
+
+      const users = await storage.searchUsers(query.trim(), currentUserId || undefined);
+      res.json(users);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      res.status(500).json({ message: "Failed to search users" });
+    }
+  });
+
   // Get user by ID endpoint
   app.get('/api/users/:userId', async (req, res) => {
     try {
@@ -540,30 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User search endpoint  
-  app.get('/api/users/search', async (req: any, res) => {
-    try {
-      const query = req.query.q as string;
-      
-      if (!query || query.trim().length < 2) {
-        return res.json([]);
-      }
 
-      // Get current user ID from either wallet session or OAuth
-      let currentUserId: string | null = null;
-      if (req.session?.user?.id) {
-        currentUserId = req.session.user.id;
-      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
-        currentUserId = req.user.claims.sub;
-      }
-
-      const users = await storage.searchUsers(query.trim(), currentUserId || undefined);
-      res.json(users);
-    } catch (error) {
-      console.error("Error searching users:", error);
-      res.status(500).json({ message: "Failed to search users" });
-    }
-  });
 
   // Battle management routes
   app.post('/api/battles/:id/accept', async (req: any, res) => {
