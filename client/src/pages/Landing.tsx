@@ -147,15 +147,7 @@ export default function Landing() {
                 <Trophy className="w-5 h-5 sm:w-7 sm:h-7 mr-2 sm:mr-3" />
                 GET AURA NOW
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleWatchDemo}
-                size="lg"
-                className="w-full sm:w-auto border-3 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-black text-lg sm:text-xl px-6 sm:px-10 py-4 sm:py-6 rounded-2xl backdrop-blur-sm"
-              >
-                <Play className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                SEE THE HYPE
-              </Button>
+              
             </div>
 
             {/* Viral stats */}
