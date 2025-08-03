@@ -91,7 +91,7 @@ export default function Landing() {
                 🔥 TRENDING
               </Badge>
               <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-3 sm:px-6 py-2 text-sm sm:text-base rounded-full shadow-xl shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 transition-all duration-300">
-                GET AURA
+                LOGIN
               </Button>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function Landing() {
                 className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-2xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 animate-pulse"
               >
                 <Trophy className="w-5 h-5 sm:w-7 sm:h-7 mr-2 sm:mr-3" />
-                GET AURA NOW
+                LOGIN
               </Button>
               
             </div>
