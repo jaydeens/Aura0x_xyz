@@ -74,6 +74,8 @@ app.use((req, res, next) => {
                       process.env.FORCE_PRODUCTION === "true";
   
   console.log("Is Production Mode:", isProduction);
+  console.log("Current working directory:", process.cwd());
+  console.log("__dirname equivalent:", import.meta.dirname);
   
   if (!isProduction && app.get("env") === "development") {
     console.log("Setting up development mode with Vite...");
