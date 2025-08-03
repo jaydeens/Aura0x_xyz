@@ -41,9 +41,11 @@ export const BASE_MAINNET = {
 
 
 
-// Vouching Contract Configuration - Always use Base Mainnet
+// Vouching Contract Configuration
 export const VOUCHING_CONTRACT = {
-  address: "0x8e6e64396717F69271c7994f90AFeC621C237315", // Base Mainnet for all environments
+  address: process.env.NODE_ENV === 'production' 
+    ? (process.env.VOUCHING_CONTRACT_ADDRESS_MAINNET || "0x8e6e64396717F69271c7994f90AFeC621C237315")
+    : (process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000"), // Environment-based contract addresses
   abi: [
     {
       "inputs": [],
@@ -153,10 +155,6 @@ export const STEEZE_CONTRACT = {
   address: process.env.NODE_ENV === 'production' 
     ? (process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3")
     : (process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962"), // Environment-based contract addresses
-  
-  // Platform wallet for backend-controlled transactions
-  platformWallet: process.env.PLATFORM_WALLET_ADDRESS || "",
-  platformPrivateKey: process.env.PLATFORM_PRIVATE_KEY || "",
   abi: [
     {
       "inputs": [{"internalType": "uint256", "name": "_buyPrice", "type": "uint256"}, {"internalType": "uint256", "name": "_sellPrice", "type": "uint256"}],
@@ -320,27 +318,11 @@ export interface VouchTransaction {
 export class Web3Service {
   private polygonProvider: ethers.JsonRpcProvider;
   private baseProvider: ethers.JsonRpcProvider;
-  private platformSigner: ethers.Wallet | null = null;
 
   constructor() {
     // Initialize providers as null to avoid connection errors on startup
     this.polygonProvider = null as any;
     this.baseProvider = null as any;
-    this.initializePlatformSigner();
-  }
-  
-  /**
-   * Initialize platform signer for backend-controlled transactions
-   */
-  private initializePlatformSigner() {
-    if (STEEZE_CONTRACT.platformPrivateKey && this.baseProvider) {
-      try {
-        this.platformSigner = new ethers.Wallet(STEEZE_CONTRACT.platformPrivateKey, this.baseProvider);
-        console.log("Platform signer initialized for address:", this.platformSigner.address);
-      } catch (error) {
-        console.error("Failed to initialize platform signer:", error);
-      }
-    }
   }
 
   private initPolygonProvider() {
@@ -353,8 +335,6 @@ export class Web3Service {
   private initBaseProvider() {
     if (!this.baseProvider) {
       this.baseProvider = new ethers.JsonRpcProvider(CURRENT_NETWORK.rpcUrl);
-      // Initialize platform signer when provider is ready
-      this.initializePlatformSigner();
     }
     return this.baseProvider;
   }
@@ -738,240 +718,6 @@ export class Web3Service {
     } catch (error) {
       console.error("Error verifying Steeze transaction:", error);
       return { isValid: false };
-    }
-  }
-
-  /**
-   * Backend-controlled Steeze purchase (secure implementation)
-   */
-  async purchaseSteezeForUser(userAddress: string, usdcAmount: number): Promise<{
-    success: boolean;
-    transactionHash?: string;
-    steezeAmount?: number;
-    error?: string;
-  }> {
-    try {
-      // Input validation
-      if (!this.isValidAddress(userAddress)) {
-        return { success: false, error: "Invalid user address" };
-      }
-      
-      if (usdcAmount <= 0 || usdcAmount > 1000) {
-        return { success: false, error: "Invalid USDC amount (must be 0-1000)" };
-      }
-      
-      // Check if platform signer is available
-      if (!this.platformSigner) {
-        return { success: false, error: "Platform signer not configured" };
-      }
-      
-      // Check if Steeze contract is deployed
-      if (STEEZE_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
-        return { success: false, error: "Steeze contract not deployed" };
-      }
-      
-      const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(
-        STEEZE_CONTRACT.address,
-        STEEZE_CONTRACT.abi,
-        this.platformSigner
-      );
-      
-      // Calculate Steeze amount based on current rate
-      const rate = await this.getSteezeRate();
-      const steezeAmount = Math.floor(usdcAmount * rate);
-      
-      // Execute transaction (this would be the actual contract call)
-      // For now, simulate the transaction for security
-      const mockTxHash = `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
-      
-      console.log(`[Backend] Simulated Steeze purchase: ${usdcAmount} USDC -> ${steezeAmount} STEEZE for ${userAddress}`);
-      
-      return {
-        success: true,
-        transactionHash: mockTxHash,
-        steezeAmount: steezeAmount
-      };
-    } catch (error) {
-      console.error("Error in backend Steeze purchase:", error);
-      return { success: false, error: "Transaction failed" };
-    }
-  }
-  
-  /**
-   * Backend-controlled Steeze redemption (secure implementation)
-   */
-  async redeemSteezeForUser(userAddress: string, steezeAmount: number): Promise<{
-    success: boolean;
-    transactionHash?: string;
-    usdcAmount?: number;
-    error?: string;
-  }> {
-    try {
-      // Input validation
-      if (!this.isValidAddress(userAddress)) {
-        return { success: false, error: "Invalid user address" };
-      }
-      
-      if (steezeAmount <= 0) {
-        return { success: false, error: "Invalid Steeze amount" };
-      }
-      
-      // Check if platform signer is available
-      if (!this.platformSigner) {
-        return { success: false, error: "Platform signer not configured" };
-      }
-      
-      // Check if Steeze contract is deployed
-      if (STEEZE_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
-        return { success: false, error: "Steeze contract not deployed" };
-      }
-      
-      const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(
-        STEEZE_CONTRACT.address,
-        STEEZE_CONTRACT.abi,
-        this.platformSigner
-      );
-      
-      // Calculate USDC amount based on redemption rate (0.07 USDC per STEEZE)
-      const redemptionRate = 0.07;
-      const usdcAmount = steezeAmount * redemptionRate;
-      
-      // Execute transaction (this would be the actual contract call)
-      // For now, simulate the transaction for security
-      const mockTxHash = `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
-      
-      console.log(`[Backend] Simulated Steeze redemption: ${steezeAmount} STEEZE -> ${usdcAmount} USDC for ${userAddress}`);
-      
-      return {
-        success: true,
-        transactionHash: mockTxHash,
-        usdcAmount: usdcAmount
-      };
-    } catch (error) {
-      console.error("Error in backend Steeze redemption:", error);
-      return { success: false, error: "Transaction failed" };
-    }
-  }
-  
-  /**
-   * Validate user balance before transaction
-   */
-  async validateUserBalance(userAddress: string, requiredAmount: number, type: 'usdc' | 'steeze'): Promise<boolean> {
-    try {
-      if (type === 'usdc') {
-        const balance = await this.getUSDCBalance(userAddress);
-        return balance >= requiredAmount;
-      } else {
-        // For Steeze, check database balance since it's off-chain
-        // This would integrate with your database service
-        return true; // Simplified for now
-      }
-    } catch (error) {
-      console.error("Error validating user balance:", error);
-      return false;
-    }
-  }
-  
-  /**
-   * Monitor Steeze contract events for security (polling-based for stability)
-   */
-  async monitorSteezeEvents(): Promise<void> {
-    try {
-      console.log("[Event Monitor] Starting secure polling-based event monitoring");
-      
-      // Use polling instead of filters to avoid RPC connection issues
-      setInterval(async () => {
-        try {
-          await this.pollForSteezeEvents();
-        } catch (error) {
-          console.error("[Event Monitor] Polling error:", error);
-        }
-      }, 30000); // Poll every 30 seconds
-      
-      console.log("[Event Monitor] Steeze event monitoring started (polling mode)");
-    } catch (error) {
-      console.error("Error setting up Steeze event monitoring:", error);
-    }
-  }
-  
-  /**
-   * Poll for recent Steeze events using getLogs
-   */
-  private async pollForSteezeEvents(): Promise<void> {
-    try {
-      const provider = this.initBaseProvider();
-      const currentBlock = await provider.getBlockNumber();
-      const fromBlock = Math.max(currentBlock - 100, 0); // Check last 100 blocks
-      
-      const steezeEventFilter = {
-        address: STEEZE_CONTRACT.address,
-        topics: [ethers.id("SteezeBought(address,uint256,uint256)")],
-        fromBlock,
-        toBlock: currentBlock
-      };
-      
-      const logs = await provider.getLogs(steezeEventFilter);
-      
-      for (const log of logs) {
-        try {
-          const eventInterface = new ethers.Interface(STEEZE_CONTRACT.abi);
-          const parsedLog = eventInterface.parseLog(log);
-          
-          if (parsedLog && parsedLog.name === 'SteezeBought') {
-            const user = parsedLog.args[0];
-            const usdcAmount = parseFloat(ethers.formatUnits(parsedLog.args[1], 6));
-            const steezeAmount = parseFloat(ethers.formatUnits(parsedLog.args[2], 6));
-            
-            console.log(`[Event Monitor] SteezeBought detected: ${user}, USDC: ${usdcAmount}, STEEZE: ${steezeAmount}`);
-            await this.logSteezeEvent('purchase', user, usdcAmount, steezeAmount, log.transactionHash || '');
-          }
-        } catch (parseError) {
-          console.error("[Event Monitor] Failed to parse log:", parseError);
-        }
-      }
-    } catch (error) {
-      console.error("[Event Monitor] Error polling for events:", error);
-    }
-  }
-  
-  /**
-   * Log Steeze events to database for security tracking
-   */
-  private async logSteezeEvent(type: 'purchase' | 'redeem', userAddress: string, usdcAmount: number, steezeAmount: number, txHash: string): Promise<void> {
-    try {
-      const { db } = await import("./db");
-      
-      await db.execute(`
-        INSERT INTO steeze_security_logs (event_type, user_address, usdc_amount, steeze_amount, transaction_hash)
-        VALUES ($1, $2, $3, $4, $5)
-      `, [type, userAddress.toLowerCase(), usdcAmount, steezeAmount, txHash]);
-      
-      console.log(`[Security Log] ${type}: ${userAddress}, USDC: ${usdcAmount}, STEEZE: ${steezeAmount}, TX: ${txHash}`);
-    } catch (error) {
-      console.error("Error logging Steeze event:", error);
-    }
-  }
-  
-  /**
-   * Validate transaction signatures for additional security
-   */
-  async validateTransactionSignature(txHash: string, expectedSigner: string): Promise<boolean> {
-    try {
-      const provider = this.initBaseProvider();
-      const transaction = await provider.getTransaction(txHash);
-      
-      if (!transaction) {
-        return false;
-      }
-      
-      // Verify the transaction was signed by the expected address
-      const recoveredAddress = transaction.from;
-      return recoveredAddress?.toLowerCase() === expectedSigner.toLowerCase();
-    } catch (error) {
-      console.error("Error validating transaction signature:", error);
-      return false;
     }
   }
 
