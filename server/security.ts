@@ -342,12 +342,17 @@ export const corsOptions = {
       'http://localhost:3000',
       'http://localhost:5000',
       'https://aura.replit.app',
-      // Add production domains here
+      // Add all Replit deployment domains dynamically
+      ...(process.env.REPLIT_DOMAINS?.split(',').map(domain => `https://${domain.trim()}`) || []),
     ];
+    
+    // Debug logging for CORS in production
+    console.log('CORS check:', { origin, allowedOrigins, nodeEnv: process.env.NODE_ENV });
     
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('CORS BLOCKED:', origin, 'not in', allowedOrigins);
       logSecurityEvent('BLOCKED_CORS_ORIGIN', 'MEDIUM', null, 'unknown', 'unknown', '/cors', { origin });
       callback(new Error('Not allowed by CORS'), false);
     }
