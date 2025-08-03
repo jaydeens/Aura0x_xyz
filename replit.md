@@ -113,6 +113,7 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. APP STARTUP FIX: Fixed app startup failure caused by missing image assets in Navigation component. Replaced missing logo imports with text-based logo using gradient styling and Zap icon. App now starts successfully on port 5000.
 - August 3, 2025. CRITICAL FIX: Resolved Steeze purchase transaction processing failure. Fixed event monitoring system that was missing successful on-chain transactions. Manually processed transaction 0xeb02c42b0829a816c204615399eae0264b75d24fec6579ebc6017e198f6531fe and credited user's 10 STEEZE tokens. Fixed deployment white screen issue by updating CORS configuration to include all Replit deployment domains from environment variables.
 - August 3, 2025. MAJOR UPDATE: Implemented multiple vouching system with proper state tracking. Added API endpoint to track total vouch amounts per user pair (100 USDC max). Fixed vouching UI to show remaining amounts and "Vouch More" functionality. Resolved vouching state persistence issues after page refresh.
 - August 3, 2025. UX FIX: Fixed network switching flash on Steeze page by optimizing wallet connection initialization. Eliminated brief "Base Sepolia" message during page load through improved state management.

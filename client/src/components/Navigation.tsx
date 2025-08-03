@@ -15,8 +15,6 @@ import {
 import { Link, useLocation } from "wouter";
 import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings, Book } from "lucide-react";
 import { useState } from "react";
-import auraLogo from "@assets/AURA PNG (1)_1749403291114.png";
-import auraTextLogo from "@assets/FULL AURA (1)_1749403707745.png";
 
 export default function Navigation() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -78,18 +76,14 @@ export default function Navigation() {
             <div className="flex items-center cursor-pointer space-x-3 group">
               <div className="relative">
                 <div className="absolute -inset-2 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <img 
-                  src={auraLogo} 
-                  alt="AURA Logo" 
-                  className="relative w-10 h-10 rounded-xl shadow-2xl brightness-110 saturate-110 group-hover:scale-110 transition-transform"
-                />
+                <div className="relative w-10 h-10 rounded-xl shadow-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
               </div>
-              <img 
-                src={auraTextLogo} 
-                alt="AURA" 
-                className="h-6 w-auto drop-shadow-lg brightness-110 saturate-110 group-hover:scale-105 transition-transform"
-              />
+              <div className="text-2xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg group-hover:scale-105 transition-transform">
+                AURA
+              </div>
             </div>
           </Link>
 
