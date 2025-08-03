@@ -2,8 +2,8 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Add error boundary and console logging for debugging deployment issues
-console.log("🚀 Aura app starting...");
+// Add error boundary and console logging for debugging deployment issues - FORCE REBUILD
+console.log("🚀 Aura app starting - DEPLOYMENT FIX...");
 
 // Global error handler for unhandled rejections
 window.addEventListener('unhandledrejection', (event) => {
