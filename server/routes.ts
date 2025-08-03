@@ -1843,6 +1843,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const usdcEarnings = verification.usdcAmount! * 0.7;
       await storage.updateUserUsdtEarnings(vouchedUser.id, usdcEarnings);
       
+      // Create notification for vouched user
+      const voucherName = user.username || user.walletAddress?.slice(0, 6) + '...' + user.walletAddress?.slice(-4) || 'Someone';
+      await storage.createNotification({
+        id: `vouch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        userId: vouchedUser.id,
+        type: 'vouch_received',
+        title: 'You received a vouch!',
+        message: `${voucherName} vouched for you with ${verification.usdcAmount} USDC and awarded ${verification.auraPoints} aura points!`,
+        isRead: false
+      });
+      
       res.json({
         success: true,
         vouch,

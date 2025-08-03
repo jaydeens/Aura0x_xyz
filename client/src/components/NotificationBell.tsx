@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, X, Swords, Trophy, AlertCircle } from "lucide-react";
+import { Bell, X, Swords, Trophy, AlertCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -53,6 +53,8 @@ export default function NotificationBell() {
         return <Trophy className="w-4 h-4 text-green-500" />;
       case "battle_rejected":
         return <AlertCircle className="w-4 h-4 text-red-500" />;
+      case "vouch_received":
+        return <Heart className="w-4 h-4 text-pink-500" />;
       default:
         return <Bell className="w-4 h-4 text-blue-500" />;
     }
