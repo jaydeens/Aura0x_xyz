@@ -5,6 +5,17 @@ import "./index.css";
 // Add error boundary and console logging for debugging deployment issues
 console.log("🚀 Aura app starting...");
 
+// Global error handler for unhandled rejections
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('❌ Unhandled promise rejection:', event.reason);
+  event.preventDefault(); // Prevent the white screen
+});
+
+// Global error handler
+window.addEventListener('error', (event) => {
+  console.error('❌ Global error:', event.error);
+});
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   console.error("❌ Root element not found!");

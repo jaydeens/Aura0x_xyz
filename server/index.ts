@@ -50,7 +50,7 @@ app.use((req, res, next) => {
     web3Service.monitorSteezeEvents();
     log("Steeze event monitoring initialized");
   } catch (error) {
-    log("Failed to initialize Steeze event monitoring:", error);
+    log("Failed to initialize Steeze event monitoring:", String(error));
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
