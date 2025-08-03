@@ -528,7 +528,7 @@ export default function SteezeStack() {
                 <h1 className="text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
                   STEEZE RECHARGE
                 </h1>
-                <p className="text-white/60 text-lg">Buy and redeem Steeze tokens with ETH</p>
+                <p className="text-white/60 text-lg">Buy and redeem Steeze tokens with USDC</p>
               </div>
             </div>
           </div>
