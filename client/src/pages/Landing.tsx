@@ -123,7 +123,7 @@ export default function Landing() {
             </div>
             
             {/* Mobile-Optimized Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl xl:text-9xl font-black leading-none mb-4 sm:mb-6">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-8xl xl:text-9xl font-black leading-none mb-4 sm:mb-6">
               <span className="block text-white">BUILD YOUR</span>
               <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
                 AURA
@@ -132,43 +132,43 @@ export default function Landing() {
             </h1>
             
             {/* Mobile-Optimized Description */}
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-medium px-4">
+            <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-6 xs:mb-8 sm:mb-12 max-w-2xl mx-auto font-medium px-2 xs:px-4 leading-relaxed">
               The app that's breaking the internet 🔥 Complete challenges, flex your wins, 
               and build legendary status that everyone talks about
             </p>
 
             {/* Mobile-Optimized Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16 px-4">
+            <div className="flex flex-col sm:flex-row gap-3 xs:gap-4 sm:gap-6 justify-center items-center mb-8 xs:mb-12 sm:mb-16 px-2 xs:px-4">
               <Button 
                 onClick={handleLogin}
                 size="lg"
-                className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-2xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 animate-pulse"
+                className="w-full max-w-xs sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-base xs:text-lg sm:text-xl px-6 xs:px-8 sm:px-12 py-3 xs:py-4 sm:py-6 rounded-xl xs:rounded-2xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 animate-pulse"
               >
-                <Trophy className="w-5 h-5 sm:w-7 sm:h-7 mr-2 sm:mr-3" />
+                <Trophy className="w-4 h-4 xs:w-5 xs:h-5 sm:w-7 sm:h-7 mr-1 xs:mr-2 sm:mr-3" />
                 LOGIN
               </Button>
               
             </div>
 
             {/* Viral stats */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
+            <div className="grid grid-cols-3 gap-2 xs:gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto px-2">
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-1 sm:mb-2">
+                <div className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {(stats as any)?.totalUsers || 0}
                 </div>
-                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LEGENDS</div>
+                <div className="text-xs xs:text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LEGENDS</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-1 sm:mb-2">
+                <div className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   AURA
                 </div>
-                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">STATUS</div>
+                <div className="text-xs xs:text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">STATUS</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1 sm:mb-2">
+                <div className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {(stats as any)?.activeBattles || 0}
                 </div>
-                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LIVE NOW</div>
+                <div className="text-xs xs:text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LIVE NOW</div>
               </div>
             </div>
           </div>

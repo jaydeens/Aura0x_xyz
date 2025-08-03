@@ -591,19 +591,19 @@ export default function SteezeStack() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
       <Navigation />
-      <div className="pt-20 pb-8 px-4">
-        <div className="max-w-6xl mx-auto space-y-8">
+      <div className="pt-16 xs:pt-20 pb-6 xs:pb-8 px-3 xs:px-4">
+        <div className="max-w-6xl mx-auto space-y-6 xs:space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl flex items-center justify-center">
-                <Coins className="w-8 h-8 text-white" />
+          <div className="text-center space-y-3 xs:space-y-4">
+            <div className="flex flex-col xs:flex-row items-center justify-center gap-2 xs:gap-3">
+              <div className="w-12 h-12 xs:w-16 xs:h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl xs:rounded-3xl flex items-center justify-center">
+                <Coins className="w-6 h-6 xs:w-8 xs:h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
+                <h1 className="text-2xl xs:text-3xl sm:text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
                   STEEZE RECHARGE
                 </h1>
-                <p className="text-white/60 text-lg">Buy and redeem Steeze tokens with USDC</p>
+                <p className="text-white/60 text-sm xs:text-base sm:text-lg">Buy and redeem Steeze tokens with USDC</p>
               </div>
             </div>
           </div>
@@ -674,24 +674,24 @@ export default function SteezeStack() {
           </div>
 
           {/* Buy/Redeem Interface */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs:gap-6 lg:gap-8">
             {/* Buy Section */}
             <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                    <ArrowUpRight className="w-6 h-6 text-white" />
+              <CardHeader className="p-4 xs:p-6">
+                <div className="flex items-center gap-2 xs:gap-3">
+                  <div className="w-10 h-10 xs:w-12 xs:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl xs:rounded-2xl flex items-center justify-center">
+                    <ArrowUpRight className="w-5 h-5 xs:w-6 xs:h-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-white">Buy Steeze</CardTitle>
-                    <CardDescription className="text-white/60">
+                    <CardTitle className="text-white text-lg xs:text-xl">Buy Steeze</CardTitle>
+                    <CardDescription className="text-white/60 text-sm xs:text-base">
                       Purchase Steeze tokens with USDC (requires approval)
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 xs:space-y-6 p-4 xs:p-6">
                 {/* Wallet Connection */}
                 {!isConnected ? (
                   <Button 

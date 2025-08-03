@@ -2,6 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-first responsive design improvements */
+@layer base {
+  /* Improve touch targets for mobile */
+  button {
+    min-height: 44px;
+  }
+  
+  /* Prevent horizontal overflow on small screens */
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  /* Improve text readability on mobile */
+  @media (max-width: 640px) {
+    body {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+  }
+}
+
+@layer utilities {
+  /* Custom mobile breakpoint utilities */
+  .xs\:block {
+    @media (min-width: 475px) {
+      display: block;
+    }
+  }
+  
+  .xs\:hidden {
+    @media (min-width: 475px) {
+      display: none;
+    }
+  }
+  
+  /* Safe area support for mobile devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 body {
   background: linear-gradient(to bottom, #8B5CF6 0%, #000000 100%);
   background-attachment: fixed;

@@ -300,41 +300,41 @@ export default function Leaderboard() {
           </Card>
 
           {/* TikTok-Style Leaderboard */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden border border-gray-700">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6">
-              <h2 className="text-3xl font-black text-white text-center">🏆 Aura Leaderboard 🏆</h2>
-              <p className="text-white/80 text-center mt-2">The most viral creators in our community</p>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl xs:rounded-3xl overflow-hidden border border-gray-700">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-3 xs:p-4 sm:p-6">
+              <h2 className="text-xl xs:text-2xl sm:text-3xl font-black text-white text-center">🏆 Aura Leaderboard 🏆</h2>
+              <p className="text-white/80 text-center mt-1 xs:mt-2 text-sm xs:text-base">The most viral creators in our community</p>
             </div>
             
-            <div className="p-6">
+            <div className="p-3 xs:p-4 sm:p-6">
               {leaderboardLoading ? (
-                <div className="space-y-4">
+                <div className="space-y-3 xs:space-y-4">
                   {[...Array(10)].map((_, i) => (
-                    <div key={i} className="bg-gray-800/50 rounded-2xl p-4 animate-pulse">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+                    <div key={i} className="bg-gray-800/50 rounded-xl xs:rounded-2xl p-3 xs:p-4 animate-pulse">
+                      <div className="flex items-center space-x-3 xs:space-x-4">
+                        <div className="w-10 h-10 xs:w-12 xs:h-12 bg-gray-700 rounded-full"></div>
                         <div className="flex-1">
-                          <div className="h-4 bg-gray-700 rounded w-1/3 mb-2"></div>
-                          <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+                          <div className="h-3 xs:h-4 bg-gray-700 rounded w-1/3 mb-2"></div>
+                          <div className="h-2 xs:h-3 bg-gray-700 rounded w-1/4"></div>
                         </div>
-                        <div className="h-6 bg-gray-700 rounded w-16"></div>
+                        <div className="h-5 xs:h-6 bg-gray-700 rounded w-12 xs:w-16"></div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : leaderboard && leaderboard.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2 xs:space-y-3">
                   {leaderboard.map((user: any, index: number) => (
                     <Link key={user.id} href={`/user/${user.id}`}>
-                      <div className={`rounded-2xl p-4 transition-all duration-300 hover:scale-105 cursor-pointer ${
+                      <div className={`rounded-xl xs:rounded-2xl p-3 xs:p-4 transition-all duration-300 hover:scale-[1.02] xs:hover:scale-105 cursor-pointer ${
                         index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
                         index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30' :
                         index === 2 ? 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30' :
                         'bg-gray-800/50 border border-gray-700/50'
                       }`}>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3 flex-1 min-w-0">
-                            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-black text-sm sm:text-lg flex-shrink-0 ${
+                          <div className="flex items-center space-x-2 xs:space-x-3 flex-1 min-w-0">
+                            <div className={`w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-black text-xs xs:text-sm sm:text-lg flex-shrink-0 ${
                               index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
                               index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' :
                               index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
@@ -343,28 +343,28 @@ export default function Leaderboard() {
                               {index < 3 ? (index === 0 ? '👑' : index === 1 ? '🥈' : '🥉') : `#${index + 1}`}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h3 className="text-white font-bold text-base sm:text-lg truncate">
-                                {user.username?.substring(0, 15) || 'Anonymous Creator'}
+                              <h3 className="text-white font-bold text-sm xs:text-base sm:text-lg truncate">
+                                {user.username?.substring(0, 12) || 'Anonymous Creator'}
                                 {index === 0 && ' 👑'}
                               </h3>
-                              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-xs sm:text-sm text-gray-400">
+                              <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-3 text-xs sm:text-sm text-gray-400">
                                 <span className="whitespace-nowrap">{user.auraPoints?.toLocaleString() || 0} AP</span>
                                 {user.currentStreak > 0 && (
                                   <div className="flex items-center">
-                                    <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 mr-1" />
+                                    <Flame className="w-3 h-3 xs:w-3 xs:h-3 sm:w-4 sm:h-4 text-orange-400 mr-1" />
                                     <span className="text-orange-400 whitespace-nowrap">{user.currentStreak} streak</span>
                                   </div>
                                 )}
                               </div>
                             </div>
                           </div>
-                          <div className="text-right flex-shrink-0 ml-2">
+                          <div className="text-right flex-shrink-0 ml-1 xs:ml-2">
                             {(() => {
                               const auraLevel = getUserAuraLevel(user.currentStreak || 0);
                               return (
-                                <div className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
-                                  <span className="hidden sm:inline">{auraLevel.name.toUpperCase()}</span>
-                                  <span className="sm:hidden">{auraLevel.name.substring(0, 8).toUpperCase()}</span>
+                                <div className={`px-1 py-1 xs:px-2 xs:py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${auraLevel.bg} ${auraLevel.color}`}>
+                                  <span className="hidden lg:inline">{auraLevel.name.toUpperCase()}</span>
+                                  <span className="lg:hidden">{auraLevel.name.substring(0, 6).toUpperCase()}</span>
                                 </div>
                               );
                             })()}
