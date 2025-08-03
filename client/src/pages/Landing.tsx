@@ -63,8 +63,8 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Mobile-Optimized Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-purple-500/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 w-full">
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="relative">
                 <img 
