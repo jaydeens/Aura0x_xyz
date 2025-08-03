@@ -68,15 +68,28 @@ app.use((req, res, next) => {
   console.log("NODE_ENV:", process.env.NODE_ENV);
   console.log("app.get('env'):", app.get("env"));
   
-  // Force production mode when deployed
+  // Enhanced production mode detection for Replit deployments
   const isProduction = process.env.NODE_ENV === "production" || 
                       process.env.REPL_DEPLOYMENT === "1" ||
                       process.env.DEPLOYMENT === "true" ||
-                      process.env.FORCE_PRODUCTION === "true";
+                      process.env.FORCE_PRODUCTION === "true" ||
+                      process.env.REPLIT_DEPLOYMENT === "1" ||
+                      process.env.REPLIT_CLUSTER === "external" ||
+                      process.env.REPL_SLUG !== undefined ||
+                      // Check if we're running from a built dist directory
+                      process.cwd().includes('/dist') ||
+                      fs.existsSync(path.resolve(process.cwd(), 'public', 'index.html'));
   
   console.log("Is Production Mode:", isProduction);
   console.log("Current working directory:", process.cwd());
   console.log("__dirname equivalent:", import.meta.dirname);
+  console.log("Environment variables:", {
+    NODE_ENV: process.env.NODE_ENV,
+    REPL_DEPLOYMENT: process.env.REPL_DEPLOYMENT,
+    REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT,
+    REPLIT_CLUSTER: process.env.REPLIT_CLUSTER,
+    REPL_SLUG: process.env.REPL_SLUG
+  });
   
   if (isProduction) {
     console.log("🚀 Setting up PRODUCTION mode with static files...");
