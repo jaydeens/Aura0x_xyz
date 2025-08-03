@@ -86,11 +86,11 @@ app.use((req, res, next) => {
     
     // Try multiple possible paths for static files
     const possiblePaths = [
+      path.resolve(process.cwd(), "dist", "public"),   // Built static files in dist/public
       path.resolve(process.cwd(), "dist"),             // Standard Vite build output
-      path.resolve(process.cwd(), "dist", "public"),   // Local build
-      path.resolve(process.cwd(), "public"),           // Deployed in dist/
-      path.resolve(import.meta.dirname, "..", "dist"), // Relative to server
+      path.resolve(process.cwd(), "public"),           // Fallback public directory
       path.resolve(import.meta.dirname, "..", "dist", "public"), // Relative to server
+      path.resolve(import.meta.dirname, "..", "dist"), // Relative to server
       path.resolve(import.meta.dirname, "public")      // Server-relative deployed
     ];
     
