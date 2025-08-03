@@ -95,12 +95,20 @@ export default function Landing() {
         </div>
       </nav>
       {/* TikTok-Style Hero */}
-      <section className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 overflow-hidden">
-        {/* TikTok Background Effects */}
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Video Background */}
         <div className="absolute inset-0">
-          <div className="absolute top-32 left-1/4 w-64 h-64 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-32 right-1/4 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/attached_assets/Fun,_vibrant_scene_where_the_following_texts_pop_up__Challenge,_Learn,_Farm_Aura,_Earn._Using_Purple_seed2620036643_1754188951244.mp4" type="video/mp4" />
+          </video>
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black/50"></div>
         </div>
         
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-0">
