@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Navigation from "@/components/Navigation";
-import { CelebrationAnimation, useCelebration } from "@/components/CelebrationAnimation";
+import { useCelebration } from "@/components/CelebrationAnimation";
 import { 
   Coins, 
   TrendingUp, 
@@ -44,12 +44,12 @@ const BASE_MAINNET = {
 export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { celebrationState, triggerSteezeCelebration, closeCelebration } = useCelebration();
+  const { triggerSteezeCelebration } = useCelebration();
   const [usdcAmount, setUsdcAmount] = useState("");
   const [steezeAmount, setSteezeAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
-  const [currentChainId, setCurrentChainId] = useState<number | null>(null);
+  const [currentChainId, setCurrentChainId] = useState<number | null>(BASE_MAINNET.chainId);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [usdcBalance, setUsdcBalance] = useState<number>(0);
@@ -57,6 +57,30 @@ export default function SteezeStack() {
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
   const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
+
+  // Initialize wallet connection state from authenticated user
+  useEffect(() => {
+    if (userWalletAddress && !isConnected) {
+      setWalletAddress(userWalletAddress);
+      setIsConnected(true);
+      
+      // Immediately set Base Mainnet to prevent flash, then verify with MetaMask
+      setCurrentChainId(BASE_MAINNET.chainId);
+      
+      // Check current network asynchronously to update if different
+      if (window.ethereum) {
+        window.ethereum.request({ method: 'eth_chainId' })
+          .then((chainId: string) => {
+            const actualChainId = parseInt(chainId, 16);
+            // Only update if different from our assumption
+            if (actualChainId !== BASE_MAINNET.chainId) {
+              setCurrentChainId(actualChainId);
+            }
+          })
+          .catch(console.error);
+      }
+    }
+  }, [userWalletAddress, isConnected]);
 
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
@@ -76,10 +100,11 @@ export default function SteezeStack() {
     enabled: !!user,
   });
 
-  // Fetch USDC balance when wallet is connected
+  // Fetch USDC balance when wallet is connected - use userWalletAddress if available
+  const effectiveWalletAddress = userWalletAddress || walletAddress;
   const { data: usdcBalanceData, refetch: refetchUsdcBalance, isRefetching } = useQuery({
-    queryKey: [`/api/wallet/usdc-balance/${walletAddress}`],
-    enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
+    queryKey: [`/api/wallet/usdc-balance/${effectiveWalletAddress}`],
+    enabled: !!effectiveWalletAddress && (isConnected || !!userWalletAddress),
     refetchOnWindowFocus: true, // Refetch when window gets focus
     refetchInterval: 30000, // Auto-refresh every 30 seconds
     staleTime: 10000, // Consider data stale after 10 seconds
@@ -377,10 +402,7 @@ export default function SteezeStack() {
   // Confirm purchase mutation
   const confirmPurchaseMutation = useMutation({
     mutationFn: async (txHash: string) => {
-      return apiRequest('/api/steeze/confirm-purchase', {
-        method: 'POST',
-        body: JSON.stringify({ transactionHash: txHash })
-      });
+      return apiRequest('POST', '/api/steeze/confirm-purchase', { transactionHash: txHash });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
@@ -389,7 +411,10 @@ export default function SteezeStack() {
         title: "Purchase Confirmed",
         description: "Steeze tokens added to your balance",
       });
+      
+      // Trigger celebration animation
       triggerSteezeCelebration();
+      
       setIsPurchasing(false);
       setUsdcAmount("");
     },
@@ -518,14 +543,16 @@ export default function SteezeStack() {
   
   // Debug logging (remove in production)
   useEffect(() => {
-    console.log("Wallet State:", { 
-      isConnected, 
-      walletAddress, 
-      currentChainId, 
+    console.log("Wallet State:", {
+      isConnected,
+      walletAddress,
+      userWalletAddress,
+      effectiveWalletAddress: effectiveWalletAddress,
+      currentChainId,
       expectedChainId: BASE_MAINNET.chainId,
-      isOnCorrectNetwork 
+      isOnCorrectNetwork,
     });
-  }, [isConnected, walletAddress, currentChainId]);
+  }, [isConnected, walletAddress, userWalletAddress, effectiveWalletAddress, currentChainId]);
 
   // Initialize wallet connection on page load
   useEffect(() => {
@@ -674,7 +701,7 @@ export default function SteezeStack() {
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
                   </Button>
-                ) : !isOnCorrectNetwork ? (
+                ) : !isOnCorrectNetwork && currentChainId !== null ? (
                   <Button 
                     onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
@@ -803,7 +830,7 @@ export default function SteezeStack() {
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
                   </Button>
-                ) : !isOnCorrectNetwork ? (
+                ) : !isOnCorrectNetwork && currentChainId !== null ? (
                   <Button 
                     onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"

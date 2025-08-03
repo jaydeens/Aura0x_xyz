@@ -2004,11 +2004,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: process.env.NODE_ENV === 'production' 
-          ? "0x8e6e64396717F69271c7994f90AFeC621C237315" // Base Mainnet
-          : "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8", // Base Sepolia
-        chainId: process.env.NODE_ENV === 'production' ? 8453 : 84532,
-        networkName: process.env.NODE_ENV === 'production' ? "Base Mainnet" : "Base Sepolia",
+        contractAddress: "0x8e6e64396717F69271c7994f90AFeC621C237315", // Base Mainnet for all environments
+        chainId: 8453, // Base Mainnet
+        networkName: "Base Mainnet",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
         minAmount: 1,
@@ -2016,36 +2014,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         baseAuraPointsPerUSDC: 10,
         abi: [
           {
-            "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],
+            "inputs": [
+              {"internalType": "address", "name": "vouchedFor", "type": "address"},
+              {"internalType": "uint256", "name": "amount", "type": "uint256"}
+            ],
             "name": "vouch",
             "outputs": [],
-            "stateMutability": "payable",
+            "stateMutability": "nonpayable",
             "type": "function"
           },
           {
             "anonymous": false,
             "inputs": [
-              {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
-              {"indexed": true, "internalType": "address", "name": "creator", "type": "address"},
-              {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}
+              {"indexed": true, "internalType": "address", "name": "voucher", "type": "address"},
+              {"indexed": true, "internalType": "address", "name": "vouchedFor", "type": "address"},
+              {"indexed": false, "internalType": "uint256", "name": "amountUSDC", "type": "uint256"},
+              {"indexed": false, "internalType": "uint256", "name": "auraPointsAwarded", "type": "uint256"}
             ],
             "name": "Vouched",
             "type": "event"
           },
           {
             "inputs": [],
-            "name": "VOUCH_FEE",
+            "name": "USDC",
+            "outputs": [{"internalType": "contract IERC20", "name": "", "type": "address"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [],
+            "name": "feeReceiver",
+            "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [],
+            "name": "AURA_PER_USDC",
             "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
             "stateMutability": "view",
             "type": "function"
           },
           {
-            "inputs": [
-              {"internalType": "address", "name": "", "type": "address"},
-              {"internalType": "address", "name": "", "type": "address"}
-            ],
-            "name": "hasVouched",
-            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+            "inputs": [],
+            "name": "MIN_VOUCH",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [],
+            "name": "MAX_VOUCH",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
             "stateMutability": "view",
             "type": "function"
           }
@@ -2104,6 +2124,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error getting vouch stats:", error);
       res.status(500).json({ message: "Failed to get vouch stats" });
+    }
+  });
+
+  // Get vouch amount from specific user to another user
+  app.get('/api/vouch/amount/:fromUserId/:toUserId', async (req, res) => {
+    try {
+      const { fromUserId, toUserId } = req.params;
+      const vouches = await storage.getUserVouches(fromUserId);
+      
+      // Calculate total amount vouched from fromUserId to toUserId
+      const vouchesToTarget = vouches.filter(v => v.fromUserId === fromUserId && v.toUserId === toUserId);
+      const totalVouchedAmount = vouchesToTarget.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
+      
+      res.json({
+        totalVouchedAmount,
+        remainingAmount: Math.max(0, 100 - totalVouchedAmount), // 100 USDC max
+        canVouchMore: totalVouchedAmount < 100,
+        vouchCount: vouchesToTarget.length
+      });
+    } catch (error: any) {
+      console.error("Error getting vouch amount:", error);
+      res.status(500).json({ message: "Failed to get vouch amount" });
     }
   });
 
