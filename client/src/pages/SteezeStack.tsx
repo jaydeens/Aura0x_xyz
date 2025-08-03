@@ -516,7 +516,6 @@ export default function SteezeStack() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
       <Navigation />
-      
       <div className="pt-20 pb-8 px-4">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
@@ -591,7 +590,7 @@ export default function SteezeStack() {
                     </div>
                     <div>
                       <p className="text-xs text-white/60">Network</p>
-                      <p className="text-sm font-bold text-white">Base Sepolia</p>
+                      <p className="text-sm font-bold text-white">Base Mainnet</p>
                     </div>
                   </div>
                 </CardContent>
