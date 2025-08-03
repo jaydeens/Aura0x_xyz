@@ -677,13 +677,7 @@ export default function SteezeStack() {
                           </Button>
                         </div>
                       </div>
-                      <div className="text-xs text-white/40">
-                        {isRefetching ? (
-                          "Updating balance..."
-                        ) : (
-                          "Auto-refreshes every 30s • Click refresh for instant update"
-                        )}
-                      </div>
+                      
                     </div>
 
                     {/* USDC Input */}
