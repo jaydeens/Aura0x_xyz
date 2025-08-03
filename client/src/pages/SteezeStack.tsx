@@ -22,7 +22,8 @@ import {
   Zap,
   ExternalLink,
   Loader2,
-  Trophy
+  Trophy,
+  RotateCcw
 } from "lucide-react";
 import { ethers } from "ethers";
 
@@ -668,7 +669,7 @@ export default function SteezeStack() {
                             onClick={() => refetchUsdcBalance()}
                             className="text-white/60 hover:text-white p-1 h-auto"
                           >
-                            <ArrowUpRight className="w-3 h-3" />
+                            <RotateCcw className="w-3 h-3" />
                           </Button>
                         </div>
                       </div>
