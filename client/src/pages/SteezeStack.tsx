@@ -75,10 +75,12 @@ export default function SteezeStack() {
   });
 
   // Fetch USDC balance when wallet is connected
-  const { data: usdcBalanceData, refetch: refetchUsdcBalance } = useQuery({
+  const { data: usdcBalanceData, refetch: refetchUsdcBalance, isRefetching } = useQuery({
     queryKey: ["/api/wallet/usdc-balance", walletAddress],
     enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
   });
 
   const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
@@ -657,7 +659,7 @@ export default function SteezeStack() {
                   <div>
                     {/* USDC Balance Display */}
                     <div className="p-4 bg-black/20 rounded-xl border border-purple-500/20">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-white/60">Your USDC Balance</span>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-white">
@@ -667,11 +669,20 @@ export default function SteezeStack() {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => refetchUsdcBalance()}
+                            disabled={isRefetching}
                             className="text-white/60 hover:text-white p-1 h-auto"
+                            title={isRefetching ? "Refreshing..." : "Refresh balance"}
                           >
-                            <RotateCcw className="w-3 h-3" />
+                            <RotateCcw className={`w-3 h-3 ${isRefetching ? 'animate-spin' : ''}`} />
                           </Button>
                         </div>
+                      </div>
+                      <div className="text-xs text-white/40">
+                        {isRefetching ? (
+                          "Updating balance..."
+                        ) : (
+                          "Auto-refreshes every 30s • Click refresh for instant update"
+                        )}
                       </div>
                     </div>
 
