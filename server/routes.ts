@@ -1156,6 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           newStreak = 1;
         }
       }
+      // If no previous lessons, this is their first lesson, so streak starts at 1
       
       // If there's an existing quiz record, update it to completed
       if (existingCompletedLesson && !existingCompletedLesson.completed) {
