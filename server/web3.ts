@@ -363,10 +363,19 @@ export class Web3Service {
 
   async getUSDCBalance(address: string): Promise<string> {
     try {
+      console.log(`Fetching USDC balance for address: ${address}`);
+      console.log(`Using USDC contract: ${USDC_CONTRACT.address}`);
+      console.log(`Using RPC: ${CURRENT_NETWORK.rpcUrl}`);
+      
       const provider = this.initBaseProvider();
       const contract = new ethers.Contract(USDC_CONTRACT.address, USDC_CONTRACT.abi, provider);
       const balance = await contract.balanceOf(address);
-      return ethers.formatUnits(balance, USDC_CONTRACT.decimals);
+      
+      console.log(`Raw balance: ${balance}`);
+      const formattedBalance = ethers.formatUnits(balance, USDC_CONTRACT.decimals);
+      console.log(`Formatted balance: ${formattedBalance} USDC`);
+      
+      return formattedBalance;
     } catch (error) {
       console.error("Error getting USDC balance:", error);
       return "0";

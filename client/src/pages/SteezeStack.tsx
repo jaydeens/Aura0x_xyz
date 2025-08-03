@@ -76,7 +76,7 @@ export default function SteezeStack() {
 
   // Fetch USDC balance when wallet is connected
   const { data: usdcBalanceData, refetch: refetchUsdcBalance, isRefetching } = useQuery({
-    queryKey: ["/api/wallet/usdc-balance", walletAddress],
+    queryKey: [`/api/wallet/usdc-balance/${walletAddress}`],
     enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
     refetchOnWindowFocus: true, // Refetch when window gets focus
     refetchInterval: 30000, // Auto-refresh every 30 seconds
