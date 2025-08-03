@@ -62,32 +62,35 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Mobile-Optimized Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-purple-500/30">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 w-full">
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-black/90 via-purple-900/80 to-black/90 backdrop-blur-xl border-b-2 border-purple-500/50 shadow-2xl shadow-purple-500/30">
+        <div className="w-full px-4 sm:px-6 lg:px-8 relative">
+          {/* Subtle inner glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-transparent to-cyan-500/5 rounded-lg"></div>
+          <div className="flex items-center justify-between h-14 sm:h-16 w-full relative z-10">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="relative">
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <img 
                   src="/attached_assets/AURA PNG (1)_1749403291114.png" 
                   alt="Aura Logo" 
-                  className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg brightness-110 saturate-110 animate-pulse"
+                  className="relative w-10 h-10 sm:w-12 sm:h-12 drop-shadow-2xl brightness-110 saturate-110 group-hover:scale-110 transition-transform"
                 />
-                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
               </div>
               <img 
                 src="/attached_assets/FULL AURA (1)_1749403707745.png" 
                 alt="Aura" 
-                className="h-7 sm:h-8 w-auto drop-shadow-lg brightness-110 saturate-110"
+                className="h-7 sm:h-8 w-auto drop-shadow-2xl brightness-110 saturate-110 hover:scale-105 transition-transform"
               />
             </div>
             
 
 
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Badge className="hidden sm:flex bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-2 sm:px-3 py-1 animate-bounce">
+              <Badge className="hidden sm:flex bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-2 sm:px-3 py-1 animate-bounce shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-shadow">
                 🔥 TRENDING
               </Badge>
-              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-3 sm:px-6 py-2 text-sm sm:text-base rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 transition-all">
+              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-3 sm:px-6 py-2 text-sm sm:text-base rounded-full shadow-xl shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 transition-all duration-300">
                 GET AURA
               </Button>
             </div>
