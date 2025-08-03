@@ -877,29 +877,64 @@ export class Web3Service {
   }
   
   /**
-   * Monitor Steeze contract events for security
+   * Monitor Steeze contract events for security (polling-based for stability)
    */
   async monitorSteezeEvents(): Promise<void> {
     try {
-      const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(
-        STEEZE_CONTRACT.address,
-        STEEZE_CONTRACT.abi,
-        provider
-      );
+      console.log("[Event Monitor] Starting secure polling-based event monitoring");
       
-      // Listen for SteezeBought events
-      contract.on('SteezeBought', (user: string, usdcAmount: bigint, steezeAmount: bigint, event: any) => {
-        console.log(`[Event Monitor] SteezeBought: ${user}, USDC: ${ethers.formatUnits(usdcAmount, 6)}, STEEZE: ${ethers.formatUnits(steezeAmount, 6)}`);
-        // Add event to database for tracking
-        this.logSteezeEvent('purchase', user, parseFloat(ethers.formatUnits(usdcAmount, 6)), parseFloat(ethers.formatUnits(steezeAmount, 6)), event.transactionHash);
-      });
+      // Use polling instead of filters to avoid RPC connection issues
+      setInterval(async () => {
+        try {
+          await this.pollForSteezeEvents();
+        } catch (error) {
+          console.error("[Event Monitor] Polling error:", error);
+        }
+      }, 30000); // Poll every 30 seconds
       
-
-      
-      console.log("[Event Monitor] Steeze event monitoring started");
+      console.log("[Event Monitor] Steeze event monitoring started (polling mode)");
     } catch (error) {
       console.error("Error setting up Steeze event monitoring:", error);
+    }
+  }
+  
+  /**
+   * Poll for recent Steeze events using getLogs
+   */
+  private async pollForSteezeEvents(): Promise<void> {
+    try {
+      const provider = this.initBaseProvider();
+      const currentBlock = await provider.getBlockNumber();
+      const fromBlock = Math.max(currentBlock - 100, 0); // Check last 100 blocks
+      
+      const steezeEventFilter = {
+        address: STEEZE_CONTRACT.address,
+        topics: [ethers.id("SteezeBought(address,uint256,uint256)")],
+        fromBlock,
+        toBlock: currentBlock
+      };
+      
+      const logs = await provider.getLogs(steezeEventFilter);
+      
+      for (const log of logs) {
+        try {
+          const eventInterface = new ethers.Interface(STEEZE_CONTRACT.abi);
+          const parsedLog = eventInterface.parseLog(log);
+          
+          if (parsedLog && parsedLog.name === 'SteezeBought') {
+            const user = parsedLog.args[0];
+            const usdcAmount = parseFloat(ethers.formatUnits(parsedLog.args[1], 6));
+            const steezeAmount = parseFloat(ethers.formatUnits(parsedLog.args[2], 6));
+            
+            console.log(`[Event Monitor] SteezeBought detected: ${user}, USDC: ${usdcAmount}, STEEZE: ${steezeAmount}`);
+            await this.logSteezeEvent('purchase', user, usdcAmount, steezeAmount, log.transactionHash || '');
+          }
+        } catch (parseError) {
+          console.error("[Event Monitor] Failed to parse log:", parseError);
+        }
+      }
+    } catch (error) {
+      console.error("[Event Monitor] Error polling for events:", error);
     }
   }
   

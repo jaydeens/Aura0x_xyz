@@ -8,6 +8,20 @@ import { eq } from "drizzle-orm";
 import { getSession } from "./replitAuth";
 import { setupTwitterAuth, requireTwitterAuth } from "./twitterAuth";
 import { generateDailyLessons, generateLessonAnalysis, generateLessonQuiz, validateTweetContent } from "./openai";
+import { 
+  secureAuth, 
+  validateInput, 
+  createRateLimit, 
+  validateTransaction, 
+  validateWalletSecurity,
+  secureSession,
+  securityHeaders,
+  corsOptions,
+  auditDatabaseAccess,
+  logSecurityEvent,
+  getClientIP 
+} from "./security";
+import cors from "cors";
 
 // Simple authentication middleware for wallet and Twitter auth
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -170,6 +184,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files statically
   app.use('/uploads', express.static(uploadsDir));
 
+  // Apply comprehensive security middleware (disabled for development)
+  // app.use(securityHeaders);
+  app.use(cors(corsOptions));
+  app.use(secureSession);
+  // app.use(auditDatabaseAccess);
+  // app.use(validateInput);
+  
+  // Global rate limiting - 1000 requests per 15 minutes
+  app.use(createRateLimit(15 * 60 * 1000, 1000));
+  
+  // Import advanced security middleware
+  const { 
+    scanForVulnerabilities, 
+    ipAllowlistMiddleware, 
+    trackSessionSecurity, 
+    detectSuspiciousActivity,
+    securityHealthCheck
+  } = await import("./advanced-security");
+  
+  // Apply advanced security measures (disabled temporarily for testing)
+  // app.use(scanForVulnerabilities);
+  // app.use(ipAllowlistMiddleware);
+  // app.use(trackSessionSecurity);
+  // app.use(detectSuspiciousActivity);
+  
+  // Specific rate limits for sensitive endpoints
+  const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
+  const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
+  const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
+
   // Session middleware for Twitter auth
   app.set("trust proxy", 1);
   app.use(getSession());
@@ -223,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wallet authentication route
-  app.post('/api/auth/wallet', async (req, res) => {
+  app.post('/api/auth/wallet', authRateLimit, validateWalletSecurity, async (req, res) => {
     try {
       const { walletAddress } = req.body;
       
@@ -447,7 +491,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user route (works for both wallet and OAuth)
-  app.get('/api/auth/user', async (req: any, res) => {
+  app.get('/api/auth/user', authRateLimit, async (req: any, res) => {
     try {
       // Set no-cache headers to prevent browser caching
       res.set({
@@ -1903,6 +1947,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Security health check endpoint (admin access)
+  app.get('/api/admin/security/health', secureAuth, async (req, res) => {
+    try {
+      const healthStatus = await securityHealthCheck();
+      res.json(healthStatus);
+    } catch (error) {
+      console.error('Security health check error:', error);
+      res.status(500).json({ message: 'Health check failed' });
+    }
+  });
+
+  // Security dashboard endpoint
+  app.get('/api/admin/security/dashboard', secureAuth, async (req, res) => {
+    try {
+      // Get recent security events
+      const recentEvents = await db.execute(`
+        SELECT event_type, severity, COUNT(*) as count, MAX(timestamp) as last_occurrence
+        FROM security_events 
+        WHERE timestamp >= NOW() - INTERVAL '24 hours'
+        GROUP BY event_type, severity
+        ORDER BY last_occurrence DESC
+        LIMIT 20
+      `);
+
+      // Get vulnerability scan summary
+      const vulnerabilities = await db.execute(`
+        SELECT vulnerability_level, COUNT(*) as count
+        FROM vulnerability_scans 
+        WHERE scan_timestamp >= NOW() - INTERVAL '24 hours'
+        GROUP BY vulnerability_level
+      `);
+
+      // Get active session count
+      const sessions = await db.execute(`
+        SELECT COUNT(*) as active_sessions
+        FROM session_security 
+        WHERE session_status = 'ACTIVE' 
+        AND last_activity >= NOW() - INTERVAL '1 hour'
+      `);
+
+      res.json({
+        recentEvents: recentEvents.rows,
+        vulnerabilities: vulnerabilities.rows,
+        activeSessions: parseInt(sessions.rows[0]?.active_sessions || '0'),
+        timestamp: new Date().toISOString(),
+        status: 'operational'
+      });
+    } catch (error) {
+      console.error('Security dashboard error:', error);
+      res.status(500).json({ message: 'Dashboard data unavailable' });
+    }
+  });
+
   // Get vouching contract info
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
@@ -2083,7 +2180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/steeze/purchase", requireAuth, async (req: any, res) => {
+  app.post("/api/steeze/purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
       const { usdcAmount } = req.body;
       const userId = req.session?.user?.id;
@@ -2132,7 +2229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Backend-controlled Steeze purchase (secure)
-  app.post("/api/steeze/backend-purchase", requireAuth, async (req: any, res) => {
+  app.post("/api/steeze/backend-purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
       const { usdcAmount } = req.body;
       const userId = req.session?.user?.id;
@@ -2178,7 +2275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Backend-controlled Steeze redemption (secure)
-  app.post("/api/steeze/backend-redeem", requireAuth, async (req: any, res) => {
+  app.post("/api/steeze/backend-redeem", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
       const { steezeAmount } = req.body;
       const userId = req.session?.user?.id;
