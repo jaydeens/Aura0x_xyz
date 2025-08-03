@@ -184,9 +184,9 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Check network
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
-      const targetChainId = 8453n; // Base Mainnet
+      const targetChainId = 8453; // Base Mainnet
       
-      if (network.chainId !== targetChainId) {
+      if (Number(network.chainId) !== targetChainId) {
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
