@@ -328,7 +328,12 @@ export default function SteezeStack() {
       const purchaseTx = await steezeContract.buySteeze(usdcAmountWei);
       const receipt = await purchaseTx.wait();
 
-      return receipt.transactionHash;
+      console.log('Transaction receipt:', receipt);
+      console.log('Transaction hash from receipt.hash:', receipt.hash);
+      console.log('Transaction hash from purchaseTx.hash:', purchaseTx.hash);
+      
+      // Return the transaction hash - use purchaseTx.hash as it's more reliable
+      return purchaseTx.hash || receipt.hash;
     },
     onSuccess: (txHash) => {
       toast({
