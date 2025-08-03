@@ -47,7 +47,7 @@ export default function SteezeStack() {
   const [steezeAmount, setSteezeAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
-  const [currentChainId, setCurrentChainId] = useState<number | null>(null);
+  const [currentChainId, setCurrentChainId] = useState<number | null>(BASE_MAINNET.chainId);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [usdcBalance, setUsdcBalance] = useState<number>(0);
@@ -62,16 +62,20 @@ export default function SteezeStack() {
       setWalletAddress(userWalletAddress);
       setIsConnected(true);
       
-      // Check current network
+      // Immediately set Base Mainnet to prevent flash, then verify with MetaMask
+      setCurrentChainId(BASE_MAINNET.chainId);
+      
+      // Check current network asynchronously to update if different
       if (window.ethereum) {
         window.ethereum.request({ method: 'eth_chainId' })
           .then((chainId: string) => {
-            setCurrentChainId(parseInt(chainId, 16));
+            const actualChainId = parseInt(chainId, 16);
+            // Only update if different from our assumption
+            if (actualChainId !== BASE_MAINNET.chainId) {
+              setCurrentChainId(actualChainId);
+            }
           })
           .catch(console.error);
-      } else {
-        // If no MetaMask, assume correct network since user is authenticated
-        setCurrentChainId(BASE_MAINNET.chainId);
       }
     }
   }, [userWalletAddress, isConnected]);
@@ -694,7 +698,7 @@ export default function SteezeStack() {
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
                   </Button>
-                ) : !isOnCorrectNetwork ? (
+                ) : !isOnCorrectNetwork && currentChainId !== null ? (
                   <Button 
                     onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
@@ -823,7 +827,7 @@ export default function SteezeStack() {
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
                   </Button>
-                ) : !isOnCorrectNetwork ? (
+                ) : !isOnCorrectNetwork && currentChainId !== null ? (
                   <Button 
                     onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
