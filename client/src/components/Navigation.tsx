@@ -74,13 +74,7 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center cursor-pointer space-x-3 group">
-              <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-10 h-10 rounded-xl shadow-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Zap className="w-6 h-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
-              </div>
+              
               <img 
                 src="/attached_assets/FULL AURA_1754222978870.png" 
                 alt="Aura" 
