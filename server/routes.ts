@@ -20,6 +20,22 @@ const isAuthenticated = (req: any, res: any, next: any) => {
   // In a production app, you might want to implement proper session management
   return next();
 };
+
+// Strict authentication middleware that requires valid session
+const requireAuth = (req: any, res: any, next: any) => {
+  // Check wallet session first
+  if (req.session?.user?.id) {
+    return next();
+  }
+  
+  // Check Twitter OAuth session
+  if (req.user && req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  
+  // No valid authentication found
+  return res.status(401).json({ message: "Unauthorized" });
+};
 import { web3Service, STEEZE_CONTRACT } from "./web3";
 import { z } from "zod";
 import multer from "multer";
@@ -2067,31 +2083,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/steeze/purchase", async (req: any, res) => {
+  app.post("/api/steeze/purchase", requireAuth, async (req: any, res) => {
     try {
-      // Get user ID from either wallet session or OAuth
-      let userId: string | null = null;
-      if (req.session?.user?.id) {
-        userId = req.session.user.id;
-      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
-        userId = req.user.claims.sub;
-      }
+      const { usdcAmount } = req.body;
+      const userId = req.session?.user?.id;
+      const userWallet = req.session?.user?.wallet_address;
       
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
+      // Input validation for amount-based requests
+      if (usdcAmount) {
+        if (usdcAmount <= 0 || usdcAmount > 1000) {
+          return res.status(400).json({ error: 'USDC amount must be between 0 and 1000' });
+        }
+        
+        if (!userWallet) {
+          return res.status(401).json({ error: 'User wallet not found' });
+        }
+        
+        // Validate user's USDC balance
+        const hasBalance = await web3Service.validateUserBalance(userWallet, usdcAmount, 'usdc');
+        if (!hasBalance) {
+          return res.status(400).json({ error: 'Insufficient USDC balance' });
+        }
+        
+        const rate = await web3Service.getSteezeRate();
+        const steezeAmount = Math.floor(usdcAmount * rate);
+        
+        return res.json({
+          rate,
+          steezeAmount,
+          usdcAmount: parseFloat(usdcAmount),
+          userAddress: userWallet
+        });
       }
 
+      // Return general purchase info for UI
       const rate = await web3Service.getSteezeRate();
       
       res.json({ 
         contractAddress: STEEZE_CONTRACT.address,
-        chainId: 84532, // Base Sepolia
+        chainId: 8453, // Base Mainnet
         steezePerUsdc: rate,
-        networkName: "Base Sepolia"
+        networkName: "Base Mainnet"
       });
     } catch (error: any) {
       console.error("Error getting purchase info:", error);
       res.status(500).json({ message: "Failed to get purchase information" });
+    }
+  });
+
+  // Backend-controlled Steeze purchase (secure)
+  app.post("/api/steeze/backend-purchase", requireAuth, async (req: any, res) => {
+    try {
+      const { usdcAmount } = req.body;
+      const userId = req.session?.user?.id;
+      const userWallet = req.session?.user?.wallet_address;
+      
+      if (!userId || !userWallet) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+      
+      // Use backend-controlled purchase method
+      const result = await web3Service.purchaseSteezeForUser(userWallet, usdcAmount);
+      
+      if (!result.success) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      // Update user balance in database
+      if (result.steezeAmount) {
+        await storage.updateUserSteezeBalance(userId, result.steezeAmount, 'purchase');
+        
+        // Create transaction record
+        await storage.createSteezeTransaction({
+          id: `steeze_${Date.now()}_${Math.random()}`,
+          userId,
+          type: 'purchase',
+          amount: result.steezeAmount,
+          usdtAmount: usdcAmount,
+          rate: result.steezeAmount / usdcAmount,
+          status: 'confirmed',
+          transactionHash: result.transactionHash!
+        });
+      }
+      
+      res.json({
+        success: true,
+        steezeAmount: result.steezeAmount,
+        transactionHash: result.transactionHash
+      });
+    } catch (error) {
+      console.error('Error in backend-controlled purchase:', error);
+      res.status(500).json({ error: 'Purchase failed' });
+    }
+  });
+
+  // Backend-controlled Steeze redemption (secure)
+  app.post("/api/steeze/backend-redeem", requireAuth, async (req: any, res) => {
+    try {
+      const { steezeAmount } = req.body;
+      const userId = req.session?.user?.id;
+      const userWallet = req.session?.user?.wallet_address;
+      
+      if (!userId || !userWallet) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+      
+      // Check user's Steeze balance
+      const user = await storage.getUser(userId);
+      if (!user || (user.purchased_steeze + user.battle_earned_steeze) < steezeAmount) {
+        return res.status(400).json({ error: 'Insufficient Steeze balance' });
+      }
+      
+      // Use backend-controlled redemption method
+      const result = await web3Service.redeemSteezeForUser(userWallet, steezeAmount);
+      
+      if (!result.success) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      // Update user balance in database
+      if (result.usdcAmount) {
+        await storage.updateUserSteezeBalance(userId, -steezeAmount, 'redeem');
+        
+        // Create transaction record
+        await storage.createSteezeTransaction({
+          id: `steeze_${Date.now()}_${Math.random()}`,
+          userId,
+          type: 'redeem',
+          amount: steezeAmount,
+          usdtAmount: result.usdcAmount,
+          rate: result.usdcAmount / steezeAmount,
+          status: 'confirmed',
+          transactionHash: result.transactionHash!
+        });
+      }
+      
+      res.json({
+        success: true,
+        usdcAmount: result.usdcAmount,
+        transactionHash: result.transactionHash
+      });
+    } catch (error) {
+      console.error('Error in backend-controlled redemption:', error);
+      res.status(500).json({ error: 'Redemption failed' });
     }
   });
 
