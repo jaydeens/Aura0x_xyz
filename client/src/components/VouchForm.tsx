@@ -76,7 +76,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
 
   const vouchMutation = useMutation({
-    mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
+    mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
     },
     onSuccess: (data) => {

@@ -1850,7 +1850,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouch = await storage.createVouch({
         fromUserId: voucherId,
         toUserId: vouchedUserId,
-        usdtAmount: ethAmount.toString(),
+        usdtAmount: usdcAmount.toString(),
         auraPoints: finalAuraPoints,
         transactionHash,
         multiplier: userLevel.vouchingMultiplier
@@ -1976,15 +1976,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouchesGiven = vouches.filter(v => v.fromUserId === userId);
       const vouchesReceived = vouches.filter(v => v.toUserId === userId);
       
-      const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
-      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
+      const totalUsdcGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
+      const totalUsdcReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
       const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
 
       res.json({
         vouchesGiven: vouchesGiven.length,
         vouchesReceived: vouchesReceived.length,
-        totalEthGiven,
-        totalEthReceived,
+        totalUsdcGiven,
+        totalUsdcReceived,
         totalAuraReceived,
         recentVouches: vouches.slice(0, 10)
       });
@@ -1998,7 +1998,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/steeze/rate", async (req, res) => {
     try {
       const rate = await web3Service.getSteezeRate();
-      res.json({ steezePerEth: rate });
+      res.json({ steezePerUsdc: rate });
     } catch (error: any) {
       console.error("Error getting Steeze rate:", error);
       res.status(500).json({ message: "Failed to get Steeze rate" });
@@ -2086,7 +2086,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         contractAddress: STEEZE_CONTRACT.address,
         chainId: 84532, // Base Sepolia
-        steezePerEth: rate,
+        steezePerUsdc: rate,
         networkName: "Base Sepolia"
       });
     } catch (error: any) {
@@ -2109,8 +2109,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // For the specific transaction 0x6ef8c4814e1e5c3e210eea28350688c2e1b42b0a8a59b6a7c3624f7c4dfe184e
-      // This was 0.001 ETH = 10 Steeze tokens
-      const ethAmount = 0.001;
+      // This was 0.1 USDC = 10 Steeze tokens
+      const usdcAmount = 0.1;
       const steezeAmount = 10;
       const rate = "10000";
 
@@ -2125,7 +2125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: user.id,
         type: "purchase",
         amount: steezeAmount,
-        usdtAmount: ethAmount.toString(),
+        usdtAmount: usdcAmount.toString(),
         rate,
         status: "completed",
         transactionHash
@@ -2136,7 +2136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: user.id,
         transaction,
         newBalance: currentPurchased + steezeAmount,
-        ethAmount,
+        usdcAmount,
         steezeAmount
       });
     } catch (error: any) {
@@ -2232,7 +2232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid transaction" });
       }
 
-      const { ethAmount = 0, steezeAmount = 0, userAddress } = txVerification;
+      const { usdcAmount = 0, steezeAmount = 0, userAddress } = txVerification;
 
       if (!userAddress) {
         return res.status(400).json({ message: "Could not determine transaction sender" });
@@ -2272,8 +2272,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: transactionUser.id,
         type: "purchase",
         amount: steezeAmount,
-        usdtAmount: ethAmount.toString(),
-        rate: (ethAmount > 0 ? (steezeAmount / ethAmount).toString() : "10000"),
+        usdtAmount: usdcAmount.toString(),
+        rate: (usdcAmount > 0 ? (steezeAmount / usdcAmount).toString() : "10000"),
         status: "completed",
         transactionHash
       });
@@ -2290,7 +2290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         transaction,
         steezeAmount,
-        ethAmount,
+        usdcAmount,
         newBalance: currentPurchased + steezeAmount
       });
     } catch (error: any) {
@@ -2388,8 +2388,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { amount } = req.body;
-      const redeemRate = 0.00007; // 1 Steeze = 0.00007 ETH
-      const ethAmount = amount * redeemRate;
+      const redeemRate = 0.07; // 1 Steeze = 0.07 USDC
+      const usdcAmount = amount * redeemRate;
       
       // Get current user and check balance
       const user = await storage.getUser(userId);
@@ -2404,8 +2404,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         type: "redeem",
         amount,
-        usdtAmount: ethAmount.toString(),
-        rate: "0.00007",
+        usdtAmount: usdcAmount.toString(),
+        rate: "0.07",
         status: "completed"
       });
 
@@ -2415,7 +2415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         transaction, 
         newBalance: currentBalance - amount,
-        ethReceived: ethAmount
+        usdcReceived: usdcAmount
       });
     } catch (error: any) {
       console.error("Error redeeming Steeze:", error);

@@ -413,8 +413,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
             <div className="text-white/60 text-sm">Vouches Received</div>
           </div>
           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">{Number((vouchStats as any)?.totalEthReceived || 0).toFixed(4)}</div>
-            <div className="text-white/60 text-sm">ETH Received</div>
+            <div className="text-yellow-400 text-2xl font-bold">{Number((vouchStats as any)?.totalUsdcReceived || 0).toFixed(2)}</div>
+            <div className="text-white/60 text-sm">USDC Received</div>
           </div>
         </div>
 
