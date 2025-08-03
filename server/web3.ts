@@ -41,11 +41,9 @@ export const BASE_MAINNET = {
 
 
 
-// Vouching Contract Configuration
+// Vouching Contract Configuration - Always use Base Mainnet
 export const VOUCHING_CONTRACT = {
-  address: process.env.NODE_ENV === 'production' 
-    ? (process.env.VOUCHING_CONTRACT_ADDRESS_MAINNET || "0x8e6e64396717F69271c7994f90AFeC621C237315")
-    : (process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000"), // Environment-based contract addresses
+  address: "0x8e6e64396717F69271c7994f90AFeC621C237315", // Base Mainnet for all environments
   abi: [
     {
       "inputs": [],

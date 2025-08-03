@@ -2004,11 +2004,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: process.env.NODE_ENV === 'production' 
-          ? "0x8e6e64396717F69271c7994f90AFeC621C237315" // Base Mainnet
-          : "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8", // Base Sepolia
-        chainId: process.env.NODE_ENV === 'production' ? 8453 : 84532,
-        networkName: process.env.NODE_ENV === 'production' ? "Base Mainnet" : "Base Sepolia",
+        contractAddress: "0x8e6e64396717F69271c7994f90AFeC621C237315", // Base Mainnet for all environments
+        chainId: 8453, // Base Mainnet
+        networkName: "Base Mainnet",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
         minAmount: 1,
