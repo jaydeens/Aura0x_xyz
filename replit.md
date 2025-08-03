@@ -113,6 +113,7 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. DEPLOYMENT FIX: Fixed white screen issue on deployed website by improving production mode detection and static file serving. Updated tagline to "Creators and Streamers Social Network" across all platforms. Added comprehensive error handling and debugging for deployment troubleshooting.
 - August 3, 2025. MAJOR UPDATE: Implemented multiple vouching system with proper state tracking. Added API endpoint to track total vouch amounts per user pair (100 USDC max). Fixed vouching UI to show remaining amounts and "Vouch More" functionality. Resolved vouching state persistence issues after page refresh.
 - August 3, 2025. UX FIX: Fixed network switching flash on Steeze page by optimizing wallet connection initialization. Eliminated brief "Base Sepolia" message during page load through improved state management.
 - August 3, 2025. CRITICAL FIX: Fixed vouching contract ABI mismatch and updated all environments to use Base Mainnet contract (0x8e6e64396717F69271c7994f90AFeC621C237315). Resolved "no matching fragment" error by correcting function call from vouch() to vouchWithUSDC() with proper USDC parameters.

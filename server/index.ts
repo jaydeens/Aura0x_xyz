@@ -67,7 +67,15 @@ app.use((req, res, next) => {
   console.log("NODE_ENV:", process.env.NODE_ENV);
   console.log("app.get('env'):", app.get("env"));
   
-  if (app.get("env") === "development") {
+  // Force production mode when deployed
+  const isProduction = process.env.NODE_ENV === "production" || 
+                      process.env.REPL_DEPLOYMENT === "1" ||
+                      process.env.DEPLOYMENT === "true" ||
+                      process.env.FORCE_PRODUCTION === "true";
+  
+  console.log("Is Production Mode:", isProduction);
+  
+  if (!isProduction && app.get("env") === "development") {
     console.log("Setting up development mode with Vite...");
     await setupVite(app, server);
   } else {
