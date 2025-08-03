@@ -30,7 +30,7 @@ export default function Footer() {
               AURA
             </h3>
             <p className="text-gray-400 text-sm sm:text-base">
-              Creators & Streamers social network
+              Creators & Streamers Social Network
             </p>
           </div>
 

@@ -1,4 +1,4 @@
-# Aura - Creators & Streamers social network
+# Aura - Creators & Streamers Social Network
 
 ## Overview
 
