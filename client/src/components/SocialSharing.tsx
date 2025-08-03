@@ -230,13 +230,13 @@ export default function SocialSharing() {
               <span>Custom Tweet</span>
             </CardTitle>
             <CardDescription className="text-gray-300">
-              Share your thoughts about Aura and the creator community
+              Share your thoughts about Aura and Web3 learning
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Textarea
-                placeholder="What's happening in your creator journey?"
+                placeholder="What's happening in your Web3 journey?"
                 value={customTweet}
                 onChange={(e) => setCustomTweet(e.target.value)}
                 className="min-h-[100px] bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 resize-none"

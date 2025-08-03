@@ -78,15 +78,14 @@ export default function UserProfile({ userId }: UserProfileProps) {
     staleTime: 10000, // Consider data stale after 10 seconds
   });
 
-  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
+  const currentUsdcBalance = usdcBalanceData?.balance || 0;
 
   // Get current user's aura level and multiplier for vouching
   const getCurrentUserLevel = () => {
     if (!currentUser || !auraLevels || !Array.isArray(auraLevels)) return null;
-    const currentUserData = currentUser as any;
     return auraLevels.find((level: any) => 
-      (currentUserData.currentStreak || 0) >= level.minDays && 
-      (level.maxDays === null || (currentUserData.currentStreak || 0) <= level.maxDays)
+      (currentUser.currentStreak || 0) >= level.minDays && 
+      (level.maxDays === null || (currentUser.currentStreak || 0) <= level.maxDays)
     ) || auraLevels[0];
   };
 
@@ -96,20 +95,20 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
   // Fetch vouch amount data for this user pair
   const { data: vouchAmountData, refetch: refetchVouchAmount } = useQuery({
-    queryKey: [`/api/vouch/amount/${(currentUser as any)?.id}/${(profileUser as any)?.id}`],
-    enabled: !!(currentUser as any)?.id && !!(profileUser as any)?.id && (currentUser as any)?.id !== (profileUser as any)?.id,
+    queryKey: [`/api/vouch/amount/${currentUser?.id}/${profileUser?.id}`],
+    enabled: !!currentUser?.id && !!profileUser?.id && currentUser.id !== profileUser.id,
   });
 
-  const totalVouchedAmount = (vouchAmountData as any)?.totalVouchedAmount || 0;
-  const remainingAmount = (vouchAmountData as any)?.remainingAmount || 100;
-  const canVouchMore = (vouchAmountData as any)?.canVouchMore || true;
-  const vouchCount = (vouchAmountData as any)?.vouchCount || 0;
+  const totalVouchedAmount = vouchAmountData?.totalVouchedAmount || 0;
+  const remainingAmount = vouchAmountData?.remainingAmount || 100;
+  const canVouchMore = vouchAmountData?.canVouchMore || true;
+  const vouchCount = vouchAmountData?.vouchCount || 0;
 
   const vouchMutation = useMutation({
     mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data) => {
       toast({
         title: "Vouch Successful!",
         description: `Awarded ${data.auraAwarded} aura points with ${data.multiplier}x multiplier`,
@@ -122,7 +121,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       refetchVouchAmount(); // Refresh vouch amount data
       queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
       queryClient.invalidateQueries({ queryKey: [`/api/vouch/stats/${userId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/vouch/amount/${(currentUser as any)?.id}/${(profileUser as any)?.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/vouch/amount/${currentUser?.id}/${profileUser?.id}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
     },
     onError: (error: any) => {
@@ -144,7 +143,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       return;
     }
 
-    if (!(currentUser as any)?.walletAddress || !(profileUser as any)?.walletAddress) {
+    if (!currentUser?.walletAddress || !profileUser?.walletAddress) {
       toast({
         title: "Wallet Required",
         description: "Both users must have connected wallets",
@@ -163,7 +162,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       return;
     }
 
-    if (!(contractInfo as any)?.contractAddress || !(contractInfo as any)?.abi) {
+    if (!contractInfo?.contractAddress || !contractInfo?.abi) {
       toast({
         title: "Contract Error",
         description: "Vouching contract not available",
@@ -208,7 +207,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
       // Create contract instances
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract((contractInfo as any).contractAddress, (contractInfo as any).abi, signer);
+      const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
       
       // USDC contract for approval
       const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base Mainnet USDC
@@ -236,7 +235,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
         description: "Please approve USDC spending in your wallet...",
       });
       
-      const approvalTx = await usdcContract.approve((contractInfo as any).contractAddress, usdcAmountWei);
+      const approvalTx = await usdcContract.approve(contractInfo.contractAddress, usdcAmountWei);
       await approvalTx.wait();
       
       // Step 2: Call vouch function
@@ -245,7 +244,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
         description: "Please confirm the vouch transaction...",
       });
       
-      const tx = await contract.vouch((profileUser as any).walletAddress, usdcAmountWei);
+      const tx = await contract.vouch(profileUser.walletAddress, usdcAmountWei);
 
       // Wait for transaction confirmation
       const receipt = await tx.wait();
@@ -325,9 +324,9 @@ export default function UserProfile({ userId }: UserProfileProps) {
   }
 
   const canVouch = currentUser && 
-                  (currentUser as any).id !== userId && 
-                  (currentUser as any).walletAddress && 
-                  (profileUser as any).walletAddress &&
+                  currentUser.id !== userId && 
+                  currentUser.walletAddress && 
+                  profileUser.walletAddress &&
                   canVouchMore;
 
   return (
@@ -336,13 +335,13 @@ export default function UserProfile({ userId }: UserProfileProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="w-16 h-16">
-              <AvatarImage src={(profileUser as any).profileImageUrl} />
+              <AvatarImage src={profileUser.profileImageUrl} />
               <AvatarFallback className="bg-purple-500 text-white text-xl">
-                {(profileUser as any).username?.[0]?.toUpperCase() || "?"}
+                {profileUser.username?.[0]?.toUpperCase() || "?"}
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-white text-xl">{(profileUser as any).username || "Anonymous"}</CardTitle>
+              <CardTitle className="text-white text-xl">{profileUser.username || "Anonymous"}</CardTitle>
               {userLevel && (
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`${getLevelColor(userLevel.name)}`}>
@@ -366,7 +365,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                 <DialogHeader>
                   <DialogTitle className="text-white flex items-center gap-2">
                     <Coins className="w-5 h-5 text-purple-400" />
-                    Vouch for {(profileUser as any).username}
+                    Vouch for {profileUser.username}
                   </DialogTitle>
                 </DialogHeader>
                 
@@ -489,11 +488,11 @@ export default function UserProfile({ userId }: UserProfileProps) {
             <div className="text-white/60 text-sm">Total Aura</div>
           </div>
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-center">
-            <div className="text-blue-400 text-2xl font-bold">{(profileUser as any).currentStreak || 0}</div>
+            <div className="text-blue-400 text-2xl font-bold">{profileUser.currentStreak || 0}</div>
             <div className="text-white/60 text-sm">Streak Days</div>
           </div>
           <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
-            <div className="text-green-400 text-2xl font-bold">{(vouchStats as any)?.vouchesReceived || 0}</div>
+            <div className="text-green-400 text-2xl font-bold">{vouchStats?.vouchesReceived || 0}</div>
             <div className="text-white/60 text-sm">Vouches Received</div>
           </div>
           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-center">
@@ -509,13 +508,13 @@ export default function UserProfile({ userId }: UserProfileProps) {
               <Wallet className="w-5 h-5 text-gray-400" />
               <span className="text-white">Wallet Status</span>
             </div>
-            {(profileUser as any).walletAddress ? (
+            {profileUser.walletAddress ? (
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-green-400 border-green-400">
                   Connected
                 </Badge>
                 <span className="text-white/60 font-mono text-sm">
-                  {(profileUser as any).walletAddress.slice(0, 6)}...{(profileUser as any).walletAddress.slice(-4)}
+                  {profileUser.walletAddress.slice(0, 6)}...{profileUser.walletAddress.slice(-4)}
                 </span>
               </div>
             ) : (
@@ -527,11 +526,11 @@ export default function UserProfile({ userId }: UserProfileProps) {
         </div>
 
         {/* Vouching Notice */}
-        {!canVouch && currentUser && (currentUser as any).id !== userId && (
+        {!canVouch && currentUser && currentUser.id !== userId && (
           <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
             <p className="text-orange-300 text-sm">
-              {!(currentUser as any).walletAddress && "You need to connect your wallet to vouch for users."}
-              {!(profileUser as any).walletAddress && "This user needs to connect their wallet to receive vouches."}
+              {!currentUser.walletAddress && "You need to connect your wallet to vouch for users."}
+              {!profileUser.walletAddress && "This user needs to connect their wallet to receive vouches."}
               {!canVouchMore && "You have reached the maximum vouch amount (100 USDC) for this user."}
             </p>
           </div>

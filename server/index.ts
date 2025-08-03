@@ -3,7 +3,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
-import fs from "fs";
 
 const app = express();
 app.use(express.json());
@@ -51,7 +50,7 @@ app.use((req, res, next) => {
     web3Service.monitorSteezeEvents();
     log("Steeze event monitoring initialized");
   } catch (error) {
-    log("Failed to initialize Steeze event monitoring:", String(error));
+    log("Failed to initialize Steeze event monitoring:", error);
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -65,186 +64,10 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  console.log("NODE_ENV:", process.env.NODE_ENV);
-  console.log("app.get('env'):", app.get("env"));
-  
-  // Enhanced production mode detection for Replit deployments
-  const isProduction = process.env.NODE_ENV === "production" || 
-                      process.env.REPL_DEPLOYMENT === "1" ||
-                      process.env.DEPLOYMENT === "true" ||
-                      process.env.FORCE_PRODUCTION === "true" ||
-                      process.env.REPLIT_DEPLOYMENT === "1" ||
-                      process.env.REPLIT_CLUSTER === "external" ||
-                      process.env.REPL_SLUG !== undefined ||
-                      // Check if we're running from a built dist directory
-                      process.cwd().includes('/dist') ||
-                      fs.existsSync(path.resolve(process.cwd(), 'public', 'index.html'));
-  
-  console.log("Is Production Mode:", isProduction);
-  console.log("Current working directory:", process.cwd());
-  console.log("__dirname equivalent:", import.meta.dirname);
-  console.log("Environment variables:", {
-    NODE_ENV: process.env.NODE_ENV,
-    REPL_DEPLOYMENT: process.env.REPL_DEPLOYMENT,
-    REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT,
-    REPLIT_CLUSTER: process.env.REPLIT_CLUSTER,
-    REPL_SLUG: process.env.REPL_SLUG
-  });
-  
-  if (isProduction) {
-    console.log("🚀 Setting up PRODUCTION mode with static files...");
-    
-    // CRITICAL: Handle deployment environment correctly
-    let distPath;
-    
-    // Try multiple possible paths for static files
-    const possiblePaths = [
-      path.resolve(process.cwd(), "dist", "public"),   // Built static files in dist/public
-      path.resolve(process.cwd(), "dist"),             // Standard Vite build output
-      path.resolve(process.cwd(), "public"),           // Fallback public directory
-      path.resolve(import.meta.dirname, "..", "dist", "public"), // Relative to server
-      path.resolve(import.meta.dirname, "..", "dist"), // Relative to server
-      path.resolve(import.meta.dirname, "public")      // Server-relative deployed
-    ];
-    
-    for (const testPath of possiblePaths) {
-      console.log(`Checking path: ${testPath}`);
-      if (fs.existsSync(testPath)) {
-        const indexExists = fs.existsSync(path.join(testPath, 'index.html'));
-        console.log(`Path exists: ${testPath}, index.html exists: ${indexExists}`);
-        if (indexExists) {
-          distPath = testPath;
-          break;
-        }
-      }
-    }
-    
-    if (!distPath) {
-      console.error("❌ CRITICAL: No static files found in any expected location!");
-      console.log("Searched paths:", possiblePaths);
-      console.log("Current working directory:", process.cwd());
-      console.log("Available files in CWD:", fs.readdirSync(process.cwd()));
-      
-      // Emergency fallback - serve a basic HTML page
-      app.use("*", (req, res) => {
-        res.send(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Aura - Build Your Aura</title>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body {
-                  margin: 0;
-                  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-                  color: white;
-                  font-family: Arial, sans-serif;
-                  min-height: 100vh;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                }
-                .container {
-                  text-align: center;
-                  padding: 20px;
-                }
-                h1 {
-                  font-size: 3rem;
-                  background: linear-gradient(45deg, #8B5CF6, #EC4899);
-                  -webkit-background-clip: text;
-                  -webkit-text-fill-color: transparent;
-                  margin-bottom: 20px;
-                }
-                .error {
-                  background: rgba(255,0,0,0.1);
-                  border: 1px solid rgba(255,0,0,0.3);
-                  padding: 20px;
-                  border-radius: 10px;
-                  margin: 20px 0;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <h1>BUILD YOUR AURA</h1>
-                <div class="error">
-                  <p><strong>Deployment Error:</strong> Static files not found</p>
-                  <p>Please rebuild the application and try again.</p>
-                </div>
-              </div>
-            </body>
-          </html>
-        `);
-      });
-      return;
-    }
-    
-    console.log("✅ Serving static files from:", distPath);
-    console.log("✅ Static directory exists:", fs.existsSync(distPath));
-    
-    // List available files for debugging
-    try {
-      const files = fs.readdirSync(distPath);
-      console.log('✅ Available files in dist:', files);
-      
-      const assetsPath = path.join(distPath, 'assets');
-      if (fs.existsSync(assetsPath)) {
-        const assets = fs.readdirSync(assetsPath);
-        console.log('✅ Available production assets:', assets.filter((f: string) => f.endsWith('.js') || f.endsWith('.css')));
-      } else {
-        console.log("❌ No assets directory found");
-      }
-    } catch (error) {
-      console.error('❌ Error listing production files:', error);
-    }
-    
-    // Serve static files with proper caching and error handling
-    app.use(express.static(distPath, {
-      maxAge: '1d',
-      etag: true,
-      lastModified: true,
-      setHeaders: (res, filePath) => {
-        if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        }
-        res.setHeader('X-Static-Path', distPath);
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-      }
-    }));
-
-    // SPA fallback - MUST be last route
-    app.use("*", (req, res) => {
-      console.log(`📄 Serving SPA fallback for: ${req.path}`);
-      const indexPath = path.resolve(distPath, "index.html");
-      
-      if (fs.existsSync(indexPath)) {
-        // Set proper headers for HTML
-        res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.sendFile(indexPath);
-      } else {
-        console.error(`❌ index.html not found at ${indexPath}`);
-        res.status(404).send(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Aura - Error</title>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            </head>
-            <body style="background: #1a1a2e; color: white; font-family: Arial; text-align: center; padding: 50px;">
-              <h1>Build Error</h1>
-              <p>Static files not found at ${distPath}</p>
-              <p>Please rebuild the application.</p>
-            </body>
-          </html>
-        `);
-      }
-    });
-  } else {
-    console.log("🔧 Setting up development mode with Vite...");
+  if (app.get("env") === "development") {
     await setupVite(app, server);
+  } else {
+    serveStatic(app);
   }
 
   // ALWAYS serve the app on port 5000

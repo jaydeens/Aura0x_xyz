@@ -9,7 +9,6 @@ import { Trophy, Clock, Star, Users, BookOpen, Play, CheckCircle, TrendingUp, Aw
 import AuthModal from "@/components/AuthModal";
 
 export default function Landing() {
-  console.log("🏠 Landing component rendering...");
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -49,23 +48,19 @@ export default function Landing() {
   };
 
   if (isLoading) {
-    console.log("🔄 Landing: showing loading state");
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
-        <div className="animate-pulse text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse">
+          <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
+            <BookOpen className="w-8 h-8 text-primary-foreground" />
           </div>
-          <p className="text-white font-bold">Loading Aura...</p>
         </div>
       </div>
     );
   }
 
-  console.log("🏠 Landing: showing main content");
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Mobile-Optimized Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-black/90 via-purple-900/80 to-black/90 backdrop-blur-xl border-b-2 border-purple-500/50 shadow-2xl shadow-purple-500/30">
         <div className="w-full px-4 sm:px-6 lg:px-8 relative">
@@ -104,24 +99,19 @@ export default function Landing() {
       </nav>
       {/* TikTok-Style Hero */}
       <section className="relative min-h-screen overflow-hidden">
-        {/* Gradient Background (fallback if video fails) */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-900 to-pink-900">
-          {/* Optional video background */}
+        {/* Video Background */}
+        <div className="absolute inset-0">
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-50"
-            onError={(e) => {
-              console.log("Video failed to load, using gradient background");
-              e.currentTarget.style.display = 'none';
-            }}
+            className="absolute inset-0 w-full h-full object-cover"
           >
             <source src="/attached_assets/Fun,_vibrant_scene_where_the_following_texts_pop_up__Challenge,_Learn,_Farm_Aura,_Earn._Using_Purple_seed2620036643_1754188951244.mp4" type="video/mp4" />
           </video>
           {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="absolute inset-0 bg-black/70"></div>
         </div>
         
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-0">

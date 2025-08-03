@@ -1,8 +1,8 @@
-# Aura - Creators and Streamers Social Network
+# Aura - Web3 Learning & Reputation Platform
 
 ## Overview
 
-Aura is a comprehensive social platform for creators and streamers that combines reputation building and community engagement. Users build their "aura" through interactive challenges, 1v1 battles, and a vouching system where community members can stake USDC to vouch for others. The platform integrates Twitter/X authentication, wallet connectivity, and smart contract interactions on Base Mainnet.
+Aura is a comprehensive Web3 social platform that combines learning, reputation building, and community engagement. Users build their "aura" through daily crypto lessons, 1v1 battles, and a vouching system where community members can stake ETH to vouch for others. The platform integrates Twitter/X authentication, wallet connectivity, and smart contract interactions on Base Sepolia testnet.
 
 ## System Architecture
 
@@ -113,10 +113,6 @@ Key entities include:
 
 ```
 Changelog:
-- August 3, 2025. DEPLOYMENT FIX: Fixed white screen issue in deployed apps by enhancing production mode detection logic. Added comprehensive environment variable checks and file system detection for automatic production mode activation. Application now correctly serves static files in all deployment environments regardless of environment variable configuration.
-- August 3, 2025. DEPLOYMENT FIX: Fixed "__dirname is not defined in ESM modules" errors by replacing legacy CommonJS globals with import.meta.dirname. Updated build-server.js banner to include proper ESM polyfills. Build process now fully compatible with ESM deployment requirements.
-- August 3, 2025. DEPLOYMENT FIX: Resolved ESM module compatibility issues causing "Dynamic require of fs is not supported" errors. Converted all dynamic require() statements to static ES6 imports, updated tailwind.config.ts to use proper imports, and enhanced production mode detection logic. Build process now outputs fully ESM-compatible modules for deployment.
-- August 3, 2025. DEPLOYMENT FIX: Fixed white screen issue on deployed website by improving production mode detection and static file serving. Updated tagline to "Creators and Streamers Social Network" across all platforms. Added comprehensive error handling and debugging for deployment troubleshooting.
 - August 3, 2025. MAJOR UPDATE: Implemented multiple vouching system with proper state tracking. Added API endpoint to track total vouch amounts per user pair (100 USDC max). Fixed vouching UI to show remaining amounts and "Vouch More" functionality. Resolved vouching state persistence issues after page refresh.
 - August 3, 2025. UX FIX: Fixed network switching flash on Steeze page by optimizing wallet connection initialization. Eliminated brief "Base Sepolia" message during page load through improved state management.
 - August 3, 2025. CRITICAL FIX: Fixed vouching contract ABI mismatch and updated all environments to use Base Mainnet contract (0x8e6e64396717F69271c7994f90AFeC621C237315). Resolved "no matching fragment" error by correcting function call from vouch() to vouchWithUSDC() with proper USDC parameters.

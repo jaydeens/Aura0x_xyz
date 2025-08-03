@@ -6,8 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import BetaIndicator from "@/components/BetaIndicator";
 import Landing from "@/pages/Landing";
-import LandingTest from "@/pages/LandingTest";
-import SimpleTest from "@/pages/SimpleTest";
 import Dashboard from "@/pages/Dashboard";
 import Battles from "@/pages/Battles";
 import LiveBattle from "@/pages/LiveBattle";
@@ -20,29 +18,7 @@ import WhitelistAdmin from "@/pages/WhitelistAdmin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  console.log("🛣️ Router component rendering...");
-  
-  let authData;
-  try {
-    authData = useAuth();
-    console.log("🔐 Auth status:", { 
-      isAuthenticated: authData.isAuthenticated, 
-      isLoading: authData.isLoading, 
-      hasUser: !!authData.user 
-    });
-  } catch (error) {
-    console.error("❌ Auth hook error:", error);
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Authentication Error</h1>
-          <p>Unable to load authentication. Please refresh the page.</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const { isAuthenticated, isLoading, user } = authData;
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   // Show loading during authentication check
   if (isLoading) {
@@ -62,10 +38,9 @@ function Router() {
 
   // If not authenticated, only show landing page
   if (!isAuthenticated || !user) {
-    console.log("🏠 Showing Landing page - user not authenticated");
     return (
       <Switch>
-        <Route path="*" component={SimpleTest} />
+        <Route path="*" component={Landing} />
       </Switch>
     );
   }
@@ -90,29 +65,15 @@ function Router() {
 }
 
 function App() {
-  console.log("🎯 App component rendering...");
-  
-  try {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-          <BetaIndicator />
-        </TooltipProvider>
-      </QueryClientProvider>
-    );
-  } catch (error) {
-    console.error("❌ Error in App component:", error);
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Aura - App Error</h1>
-          <p>Something went wrong. Check console for details.</p>
-        </div>
-      </div>
-    );
-  }
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+        <BetaIndicator />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
 }
 
 export default App;
