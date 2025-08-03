@@ -65,7 +65,14 @@ export default function Landing() {
   console.log("🏠 Landing: showing main content");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white">
+    <div 
+      className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white"
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)',
+        color: 'white'
+      }}
+    >
       {/* Mobile-Optimized Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-black/90 via-purple-900/80 to-black/90 backdrop-blur-xl border-b-2 border-purple-500/50 shadow-2xl shadow-purple-500/30">
         <div className="w-full px-4 sm:px-6 lg:px-8 relative">

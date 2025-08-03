@@ -221,9 +221,13 @@ app.use((req, res, next) => {
       }
     }));
     
-    // Add debug route for testing asset loading
+    // Add debug routes for testing
     app.get('/debug', (req, res) => {
       res.sendFile(path.resolve(process.cwd(), 'debug-simple.html'));
+    });
+    
+    app.get('/minimal-test', (req, res) => {
+      res.sendFile(path.resolve(process.cwd(), 'minimal-test.html'));
     });
 
     // SPA fallback - MUST be last route
