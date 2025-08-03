@@ -32,11 +32,11 @@ declare global {
   }
 }
 
-const BASE_SEPOLIA = {
-  chainId: 84532,
-  chainName: "Base Sepolia",
-  rpcUrl: "https://sepolia.base.org",
-  blockExplorer: "https://sepolia-explorer.base.org/",
+const BASE_MAINNET = {
+  chainId: 8453,
+  chainName: "Base Mainnet",
+  rpcUrl: "https://mainnet.base.org",
+  blockExplorer: "https://basescan.org/",
 };
 
 export default function SteezeStack() {
@@ -52,7 +52,7 @@ export default function SteezeStack() {
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
-  const isOnCorrectNetwork = currentChainId === BASE_SEPOLIA.chainId;
+  const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
 
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
@@ -115,8 +115,8 @@ export default function SteezeStack() {
     }
   };
 
-  // Switch to Base Sepolia network
-  const switchToBaseSepolia = async () => {
+  // Switch to Base Mainnet network
+  const switchToBaseMainnet = async () => {
     if (!window.ethereum) {
       toast({
         title: "Wallet Not Found",
@@ -127,7 +127,7 @@ export default function SteezeStack() {
     }
 
     try {
-      console.log(`Switching to Base Sepolia (Chain ID: ${BASE_SEPOLIA.chainId})`);
+      console.log(`Switching to Base Mainnet (Chain ID: ${BASE_MAINNET.chainId})`);
       
       // First ensure wallet is connected
       if (!isConnected) {
@@ -136,7 +136,7 @@ export default function SteezeStack() {
       
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: `0x${BASE_SEPOLIA.chainId.toString(16)}` }],
+        params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
       });
       
       // Wait a moment for the switch to complete
@@ -147,10 +147,10 @@ export default function SteezeStack() {
       const parsedChainId = parseInt(newChainId, 16);
       setCurrentChainId(parsedChainId);
       
-      if (parsedChainId === BASE_SEPOLIA.chainId) {
+      if (parsedChainId === BASE_MAINNET.chainId) {
         toast({
           title: "Network Switched",
-          description: "Successfully switched to Base Sepolia",
+          description: "Successfully switched to Base Mainnet",
         });
         return true;
       }
@@ -162,14 +162,14 @@ export default function SteezeStack() {
       if (error.code === 4902) {
         // Network not added yet, try to add it
         try {
-          console.log("Adding Base Sepolia network...");
+          console.log("Adding Base Mainnet network...");
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
             params: [{
-              chainId: `0x${BASE_SEPOLIA.chainId.toString(16)}`,
-              chainName: BASE_SEPOLIA.chainName,
-              rpcUrls: [BASE_SEPOLIA.rpcUrl],
-              blockExplorerUrls: [BASE_SEPOLIA.blockExplorer],
+              chainId: `0x${BASE_MAINNET.chainId.toString(16)}`,
+              chainName: BASE_MAINNET.chainName,
+              rpcUrls: [BASE_MAINNET.rpcUrl],
+              blockExplorerUrls: [BASE_MAINNET.blockExplorer],
               nativeCurrency: {
                 name: "ETH",
                 symbol: "ETH",
@@ -186,10 +186,10 @@ export default function SteezeStack() {
           const parsedChainId = parseInt(newChainId, 16);
           setCurrentChainId(parsedChainId);
           
-          if (parsedChainId === BASE_SEPOLIA.chainId) {
+          if (parsedChainId === BASE_MAINNET.chainId) {
             toast({
               title: "Network Added",
-              description: "Base Sepolia network added and switched successfully",
+              description: "Base Mainnet network added and switched successfully",
             });
             return true;
           }
@@ -199,7 +199,7 @@ export default function SteezeStack() {
           console.error("Network add error:", addError);
           toast({
             title: "Network Add Failed",
-            description: addError.message || "Failed to add Base Sepolia network",
+            description: addError.message || "Failed to add Base Mainnet network",
             variant: "destructive",
           });
           return false;
@@ -208,14 +208,14 @@ export default function SteezeStack() {
         // User rejected the request
         toast({
           title: "Network Switch Cancelled",
-          description: "Please switch to Base Sepolia to continue",
+          description: "Please switch to Base Mainnet to continue",
           variant: "destructive",
         });
         return false;
       } else {
         toast({
           title: "Network Switch Failed",
-          description: error.message || "Failed to switch to Base Sepolia",
+          description: error.message || "Failed to switch to Base Mainnet",
           variant: "destructive",
         });
         return false;
@@ -234,8 +234,8 @@ export default function SteezeStack() {
         throw new Error("Please connect your wallet first");
       }
       
-      if (currentChainId !== BASE_SEPOLIA.chainId) {
-        throw new Error(`Please switch to Base Sepolia network. Current network: ${currentChainId}`);
+      if (currentChainId !== BASE_MAINNET.chainId) {
+        throw new Error(`Please switch to Base Mainnet network. Current network: ${currentChainId}`);
       }
 
       // Verify wallet matches user account
@@ -289,8 +289,8 @@ export default function SteezeStack() {
   // Redeem mutation
   const redeemMutation = useMutation({
     mutationFn: async ({ steezeAmount }: { steezeAmount: number }) => {
-      if (!window.ethereum || !isConnected || currentChainId !== BASE_SEPOLIA.chainId) {
-        throw new Error("Please connect wallet and switch to Base Sepolia");
+      if (!window.ethereum || !isConnected || currentChainId !== BASE_MAINNET.chainId) {
+        throw new Error("Please connect wallet and switch to Base Mainnet");
       }
 
       // Encode withdrawSteeze(uint256 amount) function call
@@ -417,12 +417,12 @@ export default function SteezeStack() {
     }
 
     // Check if on correct network and switch if needed
-    if (currentChainId !== BASE_SEPOLIA.chainId) {
-      const switchSuccessful = await switchToBaseSepolia();
+    if (currentChainId !== BASE_MAINNET.chainId) {
+      const switchSuccessful = await switchToBaseMainnet();
       if (!switchSuccessful) {
         toast({
           title: "Network Required",
-          description: "Please switch to Base Sepolia to continue",
+          description: "Please switch to Base Mainnet to continue",
           variant: "destructive",
         });
         return;
@@ -449,8 +449,8 @@ export default function SteezeStack() {
     }
 
     // Check if on correct network
-    if (currentChainId !== BASE_SEPOLIA.chainId) {
-      await switchToBaseSepolia();
+    if (currentChainId !== BASE_MAINNET.chainId) {
+      await switchToBaseMainnet();
       return;
     }
 
@@ -474,7 +474,7 @@ export default function SteezeStack() {
       isConnected, 
       walletAddress, 
       currentChainId, 
-      expectedChainId: BASE_SEPOLIA.chainId,
+      expectedChainId: BASE_MAINNET.chainId,
       isOnCorrectNetwork 
     });
   }, [isConnected, walletAddress, currentChainId]);
@@ -611,7 +611,7 @@ export default function SteezeStack() {
                   <div>
                     <CardTitle className="text-white">Buy Steeze</CardTitle>
                     <CardDescription className="text-white/60">
-                      Purchase Steeze tokens with ETH
+                      Purchase Steeze tokens with USDC
                     </CardDescription>
                   </div>
                 </div>
@@ -629,10 +629,10 @@ export default function SteezeStack() {
                   </Button>
                 ) : !isOnCorrectNetwork ? (
                   <Button 
-                    onClick={switchToBaseSepolia}
+                    onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                   >
-                    Switch to Base Sepolia
+                    Switch to Base Mainnet
                   </Button>
                 ) : (
                   <div>
@@ -710,10 +710,10 @@ export default function SteezeStack() {
                   </Button>
                 ) : !isOnCorrectNetwork ? (
                   <Button 
-                    onClick={switchToBaseSepolia}
+                    onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                   >
-                    Switch to Base Sepolia
+                    Switch to Base Mainnet
                   </Button>
                 ) : (
                   <div>
@@ -821,7 +821,7 @@ export default function SteezeStack() {
                         {tx.transactionHash && (
                           <div className="mt-1">
                             <a
-                              href={`${BASE_SEPOLIA.blockExplorer}tx/${tx.transactionHash}`}
+                              href={`${BASE_MAINNET.blockExplorer}tx/${tx.transactionHash}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 text-sm underline"

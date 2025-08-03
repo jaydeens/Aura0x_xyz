@@ -245,10 +245,10 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       rpcUrls: ['https://mainnet.base.org'],
       blockExplorerUrls: ['https://basescan.org'],
     } : {
-      chainId: '0x14A34', // Base Sepolia (84532 in hex)
-      chainName: 'Base Sepolia',
-      rpcUrls: ['https://sepolia.base.org'],
-      blockExplorerUrls: ['https://sepolia-explorer.base.org'],
+      chainId: '0x2105', // Base Mainnet (8453 in hex)
+      chainName: 'Base Mainnet',
+      rpcUrls: ['https://mainnet.base.org'],
+      blockExplorerUrls: ['https://basescan.org'],
     };
 
     try {

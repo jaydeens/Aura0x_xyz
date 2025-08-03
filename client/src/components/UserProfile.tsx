@@ -159,7 +159,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Check network
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
-      const targetChainId = process.env.NODE_ENV === 'production' ? 8453n : 84532n; // Base Mainnet or Sepolia
+      const targetChainId = 8453n; // Base Mainnet
       
       if (network.chainId !== targetChainId) {
         try {
@@ -173,14 +173,10 @@ export default function UserProfile({ userId }: UserProfileProps) {
               method: 'wallet_addEthereumChain',
               params: [{
                 chainId: `0x${targetChainId.toString(16)}`,
-                chainName: process.env.NODE_ENV === 'production' ? 'Base Mainnet' : 'Base Sepolia',
+                chainName: 'Base Mainnet',
                 nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                rpcUrls: process.env.NODE_ENV === 'production' 
-                  ? ['https://mainnet.base.org'] 
-                  : ['https://sepolia.base.org'],
-                blockExplorerUrls: process.env.NODE_ENV === 'production' 
-                  ? ['https://basescan.org'] 
-                  : ['https://sepolia-explorer.base.org'],
+                rpcUrls: ['https://mainnet.base.org'],
+                blockExplorerUrls: ['https://basescan.org'],
               }],
             });
           } else {
