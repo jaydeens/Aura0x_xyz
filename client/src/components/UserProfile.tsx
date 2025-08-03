@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useCelebration } from "@/components/CelebrationAnimation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +39,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
+  const { triggerVouchCelebration } = useCelebration();
   const queryClient = useQueryClient();
 
   const [vouchAmount, setVouchAmount] = useState("1");
@@ -111,6 +113,10 @@ export default function UserProfile({ userId }: UserProfileProps) {
         title: "Vouch Successful!",
         description: `Awarded ${data.auraAwarded} aura points with ${data.multiplier}x multiplier`,
       });
+      
+      // Trigger celebration animation
+      triggerVouchCelebration();
+      
       setIsVouchDialogOpen(false);
       refetchVouchAmount(); // Refresh vouch amount data
       queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });

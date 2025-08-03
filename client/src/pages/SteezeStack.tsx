@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Navigation from "@/components/Navigation";
+import { useCelebration } from "@/components/CelebrationAnimation";
 import { 
   Coins, 
   TrendingUp, 
@@ -43,6 +44,7 @@ const BASE_MAINNET = {
 export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { triggerSteezeCelebration } = useCelebration();
   const [usdcAmount, setUsdcAmount] = useState("");
   const [steezeAmount, setSteezeAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -400,10 +402,7 @@ export default function SteezeStack() {
   // Confirm purchase mutation
   const confirmPurchaseMutation = useMutation({
     mutationFn: async (txHash: string) => {
-      return apiRequest('/api/steeze/confirm-purchase', {
-        method: 'POST',
-        body: JSON.stringify({ transactionHash: txHash })
-      });
+      return apiRequest('POST', '/api/steeze/confirm-purchase', { transactionHash: txHash });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
@@ -412,6 +411,10 @@ export default function SteezeStack() {
         title: "Purchase Confirmed",
         description: "Steeze tokens added to your balance",
       });
+      
+      // Trigger celebration animation
+      triggerSteezeCelebration();
+      
       setIsPurchasing(false);
       setUsdcAmount("");
     },
