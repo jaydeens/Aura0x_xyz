@@ -3,6 +3,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
+import fs from "fs";
 
 const app = express();
 app.use(express.json());
@@ -71,7 +72,8 @@ app.use((req, res, next) => {
   const isProduction = process.env.NODE_ENV === "production" || 
                       process.env.REPL_DEPLOYMENT === "1" ||
                       process.env.DEPLOYMENT === "true" ||
-                      process.env.FORCE_PRODUCTION === "true";
+                      process.env.FORCE_PRODUCTION === "true" ||
+                      !process.env.NODE_ENV; // Default to production if NODE_ENV is not set
   
   console.log("Is Production Mode:", isProduction);
   console.log("Current working directory:", process.cwd());
@@ -86,13 +88,13 @@ app.use((req, res, next) => {
     // Enhanced static file serving for production
     const distPath = path.resolve(process.cwd(), "dist", "public");
     console.log("Serving static files from:", distPath);
-    console.log("Static directory exists:", require('fs').existsSync(distPath));
+    console.log("Static directory exists:", fs.existsSync(distPath));
     
     // List available assets for debugging
     try {
       const assetsPath = path.join(distPath, 'assets');
-      if (require('fs').existsSync(assetsPath)) {
-        const assets = require('fs').readdirSync(assetsPath);
+      if (fs.existsSync(assetsPath)) {
+        const assets = fs.readdirSync(assetsPath);
         console.log('Available production assets:', assets.filter((f: string) => f.endsWith('.js') || f.endsWith('.css')));
       }
     } catch (error) {
