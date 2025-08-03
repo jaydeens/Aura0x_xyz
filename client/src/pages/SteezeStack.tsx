@@ -402,6 +402,10 @@ export default function SteezeStack() {
   // Confirm purchase mutation
   const confirmPurchaseMutation = useMutation({
     mutationFn: async (txHash: string) => {
+      console.log('Confirming purchase with transaction hash:', txHash);
+      if (!txHash) {
+        throw new Error('Transaction hash is missing');
+      }
       return apiRequest('POST', '/api/steeze/confirm-purchase', { transactionHash: txHash });
     },
     onSuccess: () => {

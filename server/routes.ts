@@ -2484,6 +2484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/steeze/confirm-purchase", async (req, res) => {
     try {
+      console.log('Confirm purchase request body:', req.body);
+      
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
       if (req.session?.user?.id) {
@@ -2492,13 +2494,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId = req.user.claims.sub;
       }
       
+      console.log('User ID for confirmation:', userId);
+      
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
       const { transactionHash } = req.body;
+      console.log('Extracted transaction hash:', transactionHash);
       
       if (!transactionHash) {
+        console.log('Transaction hash is missing from request body');
         return res.status(400).json({ message: "Transaction hash is required" });
       }
 
