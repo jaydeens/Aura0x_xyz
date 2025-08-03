@@ -108,7 +108,7 @@ export default function Landing() {
             <source src="/attached_assets/Fun,_vibrant_scene_where_the_following_texts_pop_up__Challenge,_Learn,_Farm_Aura,_Earn._Using_Purple_seed2620036643_1754188951244.mp4" type="video/mp4" />
           </video>
           {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-black/50"></div>
+          <div className="absolute inset-0 bg-black/70"></div>
         </div>
         
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-0">
