@@ -250,13 +250,11 @@ export const STEEZE_CONTRACT = {
 };
 
 // Current network configuration (switch to BASE_MAINNET for production)
-export const CURRENT_NETWORK = process.env.NODE_ENV === 'production' ? BASE_MAINNET : BASE_SEPOLIA;
+export const CURRENT_NETWORK = BASE_MAINNET; // Always use Base Mainnet for both prod and dev
 
 // USDC Contract Configuration for Base Mainnet
 export const USDC_CONTRACT = {
-  address: process.env.NODE_ENV === 'production' 
-    ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // USDC on Base Mainnet
-    : "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // USDC on Base Sepolia
+  address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base Mainnet (used for both prod and dev)
   decimals: 6, // USDC has 6 decimals
   symbol: "USDC",
   name: "USD Coin",
