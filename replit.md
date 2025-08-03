@@ -1,8 +1,8 @@
-# Aura - Web3 Learning & Reputation Platform
+# Aura - Creators and Streamers Social Network
 
 ## Overview
 
-Aura is a comprehensive Web3 social platform that combines learning, reputation building, and community engagement. Users build their "aura" through daily crypto lessons, 1v1 battles, and a vouching system where community members can stake ETH to vouch for others. The platform integrates Twitter/X authentication, wallet connectivity, and smart contract interactions on Base Sepolia testnet.
+Aura is a comprehensive social platform for creators and streamers that combines reputation building and community engagement. Users build their "aura" through interactive challenges, 1v1 battles, and a vouching system where community members can stake USDC to vouch for others. The platform integrates Twitter/X authentication, wallet connectivity, and smart contract interactions on Base Mainnet.
 
 ## System Architecture
 
