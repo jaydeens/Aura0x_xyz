@@ -872,8 +872,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      // Generate the image URL (accessible via static file serving)
-      const imageUrl = `/uploads/${req.file.filename}`;
+      // Generate the image URL with cache-busting parameter
+      const timestamp = Date.now();
+      const imageUrl = `/uploads/${req.file.filename}?v=${timestamp}`;
 
       // Update user's profile with the new image URL
       await storage.updateUserProfile(userId, { profileImageUrl: imageUrl });
