@@ -81,9 +81,11 @@ export default function Navigation() {
                 </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
               </div>
-              <div className="text-2xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg group-hover:scale-105 transition-transform">
-                AURA
-              </div>
+              <img 
+                src="/attached_assets/FULL AURA_1754222978870.png" 
+                alt="Aura" 
+                className="h-8 w-auto group-hover:scale-105 transition-transform"
+              />
             </div>
           </Link>
 
