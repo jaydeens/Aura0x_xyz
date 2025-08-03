@@ -1,181 +1,81 @@
-# Steeze Security Implementation
+Introduction
+Steeze is an off-chain token on the Aura platform, designed to reward creators and community engagement. To ensure security and trust, we’ve implemented a robust system of checks and balances for Steeze transactions, even though it operates off-chain.
 
-## Overview
+This document outlines the key public-facing security practices behind Steeze to reassure users and partners that their interactions are handled securely and transparently.
 
-This document outlines the comprehensive security measures implemented for off-chain Steeze token management in the Aura platform. Since Steeze tokens are managed off-chain, the backend controls all smart contract interactions to ensure security and prevent unauthorized access.
+Security Architecture
+✅ Backend-Controlled Interactions
+Users never directly interact with smart contracts for Steeze.
 
-## Security Architecture
+All USDC-based purchases and redemptions are handled through a verified backend process.
 
-### 1. Backend-Controlled Smart Contract Interactions
+This reduces the risk of fraudulent or unauthorized blockchain operations.
 
-**Platform Wallet System**
-- The platform maintains a secure backend wallet with private key management
-- All Steeze purchases and redemptions are executed by the backend, not user wallets
-- Users never directly interact with the Steeze smart contract
+🔐 Access Control & Verification
+All Steeze-related actions require secure user authentication.
 
-**Environment Configuration**
+Validations are performed on wallet addresses and transaction limits.
 
-### 2. Access Control
+Only verified wallets are allowed to initiate USDC purchases for Steeze.
 
-**Authentication Requirements**
-- All Steeze endpoints require user authentication (`requireAuth` middleware)
-- Session validation ensures only authenticated users can access Steeze functions
-- User wallet verification prevents unauthorized account access
+🧠 Input & Transaction Validation
+Input limits are enforced to prevent spam or abuse (min/max USDC thresholds).
 
-**Input Validation**
-- USDC amounts limited to 1-1000 range to prevent excessive transactions
-- Wallet address validation using ethers.js utilities
-- Balance verification before any transaction processing
+Real-time balance checks prevent over-spending or fraudulent claims.
 
-### 3. Transaction Security
+Transactions are monitored against expected behavior patterns.
 
-**User Balance Validation**
-- Real-time USDC balance checking before purchases
-- Off-chain Steeze balance verification before redemptions
-- Insufficient balance protection with clear error messages
+📡 Event Monitoring
+Aura listens for Steeze-related blockchain events (e.g., purchases/redemptions).
 
-**Transaction Verification**
-- Signature validation for all blockchain transactions
-- Event parsing from smart contract logs for confirmation
-- Transaction hash verification against expected signers
+Smart contract logs are parsed and checked for expected values.
 
-### 4. Event Monitoring System
+System alerts are in place for unusual activity or failed attempts.
 
-**Real-Time Event Tracking**
-- Continuous monitoring of SteezeBought and SteezeRedeemed events
-- Automatic logging of all contract interactions to security database
-- Anomaly detection for unusual transaction patterns
+📈 Balance & Redemption System
+Purchased Steeze is credited off-chain and displayed in the user dashboard.
 
-**Security Logging Database**
-```sql
-CREATE TABLE steeze_security_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_type VARCHAR(50) NOT NULL,
-  user_address VARCHAR(42) NOT NULL,
-  usdc_amount DECIMAL(18, 6) NOT NULL,
-  steeze_amount DECIMAL(18, 6) NOT NULL,
-  transaction_hash VARCHAR(66) NOT NULL,
-  block_number INTEGER,
-  detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  verified BOOLEAN DEFAULT FALSE
-);
-```
+Earned Steeze from activity (like battles or challenges) is eligible for redemption.
 
-### 5. API Endpoints Security
+Redemption checks ensure only eligible balances are converted back to USDC.
 
-**Secure Backend Endpoints**
-- `/api/steeze/backend-purchase` - Backend-controlled purchases
-- `/api/steeze/backend-redeem` - Backend-controlled redemptions
-- All transactions processed through platform wallet, not user wallets
+Security Features (Public Summary)
+No user-facing smart contract interaction required
 
-**Rate Limiting & Validation**
-- Input sanitization for all user-provided data
-- Amount limits (1-1000 USDC for purchases)
-- Balance verification before transaction execution
+All purchases and redemptions processed securely by the platform
 
-## Security Features
+Verified wallet and balance enforcement before every transaction
 
-### 1. Off-Chain Balance Management
+Real-time blockchain event verification for transparency
 
-**Database Integration**
-- User Steeze balances stored securely in PostgreSQL
-- Purchased vs battle-earned Steeze tracking
-- Transaction history with full audit trail
+Anomaly detection to protect against misuse or abuse
 
-**Balance Updates**
-- Atomic database transactions for balance updates
-- Rollback protection in case of errors
-- Consistent state management across all operations
+User-friendly error handling and feedback system
 
-### 2. Smart Contract Security
+What’s Coming Next
+We're continually improving Aura’s security infrastructure. Here are a few upcoming enhancements:
 
-**Contract Interaction**
-- Backend wallet signs all transactions
-- Users receive tokens through backend-managed transfers
-- No direct user-to-contract interactions for Steeze operations
+Multi-sig wallet support for treasury operations
 
-**Event Verification**
-- Real-time parsing of SteezeBought/SteezeRedeemed events
-- Block confirmation requirements
-- Transaction receipt validation
+Advanced fraud/anomaly detection models
 
-### 3. Error Handling & Recovery
+Public-facing security dashboard with transparency metrics
 
-**Comprehensive Error Handling**
-- Detailed error messages for debugging
-- Graceful failure handling with user feedback
-- Transaction rollback on partial failures
+Role-based permission layers for internal operations
 
-**Security Monitoring**
-- Failed transaction attempt logging
-- Unusual pattern detection
-- Real-time security event alerts
+Emergency pause system in case of critical issues
 
-## Implementation Status
+Security Best Practices (For Users)
+Always verify you're using the official Aura platform at https://aura0x.xyz
 
-### ✅ Completed Security Features
+Never share your wallet’s private key or seed phrase
 
-1. **Backend-Controlled Transactions**
-   - Platform wallet configuration
-   - Secure private key management
-   - Backend transaction signing
+Confirm USDC balances before purchasing Steeze
 
-2. **Input Validation & Access Control**
-   - Authentication middleware on all endpoints
-   - USDC amount validation (1-1000 range)
-   - User balance verification
+Reach out to our support team if you notice unusual account activity
 
-3. **Event Monitoring System**
-   - Real-time contract event listening
-   - Security logging database
-   - Transaction verification
+Contact
+If you encounter any suspicious behavior or have questions about Steeze security:
 
-4. **Database Security**
-   - Secure balance management
-   - Transaction audit trail
-   - Atomic operations
-
-### 🔄 In Progress
-
-1. **Advanced Security Features**
-   - Multi-signature wallet support
-   - Advanced anomaly detection
-   - Rate limiting implementation
-
-### 📋 Future Enhancements
-
-1. **Enhanced Monitoring**
-   - Dashboard for security events
-   - Automated alert system
-   - Performance metrics tracking
-
-2. **Advanced Access Control**
-   - Role-based permissions
-   - Admin override capabilities
-   - Emergency pause functionality
-
-## Best Practices
-
-### For Developers
-
-1. **Never expose private keys** in client-side code
-2. **Always validate inputs** before processing transactions
-3. **Use backend-controlled transactions** for all Steeze operations
-4. **Monitor events continuously** for security anomalies
-5. **Implement proper error handling** with user feedback
-
-### For Operations
-
-1. **Secure private key storage** with proper encryption
-2. **Regular security audits** of transaction logs
-3. **Monitor unusual patterns** in user behavior
-4. **Backup and recovery procedures** for database
-5. **Keep security logs** for compliance and debugging
-
-## Security Contacts
-
-For security-related issues or vulnerabilities:
-- Review transaction logs in `steeze_security_logs` table
-- Check backend wallet balance and transaction history
-- Verify smart contract event monitoring is active
-- Escalate to development team for critical issues
+→ Join our support team via Discord
+→ Or use the in-app support channel on Aura
