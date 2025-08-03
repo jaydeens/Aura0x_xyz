@@ -113,6 +113,7 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. MAJOR SECURITY UPDATE: Implemented comprehensive enterprise-grade security measures across all platform layers. Added advanced vulnerability scanning, real-time threat detection, multi-tier rate limiting, session security tracking, IP allowlisting, suspicious activity detection, and comprehensive security monitoring. Platform now protected against OWASP Top 10, Web3-specific threats, and includes automated incident response.
 - August 3, 2025. SECURITY UPDATE: Implemented comprehensive off-chain Steeze security measures with backend-controlled smart contract interactions. Added platform wallet system, event monitoring, security logging database, and enhanced access control. All Steeze transactions now processed through secure backend with proper validation and audit trails.
 - August 3, 2025. MAJOR UPDATE: Implemented proper USDC approval flow for all transactions. Both vouching and Steeze purchases now use two-step process: first USDC approval, then transaction execution. Added USDC balance display with real-time validation and insufficient balance warnings. Fixed mutation interfaces to use usdcAmount consistently.
 - August 3, 2025. MAJOR UPDATE: Implemented variable vouching system (1-100 USDC) with 1 USDC = 10 Aura Points. Updated Steeze rates to 1 STEEZE = 0.1 USDC purchase, 0.07 USDC redeem. Added amount selectors to vouching interfaces for user-friendly variable amounts.
