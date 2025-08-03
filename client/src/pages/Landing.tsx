@@ -68,15 +68,13 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-transparent to-cyan-500/5 rounded-lg"></div>
           <div className="flex items-center justify-between h-14 sm:h-16 w-full relative z-10">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center drop-shadow-2xl group-hover:scale-110 transition-transform">
-                  <span className="text-white font-black text-lg sm:text-2xl">»</span>
+              <div className="flex items-center space-x-1">
+                <div className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text">
+                  ›››
                 </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
-              </div>
-              <div className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text drop-shadow-2xl hover:scale-105 transition-transform">
-                Aura
+                <div className="text-2xl sm:text-3xl font-bold text-white hover:scale-105 transition-transform">
+                  Aura
+                </div>
               </div>
             </div>
             
@@ -264,14 +262,13 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-12">
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center drop-shadow-2xl animate-pulse">
-                    <span className="text-white font-black text-3xl">»</span>
+                <div className="flex items-center space-x-2">
+                  <div className="text-4xl font-black text-transparent bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text">
+                    ›››
                   </div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full animate-ping"></div>
-                </div>
-                <div className="text-4xl font-black text-transparent bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text drop-shadow-2xl">
-                  Aura
+                  <div className="text-4xl font-black text-white">
+                    Aura
+                  </div>
                 </div>
               </div>
               <p className="text-gray-300 font-bold leading-relaxed text-lg">The aura app that's breaking the internet. Build your brand, go aura, and become legendary.</p>

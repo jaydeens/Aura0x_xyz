@@ -2319,10 +2319,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not authenticated' });
       }
       
-      // Check user's Steeze balance
+      // Check user's Steeze balance (use correct field names)
       const user = await storage.getUser(userId);
-      if (!user || (user.purchased_steeze + user.battle_earned_steeze) < steezeAmount) {
-        return res.status(400).json({ error: 'Insufficient Steeze balance' });
+      if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+      }
+      
+      const totalBalance = (user.purchasedSteeze || 0) + (user.battleEarnedSteeze || 0);
+      if (totalBalance < steezeAmount) {
+        return res.status(400).json({ 
+          error: `Insufficient Steeze balance. Available: ${totalBalance}, Requested: ${steezeAmount}` 
+        });
       }
       
       // Use backend-controlled redemption method
@@ -2488,7 +2495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid transaction hash format" });
       }
 
-      // Verify transaction on Base Sepolia
+      // Verify transaction on Base Mainnet
       console.log(`Verifying transaction: ${transactionHash}`);
       const txVerification = await web3Service.verifySteezeTransaction(transactionHash);
       console.log("Transaction verification result:", txVerification);
@@ -2607,7 +2614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { transactionHash } = req.body;
       
-      // Verify transaction on Base Sepolia
+      // Verify transaction on Base Mainnet
       const verification = await web3Service.verifySteezeTransaction(transactionHash);
       
       if (!verification.isValid) {
@@ -2661,12 +2668,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const redeemRate = 0.07; // 1 Steeze = 0.07 USDC
       const usdcAmount = amount * redeemRate;
       
-      // Get current user and check balance
+      // Get current user and check balance - only allow redemption of earned Steeze
       const user = await storage.getUser(userId);
-      const currentBalance = user?.steezeBalance || 0;
+      const earnedBalance = user?.battleEarnedSteeze || 0;
       
-      if (currentBalance < amount) {
-        return res.status(400).json({ message: "Insufficient Steeze balance" });
+      if (earnedBalance < amount) {
+        return res.status(400).json({ 
+          message: `Insufficient earned Steeze balance. Available for redemption: ${earnedBalance}, Requested: ${amount}. Only earned Steeze can be redeemed for USDC.` 
+        });
       }
 
       // Create redeem transaction
@@ -2679,12 +2688,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "completed"
       });
 
-      // Update user's Steeze balance
-      await storage.updateUserSteezeBalance(userId, currentBalance - amount);
+      // Update user's earned Steeze balance (subtract from earned balance only)
+      await storage.updateUserProfile(userId, { 
+        battleEarnedSteeze: Math.max(0, earnedBalance - amount)
+      });
 
       res.json({ 
         transaction, 
-        newBalance: currentBalance - amount,
+        newBalance: Math.max(0, earnedBalance - amount),
         usdcReceived: usdcAmount
       });
     } catch (error: any) {

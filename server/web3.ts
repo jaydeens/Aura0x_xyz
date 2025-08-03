@@ -691,11 +691,12 @@ export class Web3Service {
       const logs = receipt.logs;
       console.log(`[Web3] Checking ${logs.length} logs for SteezeBought event`);
       
-      // Define the SteezeBought event ABI for parsing
-      const steezeBoughtEventABI = [
-        "event SteezeBought(address indexed user, uint256 usdcAmount, uint256 steezeAmount)"
+      // Define the events ABI for parsing both purchase and redemption
+      const steezeEventABI = [
+        "event SteezeBought(address indexed user, uint256 usdcAmount, uint256 steezeAmount)",
+        "event Withdrawn(address indexed user, uint256 amount)"
       ];
-      const eventInterface = new ethers.Interface(steezeBoughtEventABI);
+      const eventInterface = new ethers.Interface(steezeEventABI);
       
       for (const log of logs) {
         try {
@@ -725,6 +726,22 @@ export class Web3Service {
             return {
               isValid: true,
               userAddress: buyerAddress,
+              usdcAmount: usdcAmount,
+              steezeAmount: steezeAmount,
+              blockNumber: receipt.blockNumber,
+            };
+          } else if (parsedLog && parsedLog.name === 'Withdrawn') {
+            const userAddress = parsedLog.args[0]; // user
+            const steezeAmountWei = parsedLog.args[1]; // amount withdrawn in STEEZE
+            
+            const steezeAmount = parseFloat(ethers.formatUnits(steezeAmountWei, 6)); // STEEZE uses 6 decimals
+            const usdcAmount = steezeAmount * 0.07; // Calculate USDC received at redemption rate
+            
+            console.log(`[Web3] Withdrawn event found: user=${userAddress}, steeze=${steezeAmount}, usdc=${usdcAmount}`);
+            
+            return {
+              isValid: true,
+              userAddress: userAddress,
               usdcAmount: usdcAmount,
               steezeAmount: steezeAmount,
               blockNumber: receipt.blockNumber,
@@ -842,17 +859,42 @@ export class Web3Service {
       const redemptionRate = 0.07;
       const usdcAmount = steezeAmount * redemptionRate;
       
-      // Execute transaction (this would be the actual contract call)
-      // For now, simulate the transaction for security
-      const mockTxHash = `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
+      // Get current contract state and validate redemption
+      const userSteezeBalance = await contract.steezeBalance(userAddress);
+      const currentBalance = parseInt(userSteezeBalance.toString());
       
-      console.log(`[Backend] Simulated Steeze redemption: ${steezeAmount} STEEZE -> ${usdcAmount} USDC for ${userAddress}`);
+      if (currentBalance < steezeAmount) {
+        return { success: false, error: `Insufficient STEEZE balance. User has ${currentBalance}, trying to redeem ${steezeAmount}` };
+      }
       
-      return {
-        success: true,
-        transactionHash: mockTxHash,
-        usdcAmount: usdcAmount
-      };
+      // Check contract USDC balance for redemption
+      const contractUsdcBalance = await this.getUSDCBalance(STEEZE_CONTRACT.address);
+      if (contractUsdcBalance < usdcAmount) {
+        return { success: false, error: "Contract has insufficient USDC liquidity for redemption" };
+      }
+      
+      // Execute actual redemption transaction
+      try {
+        const steezeAmountWei = ethers.parseUnits(steezeAmount.toString(), 6); // STEEZE uses 6 decimals
+        const gasEstimate = await contract.withdrawSteeze.estimateGas(steezeAmountWei);
+        const gasLimit = gasEstimate * 120n / 100n; // Add 20% buffer
+        
+        const tx = await contract.withdrawSteeze(steezeAmountWei, {
+          gasLimit: gasLimit
+        });
+        
+        console.log(`[Web3] STEEZE redemption transaction sent: ${tx.hash}`);
+        console.log(`[Web3] Redeeming ${steezeAmount} STEEZE -> ${usdcAmount} USDC for ${userAddress}`);
+        
+        return {
+          success: true,
+          transactionHash: tx.hash,
+          usdcAmount: usdcAmount
+        };
+      } catch (txError) {
+        console.error("Redemption transaction failed:", txError);
+        return { success: false, error: `Transaction failed: ${txError instanceof Error ? txError.message : 'Unknown error'}` };
+      }
     } catch (error) {
       console.error("Error in backend Steeze redemption:", error);
       return { success: false, error: "Transaction failed" };
