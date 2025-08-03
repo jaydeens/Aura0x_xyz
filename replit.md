@@ -1,4 +1,4 @@
-# Aura - Web3 Learning & Reputation Platform
+# Aura - Creators & Streamers social network
 
 ## Overview
 

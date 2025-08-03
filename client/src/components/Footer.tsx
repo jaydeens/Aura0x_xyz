@@ -30,7 +30,7 @@ export default function Footer() {
               AURA
             </h3>
             <p className="text-gray-400 text-sm sm:text-base">
-              The Web3 Aura Battle Platform
+              Creators & Streamers social network
             </p>
           </div>
 
