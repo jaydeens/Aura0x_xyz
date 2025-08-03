@@ -82,6 +82,23 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   } else {
     console.log("Setting up production mode with static files...");
+    
+    // Enhanced static file serving for production
+    const distPath = path.resolve(process.cwd(), "dist", "public");
+    console.log("Serving static files from:", distPath);
+    console.log("Static directory exists:", require('fs').existsSync(distPath));
+    
+    // List available assets for debugging
+    try {
+      const assetsPath = path.join(distPath, 'assets');
+      if (require('fs').existsSync(assetsPath)) {
+        const assets = require('fs').readdirSync(assetsPath);
+        console.log('Available production assets:', assets.filter((f: string) => f.endsWith('.js') || f.endsWith('.css')));
+      }
+    } catch (error) {
+      console.error('Error listing production assets:', error);
+    }
+    
     serveStatic(app);
   }
 
