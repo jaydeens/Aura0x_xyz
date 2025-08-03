@@ -72,21 +72,20 @@ app.use((req, res, next) => {
   const isProduction = process.env.NODE_ENV === "production" || 
                       process.env.REPL_DEPLOYMENT === "1" ||
                       process.env.DEPLOYMENT === "true" ||
-                      process.env.FORCE_PRODUCTION === "true" ||
-                      !process.env.NODE_ENV; // Default to production if NODE_ENV is not set
+                      process.env.FORCE_PRODUCTION === "true";
   
   console.log("Is Production Mode:", isProduction);
   console.log("Current working directory:", process.cwd());
   console.log("__dirname equivalent:", import.meta.dirname);
   
-  if (!isProduction && app.get("env") === "development") {
-    console.log("Setting up development mode with Vite...");
-    await setupVite(app, server);
-  } else {
+  if (isProduction) {
     console.log("Setting up production mode with static files...");
     
     // Enhanced static file serving for production
-    const distPath = path.resolve(process.cwd(), "dist", "public");
+    // Handle both development and deployed paths
+    const distPath = fs.existsSync(path.resolve(process.cwd(), "dist", "public")) 
+      ? path.resolve(process.cwd(), "dist", "public")  // Development build
+      : path.resolve(process.cwd(), "public");         // Deployed (already in dist/)
     console.log("Serving static files from:", distPath);
     console.log("Static directory exists:", fs.existsSync(distPath));
     
@@ -101,7 +100,23 @@ app.use((req, res, next) => {
       console.error('Error listing production assets:', error);
     }
     
-    serveStatic(app);
+    // Serve static files directly from the correct dist path
+    app.use(express.static(distPath, {
+      maxAge: '1d',
+      setHeaders: (res, path) => {
+        if (path.endsWith('.js') || path.endsWith('.css')) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      }
+    }));
+
+    // Fallback to index.html for client-side routing (SPA)
+    app.use("*", (_req, res) => {
+      res.sendFile(path.resolve(distPath, "index.html"));
+    });
+  } else {
+    console.log("Setting up development mode with Vite...");
+    await setupVite(app, server);
   }
 
   // ALWAYS serve the app on port 5000
