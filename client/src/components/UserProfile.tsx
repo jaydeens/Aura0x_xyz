@@ -65,6 +65,20 @@ export default function UserProfile({ userId }: UserProfileProps) {
     retry: false,
   });
 
+  // Get current user's wallet address for USDC balance
+  const currentUserData = currentUser as any;
+  const userWalletAddress = currentUserData?.walletAddress;
+
+  // Fetch current user's USDC balance when wallet is connected
+  const { data: usdcBalanceData } = useQuery({
+    queryKey: [`/api/wallet/usdc-balance/${userWalletAddress}`],
+    enabled: !!userWalletAddress,
+    refetchOnWindowFocus: true,
+    staleTime: 10000, // Consider data stale after 10 seconds
+  });
+
+  const currentUsdcBalance = usdcBalanceData?.balance || 0;
+
   // Get current user's aura level and multiplier for vouching
   const getCurrentUserLevel = () => {
     if (!currentUser || !auraLevels || !Array.isArray(auraLevels)) return null;
@@ -138,6 +152,16 @@ export default function UserProfile({ userId }: UserProfileProps) {
       toast({
         title: "Wallet Required",
         description: "Both users must have connected wallets",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if user has sufficient USDC balance
+    if (parseInt(vouchAmount) > currentUsdcBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You need ${vouchAmount} USDC but only have ${currentUsdcBalance.toFixed(2)} USDC in your wallet`,
         variant: "destructive",
       });
       return;
@@ -335,6 +359,26 @@ export default function UserProfile({ userId }: UserProfileProps) {
                       <div className="text-sm text-white/60">
                         Range: {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
                       </div>
+                      
+                      {/* USDC Balance Display */}
+                      <div className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3 mt-2">
+                        <div className="flex items-center gap-2">
+                          <Wallet className="w-4 h-4 text-blue-400" />
+                          <span className="text-white/80">Your USDC Balance:</span>
+                        </div>
+                        <span className="text-blue-400 font-semibold">
+                          {currentUsdcBalance.toFixed(2)} USDC
+                        </span>
+                      </div>
+                      
+                      {/* Insufficient Balance Warning */}
+                      {parseInt(vouchAmount) > currentUsdcBalance && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                          <p className="text-red-400 text-sm">
+                            ⚠️ Insufficient balance. You need {vouchAmount} USDC but only have {currentUsdcBalance.toFixed(2)} USDC.
+                          </p>
+                        </div>
+                      )}
                     </div>
                     {currentUserLevel && (
                       <div className="flex items-center justify-between">
@@ -369,8 +413,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
                   {/* Submit Button */}
                   <Button
                     onClick={handleVouchSubmit}
-                    disabled={isProcessing || vouchMutation.isPending}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
+                    disabled={isProcessing || vouchMutation.isPending || parseInt(vouchAmount) > currentUsdcBalance}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium disabled:opacity-50"
                   >
                     {isProcessing || vouchMutation.isPending ? (
                       <div className="flex items-center gap-2">
