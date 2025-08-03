@@ -65,7 +65,7 @@ function Router() {
     console.log("🏠 Showing Landing page - user not authenticated");
     return (
       <Switch>
-        <Route path="*" component={SimpleTest} />
+        <Route path="*" component={Landing} />
       </Switch>
     );
   }
