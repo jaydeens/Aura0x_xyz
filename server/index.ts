@@ -69,6 +69,21 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   } else {
     serveStatic(app);
+    
+    // Serve static assets with proper cache headers for production
+    app.use(express.static(path.resolve(process.cwd(), 'dist/public'), {
+      maxAge: '1h',
+      etag: true,
+      lastModified: true
+    }));
+    
+    // Fallback for SPA routing - serve index.html for all non-API routes
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return next();
+      }
+      res.sendFile(path.resolve(process.cwd(), 'dist/public/index.html'));
+    });
   }
 
   // ALWAYS serve the app on port 5000
