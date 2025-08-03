@@ -121,20 +121,9 @@ export default function Settings() {
       
       return response.json();
     },
-    onSuccess: async () => {
-      // Force refresh of all queries that might contain user data with profile images
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] }),
-        queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] }),
-        queryClient.invalidateQueries({ predicate: (query) => 
-          typeof query.queryKey[0] === 'string' && 
-          (query.queryKey[0].startsWith('/api/users/') || 
-           query.queryKey[0].startsWith('/api/vouch/stats/'))
-        }),
-        queryClient.refetchQueries({ queryKey: ["/api/leaderboard"] })
-      ]);
-      
+    onSuccess: () => {
       toast({ title: "Profile image updated successfully!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
     onError: (error: any) => {
       toast({ title: "Error uploading image", description: error.message, variant: "destructive" });

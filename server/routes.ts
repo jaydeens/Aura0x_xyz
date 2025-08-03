@@ -8,20 +8,6 @@ import { eq } from "drizzle-orm";
 import { getSession } from "./replitAuth";
 import { setupTwitterAuth, requireTwitterAuth } from "./twitterAuth";
 import { generateDailyLessons, generateLessonAnalysis, generateLessonQuiz, validateTweetContent } from "./openai";
-import { 
-  secureAuth, 
-  validateInput, 
-  createRateLimit, 
-  validateTransaction, 
-  validateWalletSecurity,
-  secureSession,
-  securityHeaders,
-  corsOptions,
-  auditDatabaseAccess,
-  logSecurityEvent,
-  getClientIP 
-} from "./security";
-import cors from "cors";
 
 // Simple authentication middleware for wallet and Twitter auth
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -33,22 +19,6 @@ const isAuthenticated = (req: any, res: any, next: any) => {
   // For now, allow all requests through since we support wallet auth
   // In a production app, you might want to implement proper session management
   return next();
-};
-
-// Strict authentication middleware that requires valid session
-const requireAuth = (req: any, res: any, next: any) => {
-  // Check wallet session first
-  if (req.session?.user?.id) {
-    return next();
-  }
-  
-  // Check Twitter OAuth session
-  if (req.user && req.isAuthenticated && req.isAuthenticated()) {
-    return next();
-  }
-  
-  // No valid authentication found
-  return res.status(401).json({ message: "Unauthorized" });
 };
 import { web3Service, STEEZE_CONTRACT } from "./web3";
 import { z } from "zod";
@@ -184,36 +154,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files statically
   app.use('/uploads', express.static(uploadsDir));
 
-  // Apply comprehensive security middleware (disabled for development)
-  // app.use(securityHeaders);
-  app.use(cors(corsOptions));
-  app.use(secureSession);
-  // app.use(auditDatabaseAccess);
-  // app.use(validateInput);
-  
-  // Global rate limiting - 1000 requests per 15 minutes
-  app.use(createRateLimit(15 * 60 * 1000, 1000));
-  
-  // Import advanced security middleware
-  const { 
-    scanForVulnerabilities, 
-    ipAllowlistMiddleware, 
-    trackSessionSecurity, 
-    detectSuspiciousActivity,
-    securityHealthCheck
-  } = await import("./advanced-security");
-  
-  // Apply advanced security measures (disabled temporarily for testing)
-  // app.use(scanForVulnerabilities);
-  // app.use(ipAllowlistMiddleware);
-  // app.use(trackSessionSecurity);
-  // app.use(detectSuspiciousActivity);
-  
-  // Specific rate limits for sensitive endpoints
-  const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
-  const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
-  const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
-
   // Session middleware for Twitter auth
   app.set("trust proxy", 1);
   app.use(getSession());
@@ -267,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wallet authentication route
-  app.post('/api/auth/wallet', authRateLimit, validateWalletSecurity, async (req, res) => {
+  app.post('/api/auth/wallet', async (req, res) => {
     try {
       const { walletAddress } = req.body;
       
@@ -491,7 +431,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user route (works for both wallet and OAuth)
-  app.get('/api/auth/user', authRateLimit, async (req: any, res) => {
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
       // Set no-cache headers to prevent browser caching
       res.set({
@@ -521,12 +461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Check and reset streak if user has missed days
-      await storage.checkAndResetStreak(userId);
-      
-      // Fetch updated user data after potential streak reset
-      const updatedUser = await storage.getUser(userId);
-      return res.json(updatedUser);
+      return res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -932,9 +867,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      // Generate the image URL with cache-busting parameter
-      const timestamp = Date.now();
-      const imageUrl = `/uploads/${req.file.filename}?v=${timestamp}`;
+      // Generate the image URL (accessible via static file serving)
+      const imageUrl = `/uploads/${req.file.filename}`;
 
       // Update user's profile with the new image URL
       await storage.updateUserProfile(userId, { profileImageUrl: imageUrl });
@@ -1203,9 +1137,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         yesterday.setDate(yesterday.getDate() - 1);
         yesterday.setHours(0, 0, 0, 0);
         
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
         const lastDate = new Date(lastLessonDate);
         lastDate.setHours(0, 0, 0, 0);
         
@@ -1213,16 +1144,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (lastDate.getTime() === yesterday.getTime()) {
           newStreak = (user.currentStreak || 0) + 1;
         }
-        // If they completed today already, keep current streak
-        else if (lastDate.getTime() === today.getTime()) {
-          newStreak = user.currentStreak || 1;
-        }
-        // If they missed days (last lesson was more than 1 day ago), streak resets to 1 when they complete a lesson
+        // If they completed today, keep current streak
         else {
-          newStreak = 1;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (lastDate.getTime() === today.getTime()) {
+            newStreak = user.currentStreak || 1;
+          }
         }
       }
-      // If no previous lessons, this is their first lesson, so streak starts at 1
       
       // If there's an existing quiz record, update it to completed
       if (existingCompletedLesson && !existingCompletedLesson.completed) {
@@ -1838,7 +1768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouch = await storage.createVouch({
         fromUserId: userId,
         toUserId: vouchedUser.id,
-        usdtAmount: verification.usdcAmount!.toString(),
+        usdtAmount: verification.ethAmount!.toString(),
         auraPoints: verification.auraPoints!,
         multiplier: "1.0",
         transactionHash,
@@ -1847,15 +1777,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to recipient
       await storage.updateUserAura(vouchedUser.id, verification.auraPoints!, 'vouching');
       
-      // Track USDC earnings (70% goes to vouched user as per contract)
-      const usdcEarnings = verification.usdcAmount! * 0.7;
-      await storage.updateUserUsdtEarnings(vouchedUser.id, usdcEarnings);
+      // Track ETH earnings (60% goes to vouched user as per contract)
+      const ethEarnings = verification.ethAmount! * 0.6;
+      await storage.updateUserUsdtEarnings(vouchedUser.id, ethEarnings);
       
       res.json({
         success: true,
         vouch,
         auraAwarded: verification.auraPoints,
-        usdcAmount: verification.usdcAmount,
+        ethAmount: verification.ethAmount,
         vouchedUser: vouchedUser.walletAddress
       });
     } catch (error: any) {
@@ -1864,22 +1794,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new vouch with USDC payment
+  // Create a new vouch with ETH payment
   app.post('/api/vouch/create', isAuthenticated, async (req: any, res) => {
     try {
-      const { vouchedUserId, usdcAmount, transactionHash } = req.body;
+      const { vouchedUserId, ethAmount, transactionHash } = req.body;
       const voucherId = req.session?.user?.id || req.user?.claims?.sub;
 
       if (!voucherId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // Validate USDC amount (1-100 USDC range)
-      const minAmount = 1;
-      const maxAmount = 100;
-      if (usdcAmount < minAmount || usdcAmount > maxAmount) {
+      // Validate ETH amount (must be exactly 0.0001 ETH)
+      const requiredAmount = 0.0001;
+      if (Math.abs(ethAmount - requiredAmount) > 0.000001) {
         return res.status(400).json({ 
-          message: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC` 
+          message: `Vouching amount must be exactly ${requiredAmount} ETH` 
         });
       }
 
@@ -1902,15 +1831,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userStreakDays >= level.minDays && (level.maxDays === null || userStreakDays <= level.maxDays)
       ) || auraLevels[0]; // Default to first level if none found
 
-      // Calculate aura points: 1 USDC = 10 APs, with level multiplier
-      const baseAuraPoints = usdcAmount * 10; // 10 APs per USDC
+      // Calculate aura points with level multiplier
+      const baseAuraPoints = 50;
       const finalAuraPoints = Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
 
       // Create vouch record
       const vouch = await storage.createVouch({
         fromUserId: voucherId,
         toUserId: vouchedUserId,
-        usdtAmount: usdcAmount.toString(),
+        usdtAmount: ethAmount.toString(),
         auraPoints: finalAuraPoints,
         transactionHash,
         multiplier: userLevel.vouchingMultiplier
@@ -1919,9 +1848,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to the vouched user
       await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
 
-      // Update USDC earnings (70% of vouched amount goes to the user)
-      const usdcEarnings = usdcAmount * 0.7;
-      await storage.updateUserUsdtEarnings(vouchedUserId, usdcEarnings);
+      // Update ETH earnings (70% of vouched amount goes to the user)
+      const ethEarnings = ethAmount * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUserId, ethEarnings);
 
       // Create notification for vouched user
       const voucherName = voucher.username || voucher.walletAddress?.slice(0, 6) + '...' + voucher.walletAddress?.slice(-4) || 'Someone';
@@ -1930,7 +1859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${usdcAmount} USDC and awarded ${finalAuraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${ethAmount} ETH and awarded ${finalAuraPoints} aura points!`,
         isRead: false
       });
 
@@ -1947,125 +1876,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Security health check endpoint (admin access)
-  app.get('/api/admin/security/health', secureAuth, async (req, res) => {
-    try {
-      const healthStatus = await securityHealthCheck();
-      res.json(healthStatus);
-    } catch (error) {
-      console.error('Security health check error:', error);
-      res.status(500).json({ message: 'Health check failed' });
-    }
-  });
-
-  // Security dashboard endpoint
-  app.get('/api/admin/security/dashboard', secureAuth, async (req, res) => {
-    try {
-      // Get recent security events
-      const recentEvents = await db.execute(`
-        SELECT event_type, severity, COUNT(*) as count, MAX(timestamp) as last_occurrence
-        FROM security_events 
-        WHERE timestamp >= NOW() - INTERVAL '24 hours'
-        GROUP BY event_type, severity
-        ORDER BY last_occurrence DESC
-        LIMIT 20
-      `);
-
-      // Get vulnerability scan summary
-      const vulnerabilities = await db.execute(`
-        SELECT vulnerability_level, COUNT(*) as count
-        FROM vulnerability_scans 
-        WHERE scan_timestamp >= NOW() - INTERVAL '24 hours'
-        GROUP BY vulnerability_level
-      `);
-
-      // Get active session count
-      const sessions = await db.execute(`
-        SELECT COUNT(*) as active_sessions
-        FROM session_security 
-        WHERE session_status = 'ACTIVE' 
-        AND last_activity >= NOW() - INTERVAL '1 hour'
-      `);
-
-      res.json({
-        recentEvents: recentEvents.rows,
-        vulnerabilities: vulnerabilities.rows,
-        activeSessions: parseInt(sessions.rows[0]?.active_sessions || '0'),
-        timestamp: new Date().toISOString(),
-        status: 'operational'
-      });
-    } catch (error) {
-      console.error('Security dashboard error:', error);
-      res.status(500).json({ message: 'Dashboard data unavailable' });
-    }
-  });
-
   // Get vouching contract info
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: "0x8e6e64396717F69271c7994f90AFeC621C237315", // Base Mainnet for all environments
-        chainId: 8453, // Base Mainnet
-        networkName: "Base Mainnet",
+        contractAddress: "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8",
+        chainId: 84532,
+        networkName: "Base Sepolia",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
-        minAmount: 1,
-        maxAmount: 100,
-        baseAuraPointsPerUSDC: 10,
+        requiredAmount: 0.0001,
+        baseAuraPoints: 50,
         abi: [
           {
-            "inputs": [
-              {"internalType": "address", "name": "vouchedFor", "type": "address"},
-              {"internalType": "uint256", "name": "amount", "type": "uint256"}
-            ],
+            "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],
             "name": "vouch",
             "outputs": [],
-            "stateMutability": "nonpayable",
+            "stateMutability": "payable",
             "type": "function"
           },
           {
             "anonymous": false,
             "inputs": [
-              {"indexed": true, "internalType": "address", "name": "voucher", "type": "address"},
-              {"indexed": true, "internalType": "address", "name": "vouchedFor", "type": "address"},
-              {"indexed": false, "internalType": "uint256", "name": "amountUSDC", "type": "uint256"},
-              {"indexed": false, "internalType": "uint256", "name": "auraPointsAwarded", "type": "uint256"}
+              {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+              {"indexed": true, "internalType": "address", "name": "creator", "type": "address"},
+              {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}
             ],
             "name": "Vouched",
             "type": "event"
           },
           {
             "inputs": [],
-            "name": "USDC",
-            "outputs": [{"internalType": "contract IERC20", "name": "", "type": "address"}],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "feeReceiver",
-            "outputs": [{"internalType": "address", "name": "", "type": "address"}],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "AURA_PER_USDC",
+            "name": "VOUCH_FEE",
             "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
             "stateMutability": "view",
             "type": "function"
           },
           {
-            "inputs": [],
-            "name": "MIN_VOUCH",
-            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "MAX_VOUCH",
-            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "inputs": [
+              {"internalType": "address", "name": "", "type": "address"},
+              {"internalType": "address", "name": "", "type": "address"}
+            ],
+            "name": "hasVouched",
+            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
             "stateMutability": "view",
             "type": "function"
           }
@@ -2109,15 +1962,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouchesGiven = vouches.filter(v => v.fromUserId === userId);
       const vouchesReceived = vouches.filter(v => v.toUserId === userId);
       
-      const totalUsdcGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
-      const totalUsdcReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
+      const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
+      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
       const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
 
       res.json({
         vouchesGiven: vouchesGiven.length,
         vouchesReceived: vouchesReceived.length,
-        totalUsdcGiven,
-        totalUsdcReceived,
+        totalEthGiven,
+        totalEthReceived,
         totalAuraReceived,
         recentVouches: vouches.slice(0, 10)
       });
@@ -2127,33 +1980,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get vouch amount from specific user to another user
-  app.get('/api/vouch/amount/:fromUserId/:toUserId', async (req, res) => {
-    try {
-      const { fromUserId, toUserId } = req.params;
-      const vouches = await storage.getUserVouches(fromUserId);
-      
-      // Calculate total amount vouched from fromUserId to toUserId
-      const vouchesToTarget = vouches.filter(v => v.fromUserId === fromUserId && v.toUserId === toUserId);
-      const totalVouchedAmount = vouchesToTarget.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
-      
-      res.json({
-        totalVouchedAmount,
-        remainingAmount: Math.max(0, 100 - totalVouchedAmount), // 100 USDC max
-        canVouchMore: totalVouchedAmount < 100,
-        vouchCount: vouchesToTarget.length
-      });
-    } catch (error: any) {
-      console.error("Error getting vouch amount:", error);
-      res.status(500).json({ message: "Failed to get vouch amount" });
-    }
-  });
-
   // Steeze Stack API routes - Base Sepolia Contract Integration
   app.get("/api/steeze/rate", async (req, res) => {
     try {
       const rate = await web3Service.getSteezeRate();
-      res.json({ steezePerUsdc: rate });
+      res.json({ steezePerEth: rate });
     } catch (error: any) {
       console.error("Error getting Steeze rate:", error);
       res.status(500).json({ message: "Failed to get Steeze rate" });
@@ -2201,170 +2032,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get USDC balance for wallet address
-  app.get("/api/wallet/usdc-balance/:address", async (req, res) => {
+  app.post("/api/steeze/purchase", async (req: any, res) => {
     try {
-      const { address } = req.params;
-      
-      if (!web3Service.isValidAddress(address)) {
-        return res.status(400).json({ message: "Invalid wallet address" });
+      // Get user ID from either wallet session or OAuth
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
       }
       
-      const balance = await web3Service.getUSDCBalance(address);
-      res.json({ 
-        balance: parseFloat(balance), 
-        address,
-        currency: "USDC"
-      });
-    } catch (error: any) {
-      console.error("Error getting USDC balance:", error);
-      res.status(500).json({ message: "Failed to get USDC balance" });
-    }
-  });
-
-  app.post("/api/steeze/purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
-    try {
-      const { usdcAmount } = req.body;
-      const userId = req.session?.user?.id;
-      const userWallet = req.session?.user?.wallet_address;
-      
-      // Input validation for amount-based requests
-      if (usdcAmount) {
-        if (usdcAmount <= 0 || usdcAmount > 1000) {
-          return res.status(400).json({ error: 'USDC amount must be between 0 and 1000' });
-        }
-        
-        if (!userWallet) {
-          return res.status(401).json({ error: 'User wallet not found' });
-        }
-        
-        // Validate user's USDC balance
-        const hasBalance = await web3Service.validateUserBalance(userWallet, usdcAmount, 'usdc');
-        if (!hasBalance) {
-          return res.status(400).json({ error: 'Insufficient USDC balance' });
-        }
-        
-        const rate = await web3Service.getSteezeRate();
-        const steezeAmount = Math.floor(usdcAmount * rate);
-        
-        return res.json({
-          rate,
-          steezeAmount,
-          usdcAmount: parseFloat(usdcAmount),
-          userAddress: userWallet
-        });
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // Return general purchase info for UI
       const rate = await web3Service.getSteezeRate();
       
       res.json({ 
         contractAddress: STEEZE_CONTRACT.address,
-        chainId: 8453, // Base Mainnet
-        steezePerUsdc: rate,
-        networkName: "Base Mainnet"
+        chainId: 84532, // Base Sepolia
+        steezePerEth: rate,
+        networkName: "Base Sepolia"
       });
     } catch (error: any) {
       console.error("Error getting purchase info:", error);
       res.status(500).json({ message: "Failed to get purchase information" });
-    }
-  });
-
-  // Backend-controlled Steeze purchase (secure)
-  app.post("/api/steeze/backend-purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
-    try {
-      const { usdcAmount } = req.body;
-      const userId = req.session?.user?.id;
-      const userWallet = req.session?.user?.wallet_address;
-      
-      if (!userId || !userWallet) {
-        return res.status(401).json({ error: 'User not authenticated' });
-      }
-      
-      // Use backend-controlled purchase method
-      const result = await web3Service.purchaseSteezeForUser(userWallet, usdcAmount);
-      
-      if (!result.success) {
-        return res.status(400).json({ error: result.error });
-      }
-      
-      // Update user balance in database
-      if (result.steezeAmount) {
-        await storage.updateUserSteezeBalance(userId, result.steezeAmount, 'purchase');
-        
-        // Create transaction record
-        await storage.createSteezeTransaction({
-          id: `steeze_${Date.now()}_${Math.random()}`,
-          userId,
-          type: 'purchase',
-          amount: result.steezeAmount,
-          usdtAmount: usdcAmount,
-          rate: result.steezeAmount / usdcAmount,
-          status: 'confirmed',
-          transactionHash: result.transactionHash!
-        });
-      }
-      
-      res.json({
-        success: true,
-        steezeAmount: result.steezeAmount,
-        transactionHash: result.transactionHash
-      });
-    } catch (error) {
-      console.error('Error in backend-controlled purchase:', error);
-      res.status(500).json({ error: 'Purchase failed' });
-    }
-  });
-
-  // Backend-controlled Steeze redemption (secure)
-  app.post("/api/steeze/backend-redeem", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
-    try {
-      const { steezeAmount } = req.body;
-      const userId = req.session?.user?.id;
-      const userWallet = req.session?.user?.wallet_address;
-      
-      if (!userId || !userWallet) {
-        return res.status(401).json({ error: 'User not authenticated' });
-      }
-      
-      // Check user's Steeze balance
-      const user = await storage.getUser(userId);
-      if (!user || (user.purchased_steeze + user.battle_earned_steeze) < steezeAmount) {
-        return res.status(400).json({ error: 'Insufficient Steeze balance' });
-      }
-      
-      // Use backend-controlled redemption method
-      const result = await web3Service.redeemSteezeForUser(userWallet, steezeAmount);
-      
-      if (!result.success) {
-        return res.status(400).json({ error: result.error });
-      }
-      
-      // Update user balance in database
-      if (result.usdcAmount) {
-        await storage.updateUserSteezeBalance(userId, -steezeAmount, 'redeem');
-        
-        // Create transaction record
-        await storage.createSteezeTransaction({
-          id: `steeze_${Date.now()}_${Math.random()}`,
-          userId,
-          type: 'redeem',
-          amount: steezeAmount,
-          usdtAmount: result.usdcAmount,
-          rate: result.usdcAmount / steezeAmount,
-          status: 'confirmed',
-          transactionHash: result.transactionHash!
-        });
-      }
-      
-      res.json({
-        success: true,
-        usdcAmount: result.usdcAmount,
-        transactionHash: result.transactionHash
-      });
-    } catch (error) {
-      console.error('Error in backend-controlled redemption:', error);
-      res.status(500).json({ error: 'Redemption failed' });
     }
   });
 
@@ -2382,8 +2074,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // For the specific transaction 0x6ef8c4814e1e5c3e210eea28350688c2e1b42b0a8a59b6a7c3624f7c4dfe184e
-      // This was 0.1 USDC = 10 Steeze tokens
-      const usdcAmount = 0.1;
+      // This was 0.001 ETH = 10 Steeze tokens
+      const ethAmount = 0.001;
       const steezeAmount = 10;
       const rate = "10000";
 
@@ -2398,7 +2090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: user.id,
         type: "purchase",
         amount: steezeAmount,
-        usdtAmount: usdcAmount.toString(),
+        usdtAmount: ethAmount.toString(),
         rate,
         status: "completed",
         transactionHash
@@ -2409,7 +2101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: user.id,
         transaction,
         newBalance: currentPurchased + steezeAmount,
-        usdcAmount,
+        ethAmount,
         steezeAmount
       });
     } catch (error: any) {
@@ -2505,7 +2197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid transaction" });
       }
 
-      const { usdcAmount = 0, steezeAmount = 0, userAddress } = txVerification;
+      const { ethAmount = 0, steezeAmount = 0, userAddress } = txVerification;
 
       if (!userAddress) {
         return res.status(400).json({ message: "Could not determine transaction sender" });
@@ -2545,8 +2237,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: transactionUser.id,
         type: "purchase",
         amount: steezeAmount,
-        usdtAmount: usdcAmount.toString(),
-        rate: (usdcAmount > 0 ? (steezeAmount / usdcAmount).toString() : "10000"),
+        usdtAmount: ethAmount.toString(),
+        rate: (ethAmount > 0 ? (steezeAmount / ethAmount).toString() : "10000"),
         status: "completed",
         transactionHash
       });
@@ -2563,7 +2255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         transaction,
         steezeAmount,
-        usdcAmount,
+        ethAmount,
         newBalance: currentPurchased + steezeAmount
       });
     } catch (error: any) {
@@ -2661,8 +2353,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { amount } = req.body;
-      const redeemRate = 0.07; // 1 Steeze = 0.07 USDC
-      const usdcAmount = amount * redeemRate;
+      const redeemRate = 0.00007; // 1 Steeze = 0.00007 ETH
+      const ethAmount = amount * redeemRate;
       
       // Get current user and check balance
       const user = await storage.getUser(userId);
@@ -2677,8 +2369,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         type: "redeem",
         amount,
-        usdtAmount: usdcAmount.toString(),
-        rate: "0.07",
+        usdtAmount: ethAmount.toString(),
+        rate: "0.00007",
         status: "completed"
       });
 
@@ -2688,7 +2380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         transaction, 
         newBalance: currentBalance - amount,
-        usdcReceived: usdcAmount
+        ethReceived: ethAmount
       });
     } catch (error: any) {
       console.error("Error redeeming Steeze:", error);

@@ -26,24 +26,9 @@ export const BASE_SEPOLIA = {
   blockExplorer: "https://sepolia-explorer.base.org/",
 };
 
-// Base Mainnet configuration
-export const BASE_MAINNET = {
-  chainId: 8453,
-  name: "Base",
-  rpcUrl: "https://mainnet.base.org",
-  nativeCurrency: {
-    name: "ETH",
-    symbol: "ETH",
-    decimals: 18,
-  },
-  blockExplorer: "https://basescan.org/",
-};
-
-
-
-// Vouching Contract Configuration - Always use Base Mainnet
+// Vouching Contract Configuration
 export const VOUCHING_CONTRACT = {
-  address: "0x8e6e64396717F69271c7994f90AFeC621C237315", // Base Mainnet for all environments
+  address: process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000", // To be deployed
   abi: [
     {
       "inputs": [],
@@ -150,13 +135,7 @@ export const VOUCHING_CONTRACT = {
 
 // Steeze Contract Configuration
 export const STEEZE_CONTRACT = {
-  address: process.env.NODE_ENV === 'production' 
-    ? (process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3")
-    : (process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962"), // Environment-based contract addresses
-  
-  // Platform wallet for backend-controlled transactions
-  platformWallet: process.env.PLATFORM_WALLET_ADDRESS || "",
-  platformPrivateKey: process.env.PLATFORM_PRIVATE_KEY || "",
+  address: process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962",
   abi: [
     {
       "inputs": [{"internalType": "uint256", "name": "_buyPrice", "type": "uint256"}, {"internalType": "uint256", "name": "_sellPrice", "type": "uint256"}],
@@ -165,12 +144,8 @@ export const STEEZE_CONTRACT = {
     },
     {
       "anonymous": false,
-      "inputs": [
-        {"indexed": true, "internalType": "address", "name": "user", "type": "address"}, 
-        {"indexed": false, "internalType": "uint256", "name": "usdcAmount", "type": "uint256"}, 
-        {"indexed": false, "internalType": "uint256", "name": "steezeAmount", "type": "uint256"}
-      ],
-      "name": "SteezeBought",
+      "inputs": [{"indexed": true, "internalType": "address", "name": "buyer", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "Bought",
       "type": "event"
     },
     {
@@ -255,54 +230,6 @@ export const STEEZE_CONTRACT = {
   ]
 };
 
-// Current network configuration (switch to BASE_MAINNET for production)
-export const CURRENT_NETWORK = BASE_MAINNET; // Always use Base Mainnet for both prod and dev
-
-// USDC Contract Configuration for Base Mainnet
-export const USDC_CONTRACT = {
-  address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base Mainnet (used for both prod and dev)
-  decimals: 6, // USDC has 6 decimals
-  symbol: "USDC",
-  name: "USD Coin",
-  abi: [
-    {
-      "inputs": [{"internalType": "address", "name": "owner", "type": "address"}],
-      "name": "balanceOf",
-      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-      "name": "approve",
-      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}],
-      "name": "allowance",
-      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [{"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-      "name": "transfer",
-      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-      "name": "transferFrom",
-      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    }
-  ]
-};
-
 // Platform wallet address (should be set in environment variables)
 export const PLATFORM_WALLET = process.env.PLATFORM_WALLET_ADDRESS || "0x0000000000000000000000000000000000000000";
 
@@ -320,27 +247,11 @@ export interface VouchTransaction {
 export class Web3Service {
   private polygonProvider: ethers.JsonRpcProvider;
   private baseProvider: ethers.JsonRpcProvider;
-  private platformSigner: ethers.Wallet | null = null;
 
   constructor() {
     // Initialize providers as null to avoid connection errors on startup
     this.polygonProvider = null as any;
     this.baseProvider = null as any;
-    this.initializePlatformSigner();
-  }
-  
-  /**
-   * Initialize platform signer for backend-controlled transactions
-   */
-  private initializePlatformSigner() {
-    if (STEEZE_CONTRACT.platformPrivateKey && this.baseProvider) {
-      try {
-        this.platformSigner = new ethers.Wallet(STEEZE_CONTRACT.platformPrivateKey, this.baseProvider);
-        console.log("Platform signer initialized for address:", this.platformSigner.address);
-      } catch (error) {
-        console.error("Failed to initialize platform signer:", error);
-      }
-    }
   }
 
   private initPolygonProvider() {
@@ -352,9 +263,7 @@ export class Web3Service {
 
   private initBaseProvider() {
     if (!this.baseProvider) {
-      this.baseProvider = new ethers.JsonRpcProvider(CURRENT_NETWORK.rpcUrl);
-      // Initialize platform signer when provider is ready
-      this.initializePlatformSigner();
+      this.baseProvider = new ethers.JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
     }
     return this.baseProvider;
   }
@@ -381,27 +290,6 @@ export class Web3Service {
       return ethers.formatEther(balance);
     } catch (error) {
       console.error("Error getting ETH balance:", error);
-      return "0";
-    }
-  }
-
-  async getUSDCBalance(address: string): Promise<string> {
-    try {
-      console.log(`Fetching USDC balance for address: ${address}`);
-      console.log(`Using USDC contract: ${USDC_CONTRACT.address}`);
-      console.log(`Using RPC: ${CURRENT_NETWORK.rpcUrl}`);
-      
-      const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(USDC_CONTRACT.address, USDC_CONTRACT.abi, provider);
-      const balance = await contract.balanceOf(address);
-      
-      console.log(`Raw balance: ${balance}`);
-      const formattedBalance = ethers.formatUnits(balance, USDC_CONTRACT.decimals);
-      console.log(`Formatted balance: ${formattedBalance} USDC`);
-      
-      return formattedBalance;
-    } catch (error) {
-      console.error("Error getting USDC balance:", error);
       return "0";
     }
   }
@@ -435,12 +323,12 @@ export class Web3Service {
         return { isValid: false };
       }
 
-      // For USDC transfers, we can get the amount directly from the transaction
+      // For ETH transfers, we can get the amount directly from the transaction
       return {
         isValid: true,
         from: tx.from,
         to: tx.to || "",
-        amount: ethers.formatUnits(tx.value, 6), // USDC has 6 decimals
+        amount: ethers.formatEther(tx.value),
         blockNumber: receipt.blockNumber
       };
     } catch (error) {
@@ -450,16 +338,16 @@ export class Web3Service {
   }
 
   /**
-   * Calculate vouch distribution (70% to KOL, 30% to platform)
+   * Calculate vouch distribution (60% to KOL, 40% to platform)
    */
-  calculateVouchDistribution(usdcAmount: number): {
+  calculateVouchDistribution(ethAmount: number): {
     kolAmount: number;
     platformAmount: number;
     auraPoints: number;
   } {
-    const kolAmount = usdcAmount * 0.7;
-    const platformAmount = usdcAmount * 0.3;
-    const auraPoints = Math.floor(usdcAmount * 10); // 1 USDC = 10 Aura Points
+    const kolAmount = ethAmount * 0.6;
+    const platformAmount = ethAmount * 0.4;
+    const auraPoints = Math.floor(ethAmount * 1000); // 1 ETH = 1000 Aura Points
 
     return {
       kolAmount,
@@ -504,7 +392,7 @@ export class Web3Service {
     isValid: boolean;
     voucher?: string;
     vouchedUser?: string;
-    usdcAmount?: number;
+    ethAmount?: number;
     auraPoints?: number;
     vouchId?: number;
     blockNumber?: number;
@@ -530,7 +418,7 @@ export class Web3Service {
                 isValid: true,
                 voucher: parsedLog.args.voucher,
                 vouchedUser: parsedLog.args.vouchedUser,
-                usdcAmount: parseFloat(ethers.formatUnits(parsedLog.args.amount, 6)), // USDC has 6 decimals
+                ethAmount: parseFloat(ethers.formatEther(parsedLog.args.amount)),
                 auraPoints: parseInt(parsedLog.args.auraPoints.toString()),
                 vouchId: parseInt(parsedLog.args.vouchId.toString()),
                 blockNumber: receipt.blockNumber
@@ -601,7 +489,7 @@ export class Web3Service {
         isValid: true,
         from: transaction.from,
         to: transaction.to || undefined,
-        value: ethers.formatUnits(transaction.value, 6), // USDC has 6 decimals
+        value: ethers.formatEther(transaction.value),
         blockNumber: receipt.blockNumber,
       };
     } catch (error) {
@@ -620,13 +508,13 @@ export class Web3Service {
       
       const buyPrice = await contract.buyPrice();
       // buyPrice is the cost in wei per 1 Steeze token
-      // So rate = 1 USDC (1e6 units) / buyPrice = tokens per USDC
-      const oneUsdc = ethers.parseUnits("1", 6); // USDC has 6 decimals
-      const rate = Number(oneUsdc) / Number(buyPrice);
+      // So rate = 1 ETH (1e18 wei) / buyPrice = tokens per ETH
+      const oneEth = ethers.parseEther("1");
+      const rate = Number(oneEth) / Number(buyPrice);
       return Math.floor(rate);
     } catch (error) {
       console.error("Error getting Steeze rate:", error);
-      // Default rate: 10000 Steeze per 1 USDC
+      // Default rate: 10000 Steeze per 1 ETH
       return 10000;
     }
   }
@@ -653,7 +541,7 @@ export class Web3Service {
   async verifySteezeTransaction(transactionHash: string): Promise<{
     isValid: boolean;
     userAddress?: string;
-    usdcAmount?: number;
+    ethAmount?: number;
     steezeAmount?: number;
     blockNumber?: number;
   }> {
@@ -684,294 +572,47 @@ export class Web3Service {
         return { isValid: false };
       }
 
-      // Parse the SteezeBought event from logs
-      console.log(`[Web3] Checking ${logs.length} logs for SteezeBought event`);
-      
-      // Define the SteezeBought event ABI for parsing
-      const steezeBoughtEventABI = [
-        "event SteezeBought(address indexed user, uint256 usdcAmount, uint256 steezeAmount)"
-      ];
-      const eventInterface = new ethers.Interface(steezeBoughtEventABI);
+      // Parse the Bought event from logs
+      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
+      const logs = receipt.logs;
       
       for (const log of logs) {
         try {
-          // Check if this log is from the Steeze contract
-          if (log.address.toLowerCase() !== contractAddress) {
-            continue;
-          }
-          
-          // Try to parse using the specific event ABI
-          const parsedLog = eventInterface.parseLog({
+          const parsedLog = contract.interface.parseLog({
             topics: log.topics,
             data: log.data
           });
           
-          console.log(`[Web3] Parsed log: ${parsedLog?.name}`, parsedLog?.args);
-          
-          if (parsedLog && parsedLog.name === 'SteezeBought') {
-            const buyerAddress = parsedLog.args[0]; // user
-            const usdcAmountWei = parsedLog.args[1]; // usdcAmount (in wei - 6 decimals)
-            const steezeAmountWei = parsedLog.args[2]; // steezeAmount (in wei - 6 decimals, not 18)
-            
-            const usdcAmount = parseFloat(ethers.formatUnits(usdcAmountWei, 6)); // USDC has 6 decimals
-            const steezeAmount = parseFloat(ethers.formatUnits(steezeAmountWei, 6)); // Steeze also uses 6 decimals based on contract
-            
-            console.log(`[Web3] SteezeBought event found: buyer=${buyerAddress}, usdc=${usdcAmount}, steeze=${steezeAmount}`);
+          if (parsedLog && parsedLog.name === 'Bought') {
+            const buyerAddress = parsedLog.args[0];
+            const steezeAmount = parseInt(parsedLog.args[1].toString());
+            const ethAmount = parseFloat(ethers.formatEther(transaction.value));
             
             return {
               isValid: true,
               userAddress: buyerAddress,
-              usdcAmount: usdcAmount,
+              ethAmount: ethAmount,
               steezeAmount: steezeAmount,
               blockNumber: receipt.blockNumber,
             };
           }
         } catch (parseError) {
-          console.log(`[Web3] Failed to parse log:`, parseError);
           // Continue to next log if this one can't be parsed
           continue;
         }
       }
 
-      console.log("[Web3] No SteezeBought event found in transaction logs");
-      return { isValid: false };
+      // If no event found, but transaction was successful, extract basic info
+      return {
+        isValid: true,
+        userAddress: transaction.from,
+        ethAmount: parseFloat(ethers.formatEther(transaction.value)),
+        steezeAmount: 0, // Will need to be calculated
+        blockNumber: receipt.blockNumber,
+      };
     } catch (error) {
       console.error("Error verifying Steeze transaction:", error);
       return { isValid: false };
-    }
-  }
-
-  /**
-   * Backend-controlled Steeze purchase (secure implementation)
-   */
-  async purchaseSteezeForUser(userAddress: string, usdcAmount: number): Promise<{
-    success: boolean;
-    transactionHash?: string;
-    steezeAmount?: number;
-    error?: string;
-  }> {
-    try {
-      // Input validation
-      if (!this.isValidAddress(userAddress)) {
-        return { success: false, error: "Invalid user address" };
-      }
-      
-      if (usdcAmount <= 0 || usdcAmount > 1000) {
-        return { success: false, error: "Invalid USDC amount (must be 0-1000)" };
-      }
-      
-      // Check if platform signer is available
-      if (!this.platformSigner) {
-        return { success: false, error: "Platform signer not configured" };
-      }
-      
-      // Check if Steeze contract is deployed
-      if (STEEZE_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
-        return { success: false, error: "Steeze contract not deployed" };
-      }
-      
-      const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(
-        STEEZE_CONTRACT.address,
-        STEEZE_CONTRACT.abi,
-        this.platformSigner
-      );
-      
-      // Calculate Steeze amount based on current rate
-      const rate = await this.getSteezeRate();
-      const steezeAmount = Math.floor(usdcAmount * rate);
-      
-      // Execute transaction (this would be the actual contract call)
-      // For now, simulate the transaction for security
-      const mockTxHash = `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
-      
-      console.log(`[Backend] Simulated Steeze purchase: ${usdcAmount} USDC -> ${steezeAmount} STEEZE for ${userAddress}`);
-      
-      return {
-        success: true,
-        transactionHash: mockTxHash,
-        steezeAmount: steezeAmount
-      };
-    } catch (error) {
-      console.error("Error in backend Steeze purchase:", error);
-      return { success: false, error: "Transaction failed" };
-    }
-  }
-  
-  /**
-   * Backend-controlled Steeze redemption (secure implementation)
-   */
-  async redeemSteezeForUser(userAddress: string, steezeAmount: number): Promise<{
-    success: boolean;
-    transactionHash?: string;
-    usdcAmount?: number;
-    error?: string;
-  }> {
-    try {
-      // Input validation
-      if (!this.isValidAddress(userAddress)) {
-        return { success: false, error: "Invalid user address" };
-      }
-      
-      if (steezeAmount <= 0) {
-        return { success: false, error: "Invalid Steeze amount" };
-      }
-      
-      // Check if platform signer is available
-      if (!this.platformSigner) {
-        return { success: false, error: "Platform signer not configured" };
-      }
-      
-      // Check if Steeze contract is deployed
-      if (STEEZE_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
-        return { success: false, error: "Steeze contract not deployed" };
-      }
-      
-      const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(
-        STEEZE_CONTRACT.address,
-        STEEZE_CONTRACT.abi,
-        this.platformSigner
-      );
-      
-      // Calculate USDC amount based on redemption rate (0.07 USDC per STEEZE)
-      const redemptionRate = 0.07;
-      const usdcAmount = steezeAmount * redemptionRate;
-      
-      // Execute transaction (this would be the actual contract call)
-      // For now, simulate the transaction for security
-      const mockTxHash = `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
-      
-      console.log(`[Backend] Simulated Steeze redemption: ${steezeAmount} STEEZE -> ${usdcAmount} USDC for ${userAddress}`);
-      
-      return {
-        success: true,
-        transactionHash: mockTxHash,
-        usdcAmount: usdcAmount
-      };
-    } catch (error) {
-      console.error("Error in backend Steeze redemption:", error);
-      return { success: false, error: "Transaction failed" };
-    }
-  }
-  
-  /**
-   * Validate user balance before transaction
-   */
-  async validateUserBalance(userAddress: string, requiredAmount: number, type: 'usdc' | 'steeze'): Promise<boolean> {
-    try {
-      if (type === 'usdc') {
-        const balance = await this.getUSDCBalance(userAddress);
-        return balance >= requiredAmount;
-      } else {
-        // For Steeze, check database balance since it's off-chain
-        // This would integrate with your database service
-        return true; // Simplified for now
-      }
-    } catch (error) {
-      console.error("Error validating user balance:", error);
-      return false;
-    }
-  }
-  
-  /**
-   * Monitor Steeze contract events for security (polling-based for stability)
-   */
-  async monitorSteezeEvents(): Promise<void> {
-    try {
-      console.log("[Event Monitor] Starting secure polling-based event monitoring");
-      
-      // Use polling instead of filters to avoid RPC connection issues
-      setInterval(async () => {
-        try {
-          await this.pollForSteezeEvents();
-        } catch (error) {
-          console.error("[Event Monitor] Polling error:", error);
-        }
-      }, 30000); // Poll every 30 seconds
-      
-      console.log("[Event Monitor] Steeze event monitoring started (polling mode)");
-    } catch (error) {
-      console.error("Error setting up Steeze event monitoring:", error);
-    }
-  }
-  
-  /**
-   * Poll for recent Steeze events using getLogs
-   */
-  private async pollForSteezeEvents(): Promise<void> {
-    try {
-      const provider = this.initBaseProvider();
-      const currentBlock = await provider.getBlockNumber();
-      const fromBlock = Math.max(currentBlock - 100, 0); // Check last 100 blocks
-      
-      const steezeEventFilter = {
-        address: STEEZE_CONTRACT.address,
-        topics: [ethers.id("SteezeBought(address,uint256,uint256)")],
-        fromBlock,
-        toBlock: currentBlock
-      };
-      
-      const logs = await provider.getLogs(steezeEventFilter);
-      
-      for (const log of logs) {
-        try {
-          const eventInterface = new ethers.Interface(STEEZE_CONTRACT.abi);
-          const parsedLog = eventInterface.parseLog(log);
-          
-          if (parsedLog && parsedLog.name === 'SteezeBought') {
-            const user = parsedLog.args[0];
-            const usdcAmount = parseFloat(ethers.formatUnits(parsedLog.args[1], 6));
-            const steezeAmount = parseFloat(ethers.formatUnits(parsedLog.args[2], 6));
-            
-            console.log(`[Event Monitor] SteezeBought detected: ${user}, USDC: ${usdcAmount}, STEEZE: ${steezeAmount}`);
-            await this.logSteezeEvent('purchase', user, usdcAmount, steezeAmount, log.transactionHash || '');
-          }
-        } catch (parseError) {
-          console.error("[Event Monitor] Failed to parse log:", parseError);
-        }
-      }
-    } catch (error) {
-      console.error("[Event Monitor] Error polling for events:", error);
-    }
-  }
-  
-  /**
-   * Log Steeze events to database for security tracking
-   */
-  private async logSteezeEvent(type: 'purchase' | 'redeem', userAddress: string, usdcAmount: number, steezeAmount: number, txHash: string): Promise<void> {
-    try {
-      const { db } = await import("./db");
-      
-      await db.execute(`
-        INSERT INTO steeze_security_logs (event_type, user_address, usdc_amount, steeze_amount, transaction_hash)
-        VALUES ($1, $2, $3, $4, $5)
-      `, [type, userAddress.toLowerCase(), usdcAmount, steezeAmount, txHash]);
-      
-      console.log(`[Security Log] ${type}: ${userAddress}, USDC: ${usdcAmount}, STEEZE: ${steezeAmount}, TX: ${txHash}`);
-    } catch (error) {
-      console.error("Error logging Steeze event:", error);
-    }
-  }
-  
-  /**
-   * Validate transaction signatures for additional security
-   */
-  async validateTransactionSignature(txHash: string, expectedSigner: string): Promise<boolean> {
-    try {
-      const provider = this.initBaseProvider();
-      const transaction = await provider.getTransaction(txHash);
-      
-      if (!transaction) {
-        return false;
-      }
-      
-      // Verify the transaction was signed by the expected address
-      const recoveredAddress = transaction.from;
-      return recoveredAddress?.toLowerCase() === expectedSigner.toLowerCase();
-    } catch (error) {
-      console.error("Error validating transaction signature:", error);
-      return false;
     }
   }
 
@@ -981,7 +622,7 @@ export class Web3Service {
   async getWalletAge(address: string): Promise<number> {
     try {
       // Check for well-known test wallets and return appropriate ages
-      const testWallets: Record<string, number> = {
+      const testWallets = {
         '0x742d35cc6570fb7b4eb8c85b5d0b2f81c26ec29f': 120, // Test wallet 1 - old enough
         '0x8ba1f109551bd432803012645hac136c1ef8b3b': 45,  // Test wallet 2 - not old enough
         '0xd8da6bf26964af9d7eed9e03e53415d37aa96045': 90,  // Vitalik's wallet
@@ -1024,9 +665,9 @@ export class Web3Service {
   }
 
   /**
-   * Vouch for a user with USDC payment and aura points
+   * Vouch for a user with ETH payment and aura points
    */
-  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, usdcAmount: number, auraPoints: number): Promise<{
+  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, ethAmount: number, auraPoints: number): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;
@@ -1034,13 +675,12 @@ export class Web3Service {
     try {
       const provider = this.initBaseProvider();
       
-      // Validate USDC amount (1-100 USDC range)
-      const minAmount = 1;
-      const maxAmount = 100;
-      if (usdcAmount < minAmount || usdcAmount > maxAmount) {
+      // Validate minimum and maximum ETH amount (0.0001 ETH)
+      const minAmount = 0.0001;
+      if (ethAmount !== minAmount) {
         return {
           success: false,
-          error: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC`
+          error: `Vouching amount must be exactly ${minAmount} ETH`
         };
       }
 
@@ -1085,7 +725,7 @@ export class Web3Service {
   }
 
   /**
-   * Get claimable USDC amount for a user
+   * Get claimable ETH amount for a user
    */
   async getClaimableAmount(userAddress: string): Promise<number> {
     try {
@@ -1109,9 +749,9 @@ export class Web3Service {
   }
 
   /**
-   * Claim accumulated USDC from vouches
+   * Claim accumulated ETH from vouches
    */
-  async claimUsdc(userAddress: string): Promise<{
+  async claimEth(userAddress: string): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;
@@ -1127,10 +767,10 @@ export class Web3Service {
       // For now, return mock success
       return {
         success: false,
-        error: "No USDC available to claim"
+        error: "No ETH available to claim"
       };
     } catch (error) {
-      console.error("Error claiming USDC:", error);
+      console.error("Error claiming ETH:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Claim failed"
@@ -1143,8 +783,8 @@ export class Web3Service {
    */
   getWalletConnectConfig() {
     return {
-      chains: [CURRENT_NETWORK],
-      defaultChain: CURRENT_NETWORK,
+      chains: [POLYGON_TESTNET],
+      defaultChain: POLYGON_TESTNET,
       walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID || "",
       appName: "Aura Battle Platform",
       appDescription: "Web3 Aura Battle Platform for Web3 Users",
