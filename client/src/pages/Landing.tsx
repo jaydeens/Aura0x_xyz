@@ -68,13 +68,12 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-transparent to-cyan-500/5 rounded-lg"></div>
           <div className="flex items-center justify-between h-14 sm:h-16 w-full relative z-10">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="flex items-center space-x-1">
-                <div className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text">
-                  ›››
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-white hover:scale-105 transition-transform">
-                  Aura
-                </div>
+              <div className="flex items-center">
+                <img 
+                  src="/attached_assets/FULL AURA_1754222978870.png" 
+                  alt="Aura" 
+                  className="h-8 sm:h-10 w-auto hover:scale-105 transition-transform"
+                />
               </div>
             </div>
             
@@ -262,13 +261,12 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-12">
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="text-4xl font-black text-transparent bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text">
-                    ›››
-                  </div>
-                  <div className="text-4xl font-black text-white">
-                    Aura
-                  </div>
+                <div className="flex items-center">
+                  <img 
+                    src="/attached_assets/FULL AURA_1754222978870.png" 
+                    alt="Aura" 
+                    className="h-12 w-auto"
+                  />
                 </div>
               </div>
               <p className="text-gray-300 font-bold leading-relaxed text-lg">The aura app that's breaking the internet. Build your brand, go aura, and become legendary.</p>
