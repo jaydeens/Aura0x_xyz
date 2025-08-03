@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { 
   User, 
   TrendingUp, 
@@ -40,7 +41,9 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const REQUIRED_ETH_AMOUNT = "0.0001";
+  const [vouchAmount, setVouchAmount] = useState("1");
+  const MIN_USDC_AMOUNT = 1;
+  const MAX_USDC_AMOUNT = 100;
 
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: [`/api/users/${userId}`],
@@ -61,6 +64,20 @@ export default function UserProfile({ userId }: UserProfileProps) {
     queryKey: ["/api/vouch/contract-info"],
     retry: false,
   });
+
+  // Get current user's wallet address for USDC balance
+  const currentUserData = currentUser as any;
+  const userWalletAddress = currentUserData?.walletAddress;
+
+  // Fetch current user's USDC balance when wallet is connected
+  const { data: usdcBalanceData } = useQuery({
+    queryKey: [`/api/wallet/usdc-balance/${userWalletAddress}`],
+    enabled: !!userWalletAddress,
+    refetchOnWindowFocus: true,
+    staleTime: 10000, // Consider data stale after 10 seconds
+  });
+
+  const currentUsdcBalance = usdcBalanceData?.balance || 0;
 
   // Get current user's aura level and multiplier for vouching
   const getCurrentUserLevel = () => {
@@ -98,7 +115,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
   };
 
   const vouchMutation = useMutation({
-    mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
+    mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
     },
     onSuccess: (data) => {
@@ -140,6 +157,16 @@ export default function UserProfile({ userId }: UserProfileProps) {
       return;
     }
 
+    // Check if user has sufficient USDC balance
+    if (parseInt(vouchAmount) > currentUsdcBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You need ${vouchAmount} USDC but only have ${currentUsdcBalance.toFixed(2)} USDC in your wallet`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!contractInfo?.contractAddress || !contractInfo?.abi) {
       toast({
         title: "Contract Error",
@@ -157,7 +184,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Check network
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
-      const targetChainId = 84532n; // Base Sepolia
+      const targetChainId = 8453n; // Base Mainnet
       
       if (network.chainId !== targetChainId) {
         try {
@@ -171,10 +198,10 @@ export default function UserProfile({ userId }: UserProfileProps) {
               method: 'wallet_addEthereumChain',
               params: [{
                 chainId: `0x${targetChainId.toString(16)}`,
-                chainName: 'Base Sepolia',
+                chainName: 'Base Mainnet',
                 nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                rpcUrls: ['https://sepolia.base.org'],
-                blockExplorerUrls: ['https://sepolia-explorer.base.org'],
+                rpcUrls: ['https://mainnet.base.org'],
+                blockExplorerUrls: ['https://basescan.org'],
               }],
             });
           } else {
@@ -183,14 +210,46 @@ export default function UserProfile({ userId }: UserProfileProps) {
         }
       }
 
-      // Create contract instance
+      // Create contract instances
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
-
-      // Call vouch function
-      const tx = await contract.vouch(profileUser.walletAddress, {
-        value: ethers.parseEther(REQUIRED_ETH_AMOUNT)
+      
+      // USDC contract for approval
+      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base Mainnet USDC
+      const usdcABI = [
+        {
+          "constant": false,
+          "inputs": [
+            {"name": "_spender", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+          ],
+          "name": "approve",
+          "outputs": [{"name": "", "type": "bool"}],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ];
+      const usdcContract = new ethers.Contract(usdcContractAddress, usdcABI, signer);
+      
+      const usdcAmountWei = ethers.parseUnits(vouchAmount, 6); // USDC has 6 decimals
+      
+      // Step 1: Approve USDC for the contract
+      toast({
+        title: "Approving USDC",
+        description: "Please approve USDC spending in your wallet...",
       });
+      
+      const approvalTx = await usdcContract.approve(contractInfo.contractAddress, usdcAmountWei);
+      await approvalTx.wait();
+      
+      // Step 2: Call vouch function
+      toast({
+        title: "Processing Vouch",
+        description: "Please confirm the vouch transaction...",
+      });
+      
+      const tx = await contract.vouch(profileUser.walletAddress, usdcAmountWei);
 
       // Wait for transaction confirmation
       const receipt = await tx.wait();
@@ -198,7 +257,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Record vouch in backend
       await vouchMutation.mutateAsync({
         vouchedUserId: userId,
-        ethAmount: parseFloat(REQUIRED_ETH_AMOUNT),
+        usdcAmount: parseFloat(vouchAmount),
         transactionHash: receipt.transactionHash
       });
 
@@ -318,11 +377,40 @@ export default function UserProfile({ userId }: UserProfileProps) {
                 <div className="space-y-6">
                   {/* Vouching Info */}
                   <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/80">Required Amount:</span>
-                      <Badge variant="outline" className="text-purple-400 border-purple-400">
-                        {REQUIRED_ETH_AMOUNT} ETH
-                      </Badge>
+                    <div className="space-y-2">
+                      <span className="text-white/80">Vouching Amount (USDC):</span>
+                      <Input
+                        type="number"
+                        min={MIN_USDC_AMOUNT}
+                        max={MAX_USDC_AMOUNT}
+                        value={vouchAmount}
+                        onChange={(e) => setVouchAmount(Math.max(MIN_USDC_AMOUNT, Math.min(MAX_USDC_AMOUNT, parseInt(e.target.value) || MIN_USDC_AMOUNT)).toString())}
+                        className="bg-black/20 border-purple-500/30 text-white"
+                        placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${MAX_USDC_AMOUNT})`}
+                      />
+                      <div className="text-sm text-white/60">
+                        Range: {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
+                      </div>
+                      
+                      {/* USDC Balance Display */}
+                      <div className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3 mt-2">
+                        <div className="flex items-center gap-2">
+                          <Wallet className="w-4 h-4 text-blue-400" />
+                          <span className="text-white/80">Your USDC Balance:</span>
+                        </div>
+                        <span className="text-blue-400 font-semibold">
+                          {currentUsdcBalance.toFixed(2)} USDC
+                        </span>
+                      </div>
+                      
+                      {/* Insufficient Balance Warning */}
+                      {parseInt(vouchAmount) > currentUsdcBalance && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                          <p className="text-red-400 text-sm">
+                            ⚠️ Insufficient balance. You need {vouchAmount} USDC but only have {currentUsdcBalance.toFixed(2)} USDC.
+                          </p>
+                        </div>
+                      )}
                     </div>
                     {currentUserLevel && (
                       <div className="flex items-center justify-between">
@@ -340,7 +428,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     )}
                     <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
                       <span className="text-white font-medium">Aura Award:</span>
-                      <span className="text-purple-400 font-bold">{finalAuraPoints} points</span>
+                      <span className="text-purple-400 font-bold">{parseInt(vouchAmount) * 10} points ({vouchAmount} × 10)</span>
                     </div>
                   </div>
 
@@ -349,7 +437,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     <h4 className="text-blue-300 font-medium mb-2">Smart Contract Vouching:</h4>
                     <ol className="text-blue-200 text-sm space-y-1 list-decimal list-inside">
                       <li>Click "Vouch Now" to open your wallet</li>
-                      <li>Confirm the transaction for {REQUIRED_ETH_AMOUNT} ETH</li>
+                      <li>First, approve {vouchAmount} USDC spending</li>
+                      <li>Then, confirm the vouch transaction</li>
                       <li>The smart contract automatically distributes funds</li>
                     </ol>
                   </div>
@@ -357,8 +446,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
                   {/* Submit Button */}
                   <Button
                     onClick={handleVouchSubmit}
-                    disabled={isProcessing || vouchMutation.isPending}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
+                    disabled={isProcessing || vouchMutation.isPending || parseInt(vouchAmount) > currentUsdcBalance}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium disabled:opacity-50"
                   >
                     {isProcessing || vouchMutation.isPending ? (
                       <div className="flex items-center gap-2">
@@ -368,7 +457,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     ) : (
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" />
-                        Vouch Now ({finalAuraPoints} aura)
+                        Vouch Now ({parseInt(vouchAmount) * 10} aura)
                       </div>
                     )}
                   </Button>
@@ -401,8 +490,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
             <div className="text-white/60 text-sm">Vouches Received</div>
           </div>
           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">{Number((vouchStats as any)?.totalEthReceived || 0).toFixed(4)}</div>
-            <div className="text-white/60 text-sm">ETH Received</div>
+            <div className="text-yellow-400 text-2xl font-bold">{Number((vouchStats as any)?.totalUsdcReceived || 0).toFixed(2)}</div>
+            <div className="text-white/60 text-sm">USDC Received</div>
           </div>
         </div>
 

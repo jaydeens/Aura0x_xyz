@@ -207,8 +207,8 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
         setAddress(walletAddress);
         setIsConnected(true);
         
-        // Switch to Base Sepolia network if needed
-        await switchToBaseSepolia();
+        // Switch to Base network if needed
+        await switchToBaseNetwork();
         
         if (showBalance) {
           await fetchBalance(walletAddress);
@@ -236,11 +236,25 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     }
   };
 
-  const switchToBaseSepolia = async () => {
+  const switchToBaseNetwork = async () => {
+    // Environment-based network configuration
+    const isProduction = import.meta.env.NODE_ENV === 'production';
+    const networkConfig = isProduction ? {
+      chainId: '0x2105', // Base Mainnet (8453 in hex)
+      chainName: 'Base',
+      rpcUrls: ['https://mainnet.base.org'],
+      blockExplorerUrls: ['https://basescan.org'],
+    } : {
+      chainId: '0x2105', // Base Mainnet (8453 in hex)
+      chainName: 'Base Mainnet',
+      rpcUrls: ['https://mainnet.base.org'],
+      blockExplorerUrls: ['https://basescan.org'],
+    };
+
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x14A34' }], // Base Sepolia
+        params: [{ chainId: networkConfig.chainId }],
       });
     } catch (switchError: any) {
       // This error code indicates that the chain has not been added to MetaMask
@@ -249,19 +263,19 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: '0x14A34',
-              chainName: 'Base Sepolia',
+              chainId: networkConfig.chainId,
+              chainName: networkConfig.chainName,
               nativeCurrency: {
                 name: 'ETH',
                 symbol: 'ETH',
                 decimals: 18,
               },
-              rpcUrls: ['https://sepolia.base.org'],
-              blockExplorerUrls: ['https://sepolia-explorer.base.org'],
+              rpcUrls: networkConfig.rpcUrls,
+              blockExplorerUrls: networkConfig.blockExplorerUrls,
             }],
           });
         } catch (addError) {
-          console.error("Error adding Base Sepolia network:", addError);
+          console.error(`Error adding ${networkConfig.chainName} network:`, addError);
         }
       }
     }

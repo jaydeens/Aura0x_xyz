@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Zap, Flame, Clock, Trophy, Coins, Target, BookOpen, HandHeart, Swords, Info } from "lucide-react";
+import { Zap, Flame, Clock, Trophy, Coins, Target, BookOpen, HandHeart, Swords, Info, Wallet } from "lucide-react";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -37,6 +37,17 @@ export default function Dashboard() {
           title: "Error",
           description: "Failed to load lessons",
         });
+      }
+    },
+  });
+
+  // Fetch Steeze balance
+  const { data: steezeBalance } = useQuery({
+    queryKey: ["/api/steeze/balance"],
+    enabled: isAuthenticated,
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        window.location.href = "/";
       }
     },
   });
@@ -81,9 +92,9 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Overview - Mobile Optimized Layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
             {/* Aura Points Card - Mobile Optimized */}
-            <div className="sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-500/30">
+            <div className="sm:col-span-2 lg:col-span-1 bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-500/30">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 className="text-white font-bold text-sm sm:text-base">🔥 Aura Points</h3>
                 <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400" />
@@ -108,8 +119,31 @@ export default function Dashboard() {
                 <h3 className="text-white font-bold text-sm sm:text-base">💰 Earnings</h3>
                 <Target className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
               </div>
-              <div className="text-xl sm:text-2xl font-black text-white mb-1">{Number((user as any)?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
+              <div className="text-xl sm:text-2xl font-black text-white mb-1">{Number((user as any)?.totalUsdtEarned || 0).toFixed(2)} USDC</div>
               <div className="text-purple-200 text-xs sm:text-sm">earned from vouches</div>
+            </div>
+          </div>
+
+          {/* Steeze Balance Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            {/* Battle Earned Steeze Card */}
+            <div className="bg-gradient-to-br from-green-800/50 to-emerald-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-green-500/30">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-white font-bold text-sm sm:text-base">⚔️ Battle Steeze</h3>
+                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-white mb-1">{(steezeBalance?.battleEarnedSteeze || 0).toLocaleString()}</div>
+              <div className="text-green-200 text-xs sm:text-sm">earned from battles</div>
+            </div>
+
+            {/* Purchased Steeze Card */}
+            <div className="bg-gradient-to-br from-blue-800/50 to-cyan-800/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-blue-500/30">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-white font-bold text-sm sm:text-base">💳 Purchased Steeze</h3>
+                <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-white mb-1">{(steezeBalance?.purchasedSteeze || 0).toLocaleString()}</div>
+              <div className="text-blue-200 text-xs sm:text-sm">bought with USDC</div>
             </div>
           </div>
 

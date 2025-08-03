@@ -36,14 +36,20 @@ interface VouchFormProps {
 
 export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const [selectedUserId, setSelectedUserId] = useState(preselectedUserId || "");
+  const [selectedAmount, setSelectedAmount] = useState(1);
   const [transactionHash, setTransactionHash] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fixed ETH amount for vouching
-  const REQUIRED_ETH_AMOUNT = 0.0001;
+  // Get user's wallet address for USDC balance
+  const currentUser = user as any;
+  const userWalletAddress = currentUser?.walletAddress;
+
+  // USDC vouching range
+  const MIN_USDC_AMOUNT = 1;
+  const MAX_USDC_AMOUNT = 100;
 
   const { data: leaderboard } = useQuery({
     queryKey: ["/api/leaderboard"],
@@ -60,6 +66,14 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     retry: false,
   });
 
+  // Fetch user's USDC balance when wallet is connected
+  const { data: usdcBalanceData } = useQuery({
+    queryKey: [`/api/wallet/usdc-balance/${userWalletAddress}`],
+    enabled: !!userWalletAddress,
+    refetchOnWindowFocus: true,
+    staleTime: 10000, // Consider data stale after 10 seconds
+  });
+
   // Get current user's aura level and multiplier
   const getUserLevel = () => {
     if (!user || !auraLevels || !Array.isArray(auraLevels)) return null;
@@ -70,11 +84,12 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   };
 
   const userLevel = getUserLevel();
-  const baseAuraPoints = 50;
+  const baseAuraPoints = selectedAmount * 10; // 10 APs per USDC
   const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
+  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
 
   const vouchMutation = useMutation({
-    mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
+    mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
     },
     onSuccess: (data) => {
@@ -115,6 +130,16 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       return;
     }
 
+    // Check if user has sufficient USDC balance
+    if (selectedAmount > currentUsdcBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You need ${selectedAmount} USDC but only have ${currentUsdcBalance.toFixed(2)} USDC in your wallet`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const selectedUser = leaderboard?.find((u: any) => u.id === selectedUserId);
     if (!selectedUser) {
       toast({
@@ -138,7 +163,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     try {
       await vouchMutation.mutateAsync({
         vouchedUserId: selectedUserId,
-        ethAmount: REQUIRED_ETH_AMOUNT,
+        usdcAmount: selectedAmount,
         transactionHash
       });
     } finally {
@@ -184,16 +209,25 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Coins className="w-5 h-5 text-purple-400" />
-          Vouch with ETH
+          Vouch with USDC
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Vouching Info */}
         <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
+            <span className="text-white/80">Your USDC Balance:</span>
+            <div className="flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-green-400" />
+              <span className="text-green-400 font-semibold">
+                {currentUsdcBalance.toFixed(2)} USDC
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
             <span className="text-white/80">Required Amount:</span>
             <Badge variant="outline" className="text-purple-400 border-purple-400">
-              {REQUIRED_ETH_AMOUNT} ETH
+              {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
             </Badge>
           </div>
           <div className="flex items-center justify-between">
@@ -216,7 +250,31 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           )}
           <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
             <span className="text-white font-medium">Final Aura Award:</span>
-            <span className="text-purple-400 font-bold">{finalAuraPoints} points</span>
+            <span className="text-purple-400 font-bold">{finalAuraPoints} points ({selectedAmount} × 10)</span>
+          </div>
+        </div>
+
+        {/* Amount Selector */}
+        <div className="space-y-3">
+          <Label className="text-white">Vouching Amount (USDC)</Label>
+          <Input
+            type="number"
+            min={MIN_USDC_AMOUNT}
+            max={MAX_USDC_AMOUNT}
+            value={selectedAmount}
+            onChange={(e) => setSelectedAmount(Math.max(MIN_USDC_AMOUNT, Math.min(MAX_USDC_AMOUNT, parseInt(e.target.value) || MIN_USDC_AMOUNT)))}
+            className="bg-black/20 border-white/20 text-white"
+            placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${MAX_USDC_AMOUNT})`}
+          />
+          <div className="flex justify-between text-sm">
+            <span className="text-white/60">
+              This will award {selectedAmount * 10} Aura Points
+            </span>
+            {selectedAmount > currentUsdcBalance && (
+              <span className="text-red-400 font-medium">
+                Insufficient balance
+              </span>
+            )}
           </div>
         </div>
 
@@ -263,7 +321,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
             className="bg-black/20 border-white/20 text-white placeholder:text-white/40"
           />
           <p className="text-white/60 text-sm">
-            Send exactly {REQUIRED_ETH_AMOUNT} ETH to the selected user's wallet, then paste the transaction hash here.
+            Complete the USDC vouching transaction through the smart contract (requires USDC approval first), then paste the transaction hash here.
           </p>
         </div>
 
@@ -272,8 +330,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
         {/* Submit Button */}
         <Button
           onClick={handleSubmit}
-          disabled={!selectedUserId || !transactionHash || isProcessing || vouchMutation.isPending}
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
+          disabled={!selectedUserId || !transactionHash || isProcessing || vouchMutation.isPending || selectedAmount > currentUsdcBalance}
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium disabled:opacity-50"
         >
           {isProcessing || vouchMutation.isPending ? (
             <div className="flex items-center gap-2">
@@ -291,8 +349,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
         {/* Info Note */}
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
           <p className="text-blue-300 text-sm">
-            <strong>How it works:</strong> You send {REQUIRED_ETH_AMOUNT} ETH directly to another user's wallet. 
-            They receive 60% ({(REQUIRED_ETH_AMOUNT * 0.6).toFixed(6)} ETH) while 40% goes to the platform. 
+            <strong>How it works:</strong> First approve {selectedAmount} USDC spending, then complete the vouch transaction. 
+            They receive 70% ({(selectedAmount * 0.7).toFixed(2)} USDC) while 30% goes to the platform. 
             They also get {finalAuraPoints} aura points based on your level multiplier.
           </p>
         </div>

@@ -62,32 +62,35 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Mobile-Optimized Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-purple-500/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-black/90 via-purple-900/80 to-black/90 backdrop-blur-xl border-b-2 border-purple-500/50 shadow-2xl shadow-purple-500/30">
+        <div className="w-full px-4 sm:px-6 lg:px-8 relative">
+          {/* Subtle inner glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-transparent to-cyan-500/5 rounded-lg"></div>
+          <div className="flex items-center justify-between h-14 sm:h-16 w-full relative z-10">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="relative">
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <img 
                   src="/attached_assets/AURA PNG (1)_1749403291114.png" 
                   alt="Aura Logo" 
-                  className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg brightness-110 saturate-110 animate-pulse"
+                  className="relative w-10 h-10 sm:w-12 sm:h-12 drop-shadow-2xl brightness-110 saturate-110 group-hover:scale-110 transition-transform"
                 />
-                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
               </div>
               <img 
                 src="/attached_assets/FULL AURA (1)_1749403707745.png" 
                 alt="Aura" 
-                className="h-7 sm:h-8 w-auto drop-shadow-lg brightness-110 saturate-110"
+                className="h-7 sm:h-8 w-auto drop-shadow-2xl brightness-110 saturate-110 hover:scale-105 transition-transform"
               />
             </div>
             
 
 
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Badge className="hidden sm:flex bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-2 sm:px-3 py-1 animate-bounce">
+              <Badge className="hidden sm:flex bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs px-2 sm:px-3 py-1 animate-bounce shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-shadow">
                 🔥 TRENDING
               </Badge>
-              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-3 sm:px-6 py-2 text-sm sm:text-base rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:scale-105 transition-all">
+              <Button onClick={handleLogin} className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black px-3 sm:px-6 py-2 text-sm sm:text-base rounded-full shadow-xl shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 transition-all duration-300">
                 GET AURA
               </Button>
             </div>
@@ -120,16 +123,16 @@ export default function Landing() {
             </div>
             
             {/* Mobile-Optimized Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl xl:text-9xl font-black leading-none mb-4 sm:mb-6 drop-shadow-2xl">
-              <span className="block text-white drop-shadow-2xl" style={{textShadow: '4px 4px 8px rgba(0,0,0,0.8), 2px 2px 4px rgba(0,0,0,0.9)'}}>BUILD YOUR</span>
-              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse drop-shadow-2xl" style={{textShadow: '4px 4px 8px rgba(0,0,0,0.8), 2px 2px 4px rgba(0,0,0,0.9)'}}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl xl:text-9xl font-black leading-none mb-4 sm:mb-6">
+              <span className="block text-white">BUILD YOUR</span>
+              <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
                 AURA
               </span>
-              <span className="block text-white drop-shadow-2xl" style={{textShadow: '4px 4px 8px rgba(0,0,0,0.8), 2px 2px 4px rgba(0,0,0,0.9)'}}>GO AURA</span>
+              <span className="block text-white">GO AURA</span>
             </h1>
             
             {/* Mobile-Optimized Description */}
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-8 sm:mb-12 max-w-2xl mx-auto font-bold px-4 drop-shadow-2xl" style={{textShadow: '3px 3px 6px rgba(0,0,0,0.8), 1px 1px 3px rgba(0,0,0,0.9)'}}>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-medium px-4">
               The app that's breaking the internet 🔥 Complete challenges, flex your wins, 
               and build legendary status that everyone talks about
             </p>
@@ -156,24 +159,24 @@ export default function Landing() {
             </div>
 
             {/* Viral stats */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto bg-black/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2 drop-shadow-xl" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.8)'}}>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {(stats as any)?.totalUsers || 0}
                 </div>
-                <div className="text-xs sm:text-sm text-gray-200 font-bold uppercase tracking-wide drop-shadow-lg">LEGENDS</div>
+                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LEGENDS</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2 drop-shadow-xl" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.8)'}}>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   AURA
                 </div>
-                <div className="text-xs sm:text-sm text-gray-200 font-bold uppercase tracking-wide drop-shadow-lg">STATUS</div>
+                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">STATUS</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2 drop-shadow-xl" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.8)'}}>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {(stats as any)?.activeBattles || 0}
                 </div>
-                <div className="text-xs sm:text-sm text-gray-200 font-bold uppercase tracking-wide drop-shadow-lg">LIVE NOW</div>
+                <div className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wide">LIVE NOW</div>
               </div>
             </div>
           </div>

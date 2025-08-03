@@ -461,7 +461,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      return res.json(user);
+      // Check and reset streak if user has missed days
+      await storage.checkAndResetStreak(userId);
+      
+      // Fetch updated user data after potential streak reset
+      const updatedUser = await storage.getUser(userId);
+      return res.json(updatedUser);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -867,8 +872,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      // Generate the image URL (accessible via static file serving)
-      const imageUrl = `/uploads/${req.file.filename}`;
+      // Generate the image URL with cache-busting parameter
+      const timestamp = Date.now();
+      const imageUrl = `/uploads/${req.file.filename}?v=${timestamp}`;
 
       // Update user's profile with the new image URL
       await storage.updateUserProfile(userId, { profileImageUrl: imageUrl });
@@ -1137,6 +1143,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         yesterday.setDate(yesterday.getDate() - 1);
         yesterday.setHours(0, 0, 0, 0);
         
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         const lastDate = new Date(lastLessonDate);
         lastDate.setHours(0, 0, 0, 0);
         
@@ -1144,15 +1153,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (lastDate.getTime() === yesterday.getTime()) {
           newStreak = (user.currentStreak || 0) + 1;
         }
-        // If they completed today, keep current streak
+        // If they completed today already, keep current streak
+        else if (lastDate.getTime() === today.getTime()) {
+          newStreak = user.currentStreak || 1;
+        }
+        // If they missed days (last lesson was more than 1 day ago), streak resets to 1 when they complete a lesson
         else {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (lastDate.getTime() === today.getTime()) {
-            newStreak = user.currentStreak || 1;
-          }
+          newStreak = 1;
         }
       }
+      // If no previous lessons, this is their first lesson, so streak starts at 1
       
       // If there's an existing quiz record, update it to completed
       if (existingCompletedLesson && !existingCompletedLesson.completed) {
@@ -1768,7 +1778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouch = await storage.createVouch({
         fromUserId: userId,
         toUserId: vouchedUser.id,
-        usdtAmount: verification.ethAmount!.toString(),
+        usdtAmount: verification.usdcAmount!.toString(),
         auraPoints: verification.auraPoints!,
         multiplier: "1.0",
         transactionHash,
@@ -1777,15 +1787,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to recipient
       await storage.updateUserAura(vouchedUser.id, verification.auraPoints!, 'vouching');
       
-      // Track ETH earnings (60% goes to vouched user as per contract)
-      const ethEarnings = verification.ethAmount! * 0.6;
-      await storage.updateUserUsdtEarnings(vouchedUser.id, ethEarnings);
+      // Track USDC earnings (70% goes to vouched user as per contract)
+      const usdcEarnings = verification.usdcAmount! * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUser.id, usdcEarnings);
       
       res.json({
         success: true,
         vouch,
         auraAwarded: verification.auraPoints,
-        ethAmount: verification.ethAmount,
+        usdcAmount: verification.usdcAmount,
         vouchedUser: vouchedUser.walletAddress
       });
     } catch (error: any) {
@@ -1794,21 +1804,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new vouch with ETH payment
+  // Create a new vouch with USDC payment
   app.post('/api/vouch/create', isAuthenticated, async (req: any, res) => {
     try {
-      const { vouchedUserId, ethAmount, transactionHash } = req.body;
+      const { vouchedUserId, usdcAmount, transactionHash } = req.body;
       const voucherId = req.session?.user?.id || req.user?.claims?.sub;
 
       if (!voucherId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // Validate ETH amount (must be exactly 0.0001 ETH)
-      const requiredAmount = 0.0001;
-      if (Math.abs(ethAmount - requiredAmount) > 0.000001) {
+      // Validate USDC amount (1-100 USDC range)
+      const minAmount = 1;
+      const maxAmount = 100;
+      if (usdcAmount < minAmount || usdcAmount > maxAmount) {
         return res.status(400).json({ 
-          message: `Vouching amount must be exactly ${requiredAmount} ETH` 
+          message: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC` 
         });
       }
 
@@ -1831,15 +1842,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userStreakDays >= level.minDays && (level.maxDays === null || userStreakDays <= level.maxDays)
       ) || auraLevels[0]; // Default to first level if none found
 
-      // Calculate aura points with level multiplier
-      const baseAuraPoints = 50;
+      // Calculate aura points: 1 USDC = 10 APs, with level multiplier
+      const baseAuraPoints = usdcAmount * 10; // 10 APs per USDC
       const finalAuraPoints = Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
 
       // Create vouch record
       const vouch = await storage.createVouch({
         fromUserId: voucherId,
         toUserId: vouchedUserId,
-        usdtAmount: ethAmount.toString(),
+        usdtAmount: usdcAmount.toString(),
         auraPoints: finalAuraPoints,
         transactionHash,
         multiplier: userLevel.vouchingMultiplier
@@ -1848,9 +1859,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to the vouched user
       await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
 
-      // Update ETH earnings (70% of vouched amount goes to the user)
-      const ethEarnings = ethAmount * 0.7;
-      await storage.updateUserUsdtEarnings(vouchedUserId, ethEarnings);
+      // Update USDC earnings (70% of vouched amount goes to the user)
+      const usdcEarnings = usdcAmount * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUserId, usdcEarnings);
 
       // Create notification for vouched user
       const voucherName = voucher.username || voucher.walletAddress?.slice(0, 6) + '...' + voucher.walletAddress?.slice(-4) || 'Someone';
@@ -1859,7 +1870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${ethAmount} ETH and awarded ${finalAuraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${usdcAmount} USDC and awarded ${finalAuraPoints} aura points!`,
         isRead: false
       });
 
@@ -1880,13 +1891,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8",
-        chainId: 84532,
-        networkName: "Base Sepolia",
+        contractAddress: process.env.NODE_ENV === 'production' 
+          ? "0x8e6e64396717F69271c7994f90AFeC621C237315" // Base Mainnet
+          : "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8", // Base Sepolia
+        chainId: process.env.NODE_ENV === 'production' ? 8453 : 84532,
+        networkName: process.env.NODE_ENV === 'production' ? "Base Mainnet" : "Base Sepolia",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
-        requiredAmount: 0.0001,
-        baseAuraPoints: 50,
+        minAmount: 1,
+        maxAmount: 100,
+        baseAuraPointsPerUSDC: 10,
         abi: [
           {
             "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],
@@ -1962,15 +1976,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vouchesGiven = vouches.filter(v => v.fromUserId === userId);
       const vouchesReceived = vouches.filter(v => v.toUserId === userId);
       
-      const totalEthGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
-      const totalEthReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
+      const totalUsdcGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
+      const totalUsdcReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
       const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
 
       res.json({
         vouchesGiven: vouchesGiven.length,
         vouchesReceived: vouchesReceived.length,
-        totalEthGiven,
-        totalEthReceived,
+        totalUsdcGiven,
+        totalUsdcReceived,
         totalAuraReceived,
         recentVouches: vouches.slice(0, 10)
       });
@@ -1984,7 +1998,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/steeze/rate", async (req, res) => {
     try {
       const rate = await web3Service.getSteezeRate();
-      res.json({ steezePerEth: rate });
+      res.json({ steezePerUsdc: rate });
     } catch (error: any) {
       console.error("Error getting Steeze rate:", error);
       res.status(500).json({ message: "Failed to get Steeze rate" });
@@ -2032,6 +2046,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get USDC balance for wallet address
+  app.get("/api/wallet/usdc-balance/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      if (!web3Service.isValidAddress(address)) {
+        return res.status(400).json({ message: "Invalid wallet address" });
+      }
+      
+      const balance = await web3Service.getUSDCBalance(address);
+      res.json({ 
+        balance: parseFloat(balance), 
+        address,
+        currency: "USDC"
+      });
+    } catch (error: any) {
+      console.error("Error getting USDC balance:", error);
+      res.status(500).json({ message: "Failed to get USDC balance" });
+    }
+  });
+
   app.post("/api/steeze/purchase", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
@@ -2051,7 +2086,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         contractAddress: STEEZE_CONTRACT.address,
         chainId: 84532, // Base Sepolia
-        steezePerEth: rate,
+        steezePerUsdc: rate,
         networkName: "Base Sepolia"
       });
     } catch (error: any) {
@@ -2074,8 +2109,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // For the specific transaction 0x6ef8c4814e1e5c3e210eea28350688c2e1b42b0a8a59b6a7c3624f7c4dfe184e
-      // This was 0.001 ETH = 10 Steeze tokens
-      const ethAmount = 0.001;
+      // This was 0.1 USDC = 10 Steeze tokens
+      const usdcAmount = 0.1;
       const steezeAmount = 10;
       const rate = "10000";
 
@@ -2090,7 +2125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: user.id,
         type: "purchase",
         amount: steezeAmount,
-        usdtAmount: ethAmount.toString(),
+        usdtAmount: usdcAmount.toString(),
         rate,
         status: "completed",
         transactionHash
@@ -2101,7 +2136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: user.id,
         transaction,
         newBalance: currentPurchased + steezeAmount,
-        ethAmount,
+        usdcAmount,
         steezeAmount
       });
     } catch (error: any) {
@@ -2197,7 +2232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid transaction" });
       }
 
-      const { ethAmount = 0, steezeAmount = 0, userAddress } = txVerification;
+      const { usdcAmount = 0, steezeAmount = 0, userAddress } = txVerification;
 
       if (!userAddress) {
         return res.status(400).json({ message: "Could not determine transaction sender" });
@@ -2237,8 +2272,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: transactionUser.id,
         type: "purchase",
         amount: steezeAmount,
-        usdtAmount: ethAmount.toString(),
-        rate: (ethAmount > 0 ? (steezeAmount / ethAmount).toString() : "10000"),
+        usdtAmount: usdcAmount.toString(),
+        rate: (usdcAmount > 0 ? (steezeAmount / usdcAmount).toString() : "10000"),
         status: "completed",
         transactionHash
       });
@@ -2255,7 +2290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         transaction,
         steezeAmount,
-        ethAmount,
+        usdcAmount,
         newBalance: currentPurchased + steezeAmount
       });
     } catch (error: any) {
@@ -2353,8 +2388,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { amount } = req.body;
-      const redeemRate = 0.00007; // 1 Steeze = 0.00007 ETH
-      const ethAmount = amount * redeemRate;
+      const redeemRate = 0.07; // 1 Steeze = 0.07 USDC
+      const usdcAmount = amount * redeemRate;
       
       // Get current user and check balance
       const user = await storage.getUser(userId);
@@ -2369,8 +2404,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         type: "redeem",
         amount,
-        usdtAmount: ethAmount.toString(),
-        rate: "0.00007",
+        usdtAmount: usdcAmount.toString(),
+        rate: "0.07",
         status: "completed"
       });
 
@@ -2380,7 +2415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         transaction, 
         newBalance: currentBalance - amount,
-        ethReceived: ethAmount
+        usdcReceived: usdcAmount
       });
     } catch (error: any) {
       console.error("Error redeeming Steeze:", error);

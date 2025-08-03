@@ -22,7 +22,8 @@ import {
   Zap,
   ExternalLink,
   Loader2,
-  Trophy
+  Trophy,
+  RotateCcw
 } from "lucide-react";
 import { ethers } from "ethers";
 
@@ -32,27 +33,28 @@ declare global {
   }
 }
 
-const BASE_SEPOLIA = {
-  chainId: 84532,
-  chainName: "Base Sepolia",
-  rpcUrl: "https://sepolia.base.org",
-  blockExplorer: "https://sepolia-explorer.base.org/",
+const BASE_MAINNET = {
+  chainId: 8453,
+  chainName: "Base Mainnet",
+  rpcUrl: "https://mainnet.base.org",
+  blockExplorer: "https://basescan.org/",
 };
 
 export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [ethAmount, setEthAmount] = useState("");
+  const [usdcAmount, setUsdcAmount] = useState("");
   const [steezeAmount, setSteezeAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [currentChainId, setCurrentChainId] = useState<number | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [usdcBalance, setUsdcBalance] = useState<number>(0);
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
-  const isOnCorrectNetwork = currentChainId === BASE_SEPOLIA.chainId;
+  const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
 
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
@@ -66,15 +68,25 @@ export default function SteezeStack() {
     enabled: !!user,
   });
 
-  const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
-  const earnedSteeze = (balanceData as any)?.battleEarnedSteeze || 0;
-  const totalBalance = purchasedSteeze + earnedSteeze;
-
   // Fetch transaction history
   const { data: transactionsData = [] } = useQuery({
     queryKey: ["/api/steeze/transactions"],
     enabled: !!user,
   });
+
+  // Fetch USDC balance when wallet is connected
+  const { data: usdcBalanceData, refetch: refetchUsdcBalance, isRefetching } = useQuery({
+    queryKey: [`/api/wallet/usdc-balance/${walletAddress}`],
+    enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
+  });
+
+  const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
+  const earnedSteeze = (balanceData as any)?.battleEarnedSteeze || 0;
+  const totalBalance = purchasedSteeze + earnedSteeze;
+  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
 
   const transactions = (transactionsData as any[]) || [];
 
@@ -115,8 +127,8 @@ export default function SteezeStack() {
     }
   };
 
-  // Switch to Base Sepolia network
-  const switchToBaseSepolia = async () => {
+  // Switch to Base Mainnet network
+  const switchToBaseMainnet = async () => {
     if (!window.ethereum) {
       toast({
         title: "Wallet Not Found",
@@ -127,7 +139,7 @@ export default function SteezeStack() {
     }
 
     try {
-      console.log(`Switching to Base Sepolia (Chain ID: ${BASE_SEPOLIA.chainId})`);
+      console.log(`Switching to Base Mainnet (Chain ID: ${BASE_MAINNET.chainId})`);
       
       // First ensure wallet is connected
       if (!isConnected) {
@@ -136,7 +148,7 @@ export default function SteezeStack() {
       
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: `0x${BASE_SEPOLIA.chainId.toString(16)}` }],
+        params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
       });
       
       // Wait a moment for the switch to complete
@@ -147,10 +159,10 @@ export default function SteezeStack() {
       const parsedChainId = parseInt(newChainId, 16);
       setCurrentChainId(parsedChainId);
       
-      if (parsedChainId === BASE_SEPOLIA.chainId) {
+      if (parsedChainId === BASE_MAINNET.chainId) {
         toast({
           title: "Network Switched",
-          description: "Successfully switched to Base Sepolia",
+          description: "Successfully switched to Base Mainnet",
         });
         return true;
       }
@@ -162,14 +174,14 @@ export default function SteezeStack() {
       if (error.code === 4902) {
         // Network not added yet, try to add it
         try {
-          console.log("Adding Base Sepolia network...");
+          console.log("Adding Base Mainnet network...");
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
             params: [{
-              chainId: `0x${BASE_SEPOLIA.chainId.toString(16)}`,
-              chainName: BASE_SEPOLIA.chainName,
-              rpcUrls: [BASE_SEPOLIA.rpcUrl],
-              blockExplorerUrls: [BASE_SEPOLIA.blockExplorer],
+              chainId: `0x${BASE_MAINNET.chainId.toString(16)}`,
+              chainName: BASE_MAINNET.chainName,
+              rpcUrls: [BASE_MAINNET.rpcUrl],
+              blockExplorerUrls: [BASE_MAINNET.blockExplorer],
               nativeCurrency: {
                 name: "ETH",
                 symbol: "ETH",
@@ -186,10 +198,10 @@ export default function SteezeStack() {
           const parsedChainId = parseInt(newChainId, 16);
           setCurrentChainId(parsedChainId);
           
-          if (parsedChainId === BASE_SEPOLIA.chainId) {
+          if (parsedChainId === BASE_MAINNET.chainId) {
             toast({
               title: "Network Added",
-              description: "Base Sepolia network added and switched successfully",
+              description: "Base Mainnet network added and switched successfully",
             });
             return true;
           }
@@ -199,7 +211,7 @@ export default function SteezeStack() {
           console.error("Network add error:", addError);
           toast({
             title: "Network Add Failed",
-            description: addError.message || "Failed to add Base Sepolia network",
+            description: addError.message || "Failed to add Base Mainnet network",
             variant: "destructive",
           });
           return false;
@@ -208,14 +220,14 @@ export default function SteezeStack() {
         // User rejected the request
         toast({
           title: "Network Switch Cancelled",
-          description: "Please switch to Base Sepolia to continue",
+          description: "Please switch to Base Mainnet to continue",
           variant: "destructive",
         });
         return false;
       } else {
         toast({
           title: "Network Switch Failed",
-          description: error.message || "Failed to switch to Base Sepolia",
+          description: error.message || "Failed to switch to Base Mainnet",
           variant: "destructive",
         });
         return false;
@@ -225,7 +237,7 @@ export default function SteezeStack() {
 
   // Purchase mutation
   const purchaseMutation = useMutation({
-    mutationFn: async ({ ethValue, steezeAmount }: { ethValue: number; steezeAmount: number }) => {
+    mutationFn: async ({ usdcValue, steezeAmount }: { usdcValue: number; steezeAmount: number }) => {
       if (!window.ethereum) {
         throw new Error("MetaMask not detected. Please install MetaMask.");
       }
@@ -234,8 +246,8 @@ export default function SteezeStack() {
         throw new Error("Please connect your wallet first");
       }
       
-      if (currentChainId !== BASE_SEPOLIA.chainId) {
-        throw new Error(`Please switch to Base Sepolia network. Current network: ${currentChainId}`);
+      if (currentChainId !== BASE_MAINNET.chainId) {
+        throw new Error(`Please switch to Base Mainnet network. Current network: ${currentChainId}`);
       }
 
       // Verify wallet matches user account
@@ -248,13 +260,13 @@ export default function SteezeStack() {
       const iface = new ethers.Interface(ABI);
       const data = iface.encodeFunctionData("buySteeze", [steezeAmount]);
       
-      const weiAmount = (ethValue * 1e18).toString();
+      const usdcAmount = (usdcValue * 1e6).toString(); // USDC has 6 decimals
 
-      // Send transaction to smart contract
+      // Send USDC transaction to smart contract
       const transactionParameters = {
-        to: "0x52e660400626d8cfd85D1F88F189662b57b56962",
+        to: "0xf209E955Ad3711EE983627fb52A32615455d8cC3", // Updated mainnet contract
         from: walletAddress,
-        value: '0x' + BigInt(weiAmount).toString(16),
+        value: '0x' + BigInt(usdcAmount).toString(16),
         data: data,
       };
 
@@ -289,8 +301,8 @@ export default function SteezeStack() {
   // Redeem mutation
   const redeemMutation = useMutation({
     mutationFn: async ({ steezeAmount }: { steezeAmount: number }) => {
-      if (!window.ethereum || !isConnected || currentChainId !== BASE_SEPOLIA.chainId) {
-        throw new Error("Please connect wallet and switch to Base Sepolia");
+      if (!window.ethereum || !isConnected || currentChainId !== BASE_MAINNET.chainId) {
+        throw new Error("Please connect wallet and switch to Base Mainnet");
       }
 
       // Encode withdrawSteeze(uint256 amount) function call
@@ -300,7 +312,7 @@ export default function SteezeStack() {
 
       // Send transaction to smart contract
       const transactionParameters = {
-        to: "0x52e660400626d8cfd85D1F88F189662b57b56962",
+        to: "0xf209E955Ad3711EE983627fb52A32615455d8cC3", // Updated mainnet contract
         from: walletAddress,
         value: '0x0',
         data: data,
@@ -353,7 +365,7 @@ export default function SteezeStack() {
         description: "Steeze tokens added to your balance",
       });
       setIsPurchasing(false);
-      setEthAmount("");
+      setUsdcAmount("");
     },
     onError: (error: any) => {
       toast({
@@ -381,7 +393,7 @@ export default function SteezeStack() {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/transactions"] });
       toast({
         title: "Redeem Confirmed",
-        description: "ETH sent to your wallet",
+        description: "USDC sent to your wallet",
       });
       setIsRedeeming(false);
       setSteezeAmount("");
@@ -398,13 +410,23 @@ export default function SteezeStack() {
 
   // Handle purchase
   const handlePurchase = async () => {
-    if (!ethAmount) return;
+    if (!usdcAmount) return;
 
-    const ethValue = parseFloat(ethAmount);
-    if (ethValue <= 0) {
+    const usdcValue = parseFloat(usdcAmount);
+    if (usdcValue <= 0) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid ETH amount",
+        description: "Please enter a valid USDC amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check USDC balance
+    if (usdcValue > currentUsdcBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You need ${usdcValue} USDC but only have ${currentUsdcBalance.toFixed(2)} USDC in your wallet`,
         variant: "destructive",
       });
       return;
@@ -417,21 +439,21 @@ export default function SteezeStack() {
     }
 
     // Check if on correct network and switch if needed
-    if (currentChainId !== BASE_SEPOLIA.chainId) {
-      const switchSuccessful = await switchToBaseSepolia();
+    if (currentChainId !== BASE_MAINNET.chainId) {
+      const switchSuccessful = await switchToBaseMainnet();
       if (!switchSuccessful) {
         toast({
           title: "Network Required",
-          description: "Please switch to Base Sepolia to continue",
+          description: "Please switch to Base Mainnet to continue",
           variant: "destructive",
         });
         return;
       }
     }
 
-    const steezeAmount = Math.floor(ethValue * 10000); // Fixed rate: 10000 Steeze per ETH
+    const steezeAmount = Math.floor(usdcValue * 10); // Purchase rate: 1 USDC = 10 Steeze
     setIsPurchasing(true);
-    purchaseMutation.mutate({ ethValue, steezeAmount });
+    purchaseMutation.mutate({ usdcValue, steezeAmount });
   };
 
   // Handle redeem
@@ -449,8 +471,8 @@ export default function SteezeStack() {
     }
 
     // Check if on correct network
-    if (currentChainId !== BASE_SEPOLIA.chainId) {
-      await switchToBaseSepolia();
+    if (currentChainId !== BASE_MAINNET.chainId) {
+      await switchToBaseMainnet();
       return;
     }
 
@@ -459,13 +481,13 @@ export default function SteezeStack() {
   };
 
   const calculateSteezeAmount = () => {
-    if (!ethAmount) return 0;
-    return parseFloat(ethAmount) * 10000; // Fixed rate: 10000 Steeze per ETH
+    if (!usdcAmount) return 0;
+    return parseFloat(usdcAmount) * 10; // Purchase rate: 1 USDC = 10 Steeze (or 1 Steeze = 0.1 USDC)
   };
 
-  const calculateEthAmount = () => {
+  const calculateUsdcAmount = () => {
     if (!steezeAmount) return 0;
-    return parseFloat(steezeAmount) * 0.00007; // Redeem rate: 1 Steeze = 0.00007 ETH
+    return parseFloat(steezeAmount) * 0.07; // Redeem rate: 1 Steeze = 0.07 USDC
   };
   
   // Debug logging (remove in production)
@@ -474,7 +496,7 @@ export default function SteezeStack() {
       isConnected, 
       walletAddress, 
       currentChainId, 
-      expectedChainId: BASE_SEPOLIA.chainId,
+      expectedChainId: BASE_MAINNET.chainId,
       isOnCorrectNetwork 
     });
   }, [isConnected, walletAddress, currentChainId]);
@@ -516,7 +538,6 @@ export default function SteezeStack() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
       <Navigation />
-      
       <div className="pt-20 pb-8 px-4">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
@@ -529,7 +550,7 @@ export default function SteezeStack() {
                 <h1 className="text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
                   STEEZE RECHARGE
                 </h1>
-                <p className="text-white/60 text-lg">Buy and redeem Steeze tokens with ETH</p>
+                <p className="text-white/60 text-lg">Buy and redeem Steeze tokens with USDC</p>
               </div>
             </div>
           </div>
@@ -591,7 +612,7 @@ export default function SteezeStack() {
                     </div>
                     <div>
                       <p className="text-xs text-white/60">Network</p>
-                      <p className="text-sm font-bold text-white">Base Sepolia</p>
+                      <p className="text-sm font-bold text-white">Base Mainnet</p>
                     </div>
                   </div>
                 </CardContent>
@@ -611,7 +632,7 @@ export default function SteezeStack() {
                   <div>
                     <CardTitle className="text-white">Buy Steeze</CardTitle>
                     <CardDescription className="text-white/60">
-                      Purchase Steeze tokens with ETH
+                      Purchase Steeze tokens with USDC
                     </CardDescription>
                   </div>
                 </div>
@@ -629,29 +650,61 @@ export default function SteezeStack() {
                   </Button>
                 ) : !isOnCorrectNetwork ? (
                   <Button 
-                    onClick={switchToBaseSepolia}
+                    onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                   >
-                    Switch to Base Sepolia
+                    Switch to Base Mainnet
                   </Button>
                 ) : (
                   <div>
-                    {/* ETH Input */}
+                    {/* USDC Balance Display */}
+                    <div className="p-4 bg-black/20 rounded-xl border border-purple-500/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-white/60">Your USDC Balance</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold text-white">
+                            {currentUsdcBalance.toFixed(2)} USDC
+                          </span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => refetchUsdcBalance()}
+                            disabled={isRefetching}
+                            className="text-white/60 hover:text-white p-1 h-auto"
+                            title={isRefetching ? "Refreshing..." : "Refresh balance"}
+                          >
+                            <RotateCcw className={`w-3 h-3 ${isRefetching ? 'animate-spin' : ''}`} />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                    </div>
+
+                    {/* USDC Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="eth-amount" className="text-white">ETH Amount</Label>
+                      <Label htmlFor="usdc-amount" className="text-white">USDC Amount</Label>
                       <Input
-                        id="eth-amount"
+                        id="usdc-amount"
                         type="number"
-                        step="0.001"
-                        placeholder="0.1"
-                        value={ethAmount}
-                        onChange={(e) => setEthAmount(e.target.value)}
+                        step="0.01"
+                        placeholder="1.0"
+                        value={usdcAmount}
+                        onChange={(e) => setUsdcAmount(e.target.value)}
                         className="bg-black/20 border-purple-500/30 text-white placeholder:text-white/40"
                       />
+                      <div className="flex justify-between text-sm text-white/60">
+                        <span>Available: {currentUsdcBalance.toFixed(2)} USDC</span>
+                        <button 
+                          onClick={() => setUsdcAmount(currentUsdcBalance.toString())}
+                          className="text-purple-400 hover:text-purple-300"
+                        >
+                          Use Max
+                        </button>
+                      </div>
                     </div>
 
                     {/* Steeze Preview */}
-                    {ethAmount && (
+                    {usdcAmount && (
                       <div className="p-4 bg-black/20 rounded-xl mt-4">
                         <p className="text-sm text-white/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white">
@@ -663,13 +716,18 @@ export default function SteezeStack() {
                     {/* Buy Button */}
                     <Button
                       onClick={handlePurchase}
-                      disabled={!ethAmount || isPurchasing}
-                      className="w-full mt-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      disabled={!usdcAmount || isPurchasing || parseFloat(usdcAmount || "0") > currentUsdcBalance}
+                      className="w-full mt-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50"
                     >
                       {isPurchasing ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Processing...
+                        </>
+                      ) : parseFloat(usdcAmount || "0") > currentUsdcBalance ? (
+                        <>
+                          <Info className="w-4 h-4 mr-2" />
+                          Insufficient Balance
                         </>
                       ) : (
                         <>
@@ -693,7 +751,7 @@ export default function SteezeStack() {
                   <div>
                     <CardTitle className="text-white">Redeem Steeze</CardTitle>
                     <CardDescription className="text-white/60">
-                      Convert Steeze tokens back to ETH
+                      Convert Steeze tokens back to USDC
                     </CardDescription>
                   </div>
                 </div>
@@ -710,10 +768,10 @@ export default function SteezeStack() {
                   </Button>
                 ) : !isOnCorrectNetwork ? (
                   <Button 
-                    onClick={switchToBaseSepolia}
+                    onClick={switchToBaseMainnet}
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                   >
-                    Switch to Base Sepolia
+                    Switch to Base Mainnet
                   </Button>
                 ) : (
                   <div>
@@ -733,12 +791,12 @@ export default function SteezeStack() {
                       />
                     </div>
 
-                    {/* ETH Preview */}
+                    {/* USDC Preview */}
                     {steezeAmount && (
                       <div className="p-4 bg-black/20 rounded-xl mt-4">
                         <p className="text-sm text-white/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white">
-                          {calculateEthAmount().toFixed(6)} ETH
+                          {calculateUsdcAmount().toFixed(4)} USDC
                         </p>
                       </div>
                     )}
@@ -821,7 +879,7 @@ export default function SteezeStack() {
                         {tx.transactionHash && (
                           <div className="mt-1">
                             <a
-                              href={`${BASE_SEPOLIA.blockExplorer}tx/${tx.transactionHash}`}
+                              href={`${BASE_MAINNET.blockExplorer}tx/${tx.transactionHash}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 text-sm underline"

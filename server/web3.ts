@@ -26,9 +26,26 @@ export const BASE_SEPOLIA = {
   blockExplorer: "https://sepolia-explorer.base.org/",
 };
 
+// Base Mainnet configuration
+export const BASE_MAINNET = {
+  chainId: 8453,
+  name: "Base",
+  rpcUrl: "https://mainnet.base.org",
+  nativeCurrency: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  blockExplorer: "https://basescan.org/",
+};
+
+
+
 // Vouching Contract Configuration
 export const VOUCHING_CONTRACT = {
-  address: process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000", // To be deployed
+  address: process.env.NODE_ENV === 'production' 
+    ? (process.env.VOUCHING_CONTRACT_ADDRESS_MAINNET || "0x8e6e64396717F69271c7994f90AFeC621C237315")
+    : (process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000"), // Environment-based contract addresses
   abi: [
     {
       "inputs": [],
@@ -135,7 +152,9 @@ export const VOUCHING_CONTRACT = {
 
 // Steeze Contract Configuration
 export const STEEZE_CONTRACT = {
-  address: process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962",
+  address: process.env.NODE_ENV === 'production' 
+    ? (process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3")
+    : (process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962"), // Environment-based contract addresses
   abi: [
     {
       "inputs": [{"internalType": "uint256", "name": "_buyPrice", "type": "uint256"}, {"internalType": "uint256", "name": "_sellPrice", "type": "uint256"}],
@@ -230,6 +249,54 @@ export const STEEZE_CONTRACT = {
   ]
 };
 
+// Current network configuration (switch to BASE_MAINNET for production)
+export const CURRENT_NETWORK = BASE_MAINNET; // Always use Base Mainnet for both prod and dev
+
+// USDC Contract Configuration for Base Mainnet
+export const USDC_CONTRACT = {
+  address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base Mainnet (used for both prod and dev)
+  decimals: 6, // USDC has 6 decimals
+  symbol: "USDC",
+  name: "USD Coin",
+  abi: [
+    {
+      "inputs": [{"internalType": "address", "name": "owner", "type": "address"}],
+      "name": "balanceOf",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "approve",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}],
+      "name": "allowance",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "transfer",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "transferFrom",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+};
+
 // Platform wallet address (should be set in environment variables)
 export const PLATFORM_WALLET = process.env.PLATFORM_WALLET_ADDRESS || "0x0000000000000000000000000000000000000000";
 
@@ -263,7 +330,7 @@ export class Web3Service {
 
   private initBaseProvider() {
     if (!this.baseProvider) {
-      this.baseProvider = new ethers.JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
+      this.baseProvider = new ethers.JsonRpcProvider(CURRENT_NETWORK.rpcUrl);
     }
     return this.baseProvider;
   }
@@ -290,6 +357,27 @@ export class Web3Service {
       return ethers.formatEther(balance);
     } catch (error) {
       console.error("Error getting ETH balance:", error);
+      return "0";
+    }
+  }
+
+  async getUSDCBalance(address: string): Promise<string> {
+    try {
+      console.log(`Fetching USDC balance for address: ${address}`);
+      console.log(`Using USDC contract: ${USDC_CONTRACT.address}`);
+      console.log(`Using RPC: ${CURRENT_NETWORK.rpcUrl}`);
+      
+      const provider = this.initBaseProvider();
+      const contract = new ethers.Contract(USDC_CONTRACT.address, USDC_CONTRACT.abi, provider);
+      const balance = await contract.balanceOf(address);
+      
+      console.log(`Raw balance: ${balance}`);
+      const formattedBalance = ethers.formatUnits(balance, USDC_CONTRACT.decimals);
+      console.log(`Formatted balance: ${formattedBalance} USDC`);
+      
+      return formattedBalance;
+    } catch (error) {
+      console.error("Error getting USDC balance:", error);
       return "0";
     }
   }
@@ -323,12 +411,12 @@ export class Web3Service {
         return { isValid: false };
       }
 
-      // For ETH transfers, we can get the amount directly from the transaction
+      // For USDC transfers, we can get the amount directly from the transaction
       return {
         isValid: true,
         from: tx.from,
         to: tx.to || "",
-        amount: ethers.formatEther(tx.value),
+        amount: ethers.formatUnits(tx.value, 6), // USDC has 6 decimals
         blockNumber: receipt.blockNumber
       };
     } catch (error) {
@@ -338,16 +426,16 @@ export class Web3Service {
   }
 
   /**
-   * Calculate vouch distribution (60% to KOL, 40% to platform)
+   * Calculate vouch distribution (70% to KOL, 30% to platform)
    */
-  calculateVouchDistribution(ethAmount: number): {
+  calculateVouchDistribution(usdcAmount: number): {
     kolAmount: number;
     platformAmount: number;
     auraPoints: number;
   } {
-    const kolAmount = ethAmount * 0.6;
-    const platformAmount = ethAmount * 0.4;
-    const auraPoints = Math.floor(ethAmount * 1000); // 1 ETH = 1000 Aura Points
+    const kolAmount = usdcAmount * 0.7;
+    const platformAmount = usdcAmount * 0.3;
+    const auraPoints = Math.floor(usdcAmount * 10); // 1 USDC = 10 Aura Points
 
     return {
       kolAmount,
@@ -392,7 +480,7 @@ export class Web3Service {
     isValid: boolean;
     voucher?: string;
     vouchedUser?: string;
-    ethAmount?: number;
+    usdcAmount?: number;
     auraPoints?: number;
     vouchId?: number;
     blockNumber?: number;
@@ -418,7 +506,7 @@ export class Web3Service {
                 isValid: true,
                 voucher: parsedLog.args.voucher,
                 vouchedUser: parsedLog.args.vouchedUser,
-                ethAmount: parseFloat(ethers.formatEther(parsedLog.args.amount)),
+                usdcAmount: parseFloat(ethers.formatUnits(parsedLog.args.amount, 6)), // USDC has 6 decimals
                 auraPoints: parseInt(parsedLog.args.auraPoints.toString()),
                 vouchId: parseInt(parsedLog.args.vouchId.toString()),
                 blockNumber: receipt.blockNumber
@@ -489,7 +577,7 @@ export class Web3Service {
         isValid: true,
         from: transaction.from,
         to: transaction.to || undefined,
-        value: ethers.formatEther(transaction.value),
+        value: ethers.formatUnits(transaction.value, 6), // USDC has 6 decimals
         blockNumber: receipt.blockNumber,
       };
     } catch (error) {
@@ -508,13 +596,13 @@ export class Web3Service {
       
       const buyPrice = await contract.buyPrice();
       // buyPrice is the cost in wei per 1 Steeze token
-      // So rate = 1 ETH (1e18 wei) / buyPrice = tokens per ETH
-      const oneEth = ethers.parseEther("1");
-      const rate = Number(oneEth) / Number(buyPrice);
+      // So rate = 1 USDC (1e6 units) / buyPrice = tokens per USDC
+      const oneUsdc = ethers.parseUnits("1", 6); // USDC has 6 decimals
+      const rate = Number(oneUsdc) / Number(buyPrice);
       return Math.floor(rate);
     } catch (error) {
       console.error("Error getting Steeze rate:", error);
-      // Default rate: 10000 Steeze per 1 ETH
+      // Default rate: 10000 Steeze per 1 USDC
       return 10000;
     }
   }
@@ -541,7 +629,7 @@ export class Web3Service {
   async verifySteezeTransaction(transactionHash: string): Promise<{
     isValid: boolean;
     userAddress?: string;
-    ethAmount?: number;
+    usdcAmount?: number;
     steezeAmount?: number;
     blockNumber?: number;
   }> {
@@ -586,12 +674,12 @@ export class Web3Service {
           if (parsedLog && parsedLog.name === 'Bought') {
             const buyerAddress = parsedLog.args[0];
             const steezeAmount = parseInt(parsedLog.args[1].toString());
-            const ethAmount = parseFloat(ethers.formatEther(transaction.value));
+            const usdcAmount = parseFloat(ethers.formatUnits(transaction.value, 6)); // USDC has 6 decimals
             
             return {
               isValid: true,
               userAddress: buyerAddress,
-              ethAmount: ethAmount,
+              usdcAmount: usdcAmount,
               steezeAmount: steezeAmount,
               blockNumber: receipt.blockNumber,
             };
@@ -606,7 +694,7 @@ export class Web3Service {
       return {
         isValid: true,
         userAddress: transaction.from,
-        ethAmount: parseFloat(ethers.formatEther(transaction.value)),
+        usdcAmount: parseFloat(ethers.formatUnits(transaction.value, 6)), // USDC has 6 decimals
         steezeAmount: 0, // Will need to be calculated
         blockNumber: receipt.blockNumber,
       };
@@ -622,7 +710,7 @@ export class Web3Service {
   async getWalletAge(address: string): Promise<number> {
     try {
       // Check for well-known test wallets and return appropriate ages
-      const testWallets = {
+      const testWallets: Record<string, number> = {
         '0x742d35cc6570fb7b4eb8c85b5d0b2f81c26ec29f': 120, // Test wallet 1 - old enough
         '0x8ba1f109551bd432803012645hac136c1ef8b3b': 45,  // Test wallet 2 - not old enough
         '0xd8da6bf26964af9d7eed9e03e53415d37aa96045': 90,  // Vitalik's wallet
@@ -665,9 +753,9 @@ export class Web3Service {
   }
 
   /**
-   * Vouch for a user with ETH payment and aura points
+   * Vouch for a user with USDC payment and aura points
    */
-  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, ethAmount: number, auraPoints: number): Promise<{
+  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, usdcAmount: number, auraPoints: number): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;
@@ -675,12 +763,13 @@ export class Web3Service {
     try {
       const provider = this.initBaseProvider();
       
-      // Validate minimum and maximum ETH amount (0.0001 ETH)
-      const minAmount = 0.0001;
-      if (ethAmount !== minAmount) {
+      // Validate USDC amount (1-100 USDC range)
+      const minAmount = 1;
+      const maxAmount = 100;
+      if (usdcAmount < minAmount || usdcAmount > maxAmount) {
         return {
           success: false,
-          error: `Vouching amount must be exactly ${minAmount} ETH`
+          error: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC`
         };
       }
 
@@ -725,7 +814,7 @@ export class Web3Service {
   }
 
   /**
-   * Get claimable ETH amount for a user
+   * Get claimable USDC amount for a user
    */
   async getClaimableAmount(userAddress: string): Promise<number> {
     try {
@@ -749,9 +838,9 @@ export class Web3Service {
   }
 
   /**
-   * Claim accumulated ETH from vouches
+   * Claim accumulated USDC from vouches
    */
-  async claimEth(userAddress: string): Promise<{
+  async claimUsdc(userAddress: string): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;
@@ -767,10 +856,10 @@ export class Web3Service {
       // For now, return mock success
       return {
         success: false,
-        error: "No ETH available to claim"
+        error: "No USDC available to claim"
       };
     } catch (error) {
-      console.error("Error claiming ETH:", error);
+      console.error("Error claiming USDC:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Claim failed"
@@ -783,8 +872,8 @@ export class Web3Service {
    */
   getWalletConnectConfig() {
     return {
-      chains: [POLYGON_TESTNET],
-      defaultChain: POLYGON_TESTNET,
+      chains: [CURRENT_NETWORK],
+      defaultChain: CURRENT_NETWORK,
       walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID || "",
       appName: "Aura Battle Platform",
       appDescription: "Web3 Aura Battle Platform for Web3 Users",
