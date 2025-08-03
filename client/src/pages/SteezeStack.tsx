@@ -67,11 +67,6 @@ export default function SteezeStack() {
     enabled: !!user,
   });
 
-  const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
-  const earnedSteeze = (balanceData as any)?.battleEarnedSteeze || 0;
-  const totalBalance = purchasedSteeze + earnedSteeze;
-  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
-
   // Fetch transaction history
   const { data: transactionsData = [] } = useQuery({
     queryKey: ["/api/steeze/transactions"],
@@ -84,6 +79,11 @@ export default function SteezeStack() {
     enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
     refetchOnWindowFocus: false,
   });
+
+  const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
+  const earnedSteeze = (balanceData as any)?.battleEarnedSteeze || 0;
+  const totalBalance = purchasedSteeze + earnedSteeze;
+  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
 
   const transactions = (transactionsData as any[]) || [];
 
