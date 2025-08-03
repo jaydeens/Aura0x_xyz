@@ -187,12 +187,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply comprehensive security middleware (disabled for development)
   // app.use(securityHeaders);
   app.use(cors(corsOptions));
-  app.use(secureSession);
+  // app.use(secureSession); // Disabled - causing white screen issues
   // app.use(auditDatabaseAccess);
   // app.use(validateInput);
   
-  // Global rate limiting - 1000 requests per 15 minutes
-  app.use(createRateLimit(15 * 60 * 1000, 1000));
+  // Global rate limiting - 1000 requests per 15 minutes (disabled for development)
+  // app.use(createRateLimit(15 * 60 * 1000, 1000));
   
   // Import advanced security middleware
   const { 
@@ -209,10 +209,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // app.use(trackSessionSecurity);
   // app.use(detectSuspiciousActivity);
   
-  // Specific rate limits for sensitive endpoints
-  const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
-  const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
-  const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
+  // Specific rate limits for sensitive endpoints (disabled for development)
+  // const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
+  // const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
+  // const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
 
   // Session middleware for Twitter auth
   app.set("trust proxy", 1);
