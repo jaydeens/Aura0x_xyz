@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Navigation from "@/components/Navigation";
+import { CelebrationAnimation, useCelebration } from "@/components/CelebrationAnimation";
 import { 
   Coins, 
   TrendingUp, 
@@ -43,6 +44,7 @@ const BASE_MAINNET = {
 export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { celebrationState, triggerSteezeCelebration, closeCelebration } = useCelebration();
   const [usdcAmount, setUsdcAmount] = useState("");
   const [steezeAmount, setSteezeAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -387,6 +389,7 @@ export default function SteezeStack() {
         title: "Purchase Confirmed",
         description: "Steeze tokens added to your balance",
       });
+      triggerSteezeCelebration();
       setIsPurchasing(false);
       setUsdcAmount("");
     },

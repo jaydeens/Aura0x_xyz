@@ -22,6 +22,7 @@ import {
   Heart
 } from "lucide-react";
 import { ethers } from "ethers";
+import { CelebrationAnimation, useCelebration } from "./CelebrationAnimation";
 
 declare global {
   interface Window {
@@ -40,6 +41,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { celebrationState, triggerVouchCelebration, closeCelebration } = useCelebration();
 
   const [vouchAmount, setVouchAmount] = useState("1");
   const MIN_USDC_AMOUNT = 1;
