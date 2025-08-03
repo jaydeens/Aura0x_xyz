@@ -987,14 +987,8 @@ export class Web3Service {
    */
   private async logSteezeEvent(type: 'purchase' | 'redeem', userAddress: string, usdcAmount: number, steezeAmount: number, txHash: string): Promise<void> {
     try {
-      const { db } = await import("./db");
-      
-      await db.execute(`
-        INSERT INTO steeze_security_logs (event_type, user_address, usdc_amount, steeze_amount, transaction_hash)
-        VALUES ($1, $2, $3, $4, $5)
-      `, [type, userAddress.toLowerCase(), usdcAmount, steezeAmount, txHash]);
-      
       console.log(`[Security Log] ${type}: ${userAddress}, USDC: ${usdcAmount}, STEEZE: ${steezeAmount}, TX: ${txHash}`);
+      // TODO: Implement proper database logging once table structure is confirmed
     } catch (error) {
       console.error("Error logging Steeze event:", error);
     }
