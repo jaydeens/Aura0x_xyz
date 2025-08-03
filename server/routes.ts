@@ -2015,10 +2015,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         abi: [
           {
             "inputs": [
-              {"internalType": "address", "name": "vouchedUser", "type": "address"},
-              {"internalType": "uint256", "name": "usdcAmount", "type": "uint256"}
+              {"internalType": "address", "name": "vouchedFor", "type": "address"},
+              {"internalType": "uint256", "name": "amount", "type": "uint256"}
             ],
-            "name": "vouchWithUSDC",
+            "name": "vouch",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -2027,34 +2027,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "anonymous": false,
             "inputs": [
               {"indexed": true, "internalType": "address", "name": "voucher", "type": "address"},
-              {"indexed": true, "internalType": "address", "name": "vouchedUser", "type": "address"},
-              {"indexed": false, "internalType": "uint256", "name": "usdcAmount", "type": "uint256"},
-              {"indexed": false, "internalType": "uint256", "name": "auraPoints", "type": "uint256"}
+              {"indexed": true, "internalType": "address", "name": "vouchedFor", "type": "address"},
+              {"indexed": false, "internalType": "uint256", "name": "amountUSDC", "type": "uint256"},
+              {"indexed": false, "internalType": "uint256", "name": "auraPointsAwarded", "type": "uint256"}
             ],
-            "name": "VouchCreated",
+            "name": "Vouched",
             "type": "event"
           },
           {
-            "inputs": [
-              {"internalType": "address", "name": "voucher", "type": "address"},
-              {"internalType": "address", "name": "vouchedUser", "type": "address"}
-            ],
-            "name": "hasVouched",
-            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+            "inputs": [],
+            "name": "USDC",
+            "outputs": [{"internalType": "contract IERC20", "name": "", "type": "address"}],
             "stateMutability": "view",
             "type": "function"
           },
           {
             "inputs": [],
-            "name": "platformWallet",
+            "name": "feeReceiver",
             "outputs": [{"internalType": "address", "name": "", "type": "address"}],
             "stateMutability": "view",
             "type": "function"
           },
           {
             "inputs": [],
-            "name": "usdcToken",
-            "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+            "name": "AURA_PER_USDC",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [],
+            "name": "MIN_VOUCH",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [],
+            "name": "MAX_VOUCH",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
             "stateMutability": "view",
             "type": "function"
           }

@@ -249,7 +249,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
         description: "Please confirm the vouch transaction...",
       });
       
-      const tx = await contract.vouchWithUSDC(profileUser.walletAddress, usdcAmountWei);
+      const tx = await contract.vouch(profileUser.walletAddress, usdcAmountWei);
 
       // Wait for transaction confirmation
       const receipt = await tx.wait();
