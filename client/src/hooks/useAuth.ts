@@ -45,28 +45,6 @@ function fetchUserAuth() {
   return authPromise;
 }
 
-async function logout() {
-  try {
-    const response = await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include'
-    });
-    
-    if (response.ok) {
-      globalAuthState.user = null;
-      globalAuthState.isLoading = false;
-      globalAuthState.hasChecked = true;
-      notifyListeners();
-      window.location.href = "/";
-    } else {
-      throw new Error('Logout failed');
-    }
-  } catch (error) {
-    console.error('Logout error:', error);
-    throw error;
-  }
-}
-
 export function useAuth() {
   const [state, setState] = useState(() => ({
     user: globalAuthState.user,
@@ -97,8 +75,5 @@ export function useAuth() {
     };
   }, []);
 
-  return {
-    ...state,
-    logout
-  };
+  return state;
 }
