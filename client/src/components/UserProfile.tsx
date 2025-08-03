@@ -36,7 +36,6 @@ interface UserProfileProps {
 export default function UserProfile({ userId }: UserProfileProps) {
   const [isVouchDialogOpen, setIsVouchDialogOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [hasVouched, setHasVouched] = useState(false);
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -92,27 +91,16 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const baseAuraPoints = 50;
   const finalAuraPoints = currentUserLevel ? Math.round(baseAuraPoints * parseFloat(currentUserLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
 
-  // Check if user has already vouched
-  useEffect(() => {
-    if (contractInfo?.contractAddress && currentUser?.walletAddress && profileUser?.walletAddress) {
-      checkIfVouched();
-    }
-  }, [contractInfo, currentUser, profileUser]);
+  // Fetch vouch amount data for this user pair
+  const { data: vouchAmountData, refetch: refetchVouchAmount } = useQuery({
+    queryKey: [`/api/vouch/amount/${currentUser?.id}/${profileUser?.id}`],
+    enabled: !!currentUser?.id && !!profileUser?.id && currentUser.id !== profileUser.id,
+  });
 
-  const checkIfVouched = async () => {
-    try {
-      if (window.ethereum && contractInfo?.abi && contractInfo?.contractAddress && currentUser?.walletAddress && profileUser?.walletAddress) {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, provider);
-        const hasVouchedResult = await contract.hasVouched(currentUser.walletAddress, profileUser.walletAddress);
-        setHasVouched(hasVouchedResult);
-      }
-    } catch (error) {
-      console.error("Error checking vouch status:", error);
-      // If we can't check, assume false to allow vouching attempt
-      setHasVouched(false);
-    }
-  };
+  const totalVouchedAmount = vouchAmountData?.totalVouchedAmount || 0;
+  const remainingAmount = vouchAmountData?.remainingAmount || 100;
+  const canVouchMore = vouchAmountData?.canVouchMore || true;
+  const vouchCount = vouchAmountData?.vouchCount || 0;
 
   const vouchMutation = useMutation({
     mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
@@ -124,9 +112,10 @@ export default function UserProfile({ userId }: UserProfileProps) {
         description: `Awarded ${data.auraAwarded} aura points with ${data.multiplier}x multiplier`,
       });
       setIsVouchDialogOpen(false);
-      setHasVouched(true);
+      refetchVouchAmount(); // Refresh vouch amount data
       queryClient.invalidateQueries({ queryKey: ["/api/leaderboard"] });
       queryClient.invalidateQueries({ queryKey: [`/api/vouch/stats/${userId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/vouch/amount/${currentUser?.id}/${profileUser?.id}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
     },
     onError: (error: any) => {
@@ -332,7 +321,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                   currentUser.id !== userId && 
                   currentUser.walletAddress && 
                   profileUser.walletAddress &&
-                  !hasVouched;
+                  canVouchMore;
 
   return (
     <Card className="bg-black/40 border border-purple-500/20">
@@ -363,7 +352,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
                   <Heart className="w-4 h-4 mr-2" />
-                  Vouch
+                  {totalVouchedAmount > 0 ? `Vouch More (${remainingAmount.toFixed(2)} left)` : "Vouch"}
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-black/90 border border-purple-500/20 text-white">
@@ -382,14 +371,19 @@ export default function UserProfile({ userId }: UserProfileProps) {
                       <Input
                         type="number"
                         min={MIN_USDC_AMOUNT}
-                        max={MAX_USDC_AMOUNT}
+                        max={Math.min(MAX_USDC_AMOUNT, remainingAmount)}
                         value={vouchAmount}
-                        onChange={(e) => setVouchAmount(Math.max(MIN_USDC_AMOUNT, Math.min(MAX_USDC_AMOUNT, parseInt(e.target.value) || MIN_USDC_AMOUNT)).toString())}
+                        onChange={(e) => setVouchAmount(Math.max(MIN_USDC_AMOUNT, Math.min(remainingAmount, parseInt(e.target.value) || MIN_USDC_AMOUNT)).toString())}
                         className="bg-black/20 border-purple-500/30 text-white"
-                        placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${MAX_USDC_AMOUNT})`}
+                        placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${Math.min(MAX_USDC_AMOUNT, remainingAmount)})`}
                       />
                       <div className="text-sm text-white/60">
-                        Range: {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
+                        Available: {MIN_USDC_AMOUNT}-{Math.min(MAX_USDC_AMOUNT, remainingAmount).toFixed(2)} USDC
+                        {totalVouchedAmount > 0 && (
+                          <div className="text-blue-400">
+                            Already vouched: {totalVouchedAmount.toFixed(2)} USDC ({vouchCount} times)
+                          </div>
+                        )}
                       </div>
                       
                       {/* USDC Balance Display */}
@@ -466,9 +460,15 @@ export default function UserProfile({ userId }: UserProfileProps) {
             </Dialog>
           )}
 
-          {hasVouched && (
+          {!canVouchMore && totalVouchedAmount >= 100 && (
             <Badge variant="outline" className="text-green-400 border-green-400">
-              Already Vouched
+              Max Vouched (100 USDC)
+            </Badge>
+          )}
+          
+          {totalVouchedAmount > 0 && canVouchMore && (
+            <Badge variant="outline" className="text-blue-400 border-blue-400">
+              Vouched {totalVouchedAmount.toFixed(2)} USDC
             </Badge>
           )}
         </div>
@@ -525,7 +525,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
             <p className="text-orange-300 text-sm">
               {!currentUser.walletAddress && "You need to connect your wallet to vouch for users."}
               {!profileUser.walletAddress && "This user needs to connect their wallet to receive vouches."}
-              {hasVouched && "You have already vouched for this user."}
+              {!canVouchMore && "You have reached the maximum vouch amount (100 USDC) for this user."}
             </p>
           </div>
         )}

@@ -2127,6 +2127,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get vouch amount from specific user to another user
+  app.get('/api/vouch/amount/:fromUserId/:toUserId', async (req, res) => {
+    try {
+      const { fromUserId, toUserId } = req.params;
+      const vouches = await storage.getUserVouches(fromUserId);
+      
+      // Calculate total amount vouched from fromUserId to toUserId
+      const vouchesToTarget = vouches.filter(v => v.fromUserId === fromUserId && v.toUserId === toUserId);
+      const totalVouchedAmount = vouchesToTarget.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
+      
+      res.json({
+        totalVouchedAmount,
+        remainingAmount: Math.max(0, 100 - totalVouchedAmount), // 100 USDC max
+        canVouchMore: totalVouchedAmount < 100,
+        vouchCount: vouchesToTarget.length
+      });
+    } catch (error: any) {
+      console.error("Error getting vouch amount:", error);
+      res.status(500).json({ message: "Failed to get vouch amount" });
+    }
+  });
+
   // Steeze Stack API routes - Base Sepolia Contract Integration
   app.get("/api/steeze/rate", async (req, res) => {
     try {
