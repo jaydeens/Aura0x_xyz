@@ -375,13 +375,10 @@ export default function SteezeStack() {
   // Confirm purchase mutation
   const confirmPurchaseMutation = useMutation({
     mutationFn: async (txHash: string) => {
-      const response = await fetch('/api/steeze/confirm-purchase', {
+      return apiRequest('/api/steeze/confirm-purchase', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transactionHash: txHash })
       });
-      if (!response.ok) throw new Error('Failed to confirm purchase');
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });

@@ -163,8 +163,12 @@ export const STEEZE_CONTRACT = {
     },
     {
       "anonymous": false,
-      "inputs": [{"indexed": true, "internalType": "address", "name": "buyer", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}],
-      "name": "Bought",
+      "inputs": [
+        {"indexed": true, "internalType": "address", "name": "user", "type": "address"}, 
+        {"indexed": false, "internalType": "uint256", "name": "usdcAmount", "type": "uint256"}, 
+        {"indexed": false, "internalType": "uint256", "name": "steezeAmount", "type": "uint256"}
+      ],
+      "name": "SteezeBought",
       "type": "event"
     },
     {
@@ -660,21 +664,39 @@ export class Web3Service {
         return { isValid: false };
       }
 
-      // Parse the Bought event from logs
-      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
-      const logs = receipt.logs;
+      // Parse the SteezeBought event from logs
+      console.log(`[Web3] Checking ${logs.length} logs for SteezeBought event`);
+      
+      // Define the SteezeBought event ABI for parsing
+      const steezeBoughtEventABI = [
+        "event SteezeBought(address indexed user, uint256 usdcAmount, uint256 steezeAmount)"
+      ];
+      const eventInterface = new ethers.Interface(steezeBoughtEventABI);
       
       for (const log of logs) {
         try {
-          const parsedLog = contract.interface.parseLog({
+          // Check if this log is from the Steeze contract
+          if (log.address.toLowerCase() !== contractAddress) {
+            continue;
+          }
+          
+          // Try to parse using the specific event ABI
+          const parsedLog = eventInterface.parseLog({
             topics: log.topics,
             data: log.data
           });
           
-          if (parsedLog && parsedLog.name === 'Bought') {
-            const buyerAddress = parsedLog.args[0];
-            const steezeAmount = parseInt(parsedLog.args[1].toString());
-            const usdcAmount = parseFloat(ethers.formatUnits(transaction.value, 6)); // USDC has 6 decimals
+          console.log(`[Web3] Parsed log: ${parsedLog?.name}`, parsedLog?.args);
+          
+          if (parsedLog && parsedLog.name === 'SteezeBought') {
+            const buyerAddress = parsedLog.args[0]; // user
+            const usdcAmountWei = parsedLog.args[1]; // usdcAmount (in wei - 6 decimals)
+            const steezeAmountWei = parsedLog.args[2]; // steezeAmount (in wei - 6 decimals, not 18)
+            
+            const usdcAmount = parseFloat(ethers.formatUnits(usdcAmountWei, 6)); // USDC has 6 decimals
+            const steezeAmount = parseFloat(ethers.formatUnits(steezeAmountWei, 6)); // Steeze also uses 6 decimals based on contract
+            
+            console.log(`[Web3] SteezeBought event found: buyer=${buyerAddress}, usdc=${usdcAmount}, steeze=${steezeAmount}`);
             
             return {
               isValid: true,
@@ -685,19 +707,14 @@ export class Web3Service {
             };
           }
         } catch (parseError) {
+          console.log(`[Web3] Failed to parse log:`, parseError);
           // Continue to next log if this one can't be parsed
           continue;
         }
       }
 
-      // If no event found, but transaction was successful, extract basic info
-      return {
-        isValid: true,
-        userAddress: transaction.from,
-        usdcAmount: parseFloat(ethers.formatUnits(transaction.value, 6)), // USDC has 6 decimals
-        steezeAmount: 0, // Will need to be calculated
-        blockNumber: receipt.blockNumber,
-      };
+      console.log("[Web3] No SteezeBought event found in transaction logs");
+      return { isValid: false };
     } catch (error) {
       console.error("Error verifying Steeze transaction:", error);
       return { isValid: false };
