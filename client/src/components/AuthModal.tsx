@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import TwitterConnect from "@/components/TwitterConnect";
-import WalletConnect from "@/components/WalletConnect";
+import SafeWalletConnect from "@/components/SafeWalletConnect";
 
 interface AuthModalProps {
   open: boolean;
@@ -45,7 +45,7 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
           {/* Wallet Connect Option */}
           <div className="space-y-2">
-            <WalletConnect showBalance={false} />
+            <SafeWalletConnect showBalance={false} />
           </div>
 
 

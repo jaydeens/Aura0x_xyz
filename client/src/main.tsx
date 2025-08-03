@@ -52,7 +52,22 @@ console.log("🚀 Aura app starting - EMERGENCY FIX...");
 // Global error handler for unhandled rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('❌ Unhandled promise rejection:', event.reason);
-  event.preventDefault(); // Prevent the white screen
+  
+  // Specifically handle wallet-related errors
+  if (event.reason?.code === 4001 || event.reason?.message?.includes('User rejected')) {
+    console.log('🔐 User rejected wallet connection - this is normal');
+    event.preventDefault(); // Prevent the white screen
+    return;
+  }
+  
+  // Handle other Ethereum provider errors
+  if (event.reason?.message?.includes('ethereum') || event.reason?.message?.includes('MetaMask')) {
+    console.log('💼 Wallet provider error - continuing without wallet');
+    event.preventDefault();
+    return;
+  }
+  
+  event.preventDefault(); // Prevent the white screen for any unhandled rejection
 });
 
 // Global error handler
