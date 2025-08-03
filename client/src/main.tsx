@@ -24,10 +24,22 @@ if (!rootElement) {
   try {
     console.log("✅ Root element found, rendering app...");
     const root = createRoot(rootElement);
-    root.render(<App />);
+    
+    // Add React error boundary to catch render errors
+    root.render(
+      <div style={{ minHeight: '100vh', background: '#1a1a2e' }}>
+        <App />
+      </div>
+    );
     console.log("✅ App rendered successfully");
   } catch (error) {
     console.error("❌ Error rendering app:", error);
-    rootElement.innerHTML = '<div style="color: white; background: black; padding: 20px; font-family: Arial;">Error rendering app. Check console for details.</div>';
+    rootElement.innerHTML = `
+      <div style="color: white; background: #1a1a2e; padding: 20px; font-family: Arial; min-height: 100vh;">
+        <h1 style="color: #8B5CF6;">Aura - Creators and Streamers Social Network</h1>
+        <p>App loading error. Check console for details.</p>
+        <p>Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>
+      </div>
+    `;
   }
 }
