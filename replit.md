@@ -51,6 +51,12 @@ Key entities include:
 - **Reputation Economy**: Aura points distributed based on community vouching (1 USDC = 10 APs)
 - **Platform Economics**: 30% platform fee, 70% to vouched users
 
+### Steeze Security System
+- **Backend-Controlled Transactions**: Platform wallet manages all smart contract interactions
+- **Off-Chain Balance Management**: Secure database tracking with transaction audit trails
+- **Event Monitoring**: Real-time blockchain event monitoring with security logging
+- **Access Control**: Authentication requirements and input validation for all operations
+
 ### Web3 Integration
 - **Smart Contracts**: Deployed on Base Sepolia testnet
 - **Wallet Support**: MetaMask, WalletConnect, and mobile wallet compatibility
@@ -107,6 +113,7 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. SECURITY UPDATE: Implemented comprehensive off-chain Steeze security measures with backend-controlled smart contract interactions. Added platform wallet system, event monitoring, security logging database, and enhanced access control. All Steeze transactions now processed through secure backend with proper validation and audit trails.
 - August 3, 2025. MAJOR UPDATE: Implemented proper USDC approval flow for all transactions. Both vouching and Steeze purchases now use two-step process: first USDC approval, then transaction execution. Added USDC balance display with real-time validation and insufficient balance warnings. Fixed mutation interfaces to use usdcAmount consistently.
 - August 3, 2025. MAJOR UPDATE: Implemented variable vouching system (1-100 USDC) with 1 USDC = 10 Aura Points. Updated Steeze rates to 1 STEEZE = 0.1 USDC purchase, 0.07 USDC redeem. Added amount selectors to vouching interfaces for user-friendly variable amounts.
 - August 3, 2025. MAJOR UPDATE: Migrated entire platform from ETH to USDC for price stability. Updated contract addresses to Base Mainnet production deployment (Vouching: 0x8e6e64396717F69271c7994f90AFeC621C237315, Steeze: 0xf209E955Ad3711EE983627fb52A32615455d8cC3). All transactions now use USDC with 0.1 USDC vouching amount and adjusted Steeze rates.
