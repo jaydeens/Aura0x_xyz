@@ -1137,6 +1137,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         yesterday.setDate(yesterday.getDate() - 1);
         yesterday.setHours(0, 0, 0, 0);
         
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         const lastDate = new Date(lastLessonDate);
         lastDate.setHours(0, 0, 0, 0);
         
@@ -1144,13 +1147,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (lastDate.getTime() === yesterday.getTime()) {
           newStreak = (user.currentStreak || 0) + 1;
         }
-        // If they completed today, keep current streak
+        // If they completed today already, keep current streak
+        else if (lastDate.getTime() === today.getTime()) {
+          newStreak = user.currentStreak || 1;
+        }
+        // If they missed days (last lesson was more than 1 day ago), reset streak to 1
         else {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (lastDate.getTime() === today.getTime()) {
-            newStreak = user.currentStreak || 1;
-          }
+          newStreak = 1;
         }
       }
       
