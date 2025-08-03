@@ -18,7 +18,29 @@ import WhitelistAdmin from "@/pages/WhitelistAdmin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  console.log("🛣️ Router component rendering...");
+  
+  let authData;
+  try {
+    authData = useAuth();
+    console.log("🔐 Auth status:", { 
+      isAuthenticated: authData.isAuthenticated, 
+      isLoading: authData.isLoading, 
+      hasUser: !!authData.user 
+    });
+  } catch (error) {
+    console.error("❌ Auth hook error:", error);
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Authentication Error</h1>
+          <p>Unable to load authentication. Please refresh the page.</p>
+        </div>
+      </div>
+    );
+  }
+  
+  const { isAuthenticated, isLoading, user } = authData;
 
   // Show loading during authentication check
   if (isLoading) {
@@ -65,15 +87,29 @@ function Router() {
 }
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-        <BetaIndicator />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
+  console.log("🎯 App component rendering...");
+  
+  try {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+          <BetaIndicator />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  } catch (error) {
+    console.error("❌ Error in App component:", error);
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Aura - App Error</h1>
+          <p>Something went wrong. Check console for details.</p>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default App;
