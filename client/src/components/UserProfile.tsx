@@ -115,7 +115,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
   };
 
   const vouchMutation = useMutation({
-    mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
+    mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
     },
     onSuccess: (data) => {
@@ -210,14 +210,46 @@ export default function UserProfile({ userId }: UserProfileProps) {
         }
       }
 
-      // Create contract instance
+      // Create contract instances
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
-
-      // Call vouch function (now uses USDC)
-      const tx = await contract.vouch(profileUser.walletAddress, {
-        value: ethers.parseUnits(vouchAmount, 6) // USDC has 6 decimals
+      
+      // USDC contract for approval
+      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base Mainnet USDC
+      const usdcABI = [
+        {
+          "constant": false,
+          "inputs": [
+            {"name": "_spender", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+          ],
+          "name": "approve",
+          "outputs": [{"name": "", "type": "bool"}],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ];
+      const usdcContract = new ethers.Contract(usdcContractAddress, usdcABI, signer);
+      
+      const usdcAmountWei = ethers.parseUnits(vouchAmount, 6); // USDC has 6 decimals
+      
+      // Step 1: Approve USDC for the contract
+      toast({
+        title: "Approving USDC",
+        description: "Please approve USDC spending in your wallet...",
       });
+      
+      const approvalTx = await usdcContract.approve(contractInfo.contractAddress, usdcAmountWei);
+      await approvalTx.wait();
+      
+      // Step 2: Call vouch function
+      toast({
+        title: "Processing Vouch",
+        description: "Please confirm the vouch transaction...",
+      });
+      
+      const tx = await contract.vouch(profileUser.walletAddress, usdcAmountWei);
 
       // Wait for transaction confirmation
       const receipt = await tx.wait();
@@ -405,7 +437,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     <h4 className="text-blue-300 font-medium mb-2">Smart Contract Vouching:</h4>
                     <ol className="text-blue-200 text-sm space-y-1 list-decimal list-inside">
                       <li>Click "Vouch Now" to open your wallet</li>
-                      <li>Confirm the transaction for {vouchAmount} USDC</li>
+                      <li>First, approve {vouchAmount} USDC spending</li>
+                      <li>Then, confirm the vouch transaction</li>
                       <li>The smart contract automatically distributes funds</li>
                     </ol>
                   </div>
