@@ -113,6 +113,7 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. DEPLOYMENT FIX: Fixed "__dirname is not defined in ESM modules" errors by replacing legacy CommonJS globals with import.meta.dirname. Updated build-server.js banner to include proper ESM polyfills. Build process now fully compatible with ESM deployment requirements.
 - August 3, 2025. DEPLOYMENT FIX: Resolved ESM module compatibility issues causing "Dynamic require of fs is not supported" errors. Converted all dynamic require() statements to static ES6 imports, updated tailwind.config.ts to use proper imports, and enhanced production mode detection logic. Build process now outputs fully ESM-compatible modules for deployment.
 - August 3, 2025. DEPLOYMENT FIX: Fixed white screen issue on deployed website by improving production mode detection and static file serving. Updated tagline to "Creators and Streamers Social Network" across all platforms. Added comprehensive error handling and debugging for deployment troubleshooting.
 - August 3, 2025. MAJOR UPDATE: Implemented multiple vouching system with proper state tracking. Added API endpoint to track total vouch amounts per user pair (100 USDC max). Fixed vouching UI to show remaining amounts and "Vouch More" functionality. Resolved vouching state persistence issues after page refresh.

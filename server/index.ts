@@ -88,8 +88,8 @@ app.use((req, res, next) => {
     const possiblePaths = [
       path.resolve(process.cwd(), "dist", "public"),   // Local build
       path.resolve(process.cwd(), "public"),           // Deployed in dist/
-      path.resolve(__dirname, "..", "dist", "public"), // Relative to server
-      path.resolve(__dirname, "public")                // Server-relative deployed
+      path.resolve(import.meta.dirname, "..", "dist", "public"), // Relative to server
+      path.resolve(import.meta.dirname, "public")                // Server-relative deployed
     ];
     
     for (const testPath of possiblePaths) {
