@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { suppressWalletErrors } from "./utils/walletErrorSuppressor";
 
 // Emergency fallback - show content immediately if React fails
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Add error boundary and console logging for debugging deployment issues
 console.log("🚀 Aura app starting - EMERGENCY FIX...");
 
+// Suppress wallet extension errors that interfere with app loading
+suppressWalletErrors();
+
 // Global error handler for unhandled rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('❌ Unhandled promise rejection:', event.reason);
@@ -61,7 +65,10 @@ window.addEventListener('unhandledrejection', (event) => {
   }
   
   // Handle other Ethereum provider errors
-  if (event.reason?.message?.includes('ethereum') || event.reason?.message?.includes('MetaMask')) {
+  if (event.reason?.message?.includes('ethereum') || 
+      event.reason?.message?.includes('MetaMask') ||
+      event.reason?.message?.includes('provider') ||
+      event.reason?.stack?.includes('provider-injection')) {
     console.log('💼 Wallet provider error - continuing without wallet');
     event.preventDefault();
     return;
