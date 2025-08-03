@@ -255,27 +255,53 @@ export default function SteezeStack() {
         throw new Error("Please connect the wallet associated with your account");
       }
 
-      // Encode buySteeze(uint256 amount) function call
-      const ABI = ["function buySteeze(uint256 amount)"];
-      const iface = new ethers.Interface(ABI);
-      const data = iface.encodeFunctionData("buySteeze", [steezeAmount]);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
       
-      const usdcAmount = (usdcValue * 1e6).toString(); // USDC has 6 decimals
-
-      // Send USDC transaction to smart contract
-      const transactionParameters = {
-        to: "0xf209E955Ad3711EE983627fb52A32615455d8cC3", // Updated mainnet contract
-        from: walletAddress,
-        value: '0x' + BigInt(usdcAmount).toString(16),
-        data: data,
-      };
-
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [transactionParameters],
+      // USDC contract for approval
+      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base Mainnet USDC
+      const usdcABI = [
+        {
+          "constant": false,
+          "inputs": [
+            {"name": "_spender", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+          ],
+          "name": "approve",
+          "outputs": [{"name": "", "type": "bool"}],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ];
+      const usdcContract = new ethers.Contract(usdcContractAddress, usdcABI, signer);
+      
+      const contractAddress = "0xf209E955Ad3711EE983627fb52A32615455d8cC3"; // Steeze contract
+      const usdcAmountWei = ethers.parseUnits(usdcValue.toString(), 6); // USDC has 6 decimals
+      
+      // Step 1: Approve USDC for the contract
+      toast({
+        title: "Approving USDC",
+        description: "Please approve USDC spending in your wallet...",
       });
+      
+      const approvalTx = await usdcContract.approve(contractAddress, usdcAmountWei);
+      await approvalTx.wait();
+      
+      // Step 2: Call buySteeze function
+      toast({
+        title: "Processing Purchase",
+        description: "Please confirm the Steeze purchase transaction...",
+      });
+      
+      // Steeze contract for purchase
+      const steezeABI = ["function buySteeze(uint256 amount)"];
+      const steezeContract = new ethers.Contract(contractAddress, steezeABI, signer);
+      
+      const purchaseTx = await steezeContract.buySteeze(usdcAmountWei);
+      const receipt = await purchaseTx.wait();
 
-      return txHash;
+      return receipt.transactionHash;
     },
     onSuccess: (txHash) => {
       toast({
@@ -632,7 +658,7 @@ export default function SteezeStack() {
                   <div>
                     <CardTitle className="text-white">Buy Steeze</CardTitle>
                     <CardDescription className="text-white/60">
-                      Purchase Steeze tokens with USDC
+                      Purchase Steeze tokens with USDC (requires approval)
                     </CardDescription>
                   </div>
                 </div>
@@ -712,6 +738,17 @@ export default function SteezeStack() {
                         </p>
                       </div>
                     )}
+
+                    {/* Purchase Instructions */}
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mt-4">
+                      <h4 className="text-blue-300 font-medium mb-2">Purchase Process:</h4>
+                      <ol className="text-blue-200 text-sm space-y-1 list-decimal list-inside">
+                        <li>Click "Buy Steeze" to start the purchase</li>
+                        <li>First, approve USDC spending in your wallet</li>
+                        <li>Then, confirm the Steeze purchase transaction</li>
+                        <li>Your Steeze tokens will be added to your balance</li>
+                      </ol>
+                    </div>
 
                     {/* Buy Button */}
                     <Button
