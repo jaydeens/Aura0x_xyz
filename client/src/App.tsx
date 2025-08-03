@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import BetaIndicator from "@/components/BetaIndicator";
 import Landing from "@/pages/Landing";
+import LandingTest from "@/pages/LandingTest";
 import Dashboard from "@/pages/Dashboard";
 import Battles from "@/pages/Battles";
 import LiveBattle from "@/pages/LiveBattle";
@@ -31,7 +32,7 @@ function Router() {
   } catch (error) {
     console.error("❌ Auth hook error:", error);
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Authentication Error</h1>
           <p>Unable to load authentication. Please refresh the page.</p>
@@ -60,9 +61,10 @@ function Router() {
 
   // If not authenticated, only show landing page
   if (!isAuthenticated || !user) {
+    console.log("🏠 Showing Landing page - user not authenticated");
     return (
       <Switch>
-        <Route path="*" component={Landing} />
+        <Route path="*" component={LandingTest} />
       </Switch>
     );
   }
