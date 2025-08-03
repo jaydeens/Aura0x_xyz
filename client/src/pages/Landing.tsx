@@ -70,18 +70,14 @@ export default function Landing() {
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="relative group">
                 <div className="absolute -inset-2 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <img 
-                  src="/attached_assets/AURA PNG (1)_1749403291114.png" 
-                  alt="Aura Logo" 
-                  className="relative w-10 h-10 sm:w-12 sm:h-12 drop-shadow-2xl brightness-110 saturate-110 group-hover:scale-110 transition-transform"
-                />
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center drop-shadow-2xl group-hover:scale-110 transition-transform">
+                  <span className="text-white font-black text-lg sm:text-2xl">»</span>
+                </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full animate-ping shadow-lg shadow-cyan-400/50"></div>
               </div>
-              <img 
-                src="/attached_assets/FULL AURA (1)_1749403707745.png" 
-                alt="Aura" 
-                className="h-7 sm:h-8 w-auto drop-shadow-2xl brightness-110 saturate-110 hover:scale-105 transition-transform"
-              />
+              <div className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text drop-shadow-2xl hover:scale-105 transition-transform">
+                Aura
+              </div>
             </div>
             
 
@@ -269,18 +265,14 @@ export default function Landing() {
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <img 
-                    src="/attached_assets/AURA PNG (1)_1749403291114.png" 
-                    alt="Aura Logo" 
-                    className="w-16 h-16 drop-shadow-2xl brightness-110 saturate-110 animate-pulse"
-                  />
+                  <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center drop-shadow-2xl animate-pulse">
+                    <span className="text-white font-black text-3xl">»</span>
+                  </div>
                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full animate-ping"></div>
                 </div>
-                <img 
-                  src="/attached_assets/FULL AURA (1)_1749403707745.png" 
-                  alt="Aura" 
-                  className="h-12 w-auto drop-shadow-2xl brightness-110 saturate-110"
-                />
+                <div className="text-4xl font-black text-transparent bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text drop-shadow-2xl">
+                  Aura
+                </div>
               </div>
               <p className="text-gray-300 font-bold leading-relaxed text-lg">The aura app that's breaking the internet. Build your brand, go aura, and become legendary.</p>
               <div className="flex space-x-4">
