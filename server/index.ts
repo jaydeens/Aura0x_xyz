@@ -220,6 +220,11 @@ app.use((req, res, next) => {
         res.setHeader('X-Content-Type-Options', 'nosniff');
       }
     }));
+    
+    // Add debug route for testing asset loading
+    app.get('/debug', (req, res) => {
+      res.sendFile(path.resolve(process.cwd(), 'debug-simple.html'));
+    });
 
     // SPA fallback - MUST be last route
     app.use("*", (req, res) => {

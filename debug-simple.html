@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 4rem;
+            background: linear-gradient(45deg, #8B5CF6, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+        .test-info {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AURA</h1>
+        <div class="test-info">
+            <h3>Emergency Debug Page</h3>
+            <p>This is a simple HTML page to test if basic styling works.</p>
+            <p>If you can see this with purple gradients, the server is working.</p>
+            <button onclick="testReact()">Test React Loading</button>
+        </div>
+        <div id="debug-output"></div>
+    </div>
+    
+    <script>
+        function testReact() {
+            const output = document.getElementById('debug-output');
+            output.innerHTML = '<p>Loading React assets...</p>';
+            
+            // Test CSS loading
+            const cssLink = document.createElement('link');
+            cssLink.rel = 'stylesheet';
+            cssLink.href = '/assets/index--qm5KUAK.css';
+            cssLink.onload = () => {
+                output.innerHTML += '<p style="color: green;">✓ CSS loaded successfully</p>';
+            };
+            cssLink.onerror = () => {
+                output.innerHTML += '<p style="color: red;">✗ CSS failed to load</p>';
+            };
+            document.head.appendChild(cssLink);
+            
+            // Test JS loading
+            const script = document.createElement('script');
+            script.src = '/assets/index-Bm8YZd2g.js';
+            script.onload = () => {
+                output.innerHTML += '<p style="color: green;">✓ JS loaded successfully</p>';
+            };
+            script.onerror = () => {
+                output.innerHTML += '<p style="color: red;">✗ JS failed to load</p>';
+            };
+            document.head.appendChild(script);
+        }
+        
+        console.log('Debug page loaded successfully');
+    </script>
+</body>
+</html>
