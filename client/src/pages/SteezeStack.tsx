@@ -912,11 +912,11 @@ export default function SteezeStack() {
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          tx.type === 'purchase' 
+                          (tx.type === 'purchase' || tx.type === 'buy') 
                             ? 'bg-green-500/20 text-green-400' 
                             : 'bg-red-500/20 text-red-400'
                         }`}>
-                          {tx.type === 'purchase' ? (
+                          {(tx.type === 'purchase' || tx.type === 'buy') ? (
                             <ArrowUpRight className="w-4 h-4" />
                           ) : (
                             <ArrowDownLeft className="w-4 h-4" />
@@ -924,7 +924,7 @@ export default function SteezeStack() {
                         </div>
                         <div>
                           <p className="text-white font-medium">
-                            {tx.type === 'purchase' ? 'Bought' : 'Redeemed'} {tx.amount.toLocaleString()} STEEZE
+                            {(tx.type === 'purchase' || tx.type === 'buy') ? 'Bought' : 'Redeemed'} {tx.amount.toLocaleString()} STEEZE
                           </p>
                           <p className="text-white/60 text-sm">
                             {new Date(tx.createdAt).toLocaleDateString()}
