@@ -210,7 +210,7 @@ export default function Landing() {
                 <div className="space-y-4 sm:space-y-6">
                   <div className="text-center mb-6 sm:mb-10">
                     <h3 className="text-xl sm:text-2xl lg:text-3xl font-black mb-2 sm:mb-3 text-gray-900">AURA RANKINGS 🔥</h3>
-                    <p className="text-gray-700 text-sm sm:text-base lg:text-lg font-medium px-2">Ranked by aura moments, fan engagement, and legendary status achieved</p>
+                    <p className="text-gray-700 text-sm sm:text-base lg:text-lg font-medium px-2">Ranked by battles won, fan engagement, and legendary status achieved</p>
                   </div>
                   {leaderboard.slice(0, 5).map((user: any, index: number) => {
                     const isTopThree = index < 3;
@@ -233,7 +233,7 @@ export default function Landing() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="font-black text-lg sm:text-xl lg:text-2xl text-gray-900 truncate">{user.username || 'Aura Creator'}</div>
-                            <div className="text-gray-700 font-bold text-sm sm:text-base lg:text-lg">{user.totalBattlesWon || 0} aura moments</div>
+                            <div className="text-gray-700 font-bold text-sm sm:text-base lg:text-lg">{user.totalBattlesWon || 0} battles won</div>
                           </div>
                           {isTopThree && (
                             <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 sm:px-4 sm:py-2 lg:px-6 lg:py-3 font-black text-sm sm:text-base lg:text-lg animate-bounce">
