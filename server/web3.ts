@@ -150,9 +150,8 @@ export const VOUCHING_CONTRACT = {
 
 // Steeze Contract Configuration
 export const STEEZE_CONTRACT = {
-  address: process.env.NODE_ENV === 'production' 
-    ? (process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3")
-    : (process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962"), // Environment-based contract addresses
+  // Always use mainnet contract since we're on Base mainnet
+  address: process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3",
   
   // Platform wallet for backend-controlled transactions
   platformWallet: process.env.PLATFORM_WALLET_ADDRESS || "",
@@ -656,17 +655,21 @@ export class Web3Service {
     usdcAmount?: number;
     steezeAmount?: number;
     blockNumber?: number;
+    error?: string;
   }> {
     try {
       console.log(`[Web3] Verifying transaction: ${transactionHash}`);
+      console.log(`[Web3] Expected contract address: ${STEEZE_CONTRACT.address}`);
+      
       const provider = this.initBaseProvider();
       const receipt = await provider.getTransactionReceipt(transactionHash);
       
       console.log(`[Web3] Receipt status: ${receipt?.status}, to: ${receipt?.to}`);
+      console.log(`[Web3] Full receipt:`, JSON.stringify(receipt, null, 2));
       
       if (!receipt || receipt.status !== 1) {
         console.log("[Web3] Transaction not found or failed");
-        return { isValid: false };
+        return { isValid: false, error: "Transaction not found or failed" };
       }
 
       // Check if transaction was to the Steeze contract
@@ -675,8 +678,8 @@ export class Web3Service {
       console.log(`[Web3] Contract: ${contractAddress}, Receipt to: ${receiptTo}`);
       
       if (receiptTo !== contractAddress) {
-        console.log("[Web3] Transaction not to Steeze contract");
-        return { isValid: false };
+        console.log(`[Web3] Transaction not to Steeze contract. Expected: ${contractAddress}, Got: ${receiptTo}`);
+        return { isValid: false, error: `Transaction not to Steeze contract. Expected: ${contractAddress}, Got: ${receiptTo}` };
       }
 
       const transaction = await provider.getTransaction(transactionHash);
@@ -685,6 +688,7 @@ export class Web3Service {
       }
 
       // Parse the SteezeBought event from logs
+      const logs = receipt.logs;
       console.log(`[Web3] Checking ${logs.length} logs for SteezeBought event`);
       
       // Define the SteezeBought event ABI for parsing
@@ -734,10 +738,10 @@ export class Web3Service {
       }
 
       console.log("[Web3] No SteezeBought event found in transaction logs");
-      return { isValid: false };
+      return { isValid: false, error: "No SteezeBought event found in transaction logs" };
     } catch (error) {
       console.error("Error verifying Steeze transaction:", error);
-      return { isValid: false };
+      return { isValid: false, error: `Verification error: ${error instanceof Error ? error.message : 'Unknown error'}` };
     }
   }
 

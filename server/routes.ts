@@ -2461,6 +2461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
   app.post("/api/steeze/confirm-purchase", async (req, res) => {
     try {
       // Get user ID from either wallet session or OAuth
@@ -2493,8 +2494,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Transaction verification result:", txVerification);
       
       if (!txVerification.isValid) {
-        console.log("Transaction verification failed");
-        return res.status(400).json({ message: "Invalid transaction" });
+        console.log("Transaction verification failed:", txVerification.error);
+        return res.status(400).json({ 
+          message: "Invalid transaction", 
+          error: txVerification.error,
+          details: txVerification
+        });
       }
 
       const { usdcAmount = 0, steezeAmount = 0, userAddress } = txVerification;

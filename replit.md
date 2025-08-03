@@ -113,6 +113,7 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. STEEZE PURCHASE VERIFICATION FIX: Fixed critical transaction verification failure for Steeze purchases. Issue was caused by incorrect contract address configuration - system was using development address (0x52e660400626d8cfd85D1F88F189662b57b56962) instead of production address (0xf209E955Ad3711EE983627fb52A32615455d8cC3). Also fixed undefined 'logs' variable in verifySteezeTransaction function. Transaction verification now works correctly for legitimate purchases.
 - August 3, 2025. APP STARTUP FIX: Fixed app startup failure caused by missing image assets in Navigation component. Replaced missing logo imports with text-based logo using gradient styling and Zap icon. App now starts successfully on port 5000.
 - August 3, 2025. CRITICAL FIX: Resolved Steeze purchase transaction processing failure. Fixed event monitoring system that was missing successful on-chain transactions. Manually processed transaction 0xeb02c42b0829a816c204615399eae0264b75d24fec6579ebc6017e198f6531fe and credited user's 10 STEEZE tokens. Fixed deployment white screen issue by updating CORS configuration to include all Replit deployment domains from environment variables.
 - August 3, 2025. MAJOR UPDATE: Implemented multiple vouching system with proper state tracking. Added API endpoint to track total vouch amounts per user pair (100 USDC max). Fixed vouching UI to show remaining amounts and "Vouch More" functionality. Resolved vouching state persistence issues after page refresh.
