@@ -79,43 +79,73 @@ app.use((req, res, next) => {
   console.log("__dirname equivalent:", import.meta.dirname);
   
   if (isProduction) {
-    console.log("Setting up production mode with static files...");
+    console.log("🚀 Setting up PRODUCTION mode with static files...");
     
-    // Enhanced static file serving for production
-    // Handle both development and deployed paths
-    const distPath = fs.existsSync(path.resolve(process.cwd(), "dist", "public")) 
-      ? path.resolve(process.cwd(), "dist", "public")  // Development build
-      : path.resolve(process.cwd(), "public");         // Deployed (already in dist/)
-    console.log("Serving static files from:", distPath);
-    console.log("Static directory exists:", fs.existsSync(distPath));
+    // CRITICAL: Handle deployment environment correctly
+    let distPath;
+    
+    // Try multiple possible paths for static files
+    const possiblePaths = [
+      path.resolve(process.cwd(), "dist", "public"),   // Local build
+      path.resolve(process.cwd(), "public"),           // Deployed in dist/
+      path.resolve(__dirname, "..", "dist", "public"), // Relative to server
+      path.resolve(__dirname, "public")                // Server-relative deployed
+    ];
+    
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        distPath = testPath;
+        break;
+      }
+    }
+    
+    if (!distPath) {
+      console.error("❌ CRITICAL: No static files found in any expected location!");
+      console.log("Searched paths:", possiblePaths);
+      process.exit(1);
+    }
+    
+    console.log("✅ Serving static files from:", distPath);
+    console.log("✅ Static directory exists:", fs.existsSync(distPath));
     
     // List available assets for debugging
     try {
       const assetsPath = path.join(distPath, 'assets');
       if (fs.existsSync(assetsPath)) {
         const assets = fs.readdirSync(assetsPath);
-        console.log('Available production assets:', assets.filter((f: string) => f.endsWith('.js') || f.endsWith('.css')));
+        console.log('✅ Available production assets:', assets.filter((f: string) => f.endsWith('.js') || f.endsWith('.css')));
+      } else {
+        console.log("❌ No assets directory found");
       }
     } catch (error) {
-      console.error('Error listing production assets:', error);
+      console.error('❌ Error listing production assets:', error);
     }
     
-    // Serve static files directly from the correct dist path
+    // Serve static files with proper caching
     app.use(express.static(distPath, {
       maxAge: '1d',
-      setHeaders: (res, path) => {
-        if (path.endsWith('.js') || path.endsWith('.css')) {
+      etag: true,
+      lastModified: true,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
           res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         }
+        res.setHeader('X-Static-Path', distPath);
       }
     }));
 
-    // Fallback to index.html for client-side routing (SPA)
-    app.use("*", (_req, res) => {
-      res.sendFile(path.resolve(distPath, "index.html"));
+    // SPA fallback - MUST be last route
+    app.use("*", (req, res) => {
+      console.log(`📄 Serving SPA fallback for: ${req.path}`);
+      const indexPath = path.resolve(distPath, "index.html");
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send(`Static files not found at ${distPath}`);
+      }
     });
   } else {
-    console.log("Setting up development mode with Vite...");
+    console.log("🔧 Setting up development mode with Vite...");
     await setupVite(app, server);
   }
 
