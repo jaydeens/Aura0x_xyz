@@ -461,7 +461,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      return res.json(user);
+      // Check and reset streak if user has missed days
+      await storage.checkAndResetStreak(userId);
+      
+      // Fetch updated user data after potential streak reset
+      const updatedUser = await storage.getUser(userId);
+      return res.json(updatedUser);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -1151,7 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (lastDate.getTime() === today.getTime()) {
           newStreak = user.currentStreak || 1;
         }
-        // If they missed days (last lesson was more than 1 day ago), reset streak to 1
+        // If they missed days (last lesson was more than 1 day ago), streak resets to 1 when they complete a lesson
         else {
           newStreak = 1;
         }
