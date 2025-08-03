@@ -754,12 +754,13 @@ export class Web3Service {
     try {
       const provider = this.initBaseProvider();
       
-      // Validate minimum and maximum USDC amount (0.1 USDC)
-      const minAmount = 0.1;
-      if (ethAmount !== minAmount) {
+      // Validate USDC amount (1-100 USDC range)
+      const minAmount = 1;
+      const maxAmount = 100;
+      if (ethAmount < minAmount || ethAmount > maxAmount) {
         return {
           success: false,
-          error: `Vouching amount must be exactly ${minAmount} USDC`
+          error: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC`
         };
       }
 

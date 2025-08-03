@@ -6,14 +6,15 @@
 - **Address**: `0x8e6e64396717F69271c7994f90AFeC621C237315`
 - **Network**: Base Mainnet (Chain ID: 8453)
 - **Token**: USDC (USD Coin)
-- **Vouching Amount**: 0.1 USDC
+- **Vouching Range**: 1-100 USDC (variable amounts)
+- **Aura Points**: 1 USDC = 10 APs (max 1,000 APs per vouch)
 
 ### Steeze Purchase/Redeem Contract  
 - **Address**: `0xf209E955Ad3711EE983627fb52A32615455d8cC3`
 - **Network**: Base Mainnet (Chain ID: 8453)
 - **Token**: USDC (USD Coin)
-- **Purchase Rate**: 7,142 STEEZE per 1 USDC
-- **Redeem Rate**: 1 STEEZE = 0.00014 USDC
+- **Purchase Rate**: 1 STEEZE = 0.1 USDC (10 STEEZE per USDC)
+- **Redeem Rate**: 1 STEEZE = 0.07 USDC
 
 ## Overview
 This guide covers the deployment of the Aura platform from Base Sepolia testnet to Base Mainnet for production use. 

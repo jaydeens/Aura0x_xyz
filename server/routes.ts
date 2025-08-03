@@ -1814,11 +1814,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // Validate USDC amount (must be exactly 0.1 USDC)
-      const requiredAmount = 0.1;
-      if (Math.abs(ethAmount - requiredAmount) > 0.001) {
+      // Validate USDC amount (1-100 USDC range)
+      const minAmount = 1;
+      const maxAmount = 100;
+      if (ethAmount < minAmount || ethAmount > maxAmount) {
         return res.status(400).json({ 
-          message: `Vouching amount must be exactly ${requiredAmount} USDC` 
+          message: `Vouching amount must be between ${minAmount} and ${maxAmount} USDC` 
         });
       }
 
@@ -1841,8 +1842,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userStreakDays >= level.minDays && (level.maxDays === null || userStreakDays <= level.maxDays)
       ) || auraLevels[0]; // Default to first level if none found
 
-      // Calculate aura points with level multiplier
-      const baseAuraPoints = 50;
+      // Calculate aura points: 1 USDC = 10 APs, with level multiplier
+      const baseAuraPoints = ethAmount * 10; // 10 APs per USDC
       const finalAuraPoints = Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
 
       // Create vouch record
@@ -1897,8 +1898,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         networkName: process.env.NODE_ENV === 'production' ? "Base Mainnet" : "Base Sepolia",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
-        requiredAmount: 0.1,
-        baseAuraPoints: 50,
+        minAmount: 1,
+        maxAmount: 100,
+        baseAuraPointsPerUSDC: 10,
         abi: [
           {
             "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],

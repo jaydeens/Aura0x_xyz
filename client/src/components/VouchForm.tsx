@@ -36,14 +36,16 @@ interface VouchFormProps {
 
 export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const [selectedUserId, setSelectedUserId] = useState(preselectedUserId || "");
+  const [selectedAmount, setSelectedAmount] = useState(1);
   const [transactionHash, setTransactionHash] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fixed USDC amount for vouching
-  const REQUIRED_USDC_AMOUNT = 0.1;
+  // USDC vouching range
+  const MIN_USDC_AMOUNT = 1;
+  const MAX_USDC_AMOUNT = 100;
 
   const { data: leaderboard } = useQuery({
     queryKey: ["/api/leaderboard"],
@@ -138,7 +140,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     try {
       await vouchMutation.mutateAsync({
         vouchedUserId: selectedUserId,
-        ethAmount: REQUIRED_USDC_AMOUNT,
+        ethAmount: selectedAmount,
         transactionHash
       });
     } finally {
@@ -184,7 +186,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Coins className="w-5 h-5 text-purple-400" />
-          Vouch with ETH
+          Vouch with USDC
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -193,7 +195,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           <div className="flex items-center justify-between">
             <span className="text-white/80">Required Amount:</span>
             <Badge variant="outline" className="text-purple-400 border-purple-400">
-              {REQUIRED_USDC_AMOUNT} USDC
+              {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
             </Badge>
           </div>
           <div className="flex items-center justify-between">
@@ -217,6 +219,23 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
             <span className="text-white font-medium">Final Aura Award:</span>
             <span className="text-purple-400 font-bold">{finalAuraPoints} points</span>
+          </div>
+        </div>
+
+        {/* Amount Selector */}
+        <div className="space-y-3">
+          <Label className="text-white">Vouching Amount (USDC)</Label>
+          <Input
+            type="number"
+            min={MIN_USDC_AMOUNT}
+            max={MAX_USDC_AMOUNT}
+            value={selectedAmount}
+            onChange={(e) => setSelectedAmount(Math.max(MIN_USDC_AMOUNT, Math.min(MAX_USDC_AMOUNT, parseInt(e.target.value) || MIN_USDC_AMOUNT)))}
+            className="bg-black/20 border-white/20 text-white"
+            placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${MAX_USDC_AMOUNT})`}
+          />
+          <div className="text-sm text-white/60">
+            This will award {selectedAmount * 10} Aura Points ({selectedAmount} USDC × 10 APs)
           </div>
         </div>
 

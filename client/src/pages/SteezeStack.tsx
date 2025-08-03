@@ -429,7 +429,7 @@ export default function SteezeStack() {
       }
     }
 
-    const steezeAmount = Math.floor(usdcValue * 7142); // Fixed rate: 7142 Steeze per USDC
+    const steezeAmount = Math.floor(usdcValue * 10); // Purchase rate: 1 USDC = 10 Steeze
     setIsPurchasing(true);
     purchaseMutation.mutate({ usdcValue, steezeAmount });
   };
@@ -460,12 +460,12 @@ export default function SteezeStack() {
 
   const calculateSteezeAmount = () => {
     if (!usdcAmount) return 0;
-    return parseFloat(usdcAmount) * 7142; // Fixed rate: 7142 Steeze per USDC (approximately same ETH value)
+    return parseFloat(usdcAmount) * 10; // Purchase rate: 1 USDC = 10 Steeze (or 1 Steeze = 0.1 USDC)
   };
 
   const calculateUsdcAmount = () => {
     if (!steezeAmount) return 0;
-    return parseFloat(steezeAmount) * 0.00014; // Redeem rate: 1 Steeze = 0.00014 USDC
+    return parseFloat(steezeAmount) * 0.07; // Redeem rate: 1 Steeze = 0.07 USDC
   };
   
   // Debug logging (remove in production)

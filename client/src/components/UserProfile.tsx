@@ -40,7 +40,9 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const REQUIRED_USDC_AMOUNT = "0.1";
+  const [vouchAmount, setVouchAmount] = useState("1");
+  const MIN_USDC_AMOUNT = 1;
+  const MAX_USDC_AMOUNT = 100;
 
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: [`/api/users/${userId}`],
@@ -193,7 +195,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
       // Call vouch function (now uses USDC)
       const tx = await contract.vouch(profileUser.walletAddress, {
-        value: ethers.parseUnits(REQUIRED_USDC_AMOUNT, 6) // USDC has 6 decimals
+        value: ethers.parseUnits(vouchAmount, 6) // USDC has 6 decimals
       });
 
       // Wait for transaction confirmation
@@ -202,7 +204,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Record vouch in backend
       await vouchMutation.mutateAsync({
         vouchedUserId: userId,
-        ethAmount: parseFloat(REQUIRED_USDC_AMOUNT),
+        ethAmount: parseFloat(vouchAmount),
         transactionHash: receipt.transactionHash
       });
 
@@ -322,11 +324,20 @@ export default function UserProfile({ userId }: UserProfileProps) {
                 <div className="space-y-6">
                   {/* Vouching Info */}
                   <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/80">Required Amount:</span>
-                      <Badge variant="outline" className="text-purple-400 border-purple-400">
-                        {REQUIRED_ETH_AMOUNT} ETH
-                      </Badge>
+                    <div className="space-y-2">
+                      <span className="text-white/80">Vouching Amount (USDC):</span>
+                      <Input
+                        type="number"
+                        min={MIN_USDC_AMOUNT}
+                        max={MAX_USDC_AMOUNT}
+                        value={vouchAmount}
+                        onChange={(e) => setVouchAmount(Math.max(MIN_USDC_AMOUNT, Math.min(MAX_USDC_AMOUNT, parseInt(e.target.value) || MIN_USDC_AMOUNT)).toString())}
+                        className="bg-black/20 border-purple-500/30 text-white"
+                        placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${MAX_USDC_AMOUNT})`}
+                      />
+                      <div className="text-sm text-white/60">
+                        Range: {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
+                      </div>
                     </div>
                     {currentUserLevel && (
                       <div className="flex items-center justify-between">
@@ -344,7 +355,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     )}
                     <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
                       <span className="text-white font-medium">Aura Award:</span>
-                      <span className="text-purple-400 font-bold">{finalAuraPoints} points</span>
+                      <span className="text-purple-400 font-bold">{parseInt(vouchAmount) * 10} points ({vouchAmount} × 10)</span>
                     </div>
                   </div>
 
@@ -353,7 +364,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     <h4 className="text-blue-300 font-medium mb-2">Smart Contract Vouching:</h4>
                     <ol className="text-blue-200 text-sm space-y-1 list-decimal list-inside">
                       <li>Click "Vouch Now" to open your wallet</li>
-                      <li>Confirm the transaction for {REQUIRED_ETH_AMOUNT} ETH</li>
+                      <li>Confirm the transaction for {vouchAmount} USDC</li>
                       <li>The smart contract automatically distributes funds</li>
                     </ol>
                   </div>
@@ -372,7 +383,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                     ) : (
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" />
-                        Vouch Now ({finalAuraPoints} aura)
+                        Vouch Now ({parseInt(vouchAmount) * 10} aura)
                       </div>
                     )}
                   </Button>
