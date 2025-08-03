@@ -2046,6 +2046,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get USDC balance for wallet address
+  app.get("/api/wallet/usdc-balance/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      if (!web3Service.isValidAddress(address)) {
+        return res.status(400).json({ message: "Invalid wallet address" });
+      }
+      
+      const balance = await web3Service.getUSDCBalance(address);
+      res.json({ 
+        balance: parseFloat(balance), 
+        address,
+        currency: "USDC"
+      });
+    } catch (error: any) {
+      console.error("Error getting USDC balance:", error);
+      res.status(500).json({ message: "Failed to get USDC balance" });
+    }
+  });
+
   app.post("/api/steeze/purchase", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth

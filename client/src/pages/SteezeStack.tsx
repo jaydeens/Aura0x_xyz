@@ -49,6 +49,7 @@ export default function SteezeStack() {
   const [currentChainId, setCurrentChainId] = useState<number | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [usdcBalance, setUsdcBalance] = useState<number>(0);
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
@@ -69,11 +70,19 @@ export default function SteezeStack() {
   const purchasedSteeze = (balanceData as any)?.purchasedSteeze || 0;
   const earnedSteeze = (balanceData as any)?.battleEarnedSteeze || 0;
   const totalBalance = purchasedSteeze + earnedSteeze;
+  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
 
   // Fetch transaction history
   const { data: transactionsData = [] } = useQuery({
     queryKey: ["/api/steeze/transactions"],
     enabled: !!user,
+  });
+
+  // Fetch USDC balance when wallet is connected
+  const { data: usdcBalanceData, refetch: refetchUsdcBalance } = useQuery({
+    queryKey: ["/api/wallet/usdc-balance", walletAddress],
+    enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
+    refetchOnWindowFocus: false,
   });
 
   const transactions = (transactionsData as any[]) || [];
@@ -410,6 +419,16 @@ export default function SteezeStack() {
       return;
     }
 
+    // Check USDC balance
+    if (usdcValue > currentUsdcBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You need ${usdcValue} USDC but only have ${currentUsdcBalance.toFixed(2)} USDC in your wallet`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Ensure wallet is connected
     if (!isConnected) {
       await connectWallet();
@@ -635,6 +654,26 @@ export default function SteezeStack() {
                   </Button>
                 ) : (
                   <div>
+                    {/* USDC Balance Display */}
+                    <div className="p-4 bg-black/20 rounded-xl border border-purple-500/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-white/60">Your USDC Balance</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold text-white">
+                            {currentUsdcBalance.toFixed(2)} USDC
+                          </span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => refetchUsdcBalance()}
+                            className="text-white/60 hover:text-white p-1 h-auto"
+                          >
+                            <ArrowUpRight className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* USDC Input */}
                     <div className="space-y-2">
                       <Label htmlFor="usdc-amount" className="text-white">USDC Amount</Label>
@@ -647,6 +686,15 @@ export default function SteezeStack() {
                         onChange={(e) => setUsdcAmount(e.target.value)}
                         className="bg-black/20 border-purple-500/30 text-white placeholder:text-white/40"
                       />
+                      <div className="flex justify-between text-sm text-white/60">
+                        <span>Available: {currentUsdcBalance.toFixed(2)} USDC</span>
+                        <button 
+                          onClick={() => setUsdcAmount(currentUsdcBalance.toString())}
+                          className="text-purple-400 hover:text-purple-300"
+                        >
+                          Use Max
+                        </button>
+                      </div>
                     </div>
 
                     {/* Steeze Preview */}
@@ -662,13 +710,18 @@ export default function SteezeStack() {
                     {/* Buy Button */}
                     <Button
                       onClick={handlePurchase}
-                      disabled={!usdcAmount || isPurchasing}
-                      className="w-full mt-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      disabled={!usdcAmount || isPurchasing || parseFloat(usdcAmount || "0") > currentUsdcBalance}
+                      className="w-full mt-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50"
                     >
                       {isPurchasing ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Processing...
+                        </>
+                      ) : parseFloat(usdcAmount || "0") > currentUsdcBalance ? (
+                        <>
+                          <Info className="w-4 h-4 mr-2" />
+                          Insufficient Balance
                         </>
                       ) : (
                         <>

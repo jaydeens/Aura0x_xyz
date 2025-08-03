@@ -39,6 +39,8 @@ export const BASE_MAINNET = {
   blockExplorer: "https://basescan.org/",
 };
 
+
+
 // Vouching Contract Configuration
 export const VOUCHING_CONTRACT = {
   address: process.env.NODE_ENV === 'production' 
