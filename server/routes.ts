@@ -64,15 +64,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Utility function to extract IP address
-function getClientIP(req: any): string {
-  return req.ip || 
-         req.connection?.remoteAddress || 
-         req.socket?.remoteAddress ||
-         req.headers['x-forwarded-for']?.split(',')[0] ||
-         req.headers['x-real-ip'] ||
-         'unknown';
-}
+
 
 // Validation schemas
 const completeLessonSchema = z.object({
@@ -210,9 +202,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // app.use(detectSuspiciousActivity);
   
   // Specific rate limits for sensitive endpoints (disabled for development)
-  // const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
-  // const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
-  // const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
+  const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
+  const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
+  const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
 
   // Session middleware for Twitter auth
   app.set("trust proxy", 1);
