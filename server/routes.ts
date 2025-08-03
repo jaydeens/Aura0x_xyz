@@ -2016,36 +2016,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         baseAuraPointsPerUSDC: 10,
         abi: [
           {
-            "inputs": [{"internalType": "address", "name": "creator", "type": "address"}],
-            "name": "vouch",
+            "inputs": [
+              {"internalType": "address", "name": "vouchedUser", "type": "address"},
+              {"internalType": "uint256", "name": "usdcAmount", "type": "uint256"}
+            ],
+            "name": "vouchWithUSDC",
             "outputs": [],
-            "stateMutability": "payable",
+            "stateMutability": "nonpayable",
             "type": "function"
           },
           {
             "anonymous": false,
             "inputs": [
-              {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
-              {"indexed": true, "internalType": "address", "name": "creator", "type": "address"},
-              {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}
+              {"indexed": true, "internalType": "address", "name": "voucher", "type": "address"},
+              {"indexed": true, "internalType": "address", "name": "vouchedUser", "type": "address"},
+              {"indexed": false, "internalType": "uint256", "name": "usdcAmount", "type": "uint256"},
+              {"indexed": false, "internalType": "uint256", "name": "auraPoints", "type": "uint256"}
             ],
-            "name": "Vouched",
+            "name": "VouchCreated",
             "type": "event"
           },
           {
-            "inputs": [],
-            "name": "VOUCH_FEE",
-            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "inputs": [
+              {"internalType": "address", "name": "voucher", "type": "address"},
+              {"internalType": "address", "name": "vouchedUser", "type": "address"}
+            ],
+            "name": "hasVouched",
+            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
             "stateMutability": "view",
             "type": "function"
           },
           {
-            "inputs": [
-              {"internalType": "address", "name": "", "type": "address"},
-              {"internalType": "address", "name": "", "type": "address"}
-            ],
-            "name": "hasVouched",
-            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+            "inputs": [],
+            "name": "platformWallet",
+            "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [],
+            "name": "usdcToken",
+            "outputs": [{"internalType": "address", "name": "", "type": "address"}],
             "stateMutability": "view",
             "type": "function"
           }
