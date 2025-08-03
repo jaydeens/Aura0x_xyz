@@ -56,26 +56,6 @@ export default function SteezeStack() {
   const userWalletAddress = currentUser?.walletAddress;
   const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
 
-  // Initialize wallet connection state from authenticated user
-  useEffect(() => {
-    if (userWalletAddress && !isConnected) {
-      setWalletAddress(userWalletAddress);
-      setIsConnected(true);
-      
-      // Check current network
-      if (window.ethereum) {
-        window.ethereum.request({ method: 'eth_chainId' })
-          .then((chainId: string) => {
-            setCurrentChainId(parseInt(chainId, 16));
-          })
-          .catch(console.error);
-      } else {
-        // If no MetaMask, assume correct network since user is authenticated
-        setCurrentChainId(BASE_MAINNET.chainId);
-      }
-    }
-  }, [userWalletAddress, isConnected]);
-
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
     queryKey: ["/api/steeze/balance"],
@@ -94,11 +74,10 @@ export default function SteezeStack() {
     enabled: !!user,
   });
 
-  // Fetch USDC balance when wallet is connected - use userWalletAddress if available
-  const effectiveWalletAddress = userWalletAddress || walletAddress;
+  // Fetch USDC balance when wallet is connected
   const { data: usdcBalanceData, refetch: refetchUsdcBalance, isRefetching } = useQuery({
-    queryKey: [`/api/wallet/usdc-balance/${effectiveWalletAddress}`],
-    enabled: !!effectiveWalletAddress && (isConnected || !!userWalletAddress),
+    queryKey: [`/api/wallet/usdc-balance/${walletAddress}`],
+    enabled: !!walletAddress && isConnected && isOnCorrectNetwork,
     refetchOnWindowFocus: true, // Refetch when window gets focus
     refetchInterval: 30000, // Auto-refresh every 30 seconds
     staleTime: 10000, // Consider data stale after 10 seconds
@@ -536,16 +515,14 @@ export default function SteezeStack() {
   
   // Debug logging (remove in production)
   useEffect(() => {
-    console.log("Wallet State:", {
-      isConnected,
-      walletAddress,
-      userWalletAddress,
-      effectiveWalletAddress: effectiveWalletAddress,
-      currentChainId,
+    console.log("Wallet State:", { 
+      isConnected, 
+      walletAddress, 
+      currentChainId, 
       expectedChainId: BASE_MAINNET.chainId,
-      isOnCorrectNetwork,
+      isOnCorrectNetwork 
     });
-  }, [isConnected, walletAddress, userWalletAddress, effectiveWalletAddress, currentChainId]);
+  }, [isConnected, walletAddress, currentChainId]);
 
   // Initialize wallet connection on page load
   useEffect(() => {
