@@ -40,7 +40,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const REQUIRED_ETH_AMOUNT = "0.0001";
+  const REQUIRED_USDC_AMOUNT = "0.1";
 
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: [`/api/users/${userId}`],
@@ -157,7 +157,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Check network
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
-      const targetChainId = 84532n; // Base Sepolia
+      const targetChainId = process.env.NODE_ENV === 'production' ? 8453n : 84532n; // Base Mainnet or Sepolia
       
       if (network.chainId !== targetChainId) {
         try {
@@ -171,10 +171,14 @@ export default function UserProfile({ userId }: UserProfileProps) {
               method: 'wallet_addEthereumChain',
               params: [{
                 chainId: `0x${targetChainId.toString(16)}`,
-                chainName: 'Base Sepolia',
+                chainName: process.env.NODE_ENV === 'production' ? 'Base Mainnet' : 'Base Sepolia',
                 nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                rpcUrls: ['https://sepolia.base.org'],
-                blockExplorerUrls: ['https://sepolia-explorer.base.org'],
+                rpcUrls: process.env.NODE_ENV === 'production' 
+                  ? ['https://mainnet.base.org'] 
+                  : ['https://sepolia.base.org'],
+                blockExplorerUrls: process.env.NODE_ENV === 'production' 
+                  ? ['https://basescan.org'] 
+                  : ['https://sepolia-explorer.base.org'],
               }],
             });
           } else {
@@ -187,9 +191,9 @@ export default function UserProfile({ userId }: UserProfileProps) {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
 
-      // Call vouch function
+      // Call vouch function (now uses USDC)
       const tx = await contract.vouch(profileUser.walletAddress, {
-        value: ethers.parseEther(REQUIRED_ETH_AMOUNT)
+        value: ethers.parseUnits(REQUIRED_USDC_AMOUNT, 6) // USDC has 6 decimals
       });
 
       // Wait for transaction confirmation
@@ -198,7 +202,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Record vouch in backend
       await vouchMutation.mutateAsync({
         vouchedUserId: userId,
-        ethAmount: parseFloat(REQUIRED_ETH_AMOUNT),
+        ethAmount: parseFloat(REQUIRED_USDC_AMOUNT),
         transactionHash: receipt.transactionHash
       });
 

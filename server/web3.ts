@@ -26,9 +26,24 @@ export const BASE_SEPOLIA = {
   blockExplorer: "https://sepolia-explorer.base.org/",
 };
 
+// Base Mainnet configuration
+export const BASE_MAINNET = {
+  chainId: 8453,
+  name: "Base",
+  rpcUrl: "https://mainnet.base.org",
+  nativeCurrency: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  blockExplorer: "https://basescan.org/",
+};
+
 // Vouching Contract Configuration
 export const VOUCHING_CONTRACT = {
-  address: process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000", // To be deployed
+  address: process.env.NODE_ENV === 'production' 
+    ? (process.env.VOUCHING_CONTRACT_ADDRESS_MAINNET || "0x8e6e64396717F69271c7994f90AFeC621C237315")
+    : (process.env.VOUCHING_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000"), // Environment-based contract addresses
   abi: [
     {
       "inputs": [],
@@ -135,7 +150,9 @@ export const VOUCHING_CONTRACT = {
 
 // Steeze Contract Configuration
 export const STEEZE_CONTRACT = {
-  address: process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962",
+  address: process.env.NODE_ENV === 'production' 
+    ? (process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3")
+    : (process.env.STEEZE_CONTRACT_ADDRESS || "0x52e660400626d8cfd85D1F88F189662b57b56962"), // Environment-based contract addresses
   abi: [
     {
       "inputs": [{"internalType": "uint256", "name": "_buyPrice", "type": "uint256"}, {"internalType": "uint256", "name": "_sellPrice", "type": "uint256"}],
@@ -230,6 +247,56 @@ export const STEEZE_CONTRACT = {
   ]
 };
 
+// Current network configuration (switch to BASE_MAINNET for production)
+export const CURRENT_NETWORK = process.env.NODE_ENV === 'production' ? BASE_MAINNET : BASE_SEPOLIA;
+
+// USDC Contract Configuration for Base Mainnet
+export const USDC_CONTRACT = {
+  address: process.env.NODE_ENV === 'production' 
+    ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // USDC on Base Mainnet
+    : "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // USDC on Base Sepolia
+  decimals: 6, // USDC has 6 decimals
+  symbol: "USDC",
+  name: "USD Coin",
+  abi: [
+    {
+      "inputs": [{"internalType": "address", "name": "owner", "type": "address"}],
+      "name": "balanceOf",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "approve",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}],
+      "name": "allowance",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "transfer",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "transferFrom",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+};
+
 // Platform wallet address (should be set in environment variables)
 export const PLATFORM_WALLET = process.env.PLATFORM_WALLET_ADDRESS || "0x0000000000000000000000000000000000000000";
 
@@ -263,7 +330,7 @@ export class Web3Service {
 
   private initBaseProvider() {
     if (!this.baseProvider) {
-      this.baseProvider = new ethers.JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
+      this.baseProvider = new ethers.JsonRpcProvider(CURRENT_NETWORK.rpcUrl);
     }
     return this.baseProvider;
   }
@@ -290,6 +357,18 @@ export class Web3Service {
       return ethers.formatEther(balance);
     } catch (error) {
       console.error("Error getting ETH balance:", error);
+      return "0";
+    }
+  }
+
+  async getUSDCBalance(address: string): Promise<string> {
+    try {
+      const provider = this.initBaseProvider();
+      const contract = new ethers.Contract(USDC_CONTRACT.address, USDC_CONTRACT.abi, provider);
+      const balance = await contract.balanceOf(address);
+      return ethers.formatUnits(balance, USDC_CONTRACT.decimals);
+    } catch (error) {
+      console.error("Error getting USDC balance:", error);
       return "0";
     }
   }
@@ -675,12 +754,12 @@ export class Web3Service {
     try {
       const provider = this.initBaseProvider();
       
-      // Validate minimum and maximum ETH amount (0.0001 ETH)
-      const minAmount = 0.0001;
+      // Validate minimum and maximum USDC amount (0.1 USDC)
+      const minAmount = 0.1;
       if (ethAmount !== minAmount) {
         return {
           success: false,
-          error: `Vouching amount must be exactly ${minAmount} ETH`
+          error: `Vouching amount must be exactly ${minAmount} USDC`
         };
       }
 
@@ -783,8 +862,8 @@ export class Web3Service {
    */
   getWalletConnectConfig() {
     return {
-      chains: [POLYGON_TESTNET],
-      defaultChain: POLYGON_TESTNET,
+      chains: [CURRENT_NETWORK],
+      defaultChain: CURRENT_NETWORK,
       walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID || "",
       appName: "Aura Battle Platform",
       appDescription: "Web3 Aura Battle Platform for Web3 Users",

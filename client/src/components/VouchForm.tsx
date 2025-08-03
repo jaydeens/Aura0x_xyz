@@ -42,8 +42,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fixed ETH amount for vouching
-  const REQUIRED_ETH_AMOUNT = 0.0001;
+  // Fixed USDC amount for vouching
+  const REQUIRED_USDC_AMOUNT = 0.1;
 
   const { data: leaderboard } = useQuery({
     queryKey: ["/api/leaderboard"],
@@ -138,7 +138,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     try {
       await vouchMutation.mutateAsync({
         vouchedUserId: selectedUserId,
-        ethAmount: REQUIRED_ETH_AMOUNT,
+        ethAmount: REQUIRED_USDC_AMOUNT,
         transactionHash
       });
     } finally {
@@ -193,7 +193,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           <div className="flex items-center justify-between">
             <span className="text-white/80">Required Amount:</span>
             <Badge variant="outline" className="text-purple-400 border-purple-400">
-              {REQUIRED_ETH_AMOUNT} ETH
+              {REQUIRED_USDC_AMOUNT} USDC
             </Badge>
           </div>
           <div className="flex items-center justify-between">

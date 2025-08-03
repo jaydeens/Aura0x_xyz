@@ -1814,11 +1814,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // Validate ETH amount (must be exactly 0.0001 ETH)
-      const requiredAmount = 0.0001;
-      if (Math.abs(ethAmount - requiredAmount) > 0.000001) {
+      // Validate USDC amount (must be exactly 0.1 USDC)
+      const requiredAmount = 0.1;
+      if (Math.abs(ethAmount - requiredAmount) > 0.001) {
         return res.status(400).json({ 
-          message: `Vouching amount must be exactly ${requiredAmount} ETH` 
+          message: `Vouching amount must be exactly ${requiredAmount} USDC` 
         });
       }
 
@@ -1858,9 +1858,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Award aura points to the vouched user
       await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
 
-      // Update ETH earnings (70% of vouched amount goes to the user)
-      const ethEarnings = ethAmount * 0.7;
-      await storage.updateUserUsdtEarnings(vouchedUserId, ethEarnings);
+      // Update USDC earnings (70% of vouched amount goes to the user)
+      const usdcEarnings = ethAmount * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUserId, usdcEarnings);
 
       // Create notification for vouched user
       const voucherName = voucher.username || voucher.walletAddress?.slice(0, 6) + '...' + voucher.walletAddress?.slice(-4) || 'Someone';
@@ -1869,7 +1869,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${ethAmount} ETH and awarded ${finalAuraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${ethAmount} USDC and awarded ${finalAuraPoints} aura points!`,
         isRead: false
       });
 
@@ -1890,12 +1890,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vouch/contract-info', async (req, res) => {
     try {
       res.json({
-        contractAddress: "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8",
-        chainId: 84532,
-        networkName: "Base Sepolia",
+        contractAddress: process.env.NODE_ENV === 'production' 
+          ? "0x8e6e64396717F69271c7994f90AFeC621C237315" // Base Mainnet
+          : "0xa261b1abCcd2C960eF5D088E35374ADEC288FBb8", // Base Sepolia
+        chainId: process.env.NODE_ENV === 'production' ? 8453 : 84532,
+        networkName: process.env.NODE_ENV === 'production' ? "Base Mainnet" : "Base Sepolia",
         platformFee: 30, // 30% to platform, 70% to vouched user
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
-        requiredAmount: 0.0001,
+        requiredAmount: 0.1,
         baseAuraPoints: 50,
         abi: [
           {

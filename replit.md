@@ -107,6 +107,8 @@ Key entities include:
 
 ```
 Changelog:
+- August 3, 2025. MAJOR UPDATE: Migrated entire platform from ETH to USDC for price stability. Updated contract addresses to Base Mainnet production deployment (Vouching: 0x8e6e64396717F69271c7994f90AFeC621C237315, Steeze: 0xf209E955Ad3711EE983627fb52A32615455d8cC3). All transactions now use USDC with 0.1 USDC vouching amount and adjusted Steeze rates.
+- August 3, 2025. Prepared Base Mainnet deployment with environment-based network switching and production contract support
 - July 30, 2025. Added social media links (X/Twitter and Discord) to footer alongside GitBook documentation
 - June 25, 2025. Removed whitelist requirement - platform now open to all users while maintaining beta status
 - June 25, 2025. Initial setup

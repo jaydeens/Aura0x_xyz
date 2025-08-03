@@ -42,7 +42,7 @@ const BASE_SEPOLIA = {
 export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [ethAmount, setEthAmount] = useState("");
+  const [usdcAmount, setUsdcAmount] = useState("");
   const [steezeAmount, setSteezeAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
@@ -225,7 +225,7 @@ export default function SteezeStack() {
 
   // Purchase mutation
   const purchaseMutation = useMutation({
-    mutationFn: async ({ ethValue, steezeAmount }: { ethValue: number; steezeAmount: number }) => {
+    mutationFn: async ({ usdcValue, steezeAmount }: { usdcValue: number; steezeAmount: number }) => {
       if (!window.ethereum) {
         throw new Error("MetaMask not detected. Please install MetaMask.");
       }
@@ -248,13 +248,13 @@ export default function SteezeStack() {
       const iface = new ethers.Interface(ABI);
       const data = iface.encodeFunctionData("buySteeze", [steezeAmount]);
       
-      const weiAmount = (ethValue * 1e18).toString();
+      const usdcAmount = (usdcValue * 1e6).toString(); // USDC has 6 decimals
 
-      // Send transaction to smart contract
+      // Send USDC transaction to smart contract
       const transactionParameters = {
-        to: "0x52e660400626d8cfd85D1F88F189662b57b56962",
+        to: "0xf209E955Ad3711EE983627fb52A32615455d8cC3", // Updated mainnet contract
         from: walletAddress,
-        value: '0x' + BigInt(weiAmount).toString(16),
+        value: '0x' + BigInt(usdcAmount).toString(16),
         data: data,
       };
 
@@ -300,7 +300,7 @@ export default function SteezeStack() {
 
       // Send transaction to smart contract
       const transactionParameters = {
-        to: "0x52e660400626d8cfd85D1F88F189662b57b56962",
+        to: "0xf209E955Ad3711EE983627fb52A32615455d8cC3", // Updated mainnet contract
         from: walletAddress,
         value: '0x0',
         data: data,
@@ -353,7 +353,7 @@ export default function SteezeStack() {
         description: "Steeze tokens added to your balance",
       });
       setIsPurchasing(false);
-      setEthAmount("");
+      setUsdcAmount("");
     },
     onError: (error: any) => {
       toast({
@@ -381,7 +381,7 @@ export default function SteezeStack() {
       queryClient.invalidateQueries({ queryKey: ["/api/steeze/transactions"] });
       toast({
         title: "Redeem Confirmed",
-        description: "ETH sent to your wallet",
+        description: "USDC sent to your wallet",
       });
       setIsRedeeming(false);
       setSteezeAmount("");
@@ -398,13 +398,13 @@ export default function SteezeStack() {
 
   // Handle purchase
   const handlePurchase = async () => {
-    if (!ethAmount) return;
+    if (!usdcAmount) return;
 
-    const ethValue = parseFloat(ethAmount);
-    if (ethValue <= 0) {
+    const usdcValue = parseFloat(usdcAmount);
+    if (usdcValue <= 0) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid ETH amount",
+        description: "Please enter a valid USDC amount",
         variant: "destructive",
       });
       return;
@@ -429,9 +429,9 @@ export default function SteezeStack() {
       }
     }
 
-    const steezeAmount = Math.floor(ethValue * 10000); // Fixed rate: 10000 Steeze per ETH
+    const steezeAmount = Math.floor(usdcValue * 7142); // Fixed rate: 7142 Steeze per USDC
     setIsPurchasing(true);
-    purchaseMutation.mutate({ ethValue, steezeAmount });
+    purchaseMutation.mutate({ usdcValue, steezeAmount });
   };
 
   // Handle redeem
@@ -459,13 +459,13 @@ export default function SteezeStack() {
   };
 
   const calculateSteezeAmount = () => {
-    if (!ethAmount) return 0;
-    return parseFloat(ethAmount) * 10000; // Fixed rate: 10000 Steeze per ETH
+    if (!usdcAmount) return 0;
+    return parseFloat(usdcAmount) * 7142; // Fixed rate: 7142 Steeze per USDC (approximately same ETH value)
   };
 
-  const calculateEthAmount = () => {
+  const calculateUsdcAmount = () => {
     if (!steezeAmount) return 0;
-    return parseFloat(steezeAmount) * 0.00007; // Redeem rate: 1 Steeze = 0.00007 ETH
+    return parseFloat(steezeAmount) * 0.00014; // Redeem rate: 1 Steeze = 0.00014 USDC
   };
   
   // Debug logging (remove in production)
@@ -636,22 +636,22 @@ export default function SteezeStack() {
                   </Button>
                 ) : (
                   <div>
-                    {/* ETH Input */}
+                    {/* USDC Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="eth-amount" className="text-white">ETH Amount</Label>
+                      <Label htmlFor="usdc-amount" className="text-white">USDC Amount</Label>
                       <Input
-                        id="eth-amount"
+                        id="usdc-amount"
                         type="number"
-                        step="0.001"
-                        placeholder="0.1"
-                        value={ethAmount}
-                        onChange={(e) => setEthAmount(e.target.value)}
+                        step="0.01"
+                        placeholder="1.0"
+                        value={usdcAmount}
+                        onChange={(e) => setUsdcAmount(e.target.value)}
                         className="bg-black/20 border-purple-500/30 text-white placeholder:text-white/40"
                       />
                     </div>
 
                     {/* Steeze Preview */}
-                    {ethAmount && (
+                    {usdcAmount && (
                       <div className="p-4 bg-black/20 rounded-xl mt-4">
                         <p className="text-sm text-white/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white">
@@ -663,7 +663,7 @@ export default function SteezeStack() {
                     {/* Buy Button */}
                     <Button
                       onClick={handlePurchase}
-                      disabled={!ethAmount || isPurchasing}
+                      disabled={!usdcAmount || isPurchasing}
                       className="w-full mt-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                     >
                       {isPurchasing ? (
@@ -693,7 +693,7 @@ export default function SteezeStack() {
                   <div>
                     <CardTitle className="text-white">Redeem Steeze</CardTitle>
                     <CardDescription className="text-white/60">
-                      Convert Steeze tokens back to ETH
+                      Convert Steeze tokens back to USDC
                     </CardDescription>
                   </div>
                 </div>
@@ -733,12 +733,12 @@ export default function SteezeStack() {
                       />
                     </div>
 
-                    {/* ETH Preview */}
+                    {/* USDC Preview */}
                     {steezeAmount && (
                       <div className="p-4 bg-black/20 rounded-xl mt-4">
                         <p className="text-sm text-white/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white">
-                          {calculateEthAmount().toFixed(6)} ETH
+                          {calculateUsdcAmount().toFixed(4)} USDC
                         </p>
                       </div>
                     )}
