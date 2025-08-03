@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add error boundary and console logging for debugging deployment issues
-console.log("🚀 Aura app starting - EMERGENCY FIX...");
+console.log("🚀 Aura app starting - FINAL FIX v2...");
 
 // Suppress wallet extension errors that interfere with app loading
 suppressWalletErrors();

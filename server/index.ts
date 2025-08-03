@@ -54,12 +54,20 @@ app.use((req, res, next) => {
     log("Failed to initialize Steeze event monitoring:", String(error));
   }
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(`Error handling request ${req.method} ${req.path}:`, err);
+    
+    // Don't send response if already sent
+    if (res.headersSent) {
+      return next(err);
+    }
+    
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    throw err;
+    // Don't throw - just log and let Express handle it
+    console.error(`Request failed with status ${status}: ${message}`);
   });
 
   // importantly only setup vite in development and after
