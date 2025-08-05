@@ -724,13 +724,13 @@ export default function SteezeStack() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
       <Navigation />
-      <div className="pt-16 xs:pt-20 pb-6 xs:pb-8 px-3 xs:px-4">
-        <div className="max-w-6xl mx-auto space-y-6 xs:space-y-8">
+      <div className="pt-16 xs:pt-20 pb-6 xs:pb-8 px-4 xs:px-6">
+        <div className="max-w-6xl mx-auto space-y-4 xs:space-y-6">
           {/* Header */}
-          <div className="text-center space-y-3 xs:space-y-4">
-            <div className="flex flex-col xs:flex-row items-center justify-center gap-2 xs:gap-3">
-              <div className="w-12 h-12 xs:w-16 xs:h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl xs:rounded-3xl flex items-center justify-center">
-                <Coins className="w-6 h-6 xs:w-8 xs:h-8 text-white" />
+          <div className="text-center space-y-2 xs:space-y-3">
+            <div className="flex flex-col xs:flex-row items-center justify-center gap-3 xs:gap-4">
+              <div className="w-14 h-14 xs:w-16 xs:h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl xs:rounded-3xl flex items-center justify-center">
+                <Coins className="w-7 h-7 xs:w-8 xs:h-8 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
@@ -742,82 +742,81 @@ export default function SteezeStack() {
           </div>
 
           {/* Stats Cards */}
-          <div className="mb-8">
-            <div className="flex justify-between items-start mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
-                <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                        <Wallet className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white/60">Total Balance</p>
-                        <p className="text-2xl font-bold text-white">{totalBalance.toLocaleString()} STEEZE</p>
-                        <p className="text-xs text-white/40">Purchased: {purchasedSteeze} | Earned: {earnedSteeze}</p>
-                      </div>
+          <div className="mb-4 xs:mb-6 space-y-4">
+            {/* Network Status Card - Mobile First */}
+            <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${isOnCorrectNetwork ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <div>
+                      <p className="text-xs text-white/60">Network Status</p>
+                      <p className="text-sm font-bold text-white">
+                        {currentChainId === BASE_MAINNET.chainId 
+                          ? "Base Mainnet ✓" 
+                          : currentChainId 
+                            ? `Chain ID: ${currentChainId}` 
+                            : "Detecting..."}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={refreshNetworkStatus}
+                    className="text-white/60 hover:text-white p-1 h-auto"
+                    title="Refresh network status"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                  </Button>
+                </div>
+                {!isOnCorrectNetwork && currentChainId !== null && (
+                  <p className="text-xs text-red-400 mt-2">Switch to Base Mainnet required</p>
+                )}
+              </CardContent>
+            </Card>
 
-                <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                        <ArrowUpRight className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white/60">Purchased</p>
-                        <p className="text-2xl font-bold text-white">{purchasedSteeze.toLocaleString()} STEEZE</p>
-                      </div>
+            {/* Balance Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                      <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm text-white/60">Total Balance</p>
+                      <p className="text-lg sm:text-2xl font-bold text-white">{totalBalance.toLocaleString()} STEEZE</p>
+                      <p className="text-xs text-white/40 truncate">Purchased: {purchasedSteeze} | Earned: {earnedSteeze}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center">
-                        <Trophy className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white/60">Earned</p>
-                        <p className="text-2xl font-bold text-white">{earnedSteeze.toLocaleString()} STEEZE</p>
-                      </div>
+              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                      <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm text-white/60">Purchased</p>
+                      <p className="text-lg sm:text-2xl font-bold text-white">{purchasedSteeze.toLocaleString()} STEEZE</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Network Status Card - Top Right */}
-              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20 ml-6 w-56">
-                <CardContent className="p-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${isOnCorrectNetwork ? 'bg-green-500' : 'bg-red-500'}`} />
-                        <p className="text-xs text-white/60">Network Status</p>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={refreshNetworkStatus}
-                        className="text-white/60 hover:text-white p-1 h-auto"
-                        title="Refresh network status"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                      </Button>
+              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20 sm:col-span-2 lg:col-span-1">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center">
+                      <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <p className="text-sm font-bold text-white">
-                      {currentChainId === BASE_MAINNET.chainId 
-                        ? "Base Mainnet ✓" 
-                        : currentChainId 
-                          ? `Chain ID: ${currentChainId}` 
-                          : "Detecting..."}
-                    </p>
-                    {!isOnCorrectNetwork && currentChainId !== null && (
-                      <p className="text-xs text-red-400">Switch to Base Mainnet required</p>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm text-white/60">Earned</p>
+                      <p className="text-lg sm:text-2xl font-bold text-white">{earnedSteeze.toLocaleString()} STEEZE</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -825,7 +824,7 @@ export default function SteezeStack() {
           </div>
 
           {/* Buy/Redeem Interface */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs:gap-6">
             {/* Buy Section */}
             <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20">
               <CardHeader className="p-4 xs:p-6">
