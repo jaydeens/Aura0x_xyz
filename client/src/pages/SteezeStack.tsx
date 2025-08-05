@@ -31,6 +31,7 @@ import { ethers } from "ethers";
 declare global {
   interface Window {
     ethereum?: any;
+    trustwallet?: any;
   }
 }
 
@@ -58,29 +59,129 @@ export default function SteezeStack() {
   const userWalletAddress = currentUser?.walletAddress;
   const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
 
+  // Add manual network refresh function for mobile wallets
+  const refreshNetworkStatus = async () => {
+    const provider = window.trustwallet || window.ethereum;
+    if (!provider) {
+      toast({
+        title: "No Wallet Found",
+        description: "Please ensure your wallet is connected",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // Force fresh network detection using same multi-method approach
+      let chainId: string | null = null;
+      
+      try {
+        chainId = await provider.request({ method: 'eth_chainId' });
+      } catch (e) {
+        // Fallback to ethers if direct request fails
+        try {
+          const ethersProvider = new ethers.BrowserProvider(provider);
+          const network = await ethersProvider.getNetwork();
+          chainId = `0x${network.chainId.toString(16)}`;
+        } catch (e2) {
+          // Last resort: check direct property
+          if (provider.chainId) {
+            chainId = provider.chainId;
+          }
+        }
+      }
+
+      if (chainId) {
+        const actualChainId = parseInt(chainId, 16);
+        console.log(`Refreshed network detection: ${actualChainId}`);
+        setCurrentChainId(actualChainId);
+        
+        toast({
+          title: "Network Status Updated",
+          description: actualChainId === BASE_MAINNET.chainId 
+            ? "✓ Connected to Base Mainnet" 
+            : `Connected to Chain ID: ${actualChainId}`,
+        });
+      } else {
+        throw new Error("Could not detect network");
+      }
+    } catch (error) {
+      console.error("Failed to refresh network status:", error);
+      toast({
+        title: "Network Detection Failed",
+        description: "Please check your wallet connection and try switching networks manually",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Initialize wallet connection state from authenticated user
   useEffect(() => {
     if (userWalletAddress && !isConnected) {
       setWalletAddress(userWalletAddress);
       setIsConnected(true);
-      
-      // Immediately set Base Mainnet to prevent flash, then verify with MetaMask
-      setCurrentChainId(BASE_MAINNET.chainId);
-      
-      // Check current network asynchronously to update if different
-      if (window.ethereum) {
-        window.ethereum.request({ method: 'eth_chainId' })
-          .then((chainId: string) => {
-            const actualChainId = parseInt(chainId, 16);
-            // Only update if different from our assumption
-            if (actualChainId !== BASE_MAINNET.chainId) {
-              setCurrentChainId(actualChainId);
-            }
-          })
-          .catch(console.error);
-      }
     }
   }, [userWalletAddress, isConnected]);
+
+  // Check network on wallet connection - improved mobile detection
+  useEffect(() => {
+    const checkNetwork = async () => {
+      if (!isConnected) return;
+      
+      try {
+        // Try multiple methods to detect the network for better mobile compatibility
+        let chainId: string | null = null;
+        
+        // Get the best available provider (Trust Wallet, MetaMask, etc.)
+        const provider = window.trustwallet || window.ethereum;
+        
+        if (provider) {
+          try {
+            // Method 1: Standard request
+            chainId = await provider.request({ method: 'eth_chainId' });
+            console.log("Standard network detection successful:", chainId);
+          } catch (e) {
+            console.log("Standard method failed, trying ethers...");
+            
+            // Method 2: Alternative using ethers for some mobile wallets
+            try {
+              const ethersProvider = new ethers.BrowserProvider(provider);
+              const network = await ethersProvider.getNetwork();
+              chainId = `0x${network.chainId.toString(16)}`;
+              console.log("Ethers network detection successful:", chainId);
+            } catch (e2) {
+              console.log("Ethers method also failed");
+              
+              // Method 3: Try to get network from provider directly
+              if (provider.chainId) {
+                chainId = provider.chainId;
+                console.log("Direct chainId property found:", chainId);
+              }
+            }
+          }
+        }
+
+        if (chainId) {
+          const actualChainId = parseInt(chainId, 16);
+          console.log(`Detected network: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
+          setCurrentChainId(actualChainId);
+        } else {
+          // If we can't detect, assume Base Mainnet for authenticated users
+          console.log("Could not detect network, assuming Base Mainnet for authenticated user");
+          setCurrentChainId(BASE_MAINNET.chainId);
+        }
+      } catch (error) {
+        console.error("Error checking network:", error);
+        // For authenticated users with wallet addresses, assume Base Mainnet
+        if (userWalletAddress) {
+          console.log("Using fallback: setting to Base Mainnet for authenticated user");
+          setCurrentChainId(BASE_MAINNET.chainId);
+        }
+      }
+    };
+
+    checkNetwork();
+  }, [isConnected, userWalletAddress]);
 
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
@@ -154,12 +255,13 @@ export default function SteezeStack() {
     }
   };
 
-  // Switch to Base Mainnet network
+  // Switch to Base Mainnet network - improved mobile wallet support
   const switchToBaseMainnet = async () => {
-    if (!window.ethereum) {
+    const provider = window.trustwallet || window.ethereum;
+    if (!provider) {
       toast({
         title: "Wallet Not Found",
-        description: "Please install MetaMask or another Web3 wallet",
+        description: "Please install a Web3 wallet like MetaMask or Trust Wallet",
         variant: "destructive",
       });
       return false;
@@ -173,36 +275,54 @@ export default function SteezeStack() {
         await connectWallet();
       }
       
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
-      });
-      
-      // Wait a moment for the switch to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update chain ID after successful switch
-      const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
-      const parsedChainId = parseInt(newChainId, 16);
-      setCurrentChainId(parsedChainId);
-      
-      if (parsedChainId === BASE_MAINNET.chainId) {
-        toast({
-          title: "Network Switched",
-          description: "Successfully switched to Base Mainnet",
-        });
-        return true;
+      // Check if we're already on the correct network first
+      try {
+        const currentChainId = await provider.request({ method: 'eth_chainId' });
+        const parsedChainId = parseInt(currentChainId, 16);
+        
+        if (parsedChainId === BASE_MAINNET.chainId) {
+          setCurrentChainId(parsedChainId);
+          toast({
+            title: "Already on Base Mainnet",
+            description: "You're already connected to the correct network",
+          });
+          return true;
+        }
+      } catch (e) {
+        console.log("Could not check current network, proceeding with switch...");
       }
       
-      return false;
-    } catch (error: any) {
-      console.error("Network switch error:", error);
-      
-      if (error.code === 4902) {
-        // Network not added yet, try to add it
-        try {
+      // Try to switch to Base Mainnet
+      try {
+        await provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
+        });
+        
+        // Wait for the switch to complete
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Verify the switch was successful
+        const newChainId = await provider.request({ method: 'eth_chainId' });
+        const parsedChainId = parseInt(newChainId, 16);
+        setCurrentChainId(parsedChainId);
+        
+        if (parsedChainId === BASE_MAINNET.chainId) {
+          toast({
+            title: "Network Switched",
+            description: "Successfully switched to Base Mainnet",
+          });
+          return true;
+        }
+        
+        return false;
+      } catch (switchError: any) {
+        console.error("Switch error:", switchError);
+        
+        if (switchError.code === 4902) {
+          // Network not added yet, try to add it
           console.log("Adding Base Mainnet network...");
-          await window.ethereum.request({
+          await provider.request({
             method: "wallet_addEthereumChain",
             params: [{
               chainId: `0x${BASE_MAINNET.chainId.toString(16)}`,
@@ -217,11 +337,11 @@ export default function SteezeStack() {
             }],
           });
           
-          // Wait a moment for the add to complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Wait for the add to complete
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
-          // Update chain ID after successful add
-          const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+          // Verify the add was successful
+          const newChainId = await provider.request({ method: 'eth_chainId' });
           const parsedChainId = parseInt(newChainId, 16);
           setCurrentChainId(parsedChainId);
           
@@ -234,31 +354,35 @@ export default function SteezeStack() {
           }
           
           return false;
-        } catch (addError: any) {
-          console.error("Network add error:", addError);
-          toast({
-            title: "Network Add Failed",
-            description: addError.message || "Failed to add Base Mainnet network",
-            variant: "destructive",
-          });
-          return false;
+        } else {
+          throw switchError; // Re-throw to be handled by outer catch
         }
-      } else if (error.code === 4001) {
+      }
+    } catch (error: any) {
+      console.error("Network switch error:", error);
+      
+      if (error.code === 4001) {
         // User rejected the request
         toast({
           title: "Network Switch Cancelled",
           description: "Please switch to Base Mainnet to continue",
           variant: "destructive",
         });
-        return false;
+      } else if (error.code === -32002) {
+        // Request already pending (common in mobile wallets)
+        toast({
+          title: "Request Pending",
+          description: "Please check your wallet app to complete the network switch",
+          variant: "default",
+        });
       } else {
         toast({
           title: "Network Switch Failed",
-          description: error.message || "Failed to switch to Base Mainnet",
+          description: error.message || "Failed to switch to Base Mainnet. Please try manually switching in your wallet.",
           variant: "destructive",
         });
-        return false;
       }
+      return false;
     }
   };
 
@@ -665,17 +789,35 @@ export default function SteezeStack() {
                 </Card>
               </div>
 
-              {/* Small Network Card - Top Right */}
-              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20 ml-6 w-48">
+              {/* Network Status Card - Top Right */}
+              <Card className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/20 ml-6 w-56">
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${isOnCorrectNetwork ? 'bg-green-500' : 'bg-red-500'}`} />
+                        <p className="text-xs text-white/60">Network Status</p>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={refreshNetworkStatus}
+                        className="text-white/60 hover:text-white p-1 h-auto"
+                        title="Refresh network status"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                      </Button>
                     </div>
-                    <div>
-                      <p className="text-xs text-white/60">Network</p>
-                      <p className="text-sm font-bold text-white">Base Mainnet</p>
-                    </div>
+                    <p className="text-sm font-bold text-white">
+                      {currentChainId === BASE_MAINNET.chainId 
+                        ? "Base Mainnet ✓" 
+                        : currentChainId 
+                          ? `Chain ID: ${currentChainId}` 
+                          : "Detecting..."}
+                    </p>
+                    {!isOnCorrectNetwork && currentChainId !== null && (
+                      <p className="text-xs text-red-400">Switch to Base Mainnet required</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
