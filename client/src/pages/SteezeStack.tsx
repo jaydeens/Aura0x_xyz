@@ -974,34 +974,26 @@ export default function SteezeStack() {
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
                   </Button>
-                ) : !isOnCorrectNetwork && currentChainId !== null ? (
-                  <div className="space-y-3">
-                    <Button 
-                      onClick={switchToBaseMainnet}
-                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                    >
-                      Switch to Base Mainnet
-                    </Button>
-                    
-                    {/* Trust Wallet Direct Chain Selection */}
-                    {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
-                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                        <h4 className="text-blue-300 font-medium mb-2 text-sm">Switch Network Instructions:</h4>
-                        <div className="text-blue-200 text-xs space-y-2">
-                          <div>
-                            <p className="font-medium text-blue-300">Trust Wallet:</p>
-                            <p>• Tap network name at top → Select "Base"</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-blue-300">Other Wallets:</p>
-                            <p>• Switch to Base Mainnet (Chain ID: 8453)</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 ) : (
                   <div>
+                    {/* Network Warning */}
+                    {!isOnCorrectNetwork && currentChainId !== null && (
+                      <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                          <h4 className="text-orange-300 font-medium text-sm">Wrong Network Detected</h4>
+                        </div>
+                        <p className="text-orange-200 text-xs mb-2">
+                          Currently on {getNetworkName(currentChainId)}. The purchase will automatically switch to Base Mainnet.
+                        </p>
+                        {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
+                          <p className="text-blue-200 text-xs">
+                            <strong>Trust Wallet:</strong> Tap network name → Select "Base"
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     {/* USDC Balance Display */}
                     <div className="p-4 bg-black/20 rounded-xl border border-purple-500/20">
                       <div className="flex items-center justify-between mb-2">
@@ -1122,34 +1114,26 @@ export default function SteezeStack() {
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
                   </Button>
-                ) : !isOnCorrectNetwork && currentChainId !== null ? (
-                  <div className="space-y-3">
-                    <Button 
-                      onClick={switchToBaseMainnet}
-                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                    >
-                      Switch to Base Mainnet
-                    </Button>
-                    
-                    {/* Trust Wallet Direct Chain Selection */}
-                    {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
-                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                        <h4 className="text-blue-300 font-medium mb-2 text-sm">Switch Network Instructions:</h4>
-                        <div className="text-blue-200 text-xs space-y-2">
-                          <div>
-                            <p className="font-medium text-blue-300">Trust Wallet:</p>
-                            <p>• Tap network name at top → Select "Base"</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-blue-300">Other Wallets:</p>
-                            <p>• Switch to Base Mainnet (Chain ID: 8453)</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 ) : (
                   <div>
+                    {/* Network Warning */}
+                    {!isOnCorrectNetwork && currentChainId !== null && (
+                      <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                          <h4 className="text-orange-300 font-medium text-sm">Wrong Network Detected</h4>
+                        </div>
+                        <p className="text-orange-200 text-xs mb-2">
+                          Currently on {getNetworkName(currentChainId)}. The redeem will automatically switch to Base Mainnet.
+                        </p>
+                        {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
+                          <p className="text-blue-200 text-xs">
+                            <strong>Trust Wallet:</strong> Tap network name → Select "Base"
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     {/* Steeze Input */}
                     <div className="space-y-2">
                       <Label htmlFor="steeze-amount" className="text-white">
