@@ -141,6 +141,25 @@ export default function SteezeStack() {
     }
   }, [userWalletAddress, isConnected]);
 
+  // Clear cache and refresh data when wallet address changes
+  useEffect(() => {
+    const effectiveAddress = userWalletAddress || walletAddress;
+    if (effectiveAddress) {
+      // Clear previous wallet's cached data
+      queryClient.removeQueries({ 
+        queryKey: ['/api/wallet/usdc-balance']
+      });
+      
+      // Reset local state for new wallet
+      setUsdcBalance(0);
+      
+      // Trigger fresh data fetch
+      refetchUsdcBalance();
+      
+      console.log(`Wallet changed to: ${effectiveAddress}`);
+    }
+  }, [userWalletAddress, walletAddress]);
+
   // Check network on wallet connection - improved mobile detection
   useEffect(() => {
     const checkNetwork = async () => {
@@ -181,12 +200,19 @@ export default function SteezeStack() {
 
         if (chainId) {
           const actualChainId = parseInt(chainId, 16);
-          console.log(`Detected network: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
+          console.log(`Detected network: ${actualChainId} (${getNetworkName(actualChainId)}) - Base Mainnet is ${BASE_MAINNET.chainId}`);
           setCurrentChainId(actualChainId);
+          
+          // Log for debugging the false warning issue
+          if (actualChainId === BASE_MAINNET.chainId) {
+            console.log("✓ Successfully detected Base Mainnet - no network warning should show");
+          } else {
+            console.log(`⚠ Wrong network detected: ${getNetworkName(actualChainId)} instead of Base Mainnet`);
+          }
         } else {
-          // If we can't detect, assume Base Mainnet for authenticated users
-          console.log("Could not detect network, assuming Base Mainnet for authenticated user");
-          setCurrentChainId(BASE_MAINNET.chainId);
+          // If we can't detect, don't assume - let UI handle the error state
+          console.log("Could not detect network - leaving as null");
+          setCurrentChainId(null);
         }
       } catch (error) {
         console.error("Error checking network:", error);
@@ -979,9 +1005,20 @@ export default function SteezeStack() {
                     {/* Network Warning */}
                     {!isOnCorrectNetwork && currentChainId !== null && (
                       <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                          <h4 className="text-orange-300 font-medium text-sm">Wrong Network Detected</h4>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                            <h4 className="text-orange-300 font-medium text-sm">Wrong Network Detected</h4>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={refreshNetworkStatus}
+                            className="text-orange-300 hover:text-orange-200 p-1 h-auto"
+                            title="Refresh network status"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                          </Button>
                         </div>
                         <p className="text-orange-200 text-xs mb-2">
                           Currently on {getNetworkName(currentChainId)}. The purchase will automatically switch to Base Mainnet.
@@ -1119,9 +1156,20 @@ export default function SteezeStack() {
                     {/* Network Warning */}
                     {!isOnCorrectNetwork && currentChainId !== null && (
                       <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                          <h4 className="text-orange-300 font-medium text-sm">Wrong Network Detected</h4>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                            <h4 className="text-orange-300 font-medium text-sm">Wrong Network Detected</h4>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={refreshNetworkStatus}
+                            className="text-orange-300 hover:text-orange-200 p-1 h-auto"
+                            title="Refresh network status"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                          </Button>
                         </div>
                         <p className="text-orange-200 text-xs mb-2">
                           Currently on {getNetworkName(currentChainId)}. The redeem will automatically switch to Base Mainnet.
