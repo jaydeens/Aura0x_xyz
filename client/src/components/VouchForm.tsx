@@ -43,13 +43,12 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Get user's wallet address for USDC balance
+  // Get user's wallet address for ETH balance  
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
 
-  // USDC vouching range
-  const MIN_USDC_AMOUNT = 1;
-  const MAX_USDC_AMOUNT = 100;
+  // ETH vouching amount (fixed by contract)
+  const REQUIRED_ETH_AMOUNT = 0.0001; // Fixed amount required by contract
 
   const { data: leaderboard } = useQuery({
     queryKey: ["/api/leaderboard"],
@@ -66,11 +65,11 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     retry: false,
   });
 
-  // Fetch user's USDC balance when wallet is connected
-  const { data: usdcBalanceData } = useQuery({
-    queryKey: [`/api/wallet/usdc-balance/${userWalletAddress}`],
+  // Fetch user's ETH balance when wallet is connected
+  const { data: ethBalanceData } = useQuery({
+    queryKey: [`/api/wallet/eth-balance/${userWalletAddress}`],
     enabled: !!userWalletAddress,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: true, 
     staleTime: 10000, // Consider data stale after 10 seconds
   });
 
@@ -84,12 +83,12 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   };
 
   const userLevel = getUserLevel();
-  const baseAuraPoints = selectedAmount * 10; // 10 APs per USDC
+  const baseAuraPoints = 50; // Fixed aura points per vouch (contract determines this)
   const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
-  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
+  const currentEthBalance = (ethBalanceData as any)?.balance || 0;
 
   const vouchMutation = useMutation({
-    mutationFn: async (data: { vouchedUserId: string; usdcAmount: number; transactionHash: string }) => {
+    mutationFn: async (data: { vouchedUserId: string; ethAmount: number; transactionHash: string }) => {
       return await apiRequest("POST", "/api/vouch/create", data);
     },
     onSuccess: (data) => {
@@ -130,11 +129,11 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       return;
     }
 
-    // Check if user has sufficient USDC balance
-    if (selectedAmount > currentUsdcBalance) {
+    // Check if user has sufficient ETH balance
+    if (REQUIRED_ETH_AMOUNT > currentEthBalance) {
       toast({
         title: "Insufficient Balance",
-        description: `You need ${selectedAmount} USDC but only have ${currentUsdcBalance.toFixed(2)} USDC in your wallet`,
+        description: `You need ${REQUIRED_ETH_AMOUNT} ETH but only have ${currentEthBalance.toFixed(6)} ETH in your wallet`,
         variant: "destructive",
       });
       return;
@@ -163,7 +162,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     try {
       await vouchMutation.mutateAsync({
         vouchedUserId: selectedUserId,
-        usdcAmount: selectedAmount,
+        ethAmount: REQUIRED_ETH_AMOUNT,
         transactionHash
       });
     } finally {
@@ -216,18 +215,18 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
         {/* Vouching Info */}
         <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-white/80">Your USDC Balance:</span>
+            <span className="text-white/80">Your ETH Balance:</span>
             <div className="flex items-center gap-2">
               <Wallet className="w-4 h-4 text-green-400" />
               <span className="text-green-400 font-semibold">
-                {currentUsdcBalance.toFixed(2)} USDC
+                {currentEthBalance.toFixed(6)} ETH
               </span>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-white/80">Required Amount:</span>
             <Badge variant="outline" className="text-purple-400 border-purple-400">
-              {MIN_USDC_AMOUNT}-{MAX_USDC_AMOUNT} USDC
+              {REQUIRED_ETH_AMOUNT} ETH (Fixed)
             </Badge>
           </div>
           <div className="flex items-center justify-between">
@@ -250,32 +249,15 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           )}
           <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
             <span className="text-white font-medium">Final Aura Award:</span>
-            <span className="text-purple-400 font-bold">{finalAuraPoints} points ({selectedAmount} × 10)</span>
+            <span className="text-purple-400 font-bold">{finalAuraPoints} points (Fixed)</span>
           </div>
-        </div>
-
-        {/* Amount Selector */}
-        <div className="space-y-3">
-          <Label className="text-white">Vouching Amount (USDC)</Label>
-          <Input
-            type="number"
-            min={MIN_USDC_AMOUNT}
-            max={MAX_USDC_AMOUNT}
-            value={selectedAmount}
-            onChange={(e) => setSelectedAmount(Math.max(MIN_USDC_AMOUNT, Math.min(MAX_USDC_AMOUNT, parseInt(e.target.value) || MIN_USDC_AMOUNT)))}
-            className="bg-black/20 border-white/20 text-white"
-            placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${MAX_USDC_AMOUNT})`}
-          />
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">
-              This will award {selectedAmount * 10} Aura Points
-            </span>
-            {selectedAmount > currentUsdcBalance && (
-              <span className="text-red-400 font-medium">
-                Insufficient balance
+          {REQUIRED_ETH_AMOUNT > currentEthBalance && (
+            <div className="flex items-center justify-center pt-2">
+              <span className="text-red-400 font-medium text-sm">
+                Insufficient ETH balance - Need {REQUIRED_ETH_AMOUNT} ETH
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* User Selection */}
