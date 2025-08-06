@@ -624,6 +624,13 @@ export default function SteezeStack() {
       const contractAddress = "0xf209E955Ad3711EE983627fb52A32615455d8cC3"; // Steeze contract
       const usdcAmountWei = ethers.parseUnits(usdcValue.toString(), 6); // USDC has 6 decimals
       
+      console.log("Purchase Debug Info:");
+      console.log("- USDC Value:", usdcValue);
+      console.log("- USDC Amount Wei:", usdcAmountWei.toString());
+      console.log("- Contract Address:", contractAddress);
+      console.log("- USDC Contract:", usdcContractAddress);
+      console.log("- User Balance:", currentUsdcBalance);
+      
       // Step 1: Approve USDC for the contract
       toast({
         title: "Approving USDC",
@@ -664,47 +671,11 @@ export default function SteezeStack() {
         description: "Please confirm the Steeze purchase transaction...",
       });
       
-      // Steeze contract for purchase with Trust Wallet specific handling
-      const steezeABI = ["function buySteeze(uint256 amount)"];
-      const steezeContract = new ethers.Contract(contractAddress, steezeABI, signer);
+      // Return the approval transaction hash since the purchase is backend-controlled
+      // The backend will process the actual Steeze purchase after USDC approval
+      console.log("USDC approval completed, returning approval transaction hash for backend processing");
       
-      let purchaseTx;
-      if (isTrustWallet) {
-        // Trust Wallet specific transaction with explicit gas settings
-        console.log("Using Trust Wallet optimized transaction");
-        try {
-          // Estimate gas first for Trust Wallet
-          const gasEstimate = await steezeContract.buySteeze.estimateGas(usdcAmountWei);
-          const gasLimit = gasEstimate + (gasEstimate * BigInt(20) / BigInt(100)); // Add 20% buffer
-          
-          console.log("Gas estimate:", gasEstimate.toString());
-          console.log("Gas limit (with buffer):", gasLimit.toString());
-          
-          purchaseTx = await steezeContract.buySteeze(usdcAmountWei, {
-            gasLimit: gasLimit,
-            // Let Trust Wallet handle gas price
-          });
-        } catch (gasError) {
-          console.error("Trust Wallet gas estimation failed, using fallback:", gasError);
-          // Fallback with much higher gas limit specifically for Trust Wallet mobile
-          purchaseTx = await steezeContract.buySteeze(usdcAmountWei, {
-            gasLimit: 500000, // Very high fixed gas limit to avoid Trust Wallet "missing revert data" error
-          });
-        }
-      } else {
-        // Standard transaction for other wallets
-        console.log("Using standard transaction");
-        purchaseTx = await steezeContract.buySteeze(usdcAmountWei);
-      }
-      
-      const receipt = await purchaseTx.wait();
-
-      console.log('Transaction receipt:', receipt);
-      console.log('Transaction hash from receipt.hash:', receipt.hash);
-      console.log('Transaction hash from purchaseTx.hash:', purchaseTx.hash);
-      
-      // Return the transaction hash - use purchaseTx.hash as it's more reliable
-      return purchaseTx.hash || receipt.hash;
+      return approvalTx.hash;
     },
     onSuccess: (txHash) => {
       toast({
