@@ -692,17 +692,55 @@ export default function SteezeStack() {
       
       await approvalTx.wait();
       
-      // Step 2: Call buySteeze function
+      // Step 2: Call buySteeze function directly on the contract
       toast({
         title: "Processing Purchase",
         description: "Please confirm the Steeze purchase transaction...",
       });
       
-      // Return the approval transaction hash since the purchase is backend-controlled
-      // The backend will process the actual Steeze purchase after USDC approval
-      console.log("USDC approval completed, returning approval transaction hash for backend processing");
+      // Steeze contract ABI for purchase function - matches actual deployed contract
+      const steezeABI = [
+        {
+          "inputs": [{"internalType": "uint256", "name": "amount", "type": "uint256"}],
+          "name": "buySteeze",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ];
       
-      return approvalTx.hash;
+      const steezeContract = new ethers.Contract(contractAddress, steezeABI, signer);
+      
+      console.log("Executing Steeze purchase transaction...");
+      console.log("- USDC Amount:", usdcAmountWei.toString());
+      console.log("- Expected Steeze Amount:", steezeAmount);
+      console.log("- Contract Address:", contractAddress);
+      
+      let purchaseTx;
+      if (isTrustWallet) {
+        console.log("Using Trust Wallet optimized purchase");
+        try {
+          const gasEstimate = await steezeContract.buySteeze.estimateGas(usdcAmountWei);
+          const gasLimit = gasEstimate + (gasEstimate * BigInt(30) / BigInt(100)); // 30% buffer
+          
+          purchaseTx = await steezeContract.buySteeze(usdcAmountWei, {
+            gasLimit: gasLimit,
+          });
+        } catch (gasError) {
+          console.error("Trust Wallet purchase gas estimation failed:", gasError);
+          // Fallback with higher fixed gas limit
+          purchaseTx = await steezeContract.buySteeze(usdcAmountWei, {
+            gasLimit: 250000, // Higher gas limit for complex contract interaction
+          });
+        }
+      } else {
+        purchaseTx = await steezeContract.buySteeze(usdcAmountWei);
+      }
+      
+      await purchaseTx.wait();
+      console.log("✓ Steeze purchase transaction confirmed:", purchaseTx.hash);
+      
+      return purchaseTx.hash;
     },
     onSuccess: (txHash) => {
       toast({
