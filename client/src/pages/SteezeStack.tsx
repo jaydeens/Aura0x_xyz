@@ -549,50 +549,58 @@ export default function SteezeStack() {
         throw new Error("Please connect your wallet first");
       }
       
-      // Verify network first - get fresh network status
-      let actualChainId = currentChainId;
-      try {
-        const freshChainId = await window.ethereum.request({ method: 'eth_chainId' });
-        actualChainId = parseInt(freshChainId, 16);
-        console.log(`Purchase - Fresh network check: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
-        
-        // Update state with fresh network info
-        if (actualChainId !== currentChainId) {
-          setCurrentChainId(actualChainId);
-        }
-      } catch (networkError) {
-        console.warn("Could not verify network for purchase, using cached value:", currentChainId);
-      }
-
-      // Only switch if actually not on Base Mainnet
-      if (actualChainId !== BASE_MAINNET.chainId) {
-        console.log(`Purchase - Auto-switching from Chain ID ${actualChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
-        
-        try {
-          await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
-          });
-          
-          // Give time for the network switch
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Verify the switch worked
-          const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
-          const parsedChainId = parseInt(newChainId, 16);
-          
-          if (parsedChainId !== BASE_MAINNET.chainId) {
-            throw new Error("Network switch failed. Please manually switch to Base Mainnet in your wallet.");
-          }
-          
-          // Update the state
-          setCurrentChainId(parsedChainId);
-        } catch (switchError) {
-          console.error("Purchase - Auto network switch failed:", switchError);
-          throw new Error("Please switch to Base Mainnet in your wallet and try again");
-        }
+      // Trust Wallet bypass for purchase network check
+      const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
+      if (isTrustWallet) {
+        console.log("Trust Wallet detected in purchase - skipping network verification, assuming Base Mainnet");
+        setCurrentChainId(BASE_MAINNET.chainId);
+        // Skip all network checking for Trust Wallet
       } else {
-        console.log("✓ Purchase - Already on Base Mainnet - no network switch needed");
+        // Verify network first for other wallets - get fresh network status
+        let actualChainId = currentChainId;
+        try {
+          const freshChainId = await window.ethereum.request({ method: 'eth_chainId' });
+          actualChainId = parseInt(freshChainId, 16);
+          console.log(`Purchase - Fresh network check: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
+          
+          // Update state with fresh network info
+          if (actualChainId !== currentChainId) {
+            setCurrentChainId(actualChainId);
+          }
+        } catch (networkError) {
+          console.warn("Could not verify network for purchase, using cached value:", currentChainId);
+        }
+
+        // Only switch if actually not on Base Mainnet
+        if (actualChainId !== BASE_MAINNET.chainId) {
+          console.log(`Purchase - Auto-switching from Chain ID ${actualChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
+          
+          try {
+            await window.ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
+            });
+            
+            // Give time for the network switch
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Verify the switch worked
+            const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+            const parsedChainId = parseInt(newChainId, 16);
+            
+            if (parsedChainId !== BASE_MAINNET.chainId) {
+              throw new Error("Network switch failed. Please manually switch to Base Mainnet in your wallet.");
+            }
+            
+            // Update the state
+            setCurrentChainId(parsedChainId);
+          } catch (switchError) {
+            console.error("Purchase - Auto network switch failed:", switchError);
+            throw new Error("Please switch to Base Mainnet in your wallet and try again");
+          }
+        } else {
+          console.log("✓ Purchase - Already on Base Mainnet - no network switch needed");
+        }
       }
 
       // Verify wallet matches user account
