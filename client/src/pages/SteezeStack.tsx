@@ -42,6 +42,24 @@ const BASE_MAINNET = {
   blockExplorer: "https://basescan.org/",
 };
 
+// Helper function to get network name
+const getNetworkName = (chainId: number): string => {
+  const networks: Record<number, string> = {
+    1: "Ethereum Mainnet",
+    8453: "Base Mainnet", 
+    84532: "Base Sepolia",
+    33875: "Unknown Network (33875)",
+    137: "Polygon Mainnet",
+    56: "BSC Mainnet",
+    43114: "Avalanche Mainnet",
+    250: "Fantom Mainnet",
+    10: "Optimism Mainnet",
+    42161: "Arbitrum One",
+    1337: "Local Network"
+  };
+  return networks[chainId] || `Chain ID: ${chainId}`;
+};
+
 export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -100,7 +118,7 @@ export default function SteezeStack() {
           title: "Network Status Updated",
           description: actualChainId === BASE_MAINNET.chainId 
             ? "✓ Connected to Base Mainnet" 
-            : `Connected to Chain ID: ${actualChainId}`,
+            : `Connected to ${getNetworkName(actualChainId)}`,
         });
       } else {
         throw new Error("Could not detect network");
@@ -280,6 +298,8 @@ export default function SteezeStack() {
         const currentChainId = await provider.request({ method: 'eth_chainId' });
         const parsedChainId = parseInt(currentChainId, 16);
         
+        console.log(`Current network: ${parsedChainId} (${getNetworkName(parsedChainId)})`);
+        
         if (parsedChainId === BASE_MAINNET.chainId) {
           setCurrentChainId(parsedChainId);
           toast({
@@ -287,32 +307,74 @@ export default function SteezeStack() {
             description: "You're already connected to the correct network",
           });
           return true;
+        } else {
+          toast({
+            title: "Wrong Network Detected",
+            description: `Currently on ${getNetworkName(parsedChainId)}. Switching to Base Mainnet...`,
+          });
         }
       } catch (e) {
         console.log("Could not check current network, proceeding with switch...");
       }
       
-      // Try to switch to Base Mainnet
+      // Try to switch to Base Mainnet with more aggressive approach
       try {
+        console.log("Attempting to switch to Base Mainnet...");
+        
+        toast({
+          title: "Switching Network",
+          description: "Please confirm the network switch in your wallet",
+        });
+
         await provider.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
         });
         
-        // Wait for the switch to complete
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Wait longer for mobile wallets
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // Verify the switch was successful
-        const newChainId = await provider.request({ method: 'eth_chainId' });
-        const parsedChainId = parseInt(newChainId, 16);
-        setCurrentChainId(parsedChainId);
+        // Multiple attempts to verify the switch
+        let attempts = 0;
+        let switched = false;
         
-        if (parsedChainId === BASE_MAINNET.chainId) {
+        while (attempts < 5 && !switched) {
+          try {
+            const newChainId = await provider.request({ method: 'eth_chainId' });
+            const parsedChainId = parseInt(newChainId, 16);
+            
+            console.log(`Verification attempt ${attempts + 1}: Chain ID ${parsedChainId}`);
+            
+            if (parsedChainId === BASE_MAINNET.chainId) {
+              setCurrentChainId(parsedChainId);
+              toast({
+                title: "Network Switched",
+                description: "Successfully switched to Base Mainnet",
+              });
+              switched = true;
+              return true;
+            }
+            
+            setCurrentChainId(parsedChainId);
+            attempts++;
+            
+            if (attempts < 5) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          } catch (e) {
+            console.log(`Verification attempt ${attempts + 1} failed:`, e);
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+        
+        if (!switched) {
           toast({
-            title: "Network Switched",
-            description: "Successfully switched to Base Mainnet",
+            title: "Manual Network Switch Required",
+            description: "Open your wallet settings and add Base Mainnet (Chain ID: 8453, RPC: https://mainnet.base.org)",
+            variant: "destructive"
           });
-          return true;
+          return false;
         }
         
         return false;
@@ -755,7 +817,7 @@ export default function SteezeStack() {
                         {currentChainId === BASE_MAINNET.chainId 
                           ? "Base Mainnet ✓" 
                           : currentChainId 
-                            ? `Chain ID: ${currentChainId}` 
+                            ? getNetworkName(currentChainId)
                             : "Detecting..."}
                       </p>
                     </div>
@@ -771,7 +833,14 @@ export default function SteezeStack() {
                   </Button>
                 </div>
                 {!isOnCorrectNetwork && currentChainId !== null && (
-                  <p className="text-xs text-red-400 mt-2">Switch to Base Mainnet required</p>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-red-400">Switch to Base Mainnet required</p>
+                    {currentChainId === 33875 && (
+                      <p className="text-xs text-yellow-400">
+                        Unknown network detected. Please manually switch to Base Mainnet in your wallet.
+                      </p>
+                    )}
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -852,12 +921,30 @@ export default function SteezeStack() {
                     Connect Wallet
                   </Button>
                 ) : !isOnCorrectNetwork && currentChainId !== null ? (
-                  <Button 
-                    onClick={switchToBaseMainnet}
-                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                  >
-                    Switch to Base Mainnet
-                  </Button>
+                  <div className="space-y-3">
+                    <Button 
+                      onClick={switchToBaseMainnet}
+                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                    >
+                      Switch to Base Mainnet
+                    </Button>
+                    
+                    {/* Manual Instructions for Chain ID 33875 or other unknown networks */}
+                    {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
+                      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                        <h4 className="text-yellow-300 font-medium mb-2 text-sm">Manual Setup Required:</h4>
+                        <div className="text-yellow-200 text-xs space-y-1">
+                          <p>1. Open your wallet settings</p>
+                          <p>2. Add Base Mainnet network with:</p>
+                          <p className="ml-2">• Chain ID: 8453</p>
+                          <p className="ml-2">• RPC URL: https://mainnet.base.org</p>
+                          <p className="ml-2">• Currency Symbol: ETH</p>
+                          <p>3. Switch to Base Mainnet</p>
+                          <p>4. Refresh this page</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div>
                     {/* USDC Balance Display */}
