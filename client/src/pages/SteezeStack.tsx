@@ -370,8 +370,8 @@ export default function SteezeStack() {
         
         if (!switched) {
           toast({
-            title: "Manual Network Switch Required",
-            description: "Open your wallet settings and add Base Mainnet (Chain ID: 8453, RPC: https://mainnet.base.org)",
+            title: "Please Switch to Base Network",
+            description: "In Trust Wallet: tap the network selector and choose 'Base'. In other wallets: switch to Base Mainnet network.",
             variant: "destructive"
           });
           return false;
@@ -836,8 +836,8 @@ export default function SteezeStack() {
                   <div className="mt-2 space-y-1">
                     <p className="text-xs text-red-400">Switch to Base Mainnet required</p>
                     {currentChainId === 33875 && (
-                      <p className="text-xs text-yellow-400">
-                        Unknown network detected. Please manually switch to Base Mainnet in your wallet.
+                      <p className="text-xs text-blue-400">
+                        Trust Wallet: tap network selector → choose "Base"
                       </p>
                     )}
                   </div>
@@ -929,18 +929,19 @@ export default function SteezeStack() {
                       Switch to Base Mainnet
                     </Button>
                     
-                    {/* Manual Instructions for Chain ID 33875 or other unknown networks */}
+                    {/* Trust Wallet Direct Chain Selection */}
                     {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
-                      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
-                        <h4 className="text-yellow-300 font-medium mb-2 text-sm">Manual Setup Required:</h4>
-                        <div className="text-yellow-200 text-xs space-y-1">
-                          <p>1. Open your wallet settings</p>
-                          <p>2. Add Base Mainnet network with:</p>
-                          <p className="ml-2">• Chain ID: 8453</p>
-                          <p className="ml-2">• RPC URL: https://mainnet.base.org</p>
-                          <p className="ml-2">• Currency Symbol: ETH</p>
-                          <p>3. Switch to Base Mainnet</p>
-                          <p>4. Refresh this page</p>
+                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                        <h4 className="text-blue-300 font-medium mb-2 text-sm">Switch Network Instructions:</h4>
+                        <div className="text-blue-200 text-xs space-y-2">
+                          <div>
+                            <p className="font-medium text-blue-300">Trust Wallet:</p>
+                            <p>• Tap network name at top → Select "Base"</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-blue-300">Other Wallets:</p>
+                            <p>• Switch to Base Mainnet (Chain ID: 8453)</p>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1068,12 +1069,31 @@ export default function SteezeStack() {
                     Connect Wallet
                   </Button>
                 ) : !isOnCorrectNetwork && currentChainId !== null ? (
-                  <Button 
-                    onClick={switchToBaseMainnet}
-                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                  >
-                    Switch to Base Mainnet
-                  </Button>
+                  <div className="space-y-3">
+                    <Button 
+                      onClick={switchToBaseMainnet}
+                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                    >
+                      Switch to Base Mainnet
+                    </Button>
+                    
+                    {/* Trust Wallet Direct Chain Selection */}
+                    {(currentChainId === 33875 || !getNetworkName(currentChainId).includes("Base")) && (
+                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                        <h4 className="text-blue-300 font-medium mb-2 text-sm">Switch Network Instructions:</h4>
+                        <div className="text-blue-200 text-xs space-y-2">
+                          <div>
+                            <p className="font-medium text-blue-300">Trust Wallet:</p>
+                            <p>• Tap network name at top → Select "Base"</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-blue-300">Other Wallets:</p>
+                            <p>• Switch to Base Mainnet (Chain ID: 8453)</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div>
                     {/* Steeze Input */}
