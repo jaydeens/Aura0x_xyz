@@ -485,9 +485,24 @@ export default function SteezeStack() {
         throw new Error("Please connect your wallet first");
       }
       
-      // Auto-switch to Base Mainnet if not on the correct network
-      if (currentChainId !== BASE_MAINNET.chainId) {
-        console.log(`Auto-switching from Chain ID ${currentChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
+      // Verify network first - get fresh network status
+      let actualChainId = currentChainId;
+      try {
+        const freshChainId = await window.ethereum.request({ method: 'eth_chainId' });
+        actualChainId = parseInt(freshChainId, 16);
+        console.log(`Purchase - Fresh network check: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
+        
+        // Update state with fresh network info
+        if (actualChainId !== currentChainId) {
+          setCurrentChainId(actualChainId);
+        }
+      } catch (networkError) {
+        console.warn("Could not verify network for purchase, using cached value:", currentChainId);
+      }
+
+      // Only switch if actually not on Base Mainnet
+      if (actualChainId !== BASE_MAINNET.chainId) {
+        console.log(`Purchase - Auto-switching from Chain ID ${actualChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
         
         try {
           await window.ethereum.request({
@@ -509,9 +524,11 @@ export default function SteezeStack() {
           // Update the state
           setCurrentChainId(parsedChainId);
         } catch (switchError) {
-          console.error("Auto network switch failed:", switchError);
+          console.error("Purchase - Auto network switch failed:", switchError);
           throw new Error("Please switch to Base Mainnet in your wallet and try again");
         }
+      } else {
+        console.log("✓ Purchase - Already on Base Mainnet - no network switch needed");
       }
 
       // Verify wallet matches user account
@@ -600,9 +617,24 @@ export default function SteezeStack() {
         throw new Error("Please connect your wallet first");
       }
 
-      // Auto-switch to Base Mainnet if not on the correct network
-      if (currentChainId !== BASE_MAINNET.chainId) {
-        console.log(`Auto-switching from Chain ID ${currentChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
+      // Verify network first - get fresh network status
+      let actualChainId = currentChainId;
+      try {
+        const freshChainId = await window.ethereum.request({ method: 'eth_chainId' });
+        actualChainId = parseInt(freshChainId, 16);
+        console.log(`Redeem - Fresh network check: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
+        
+        // Update state with fresh network info
+        if (actualChainId !== currentChainId) {
+          setCurrentChainId(actualChainId);
+        }
+      } catch (networkError) {
+        console.warn("Could not verify network for redeem, using cached value:", currentChainId);
+      }
+
+      // Only switch if actually not on Base Mainnet
+      if (actualChainId !== BASE_MAINNET.chainId) {
+        console.log(`Redeem - Auto-switching from Chain ID ${actualChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
         
         try {
           await window.ethereum.request({
@@ -624,9 +656,11 @@ export default function SteezeStack() {
           // Update the state
           setCurrentChainId(parsedChainId);
         } catch (switchError) {
-          console.error("Auto network switch failed:", switchError);
+          console.error("Redeem - Auto network switch failed:", switchError);
           throw new Error("Please switch to Base Mainnet in your wallet and try again");
         }
+      } else {
+        console.log("✓ Redeem - Already on Base Mainnet - no network switch needed");
       }
 
       // Encode withdrawSteeze(uint256 amount) function call
