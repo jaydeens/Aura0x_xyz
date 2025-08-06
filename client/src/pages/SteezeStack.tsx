@@ -459,8 +459,33 @@ export default function SteezeStack() {
         throw new Error("Please connect your wallet first");
       }
       
+      // Auto-switch to Base Mainnet if not on the correct network
       if (currentChainId !== BASE_MAINNET.chainId) {
-        throw new Error(`Please switch to Base Mainnet network. Current network: ${currentChainId}`);
+        console.log(`Auto-switching from Chain ID ${currentChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
+        
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
+          });
+          
+          // Give time for the network switch
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Verify the switch worked
+          const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+          const parsedChainId = parseInt(newChainId, 16);
+          
+          if (parsedChainId !== BASE_MAINNET.chainId) {
+            throw new Error("Network switch failed. Please manually switch to Base Mainnet in your wallet.");
+          }
+          
+          // Update the state
+          setCurrentChainId(parsedChainId);
+        } catch (switchError) {
+          console.error("Auto network switch failed:", switchError);
+          throw new Error("Please switch to Base Mainnet in your wallet and try again");
+        }
       }
 
       // Verify wallet matches user account
@@ -545,8 +570,37 @@ export default function SteezeStack() {
   // Redeem mutation
   const redeemMutation = useMutation({
     mutationFn: async ({ steezeAmount }: { steezeAmount: number }) => {
-      if (!window.ethereum || !isConnected || currentChainId !== BASE_MAINNET.chainId) {
-        throw new Error("Please connect wallet and switch to Base Mainnet");
+      if (!window.ethereum || !isConnected) {
+        throw new Error("Please connect your wallet first");
+      }
+
+      // Auto-switch to Base Mainnet if not on the correct network
+      if (currentChainId !== BASE_MAINNET.chainId) {
+        console.log(`Auto-switching from Chain ID ${currentChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
+        
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
+          });
+          
+          // Give time for the network switch
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Verify the switch worked
+          const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+          const parsedChainId = parseInt(newChainId, 16);
+          
+          if (parsedChainId !== BASE_MAINNET.chainId) {
+            throw new Error("Network switch failed. Please manually switch to Base Mainnet in your wallet.");
+          }
+          
+          // Update the state
+          setCurrentChainId(parsedChainId);
+        } catch (switchError) {
+          console.error("Auto network switch failed:", switchError);
+          throw new Error("Please switch to Base Mainnet in your wallet and try again");
+        }
       }
 
       // Encode withdrawSteeze(uint256 amount) function call
