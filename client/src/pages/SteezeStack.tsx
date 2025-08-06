@@ -611,20 +611,24 @@ export default function SteezeStack() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       
-      // Final network verification before USDC transaction
-      try {
-        const network = await provider.getNetwork();
-        console.log("Final network verification before USDC approval:", network.chainId);
-        
-        if (Number(network.chainId) !== BASE_MAINNET.chainId) {
-          const networkName = getNetworkName(Number(network.chainId));
-          throw new Error(`Network Error: You're on ${networkName} but Steeze purchases require Base network. Please switch to Base Mainnet in your wallet to use USDC transactions.`);
+      // Final network verification before USDC transaction (skip for Trust Wallet)
+      if (!isTrustWallet) {
+        try {
+          const network = await provider.getNetwork();
+          console.log("Final network verification before USDC approval:", network.chainId);
+          
+          if (Number(network.chainId) !== BASE_MAINNET.chainId) {
+            const networkName = getNetworkName(Number(network.chainId));
+            throw new Error(`Network Error: You're on ${networkName} but Steeze purchases require Base network. Please switch to Base Mainnet in your wallet to use USDC transactions.`);
+          }
+          
+          console.log("✓ Network verification passed - proceeding with USDC approval on Base network");
+        } catch (networkError) {
+          console.error("Network verification failed:", networkError);
+          throw networkError;
         }
-        
-        console.log("✓ Network verification passed - proceeding with USDC approval on Base network");
-      } catch (networkError) {
-        console.error("Network verification failed:", networkError);
-        throw networkError;
+      } else {
+        console.log("✓ Trust Wallet detected - skipping network verification, assuming Base network");
       }
       
       // USDC contract for approval
