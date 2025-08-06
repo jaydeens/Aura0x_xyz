@@ -645,8 +645,7 @@ export default function SteezeStack() {
         description: "Please approve USDC spending in your wallet...",
       });
       
-      // Detect Trust Wallet once for both operations
-      const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
+      // Reuse the Trust Wallet detection from earlier in the function
       console.log("Trust Wallet detected:", !!isTrustWallet);
       
       let approvalTx;
