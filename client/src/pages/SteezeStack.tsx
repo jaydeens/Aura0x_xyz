@@ -142,12 +142,12 @@ export default function SteezeStack() {
             : `Connected to ${getNetworkName(actualChainId)}`,
         });
       } else if (isTrustWallet) {
-        // Trust Wallet fix: if chainId is invalid but user has USDC balance, assume Base Mainnet
-        console.log("Trust Wallet returning invalid chainId, forcing Base Mainnet assumption");
+        // Trust Wallet fix: always assume Base Mainnet due to broken network detection
+        console.log("Trust Wallet - forcing Base Mainnet assumption");
         setCurrentChainId(BASE_MAINNET.chainId);
         toast({
           title: "Network Status Updated",
-          description: "✓ Assumed Base Mainnet (Trust Wallet network detection fixed)",
+          description: "✓ Set to Base Mainnet (Trust Wallet network detection bypassed)",
         });
       } else {
         throw new Error("Could not detect network");
@@ -198,9 +198,9 @@ export default function SteezeStack() {
       const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
       
       // Special Trust Wallet handling - network detection is broken
-      if (isTrustWallet && userWalletAddress) {
-        console.log("Trust Wallet detected with authenticated user - skipping network detection, assuming Base Mainnet");
-        console.log("Reason: Trust Wallet mobile returns invalid chainId (NaN) but USDC balance loads correctly");
+      if (isTrustWallet) {
+        console.log("Trust Wallet detected - skipping network detection, assuming Base Mainnet");
+        console.log("Reason: Trust Wallet mobile returns invalid chainId (NaN/Unknown Network) but functions correctly on Base");
         setCurrentChainId(BASE_MAINNET.chainId);
         return;
       }
@@ -371,14 +371,14 @@ export default function SteezeStack() {
         await connectWallet();
       }
       
-      // Special Trust Wallet handling for network check
+      // Special Trust Wallet handling for network check  
       const isTrustWallet = window.trustwallet || (provider && provider.isTrust);
-      if (isTrustWallet && userWalletAddress) {
+      if (isTrustWallet) {
         console.log("Trust Wallet detected - skipping network check, assuming Base Mainnet");
         setCurrentChainId(BASE_MAINNET.chainId);
         toast({
           title: "Trust Wallet Network Set",
-          description: "Assumed Base Mainnet (Trust Wallet network detection bypassed)",
+          description: "Set to Base Mainnet (Trust Wallet network detection bypassed)",
         });
         return true;
       }
