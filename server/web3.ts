@@ -672,14 +672,61 @@ export class Web3Service {
         return { isValid: false, error: "Transaction not found or failed" };
       }
 
-      // Check if transaction was to the Steeze contract
+      // Check if transaction was to the Steeze contract OR USDC contract (for approval)
       const contractAddress = STEEZE_CONTRACT.address.toLowerCase();
+      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'.toLowerCase(); // Base Mainnet USDC
       const receiptTo = receipt.to?.toLowerCase();
-      console.log(`[Web3] Contract: ${contractAddress}, Receipt to: ${receiptTo}`);
+      console.log(`[Web3] Steeze contract: ${contractAddress}, USDC contract: ${usdcContractAddress}, Receipt to: ${receiptTo}`);
       
-      if (receiptTo !== contractAddress) {
-        console.log(`[Web3] Transaction not to Steeze contract. Expected: ${contractAddress}, Got: ${receiptTo}`);
-        return { isValid: false, error: `Transaction not to Steeze contract. Expected: ${contractAddress}, Got: ${receiptTo}` };
+      const isSteezeTransaction = receiptTo === contractAddress;
+      const isUsdcApprovalTransaction = receiptTo === usdcContractAddress;
+      
+      if (!isSteezeTransaction && !isUsdcApprovalTransaction) {
+        console.log(`[Web3] Transaction not to Steeze or USDC contract. Expected: ${contractAddress} or ${usdcContractAddress}, Got: ${receiptTo}`);
+        return { isValid: false, error: `Transaction not to Steeze or USDC contract. Expected: ${contractAddress} or ${usdcContractAddress}, Got: ${receiptTo}` };
+      }
+      
+      // If this is a USDC approval transaction, handle it differently
+      if (isUsdcApprovalTransaction) {
+        console.log("[Web3] USDC approval transaction detected - processing backend Steeze purchase");
+        
+        const transaction = await provider.getTransaction(transactionHash);
+        if (!transaction) {
+          return { isValid: false, error: "Transaction details not found" };
+        }
+        
+        // Parse USDC approval transaction to get the approval amount
+        try {
+          const usdcABI = ["function approve(address spender, uint256 amount)"];
+          const usdcInterface = new ethers.Interface(usdcABI);
+          const decodedData = usdcInterface.parseTransaction({ data: transaction.data });
+          
+          if (decodedData && decodedData.name === 'approve') {
+            const spender = decodedData.args[0];
+            const approvedAmount = decodedData.args[1];
+            const usdcAmount = Number(ethers.formatUnits(approvedAmount, 6)); // USDC has 6 decimals
+            
+            console.log(`[Web3] USDC approval: ${usdcAmount} USDC approved for ${spender}`);
+            
+            // Verify the approval was for the Steeze contract
+            if (spender.toLowerCase() !== contractAddress) {
+              return { isValid: false, error: "USDC approval not for Steeze contract" };
+            }
+            
+            // Return the approval details for backend processing
+            return {
+              isValid: true,
+              userAddress: transaction.from,
+              usdcAmount: usdcAmount,
+              steezeAmount: usdcAmount * 10, // 1 USDC = 10 STEEZE
+              blockNumber: receipt.blockNumber,
+              isApprovalTransaction: true
+            };
+          }
+        } catch (parseError) {
+          console.error("[Web3] Error parsing USDC approval transaction:", parseError);
+          return { isValid: false, error: "Could not parse USDC approval transaction" };
+        }
       }
 
       const transaction = await provider.getTransaction(transactionHash);
@@ -819,6 +866,18 @@ export class Web3Service {
     }
   }
   
+  /**
+   * Execute Steeze purchase (alias for purchaseSteezeForUser for compatibility)
+   */
+  async executeSteezePurchase(userAddress: string, usdcAmount: number): Promise<{
+    success: boolean;
+    transactionHash?: string;
+    steezeAmount?: number;
+    error?: string;
+  }> {
+    return this.purchaseSteezeForUser(userAddress, usdcAmount);
+  }
+
   /**
    * Backend-controlled Steeze redemption (secure implementation)
    */

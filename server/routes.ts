@@ -2528,7 +2528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { usdcAmount = 0, steezeAmount = 0, userAddress } = txVerification;
+      const { usdcAmount = 0, steezeAmount = 0, userAddress, isApprovalTransaction } = txVerification;
 
       if (!userAddress) {
         return res.status(400).json({ message: "Could not determine transaction sender" });
@@ -2561,6 +2561,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (duplicate) {
         return res.status(400).json({ message: "Transaction already processed" });
+      }
+
+      // If this is a USDC approval transaction, execute the backend Steeze purchase
+      if (isApprovalTransaction) {
+        console.log(`[Backend] Processing Steeze purchase for ${usdcAmount} USDC -> ${steezeAmount} STEEZE`);
+        
+        try {
+          // Execute the backend Steeze purchase transaction
+          const purchaseResult = await web3Service.executeSteezePurchase(userAddress, usdcAmount);
+          console.log("[Backend] Steeze purchase executed:", purchaseResult);
+          
+          if (!purchaseResult.success) {
+            console.error("[Backend] Steeze purchase failed:", purchaseResult.error);
+            return res.status(400).json({ 
+              message: "Backend Steeze purchase failed", 
+              error: purchaseResult.error 
+            });
+          }
+        } catch (purchaseError) {
+          console.error("[Backend] Error executing Steeze purchase:", purchaseError);
+          return res.status(500).json({ 
+            message: "Failed to execute Steeze purchase", 
+            error: purchaseError.message 
+          });
+        }
       }
 
       // Create transaction record for the actual transaction sender
