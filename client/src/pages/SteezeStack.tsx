@@ -77,9 +77,11 @@ export default function SteezeStack() {
   const userWalletAddress = currentUser?.walletAddress;
   const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
 
-  // Add manual network refresh function for mobile wallets
+  // Add manual network refresh function specifically for Trust Wallet
   const refreshNetworkStatus = async () => {
     const provider = window.trustwallet || window.ethereum;
+    const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
+    
     if (!provider) {
       toast({
         title: "No Wallet Found",
@@ -90,32 +92,51 @@ export default function SteezeStack() {
     }
     
     try {
-      // Force fresh network detection using same multi-method approach
       let chainId: string | null = null;
       
-      try {
-        chainId = await provider.request({ method: 'eth_chainId' });
-      } catch (e) {
-        // Fallback to ethers if direct request fails
+      if (isTrustWallet) {
+        console.log("Refreshing Trust Wallet network status...");
+        
+        // Trust Wallet specific refresh
         try {
+          chainId = await provider.request({ method: 'eth_chainId' });
+          console.log("Trust Wallet refresh - chainId:", chainId);
+          
+          // Also check networkVersion for Trust Wallet
+          if (provider.networkVersion) {
+            const networkVersionChainId = `0x${parseInt(provider.networkVersion).toString(16)}`;
+            console.log("Trust Wallet refresh - networkVersion:", networkVersionChainId);
+            if (chainId !== networkVersionChainId) {
+              console.log("Using networkVersion for Trust Wallet:", networkVersionChainId);
+              chainId = networkVersionChainId;
+            }
+          }
+        } catch (e) {
+          console.log("Trust Wallet refresh failed, trying direct properties");
+          if (provider.chainId) {
+            chainId = provider.chainId;
+          } else if (provider.networkVersion) {
+            chainId = `0x${parseInt(provider.networkVersion).toString(16)}`;
+          }
+        }
+      } else {
+        // Standard refresh for other wallets
+        try {
+          chainId = await provider.request({ method: 'eth_chainId' });
+        } catch (e) {
           const ethersProvider = new ethers.BrowserProvider(provider);
           const network = await ethersProvider.getNetwork();
           chainId = `0x${network.chainId.toString(16)}`;
-        } catch (e2) {
-          // Last resort: check direct property
-          if (provider.chainId) {
-            chainId = provider.chainId;
-          }
         }
       }
 
       if (chainId) {
         const actualChainId = parseInt(chainId, 16);
-        console.log(`Refreshed network detection: ${actualChainId}`);
+        console.log(`Refreshed network detection: ${actualChainId} (Base Mainnet: ${BASE_MAINNET.chainId})`);
         setCurrentChainId(actualChainId);
         
         toast({
-          title: "Network Status Updated",
+          title: "Network Status Updated", 
           description: actualChainId === BASE_MAINNET.chainId 
             ? "✓ Connected to Base Mainnet" 
             : `Connected to ${getNetworkName(actualChainId)}`,
@@ -171,28 +192,61 @@ export default function SteezeStack() {
         
         // Get the best available provider (Trust Wallet, MetaMask, etc.)
         const provider = window.trustwallet || window.ethereum;
+        const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
         
         if (provider) {
-          try {
-            // Method 1: Standard request
-            chainId = await provider.request({ method: 'eth_chainId' });
-            console.log("Standard network detection successful:", chainId);
-          } catch (e) {
-            console.log("Standard method failed, trying ethers...");
+          if (isTrustWallet) {
+            console.log("Trust Wallet detected - using Trust Wallet specific network detection");
             
-            // Method 2: Alternative using ethers for some mobile wallets
+            // Trust Wallet specific detection methods
             try {
-              const ethersProvider = new ethers.BrowserProvider(provider);
-              const network = await ethersProvider.getNetwork();
-              chainId = `0x${network.chainId.toString(16)}`;
-              console.log("Ethers network detection successful:", chainId);
-            } catch (e2) {
-              console.log("Ethers method also failed");
+              // Try Trust Wallet specific request first
+              chainId = await provider.request({ method: 'eth_chainId' });
+              console.log("Trust Wallet network detection successful:", chainId);
               
-              // Method 3: Try to get network from provider directly
+              // Double check with Trust Wallet's networkVersion if available
+              if (provider.networkVersion) {
+                const networkVersionChainId = `0x${parseInt(provider.networkVersion).toString(16)}`;
+                console.log("Trust Wallet networkVersion:", networkVersionChainId);
+                if (chainId !== networkVersionChainId) {
+                  console.log("Chain ID mismatch, using networkVersion:", networkVersionChainId);
+                  chainId = networkVersionChainId;
+                }
+              }
+            } catch (trustError) {
+              console.log("Trust Wallet specific method failed, trying fallbacks...", trustError);
+              
+              // Fallback for Trust Wallet - check direct properties
               if (provider.chainId) {
                 chainId = provider.chainId;
-                console.log("Direct chainId property found:", chainId);
+                console.log("Trust Wallet direct chainId:", chainId);
+              } else if (provider.networkVersion) {
+                chainId = `0x${parseInt(provider.networkVersion).toString(16)}`;
+                console.log("Trust Wallet networkVersion fallback:", chainId);
+              }
+            }
+          } else {
+            // Standard detection for other wallets
+            try {
+              chainId = await provider.request({ method: 'eth_chainId' });
+              console.log("Standard network detection successful:", chainId);
+            } catch (e) {
+              console.log("Standard method failed, trying ethers...");
+              
+              // Method 2: Alternative using ethers for some mobile wallets
+              try {
+                const ethersProvider = new ethers.BrowserProvider(provider);
+                const network = await ethersProvider.getNetwork();
+                chainId = `0x${network.chainId.toString(16)}`;
+                console.log("Ethers network detection successful:", chainId);
+              } catch (e2) {
+                console.log("Ethers method also failed");
+                
+                // Method 3: Try to get network from provider directly
+                if (provider.chainId) {
+                  chainId = provider.chainId;
+                  console.log("Direct chainId property found:", chainId);
+                }
               }
             }
           }
