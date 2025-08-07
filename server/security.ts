@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { db } from './db';
+// Database import removed - now using cost-effective in-memory storage
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 

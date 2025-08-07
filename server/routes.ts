@@ -2,9 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { db } from "./db";
-import { lessons as lessonsTable } from "../shared/schema";
-import { eq } from "drizzle-orm";
+// Database imports removed - now using cost-effective in-memory storage
 import { getSession } from "./replitAuth";
 import { setupTwitterAuth, requireTwitterAuth } from "./twitterAuth";
 import { generateDailyLessons, generateLessonAnalysis, generateLessonQuiz, validateTweetContent } from "./openai";

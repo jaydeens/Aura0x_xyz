@@ -1,14 +1,4 @@
 import {
-  users,
-  lessons,
-  userLessons,
-  battles,
-  battleVotes,
-  vouches,
-  auraLevels,
-  notifications,
-  steezeTransactions,
-  walletWhitelist,
   type User,
   type UpsertUser,
   type InsertLesson,
@@ -30,13 +20,8 @@ import {
   type WalletWhitelist,
   type InsertWalletWhitelist,
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, asc, and, or, sql, gt, lt, gte, lte, isNotNull } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
 
-// Create aliases for user table joins
-const challengerAlias = alias(users, 'challenger');
-const opponentAlias = alias(users, 'opponent');
+// In-memory storage implementation for cost-effective development
 
 export interface IStorage {
   // User operations - mandatory for Replit Auth
@@ -110,99 +95,138 @@ export interface IStorage {
   checkBetaAccess(walletAddress: string): Promise<boolean>;
 }
 
-export class DatabaseStorage implements IStorage {
+// In-memory data stores
+interface MemoryStore {
+  users: Map<string, User>;
+  lessons: Map<string, Lesson>;
+  userLessons: Map<string, UserLesson>;
+  battles: Map<string, Battle>;
+  battleVotes: Map<string, BattleVote>;
+  vouches: Map<string, Vouch>;
+  auraLevels: Map<string, AuraLevel>;
+  notifications: Map<string, Notification>;
+  steezeTransactions: Map<string, SteezeTransaction>;
+  walletWhitelist: Map<string, WalletWhitelist>;
+}
+
+class MemStorage implements IStorage {
+  private store: MemoryStore;
+
+  constructor() {
+    this.store = {
+      users: new Map(),
+      lessons: new Map(),
+      userLessons: new Map(),
+      battles: new Map(),
+      battleVotes: new Map(),
+      vouches: new Map(),
+      auraLevels: new Map(),
+      notifications: new Map(),
+      steezeTransactions: new Map(),
+      walletWhitelist: new Map(),
+    };
+    
+    // Initialize with default aura levels
+    this.seedAuraLevels();
+  }
+
   // User operations - mandatory for Replit Auth
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return this.store.users.get(id);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    // For Twitter auth, create a unique ID if not provided
-    const userToInsert = {
+    const userId = userData.id || `twitter_${userData.twitterId}` || `user_${Date.now()}`;
+    
+    const existingUser = this.store.users.get(userId);
+    const now = new Date();
+    
+    const user: User = {
+      ...existingUser,
       ...userData,
-      id: userData.id || `twitter_${userData.twitterId}` || `user_${Date.now()}`,
+      id: userId,
+      updatedAt: now,
+      createdAt: existingUser?.createdAt || now,
+      // Set defaults for required fields if not provided
+      auraPoints: existingUser?.auraPoints || 0,
+      currentStreak: existingUser?.currentStreak || 0,
+      auraFromLessons: existingUser?.auraFromLessons || 0,
+      auraFromVouching: existingUser?.auraFromVouching || 0,
+      auraFromBattles: existingUser?.auraFromBattles || 0,
+      totalUsdtEarned: existingUser?.totalUsdtEarned || 0,
+      totalVouchesReceived: existingUser?.totalVouchesReceived || 0,
+      steezeBalance: existingUser?.steezeBalance || 0,
+      purchasedSteeze: existingUser?.purchasedSteeze || 0,
+      battleEarnedSteeze: existingUser?.battleEarnedSteeze || 0,
+      isVerified: userData.isVerified || false,
     };
-
-    const [user] = await db
-      .insert(users)
-      .values(userToInsert)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          profileImageUrl: userData.profileImageUrl,
-          twitterId: userData.twitterId,
-          twitterUsername: userData.twitterUsername,
-          isVerified: userData.isVerified,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+    
+    this.store.users.set(userId, user);
     return user;
   }
 
   // Lesson operations
   async createLesson(lesson: InsertLesson): Promise<Lesson> {
-    const [newLesson] = await db.insert(lessons).values(lesson).returning();
+    const id = `lesson_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const newLesson: Lesson = {
+      ...lesson,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      isActive: lesson.isActive ?? true,
+    };
+    
+    this.store.lessons.set(id, newLesson);
     return newLesson;
   }
 
-  async updateUserLesson(id: number, updates: Partial<UserLesson>): Promise<UserLesson> {
-    const [updatedLesson] = await db
-      .update(userLessons)
-      .set(updates)
-      .where(eq(userLessons.id, id))
-      .returning();
-    return updatedLesson;
-  }
-
   async getLessons(limit = 10): Promise<Lesson[]> {
-    return await db
-      .select()
-      .from(lessons)
-      .where(eq(lessons.isActive, true))
-      .orderBy(desc(lessons.createdAt))
-      .limit(limit);
+    const allLessons = Array.from(this.store.lessons.values())
+      .filter(lesson => lesson.isActive)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, limit);
+    
+    return allLessons;
   }
 
   async getDailyLessons(date: Date): Promise<Lesson[]> {
-    // Use UTC for consistent daily boundaries
     const startOfDay = new Date(date);
     startOfDay.setUTCHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
-    return await db
-      .select()
-      .from(lessons)
-      .where(
-        and(
-          eq(lessons.isActive, true),
-          gte(lessons.createdAt, startOfDay),
-          lte(lessons.createdAt, endOfDay)
-        )
-      )
-      .orderBy(desc(lessons.createdAt))
-      .limit(3);
+    const dailyLessons = Array.from(this.store.lessons.values())
+      .filter(lesson => {
+        const lessonDate = new Date(lesson.createdAt);
+        return lesson.isActive && 
+               lessonDate >= startOfDay && 
+               lessonDate <= endOfDay;
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
+    
+    return dailyLessons;
   }
 
   // User lesson operations
   async getUserLessons(userId: string): Promise<UserLesson[]> {
-    return await db
-      .select()
-      .from(userLessons)
-      .where(eq(userLessons.userId, userId))
-      .orderBy(desc(userLessons.createdAt));
+    return Array.from(this.store.userLessons.values())
+      .filter(userLesson => userLesson.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async completeLesson(userLesson: InsertUserLesson): Promise<UserLesson> {
-    const [completed] = await db
-      .insert(userLessons)
-      .values(userLesson)
-      .returning();
+    const id = `userlesson_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const completed: UserLesson = {
+      ...userLesson,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    this.store.userLessons.set(id, completed);
     return completed;
   }
 
@@ -212,41 +236,50 @@ export class DatabaseStorage implements IStorage {
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const [userLesson] = await db
-      .select()
-      .from(userLessons)
-      .where(
-        and(
-          eq(userLessons.userId, userId),
-          eq(userLessons.completed, true),
-          isNotNull(userLessons.completedAt),
-          gte(userLessons.completedAt, startOfDay),
-          lte(userLessons.completedAt, endOfDay)
-        )
+    return Array.from(this.store.userLessons.values())
+      .find(userLesson => 
+        userLesson.userId === userId &&
+        userLesson.completed === true &&
+        userLesson.completedAt &&
+        new Date(userLesson.completedAt) >= startOfDay &&
+        new Date(userLesson.completedAt) <= endOfDay
       );
-    return userLesson;
   }
 
   // Battle operations
   async createBattle(battle: InsertBattle): Promise<Battle> {
-    const [newBattle] = await db.insert(battles).values(battle).returning();
+    const id = `battle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const newBattle: Battle = {
+      ...battle,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      totalVotes: 0,
+      challengerVotes: 0,
+      opponentVotes: 0,
+      totalVouchAmount: 0,
+    };
+    
+    this.store.battles.set(id, newBattle);
     return newBattle;
   }
 
   async getBattles(status?: string): Promise<Battle[]> {
-    let query = db.select().from(battles);
+    const allBattles = Array.from(this.store.battles.values());
     
+    let filtered = allBattles;
     if (status) {
-      query = query.where(eq(battles.status, status));
+      filtered = allBattles.filter(battle => battle.status === status);
     } else {
       // Only show accepted and active battles by default, not pending challenges
-      query = query.where(sql`${battles.status} IN ('accepted', 'active', 'completed')`);
+      filtered = allBattles.filter(battle => 
+        ['accepted', 'active', 'completed'].includes(battle.status)
+      );
     }
     
-    const battleResults = await query.orderBy(desc(battles.createdAt));
-    
     // Add challenger and opponent user details
-    return await Promise.all(battleResults.map(async (battle) => {
+    const battlesWithUsers = await Promise.all(filtered.map(async (battle) => {
       const challenger = await this.getUser(battle.challengerId);
       const opponent = await this.getUser(battle.opponentId);
       
@@ -256,71 +289,60 @@ export class DatabaseStorage implements IStorage {
         opponent
       };
     }));
+    
+    return battlesWithUsers.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 
   async getBattle(id: string): Promise<Battle | undefined> {
-    const [battle] = await db
-      .select({
-        id: battles.id,
-        title: battles.title,
-        challengerId: battles.challengerId,
-        opponentId: battles.opponentId,
-        challengerStake: battles.challengerStake,
-        opponentStake: battles.opponentStake,
-        totalVotes: battles.totalVotes,
-        challengerVotes: battles.challengerVotes,
-        opponentVotes: battles.opponentVotes,
-        totalVouchAmount: battles.totalVouchAmount,
-        status: battles.status,
-        winnerId: battles.winnerId,
-        battleStartsAt: battles.battleStartsAt,
-        votingEndsAt: battles.votingEndsAt,
-        createdAt: battles.createdAt,
-        updatedAt: battles.updatedAt,
-        challenger: {
-          id: challengerAlias.id,
-          username: challengerAlias.username,
-          firstName: challengerAlias.firstName,
-          profileImageUrl: challengerAlias.profileImageUrl
-        },
-        opponent: {
-          id: opponentAlias.id,
-          username: opponentAlias.username,
-          firstName: opponentAlias.firstName,
-          profileImageUrl: opponentAlias.profileImageUrl
-        }
-      })
-      .from(battles)
-      .leftJoin(challengerAlias, eq(battles.challengerId, challengerAlias.id))
-      .leftJoin(opponentAlias, eq(battles.opponentId, opponentAlias.id))
-      .where(eq(battles.id, id));
+    const battle = this.store.battles.get(id);
+    if (!battle) return undefined;
     
-    return battle as any;
+    const challenger = await this.getUser(battle.challengerId);
+    const opponent = await this.getUser(battle.opponentId);
+    
+    return {
+      ...battle,
+      challenger: challenger ? {
+        id: challenger.id,
+        username: challenger.username,
+        firstName: challenger.firstName,
+        profileImageUrl: challenger.profileImageUrl
+      } : undefined,
+      opponent: opponent ? {
+        id: opponent.id,
+        username: opponent.username,
+        firstName: opponent.firstName,
+        profileImageUrl: opponent.profileImageUrl
+      } : undefined
+    } as any;
   }
 
   async updateBattle(id: string, updates: Partial<Battle>): Promise<Battle> {
-    const [updated] = await db
-      .update(battles)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(battles.id, id))
-      .returning();
+    const existing = this.store.battles.get(id);
+    if (!existing) {
+      throw new Error(`Battle ${id} not found`);
+    }
+    
+    const updated: Battle = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    this.store.battles.set(id, updated);
     return updated;
   }
 
   async getUserBattles(userId: string): Promise<Battle[]> {
-    const battleResults = await db
-      .select()
-      .from(battles)
-      .where(
-        or(
-          eq(battles.challengerId, userId),
-          eq(battles.opponentId, userId)
-        )
-      )
-      .orderBy(desc(battles.createdAt));
+    const userBattles = Array.from(this.store.battles.values())
+      .filter(battle => 
+        battle.challengerId === userId || battle.opponentId === userId
+      );
     
     // Add challenger and opponent user details
-    return await Promise.all(battleResults.map(async (battle) => {
+    const battlesWithUsers = await Promise.all(userBattles.map(async (battle) => {
       const challenger = await this.getUser(battle.challengerId);
       const opponent = await this.getUser(battle.opponentId);
       
@@ -330,141 +352,182 @@ export class DatabaseStorage implements IStorage {
         opponent
       };
     }));
+    
+    return battlesWithUsers.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 
   // Battle vote operations
   async createBattleVote(vote: InsertBattleVote): Promise<BattleVote> {
-    const [newVote] = await db.insert(battleVotes).values(vote).returning();
+    const id = `vote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const newVote: BattleVote = {
+      ...vote,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    this.store.battleVotes.set(id, newVote);
     return newVote;
   }
 
   async getBattleVotes(battleId: string): Promise<BattleVote[]> {
-    return await db
-      .select()
-      .from(battleVotes)
-      .where(eq(battleVotes.battleId, battleId))
-      .orderBy(desc(battleVotes.createdAt));
+    return Array.from(this.store.battleVotes.values())
+      .filter(vote => vote.battleId === battleId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   // Vouch operations
   async createVouch(vouch: InsertVouch): Promise<Vouch> {
-    const [newVouch] = await db.insert(vouches).values(vouch).returning();
+    const id = `vouch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const newVouch: Vouch = {
+      ...vouch,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    this.store.vouches.set(id, newVouch);
     return newVouch;
   }
 
   async getUserVouches(userId: string): Promise<Vouch[]> {
-    return await db
-      .select()
-      .from(vouches)
-      .where(
-        or(
-          eq(vouches.fromUserId, userId),
-          eq(vouches.toUserId, userId)
-        )
+    return Array.from(this.store.vouches.values())
+      .filter(vouch => 
+        vouch.fromUserId === userId || vouch.toUserId === userId
       )
-      .orderBy(desc(vouches.createdAt));
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   // Leaderboard operations
   async getLeaderboard(limit = 100, type: 'weekly' | 'all-time' = 'all-time'): Promise<User[]> {
+    const allUsers = Array.from(this.store.users.values());
+    
     if (type === 'weekly') {
       // For weekly leaderboard, get users updated in the last 7 days
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       
-      return await db
-        .select()
-        .from(users)
-        .where(gte(users.updatedAt, oneWeekAgo))
-        .orderBy(desc(users.auraPoints), desc(users.currentStreak))
-        .limit(limit);
+      return allUsers
+        .filter(user => new Date(user.updatedAt) >= oneWeekAgo)
+        .sort((a, b) => {
+          if (b.auraPoints !== a.auraPoints) {
+            return b.auraPoints - a.auraPoints;
+          }
+          return b.currentStreak - a.currentStreak;
+        })
+        .slice(0, limit);
     }
     
-    return await db
-      .select()
-      .from(users)
-      .orderBy(desc(users.auraPoints), desc(users.currentStreak))
-      .limit(limit);
+    return allUsers
+      .sort((a, b) => {
+        if (b.auraPoints !== a.auraPoints) {
+          return b.auraPoints - a.auraPoints;
+        }
+        return b.currentStreak - a.currentStreak;
+      })
+      .slice(0, limit);
   }
 
   // Aura level operations
   async getAuraLevels(): Promise<AuraLevel[]> {
-    return await db
-      .select()
-      .from(auraLevels)
-      .orderBy(asc(auraLevels.minDays));
+    return Array.from(this.store.auraLevels.values())
+      .sort((a, b) => a.minDays - b.minDays);
   }
 
   async seedAuraLevels(): Promise<void> {
     const levels = [
       {
+        id: "clout_chaser",
         name: "Clout Chaser",
         minDays: 0,
         maxDays: 4,
         multiplier: "1.0",
         color: "#8000FF",
-        description: "New to the Aura game"
+        description: "New to the Aura game",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
+        id: "attention_seeker",
         name: "Attention Seeker",
         minDays: 5,
         maxDays: 14,
         multiplier: "1.25",
         color: "#9933FF",
-        description: "Building momentum"
+        description: "Building momentum",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
+        id: "grinder",
         name: "Grinder",
         minDays: 15,
         maxDays: 29,
         multiplier: "1.5",
         color: "#00FF88",
-        description: "Consistent performer"
+        description: "Consistent performer",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
+        id: "aura_vader",
         name: "Aura Vader",
         minDays: 30,
         maxDays: null,
         multiplier: "2.0",
         color: "#FFD700",
-        description: "Elite Aura master"
+        description: "Elite Aura master",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     ];
 
-    await db.insert(auraLevels).values(levels).onConflictDoNothing();
+    levels.forEach(level => {
+      if (!this.store.auraLevels.has(level.id)) {
+        this.store.auraLevels.set(level.id, level);
+      }
+    });
   }
 
   // User statistics
   async updateUserAura(userId: string, points: number, source: 'lessons' | 'vouching' | 'battles' = 'vouching'): Promise<void> {
-    const updateData: any = {
-        auraPoints: sql`${users.auraPoints} + ${points}`,
-        updatedAt: new Date()
-      };
+    const user = this.store.users.get(userId);
+    if (!user) return;
+
+    const updated: User = {
+      ...user,
+      auraPoints: user.auraPoints + points,
+      updatedAt: new Date()
+    };
 
     // Track source of aura points
     if (source === 'lessons') {
-      updateData.auraFromLessons = sql`${users.auraFromLessons} + ${points}`;
+      updated.auraFromLessons = user.auraFromLessons + points;
     } else if (source === 'vouching') {
-      updateData.auraFromVouching = sql`${users.auraFromVouching} + ${points}`;
+      updated.auraFromVouching = user.auraFromVouching + points;
     } else if (source === 'battles') {
-      updateData.auraFromBattles = sql`${users.auraFromBattles} + ${points}`;
+      updated.auraFromBattles = user.auraFromBattles + points;
     }
 
-    await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, userId));
+    this.store.users.set(userId, updated);
   }
 
   async updateUserStreak(userId: string, streak: number): Promise<void> {
-    await db
-      .update(users)
-      .set({
-        currentStreak: streak,
-        lastLessonDate: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, userId));
+    const user = this.store.users.get(userId);
+    if (!user) return;
+
+    const updated: User = {
+      ...user,
+      currentStreak: streak,
+      lastLessonDate: new Date(),
+      updatedAt: new Date()
+    };
+
+    this.store.users.set(userId, updated);
   }
 
   async checkAndResetStreak(userId: string): Promise<number> {
@@ -482,13 +545,12 @@ export class DatabaseStorage implements IStorage {
 
     // If last lesson was more than 1 day ago, reset streak to 0
     if (lastDate.getTime() < yesterday.getTime()) {
-      await db
-        .update(users)
-        .set({
-          currentStreak: 0,
-          updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
+      const updated: User = {
+        ...user,
+        currentStreak: 0,
+        updatedAt: new Date()
+      };
+      this.store.users.set(userId, updated);
       return 0;
     }
 
@@ -496,76 +558,68 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserUsdtEarnings(userId: string, amount: number): Promise<void> {
-    await db
-      .update(users)
-      .set({
-        totalUsdtEarned: sql`${users.totalUsdtEarned} + ${amount}`,
-        totalVouchesReceived: sql`${users.totalVouchesReceived} + ${amount}`,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, userId));
+    const user = this.store.users.get(userId);
+    if (!user) return;
+
+    const updated: User = {
+      ...user,
+      totalUsdtEarned: user.totalUsdtEarned + amount,
+      totalVouchesReceived: user.totalVouchesReceived + amount,
+      updatedAt: new Date()
+    };
+
+    this.store.users.set(userId, updated);
   }
 
   async getUserByWallet(walletAddress: string): Promise<User | undefined> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.walletAddress, walletAddress));
-    return user;
+    return Array.from(this.store.users.values())
+      .find(user => user.walletAddress === walletAddress);
   }
 
   async getUserByTwitter(twitterId: string): Promise<User | undefined> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.twitterId, twitterId));
-    return user;
+    return Array.from(this.store.users.values())
+      .find(user => user.twitterId === twitterId);
   }
 
   async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; email?: string; lastLessonDate?: Date; twitterAccessToken?: string | null; twitterRefreshToken?: string | null; ipAddress?: string; walletAddress?: string; twitterId?: string; purchasedSteeze?: number; battleEarnedSteeze?: number }): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({
-        ...updates,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .returning();
-    return user;
+    const user = this.store.users.get(id);
+    if (!user) {
+      throw new Error(`User ${id} not found`);
+    }
+
+    const updated: User = {
+      ...user,
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    this.store.users.set(id, updated);
+    return updated;
   }
 
   async checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean> {
-    const conditions = [eq(users.username, username)];
-    if (excludeUserId) {
-      conditions.push(sql`${users.id} != ${excludeUserId}`);
-    }
-    
-    const [existingUser] = await db.select().from(users).where(and(...conditions));
+    const existingUser = Array.from(this.store.users.values())
+      .find(user => user.username === username && user.id !== excludeUserId);
     return !existingUser; // true if username is available
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    return Array.from(this.store.users.values())
+      .find(user => user.username === username);
   }
 
   async searchUsers(query: string, excludeUserId?: string): Promise<User[]> {
-    let whereClause = or(
-      sql`${users.username} ILIKE ${`%${query}%`}`,
-      sql`${users.walletAddress} ILIKE ${`%${query}%`}`
-    );
-
-    if (excludeUserId) {
-      whereClause = and(whereClause, sql`${users.id} != ${excludeUserId}`);
-    }
-
-    const results = await db
-      .select()
-      .from(users)
-      .where(whereClause)
-      .limit(10);
-
-    return results;
+    const lowerQuery = query.toLowerCase();
+    return Array.from(this.store.users.values())
+      .filter(user => {
+        if (user.id === excludeUserId) return false;
+        
+        const usernameMatch = user.username?.toLowerCase().includes(lowerQuery);
+        const walletMatch = user.walletAddress?.toLowerCase().includes(lowerQuery);
+        
+        return usernameMatch || walletMatch;
+      })
+      .slice(0, 10);
   }
 
   async createBattleRequest(request: any): Promise<any> {
@@ -585,99 +639,127 @@ export class DatabaseStorage implements IStorage {
 
   // Notification operations
   async createNotification(notification: InsertNotification): Promise<Notification> {
-    const [newNotification] = await db
-      .insert(notifications)
-      .values(notification)
-      .returning();
+    const id = `notification_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const newNotification: Notification = {
+      ...notification,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      isRead: false,
+    };
+    
+    this.store.notifications.set(id, newNotification);
     return newNotification;
   }
 
   async getUserNotifications(userId: string): Promise<Notification[]> {
-    return await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.userId, userId))
-      .orderBy(desc(notifications.createdAt))
-      .limit(50);
+    return Array.from(this.store.notifications.values())
+      .filter(notification => notification.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 50);
   }
 
   async markNotificationAsRead(id: string): Promise<void> {
-    console.log("Updating notification in database:", id);
-    const result = await db
-      .update(notifications)
-      .set({ isRead: true })
-      .where(eq(notifications.id, id))
-      .returning();
-    console.log("Database update result:", result);
+    const notification = this.store.notifications.get(id);
+    if (notification) {
+      const updated: Notification = {
+        ...notification,
+        isRead: true,
+        updatedAt: new Date()
+      };
+      this.store.notifications.set(id, updated);
+    }
   }
 
   async markAllNotificationsAsRead(userId: string): Promise<void> {
-    await db
-      .update(notifications)
-      .set({ isRead: true })
-      .where(eq(notifications.userId, userId));
+    Array.from(this.store.notifications.entries()).forEach(([id, notification]) => {
+      if (notification.userId === userId && !notification.isRead) {
+        const updated: Notification = {
+          ...notification,
+          isRead: true,
+          updatedAt: new Date()
+        };
+        this.store.notifications.set(id, updated);
+      }
+    });
   }
 
   // Steeze operations
   async createSteezeTransaction(transaction: InsertSteezeTransaction): Promise<SteezeTransaction> {
-    const [newTransaction] = await db
-      .insert(steezeTransactions)
-      .values(transaction)
-      .returning();
+    const id = `steeze_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const newTransaction: SteezeTransaction = {
+      ...transaction,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    this.store.steezeTransactions.set(id, newTransaction);
     return newTransaction;
   }
 
   async getUserSteezeTransactions(userId: string): Promise<SteezeTransaction[]> {
-    return await db
-      .select()
-      .from(steezeTransactions)
-      .where(eq(steezeTransactions.userId, userId))
-      .orderBy(desc(steezeTransactions.createdAt));
+    return Array.from(this.store.steezeTransactions.values())
+      .filter(transaction => transaction.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async updateUserSteezeBalance(userId: string, amount: number): Promise<void> {
-    await db
-      .update(users)
-      .set({ steezeBalance: amount })
-      .where(eq(users.id, userId));
+    const user = this.store.users.get(userId);
+    if (user) {
+      const updated: User = {
+        ...user,
+        steezeBalance: amount,
+        updatedAt: new Date()
+      };
+      this.store.users.set(userId, updated);
+    }
   }
 
   // Wallet whitelist operations for closed beta
   async isWalletWhitelisted(walletAddress: string): Promise<boolean> {
-    const [result] = await db
-      .select()
-      .from(walletWhitelist)
-      .where(and(
-        eq(walletWhitelist.walletAddress, walletAddress.toLowerCase()),
-        eq(walletWhitelist.isActive, true)
-      ));
-    return !!result;
+    return Array.from(this.store.walletWhitelist.values())
+      .some(entry => 
+        entry.walletAddress.toLowerCase() === walletAddress.toLowerCase() && 
+        entry.isActive
+      );
   }
 
   async addWalletToWhitelist(whitelistData: InsertWalletWhitelist): Promise<WalletWhitelist> {
-    const [whitelist] = await db
-      .insert(walletWhitelist)
-      .values({
-        ...whitelistData,
-        walletAddress: whitelistData.walletAddress.toLowerCase(),
-      })
-      .returning();
+    const id = `whitelist_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date();
+    const whitelist: WalletWhitelist = {
+      ...whitelistData,
+      id,
+      walletAddress: whitelistData.walletAddress.toLowerCase(),
+      createdAt: now,
+      updatedAt: now,
+      isActive: true,
+    };
+    
+    this.store.walletWhitelist.set(id, whitelist);
     return whitelist;
   }
 
   async removeWalletFromWhitelist(walletAddress: string): Promise<void> {
-    await db
-      .update(walletWhitelist)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(walletWhitelist.walletAddress, walletAddress.toLowerCase()));
+    Array.from(this.store.walletWhitelist.entries()).forEach(([id, entry]) => {
+      if (entry.walletAddress.toLowerCase() === walletAddress.toLowerCase()) {
+        const updated: WalletWhitelist = {
+          ...entry,
+          isActive: false,
+          updatedAt: new Date()
+        };
+        this.store.walletWhitelist.set(id, updated);
+      }
+    });
   }
 
   async getWhitelistedWallets(): Promise<WalletWhitelist[]> {
-    return await db
-      .select()
-      .from(walletWhitelist)
-      .where(eq(walletWhitelist.isActive, true))
-      .orderBy(desc(walletWhitelist.createdAt));
+    return Array.from(this.store.walletWhitelist.values())
+      .filter(entry => entry.isActive)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async checkBetaAccess(walletAddress: string): Promise<boolean> {
@@ -697,4 +779,4 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();
