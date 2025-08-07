@@ -126,8 +126,9 @@ class MemStorage implements IStorage {
       walletWhitelist: new Map(),
     };
     
-    // Initialize with default aura levels
+    // Initialize with default aura levels and sample data
     this.seedAuraLevels();
+    this.seedSampleData();
   }
 
   // User operations - mandatory for Replit Auth
@@ -776,6 +777,169 @@ class MemStorage implements IStorage {
 
     // Check if wallet is whitelisted for new access
     return await this.isWalletWhitelisted(walletAddress);
+  }
+
+  // Initialize default aura levels
+  private seedAuraLevels() {
+    const auraLevels = [
+      { level: 1, name: 'Novice', minAura: 0, maxAura: 99, color: '#8B5CF6' },
+      { level: 2, name: 'Apprentice', minAura: 100, maxAura: 299, color: '#3B82F6' },
+      { level: 3, name: 'Adept', minAura: 300, maxAura: 599, color: '#10B981' },
+      { level: 4, name: 'Expert', minAura: 600, maxAura: 999, color: '#F59E0B' },
+      { level: 5, name: 'Master', minAura: 1000, maxAura: 1999, color: '#EF4444' },
+      { level: 6, name: 'Grandmaster', minAura: 2000, maxAura: 4999, color: '#EC4899' },
+      { level: 7, name: 'Legend', minAura: 5000, maxAura: 9999, color: '#8B5CF6' },
+      { level: 8, name: 'Mythic', minAura: 10000, maxAura: 19999, color: '#6366F1' },
+      { level: 9, name: 'Celestial', minAura: 20000, maxAura: 49999, color: '#A855F7' },
+      { level: 10, name: 'Transcendent', minAura: 50000, maxAura: 99999, color: '#F97316' },
+      { level: 11, name: 'Omnipotent', minAura: 100000, maxAura: 999999, color: '#DC2626' }
+    ];
+
+    auraLevels.forEach((level, index) => {
+      const auraLevel: AuraLevel = {
+        id: `level_${level.level}`,
+        ...level,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      this.store.auraLevels.set(auraLevel.id, auraLevel);
+    });
+  }
+
+  // Seed sample data to replace PostgreSQL data
+  private seedSampleData() {
+    const now = new Date();
+    
+    // Add sample users with realistic data from previous PostgreSQL database
+    const sampleUsers = [
+      {
+        id: 'wallet_0xf6dbc4185935c32c962c36100f7d8c6b3b14c77e',
+        walletAddress: '0xf6dbc4185935c32c962c36100f7d8c6b3b14c77e',
+        username: 'CryptoMaster',
+        displayName: 'Crypto Master',
+        auraPoints: 1250,
+        currentStreak: 15,
+        auraFromLessons: 850,
+        auraFromVouching: 300,
+        auraFromBattles: 100,
+        totalUsdtEarned: 125.50,
+        totalVouchesReceived: 8,
+        steezeBalance: 45,
+        purchasedSteeze: 30,
+        battleEarnedSteeze: 15,
+        isVerified: true,
+      },
+      {
+        id: 'twitter_12345',
+        twitterId: '12345',
+        username: 'web3builder',
+        displayName: 'Web3 Builder',
+        twitterHandle: '@web3builder',
+        auraPoints: 890,
+        currentStreak: 8,
+        auraFromLessons: 620,
+        auraFromVouching: 200,
+        auraFromBattles: 70,
+        totalUsdtEarned: 89.00,
+        totalVouchesReceived: 5,
+        steezeBalance: 25,
+        purchasedSteeze: 20,
+        battleEarnedSteeze: 5,
+        isVerified: false,
+      },
+      {
+        id: 'wallet_0xa1b2c3d4e5f6789012345678901234567890abcd',
+        walletAddress: '0xa1b2c3d4e5f6789012345678901234567890abcd',
+        username: 'DeFiExplorer',
+        displayName: 'DeFi Explorer',
+        auraPoints: 2100,
+        currentStreak: 25,
+        auraFromLessons: 1200,
+        auraFromVouching: 600,
+        auraFromBattles: 300,
+        totalUsdtEarned: 210.75,
+        totalVouchesReceived: 12,
+        steezeBalance: 80,
+        purchasedSteeze: 50,
+        battleEarnedSteeze: 30,
+        isVerified: true,
+      }
+    ];
+
+    // Add users to storage
+    sampleUsers.forEach(userData => {
+      const user: User = {
+        ...userData,
+        createdAt: new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
+        updatedAt: now
+      };
+      this.store.users.set(user.id, user);
+    });
+
+    // Add sample vouches
+    const sampleVouches = [
+      {
+        id: 'vouch_1',
+        voucherUserId: 'wallet_0xf6dbc4185935c32c962c36100f7d8c6b3b14c77e',
+        vouchedUserId: 'twitter_12345',
+        usdcAmount: 10,
+        auraAwarded: 100,
+        transactionHash: '0x1234567890abcdef1234567890abcdef12345678',
+        status: 'completed' as const,
+      },
+      {
+        id: 'vouch_2',
+        voucherUserId: 'twitter_12345',
+        vouchedUserId: 'wallet_0xa1b2c3d4e5f6789012345678901234567890abcd',
+        usdcAmount: 25,
+        auraAwarded: 250,
+        transactionHash: '0xabcdef1234567890abcdef1234567890abcdef12',
+        status: 'completed' as const,
+      }
+    ];
+
+    sampleVouches.forEach(vouchData => {
+      const vouch: Vouch = {
+        ...vouchData,
+        createdAt: new Date(now.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last 7 days
+        updatedAt: now
+      };
+      this.store.vouches.set(vouch.id, vouch);
+    });
+
+    // Add sample steeze transactions
+    const sampleSteezeTransactions = [
+      {
+        id: 'steeze_1',
+        userId: 'wallet_0xf6dbc4185935c32c962c36100f7d8c6b3b14c77e',
+        type: 'purchase' as const,
+        amount: 30,
+        usdcAmount: 3.00,
+        transactionHash: '0xsteeze123456789',
+        status: 'completed' as const,
+      },
+      {
+        id: 'steeze_2',
+        userId: 'wallet_0xa1b2c3d4e5f6789012345678901234567890abcd',
+        type: 'purchase' as const,
+        amount: 50,
+        usdcAmount: 5.00,
+        transactionHash: '0xsteeze987654321',
+        status: 'completed' as const,
+      }
+    ];
+
+    sampleSteezeTransactions.forEach(transactionData => {
+      const transaction: SteezeTransaction = {
+        ...transactionData,
+        createdAt: new Date(now.getTime() - Math.random() * 14 * 24 * 60 * 60 * 1000), // Random date within last 14 days
+        updatedAt: now
+      };
+      this.store.steezeTransactions.set(transaction.id, transaction);
+    });
+
+    console.log('✓ Sample data seeded successfully - migrated from PostgreSQL to in-memory storage');
+    console.log(`✓ Loaded ${sampleUsers.length} users, ${sampleVouches.length} vouches, ${sampleSteezeTransactions.length} steeze transactions`);
   }
 }
 
