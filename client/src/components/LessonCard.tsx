@@ -103,10 +103,23 @@ export default function LessonCard({ lesson }: LessonCardProps) {
       }
     },
     onError: (error: any) => {
-      console.log("Quiz error:", error); // Debug log
+      console.error("Quiz submission error:", error); // Better debug log
+      let errorMessage = "Please try again.";
+      
+      try {
+        // Parse the error message for better user feedback
+        if (typeof error.message === 'string') {
+          const errorData = JSON.parse(error.message);
+          errorMessage = errorData.message || errorMessage;
+        }
+      } catch (e) {
+        // If parsing fails, use the original error message
+        errorMessage = error.message || errorMessage;
+      }
+      
       toast({
         title: "Quiz Error",
-        description: "Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },

@@ -1094,26 +1094,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const lessonId = parseInt(req.params.id);
       
-      // Check for wallet authentication in session (like other endpoints)
+      // Check for authentication (wallet or Twitter login)
       let userId;
       if (req.session?.user?.id) {
         userId = req.session.user.id;
       } else if (req.isAuthenticated() && req.user?.claims?.sub) {
         userId = req.user.claims.sub;
+      } else if (req.isAuthenticated() && req.user?.id) {
+        userId = req.user.id;
       } else {
+        console.log("Quiz authentication failed - no valid session found");
         return res.status(401).json({ message: "Please log in to take the quiz" });
       }
       
-      const { answer } = req.body;
-
-      const lessons = await storage.getLessons();
-      const lesson = lessons.find(l => l.id === lessonId);
+      console.log(`Quiz submission attempt - User ID: ${userId}, Lesson ID: ${lessonId}`);
       
-      if (!lesson || lesson.quizCorrectAnswer === null) {
-        return res.status(404).json({ message: "Lesson or quiz not found" });
+      const { answer } = req.body;
+      
+      // Validate answer input
+      if (answer === null || answer === undefined || isNaN(Number(answer))) {
+        return res.status(400).json({ 
+          message: "Please provide a valid answer",
+          correct: false 
+        });
       }
 
-      const isCorrect = answer === lesson.quizCorrectAnswer;
+      const lessons = await storage.getLessons();
+      const lesson = lessons.find(l => l.id === lessonId) || lessons.find(l => l.id.toString() === lessonId.toString());
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
+      
+      if (!lesson.quizQuestion || !lesson.quizOptions || lesson.quizCorrectAnswer === null || lesson.quizCorrectAnswer === undefined) {
+        return res.status(404).json({ message: "Quiz not available for this lesson" });
+      }
+
+      const answerIndex = Number(answer);
+      const correctIndex = Number(lesson.quizCorrectAnswer);
+      
+      console.log(`Quiz submission - User answer: ${answerIndex}, Correct answer: ${correctIndex}`);
+      
+      const isCorrect = answerIndex === correctIndex;
       
       if (!isCorrect) {
         return res.status(400).json({ 
@@ -1154,7 +1176,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error submitting quiz:", error);
-      res.status(500).json({ message: "Failed to submit quiz" });
+      console.error("Error details:", {
+        lessonId: req.params.id,
+        body: req.body,
+        userId: req.session?.user?.id,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      });
+      res.status(500).json({ 
+        message: "Failed to submit quiz",
+        error: error instanceof Error ? error.message : 'Server error'
+      });
     }
   });
 

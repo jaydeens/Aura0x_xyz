@@ -168,7 +168,10 @@ class MemStorage implements IStorage {
 
   // Lesson operations
   async createLesson(lesson: InsertLesson): Promise<Lesson> {
-    const id = `lesson_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Generate sequential integer ID for lessons
+    const existingIds = Array.from(this.store.lessons.keys()).map(id => parseInt(id.toString())).filter(id => !isNaN(id));
+    const id = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
+    
     const now = new Date();
     const newLesson: Lesson = {
       ...lesson,
@@ -178,7 +181,7 @@ class MemStorage implements IStorage {
       isActive: lesson.isActive ?? true,
     };
     
-    this.store.lessons.set(id, newLesson);
+    this.store.lessons.set(id.toString(), newLesson);
     return newLesson;
   }
 
@@ -1064,8 +1067,70 @@ class MemStorage implements IStorage {
       this.store.users.set(user.id, user);
     });
 
+    // Add sample lessons with quiz data for testing
+    const sampleLessons = [
+      {
+        id: 1,
+        title: "Mastering Cross-Chain Bridge Security",
+        content: "Cross-chain bridges are critical infrastructure in the Web3 ecosystem, but they require careful security practices. Understanding how to use bridges safely is essential for building your Web3 aura. Always verify the compatibility of the asset and the destination blockchain before initiating a cross-chain transfer (2FA) where possible, and staying informed about the latest security advisories from bridge protocols you use. Engage with community discussions on platforms like Discord or Reddit to learn from experienced users and stay aware of any emerging threats or updates. By following these strategies, users can leverage cross-chain bridges effectively and securely, opening up new opportunities within the dynamic crypto landscape.",
+        keyTakeaways: [
+          "Always verify the compatibility of the asset and the destination blockchain before initiating a cross-chain transfer",
+          "Double-check transaction details and ensure sufficient balance to cover fees on both source and target chains",
+          "Use well-audited and community-trusted bridge protocols to mitigate security risks",
+          "Engage with community forums to stay informed about latest developments and security practices"
+        ],
+        auraReward: 100,
+        difficulty: "intermediate",
+        estimatedReadTime: 15,
+        isActive: true,
+        quizQuestion: "Which of the following actions will INCREASE your Web3 aura?",
+        quizOptions: [
+          "Frequently using unaudited cross-chain bridges for speedy transactions",
+          "Sharing personal keys on public forums to get help faster",
+          "Engaging with community discussions on platforms like Discord to stay informed about security advisories",
+          "Avoiding updates to wallet software to prevent bugs from newly released features"
+        ],
+        quizCorrectAnswer: 2,
+        quizExplanation: "Engaging with community discussions helps you stay informed about security practices and builds credibility. Sharing keys publicly, using unaudited bridges, and avoiding updates all damage your Web3 reputation and security.",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 2,
+        title: "DeFi Yield Farming Best Practices",
+        content: "Yield farming is a powerful way to earn passive income in DeFi, but success requires understanding the risks and implementing proper strategies. Smart yield farmers focus on diversification, risk management, and staying informed about protocol updates. Always research the underlying protocols, understand impermanent loss, and never invest more than you can afford to lose. Building a reputation in DeFi takes time and careful decision-making.",
+        keyTakeaways: [
+          "Research protocols thoroughly before depositing funds",
+          "Understand impermanent loss and its impact on returns",
+          "Diversify across multiple protocols to reduce risk",
+          "Stay updated on protocol changes and security audits"
+        ],
+        auraReward: 100,
+        difficulty: "beginner",
+        estimatedReadTime: 12,
+        isActive: true,
+        quizQuestion: "Which approach is BEST for building long-term Web3 reputation?",
+        quizOptions: [
+          "Investing all funds in the highest APY pools without research",
+          "Research protocols thoroughly and diversify across multiple audited platforms",
+          "Following anonymous Telegram tips for quick gains",
+          "Avoiding all DeFi protocols due to perceived risks"
+        ],
+        quizCorrectAnswer: 1,
+        quizExplanation: "Thorough research and diversification demonstrate wisdom and risk management skills that build long-term reputation. Chasing high yields without research, following anonymous tips, or avoiding DeFi entirely don't build Web3 credibility.",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    // Add sample lessons to storage
+    sampleLessons.forEach(lessonData => {
+      this.store.lessons.set(lessonData.id.toString(), lessonData as any);
+    });
+
     console.log('✓ Complete production data migrated successfully from PostgreSQL to in-memory storage');
     console.log(`✓ Loaded ${realUsers.length + remainingUsers.length} users (full 76), ${realVouches.length} vouches, ${realSteezeTransactions.length} steeze transactions`);
+    console.log(`✓ Added ${sampleLessons.length} sample lessons with quiz data for testing`);
     console.log('✓ Data includes: tozcam81 (130 AP), all real wallets, proper aura distribution (2370 total)');
     console.log('✓ Cost-effective storage preserving full production dataset');
   }
