@@ -300,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { walletAddress } = req.body;
       
-      if (!walletAddress || !web3Service.isValidAddress(walletAddress)) {
+      if (!walletAddress || !isValidWalletAddress(walletAddress)) {
         return res.status(400).json({ message: "Invalid wallet address" });
       }
 
@@ -2254,7 +2254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address } = req.params;
       
-      if (!web3Service.isValidAddress(address)) {
+      if (!isValidWalletAddress(address)) {
         return res.status(400).json({ message: "Invalid wallet address" });
       }
       
