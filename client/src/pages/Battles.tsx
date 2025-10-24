@@ -100,7 +100,7 @@ export default function Battles() {
     },
     onSuccess: () => {
       toast({
-        title: "Battle Protocol Initiated!",
+        title: "Dream Duel Awakened!",
         description: "Your challenge has been transmitted to the blockchain.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
@@ -122,7 +122,7 @@ export default function Battles() {
       }
       toast({
         title: "Error",
-        description: "Battle protocol failed. Please retry transaction.",
+        description: "Dream ritual failed. Please retry transaction.",
         variant: "destructive",
       });
     },
@@ -171,13 +171,13 @@ export default function Battles() {
     const opponentBalance = selectedOpponent.auraPoints || 0;
 
     if (stakeAmountNum > userBalance) {
-      setBalanceErrorMessage("Insufficient Dreamz balance to execute this protocol!");
+      setBalanceErrorMessage("Insufficient Dreamz balance to execute this ritual!");
       setShowBalanceError(true);
       return;
     }
 
     if (stakeAmountNum > opponentBalance) {
-      setBalanceErrorMessage("Target lacks sufficient Dreamz reserves to accept this challenge protocol");
+      setBalanceErrorMessage("Target lacks sufficient Dreamz reserves to accept this dream duel");
       setShowBalanceError(true);
       return;
     }
@@ -205,7 +205,7 @@ export default function Battles() {
       title: battleTitle.trim() || null,
       opponentId: selectedOpponent.id,
       stakeAmount: stakeAmountNum,
-      description: battleDescription.trim() || "An AI-powered battle of crypto supremacy!",
+      description: battleDescription.trim() || "A dream-guided battle of cosmic supremacy!",
       battleDate: battleDateTime.toISOString(),
       duration: parseInt(battleDuration),
     });
@@ -308,7 +308,7 @@ export default function Battles() {
               <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>■</span>
               <span className="animate-pulse" style={{ animationDelay: '0.6s' }}>■</span>
               <span className="animate-pulse">]</span>
-              <span className="ml-2">PROTOCOL SYNC</span>
+              <span className="ml-2">RITUAL SYNC</span>
             </div>
           </div>
         </div>
@@ -332,15 +332,15 @@ export default function Battles() {
       
       {/* REDESIGNED LAYOUT: Add sidebar spacing + new structure */}
       <div className="relative z-10 pt-24 md:pt-20 px-4 sm:px-6 lg:px-8 pb-8">
-        {/* Floating Initiate Protocol Button - TOP RIGHT */}
+        {/* Floating Awaken Dream Button - TOP RIGHT */}
         <div className="fixed top-20 md:top-6 right-6 z-50">
           <Button 
             className="bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 hover:from-cyan-400 hover:via-blue-500 hover:to-cyan-400 text-black font-black shadow-2xl shadow-cyan-500/50 hover:shadow-cyan-500/70 transition-all duration-300 px-6 py-6 rounded-2xl text-sm tracking-wider hover:scale-105"
             onClick={() => setShowCreateBattle(true)}
-            data-testid="button-initiate-protocol-floating"
+            data-testid="button-awaken-dream-floating"
           >
             <Plus className="w-5 h-5 mr-2" />
-            INITIATE PROTOCOL
+            AWAKEN DREAM DUEL
           </Button>
         </div>
 
@@ -348,9 +348,9 @@ export default function Battles() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" data-testid="pulse-indicator-1"></div>
-            <Badge className="bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-cyan-400 border border-cyan-500/30 px-4 py-1 font-mono text-xs tracking-widest" data-testid="badge-protocol-status">
+            <Badge className="bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-cyan-400 border border-cyan-500/30 px-4 py-1 font-mono text-xs tracking-widest" data-testid="badge-dream-status">
               <Brain className="w-3 h-3 mr-2 inline" />
-              NEURAL COMBAT SYSTEM
+              DREAM DUEL SYSTEM
             </Badge>
             <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} data-testid="pulse-indicator-2"></div>
           </div>
@@ -362,7 +362,7 @@ export default function Battles() {
           </h1>
           
           <p className="text-cyan-100/60 text-base max-w-2xl font-light leading-relaxed" data-testid="text-arena-description">
-            AI-powered combat protocols. Stake Dreamz. Deploy strategies. Dominate the network.
+            Dream-guided cosmic duels. Pledge Dreamz. Weave strategies. Ascend the constellation.
           </p>
         </div>
 
@@ -375,7 +375,7 @@ export default function Battles() {
                 <span className="text-xs text-cyan-400/70 font-mono uppercase">Total</span>
               </div>
               <div className="text-4xl font-black text-white mb-1">{stats.total}</div>
-              <div className="text-cyan-400/60 text-xs font-mono">Network Battles</div>
+              <div className="text-cyan-400/60 text-xs font-mono">Constellation Duels</div>
             </CardContent>
           </Card>
 
@@ -386,7 +386,7 @@ export default function Battles() {
                 <span className="text-xs text-green-400/70 font-mono uppercase">Live</span>
               </div>
               <div className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1">{stats.live}</div>
-              <div className="text-green-400/60 text-xs font-mono">Active Protocols</div>
+              <div className="text-green-400/60 text-xs font-mono">Active Rituals</div>
             </CardContent>
           </Card>
 
@@ -532,8 +532,8 @@ export default function Battles() {
             <div className="flex-1 min-w-0">
               {/* Live Battles */}
               <TabsContent value="live" className="mt-0 space-y-4">
-                <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-green-500/10 to-transparent border-l-4 border-green-500 pl-4 py-2" data-testid="header-live-protocols">
-                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">ACTIVE PROTOCOLS</h2>
+                <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-green-500/10 to-transparent border-l-4 border-green-500 pl-4 py-2" data-testid="header-live-rituals">
+                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">ACTIVE RITUALS</h2>
                   <Badge className="bg-green-500/20 text-green-400 border border-green-500/40 font-mono px-3 py-1" data-testid="badge-live-count">
                     {stats.live} LIVE
                   </Badge>
@@ -557,9 +557,9 @@ export default function Battles() {
                       <div className="w-20 h-20 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 rounded-xl flex items-center justify-center mx-auto mb-6 border border-cyan-500/20">
                         <Cpu className="w-10 h-10 text-cyan-500/60" />
                       </div>
-                      <h3 className="text-3xl font-black text-white mb-3">NO ACTIVE PROTOCOLS</h3>
+                      <h3 className="text-3xl font-black text-white mb-3">NO ACTIVE RITUALS</h3>
                       <p className="text-cyan-100/50 mb-8 max-w-md mx-auto">
-                        Neural network awaits challengers. Deploy a battle protocol.
+                        The dreamscape awaits challengers. Awaken a dream duel.
                       </p>
                       <Button 
                         className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black px-8 py-3 shadow-xl shadow-cyan-500/30"
@@ -576,8 +576,8 @@ export default function Battles() {
 
               {/* Upcoming Battles */}
               <TabsContent value="upcoming" className="mt-0 space-y-4">
-                <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-500 pl-4 py-2" data-testid="header-queued-protocols">
-                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text">QUEUED PROTOCOLS</h2>
+                <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-500 pl-4 py-2" data-testid="header-queued-rituals">
+                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text">QUEUED RITUALS</h2>
                   <Badge className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 font-mono px-3 py-1" data-testid="badge-queued-count">
                     {stats.upcoming} QUEUED
                   </Badge>
@@ -599,8 +599,8 @@ export default function Battles() {
                   <Card className="bg-gradient-to-br from-blue-950/20 to-black border border-cyan-500/20" data-testid="empty-queued-section">
                     <CardContent className="p-12 text-center">
                       <Clock className="w-14 h-14 text-cyan-500/40 mx-auto mb-4" />
-                      <h3 className="text-2xl font-bold text-white mb-2">NO QUEUED PROTOCOLS</h3>
-                      <p className="text-cyan-100/50">No battles scheduled.</p>
+                      <h3 className="text-2xl font-bold text-white mb-2">NO QUEUED RITUALS</h3>
+                      <p className="text-cyan-100/50">No dream duels scheduled.</p>
                     </CardContent>
                   </Card>
                 )}
@@ -609,7 +609,7 @@ export default function Battles() {
               {/* Completed Battles */}
               <TabsContent value="completed" className="mt-0 space-y-4">
                 <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-purple-500/10 to-transparent border-l-4 border-purple-500 pl-4 py-2" data-testid="header-archive">
-                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text">PROTOCOL ARCHIVE</h2>
+                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text">RITUAL ARCHIVE</h2>
                   <Badge className="bg-purple-500/20 text-purple-400 border border-purple-500/40 font-mono px-3 py-1" data-testid="badge-archive-count">
                     {stats.completed} RESOLVED
                   </Badge>
@@ -631,8 +631,8 @@ export default function Battles() {
                   <Card className="bg-gradient-to-br from-blue-950/20 to-black border border-cyan-500/20" data-testid="empty-archive-section">
                     <CardContent className="p-12 text-center">
                       <Trophy className="w-14 h-14 text-cyan-500/40 mx-auto mb-4" />
-                      <h3 className="text-2xl font-bold text-white mb-2">NO ARCHIVED PROTOCOLS</h3>
-                      <p className="text-cyan-100/50">No battles resolved yet.</p>
+                      <h3 className="text-2xl font-bold text-white mb-2">NO ARCHIVED RITUALS</h3>
+                      <p className="text-cyan-100/50">No dream duels resolved yet.</p>
                     </CardContent>
                   </Card>
                 )}
@@ -640,8 +640,8 @@ export default function Battles() {
 
               {/* My Battles */}
               <TabsContent value="my-battles" className="mt-0 space-y-4">
-                <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-cyan-500/10 to-transparent border-l-4 border-cyan-500 pl-4 py-2" data-testid="header-my-protocols">
-                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text">MY PROTOCOLS</h2>
+                <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-cyan-500/10 to-transparent border-l-4 border-cyan-500 pl-4 py-2" data-testid="header-my-rituals">
+                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text">MY RITUALS</h2>
                   <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 font-mono px-3 py-1" data-testid="badge-my-count">
                     {userBattles?.length || 0} TOTAL
                   </Badge>
@@ -663,17 +663,17 @@ export default function Battles() {
                   <Card className="bg-gradient-to-br from-blue-950/20 to-black border border-cyan-500/20" data-testid="empty-my-section">
                     <CardContent className="p-12 text-center">
                       <Target className="w-14 h-14 text-cyan-500/40 mx-auto mb-4" />
-                      <h3 className="text-2xl font-bold text-white mb-2">NO PROTOCOLS DEPLOYED</h3>
+                      <h3 className="text-2xl font-bold text-white mb-2">NO RITUALS AWAKENED</h3>
                       <p className="text-cyan-100/50 mb-6">
-                        You haven't engaged in any battles yet.
+                        You haven't engaged in any dream duels yet.
                       </p>
                       <Button 
                         className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black px-8 py-3"
                         onClick={() => setShowCreateBattle(true)}
-                        data-testid="button-deploy-my"
+                        data-testid="button-awaken-my"
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        DEPLOY PROTOCOL
+                        AWAKEN RITUAL
                       </Button>
                     </CardContent>
                   </Card>
@@ -688,25 +688,25 @@ export default function Battles() {
           setShowCreateBattle(open);
           if (!open) resetBattleForm();
         }}>
-          <DialogContent className="bg-gradient-to-br from-blue-950 via-black to-blue-950 border-2 border-cyan-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-create-protocol">
+          <DialogContent className="bg-gradient-to-br from-blue-950 via-black to-blue-950 border-2 border-cyan-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-create-ritual">
             <DialogHeader>
               <DialogTitle className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-600 bg-clip-text text-transparent">
                 <Brain className="w-8 h-8 inline mr-3 text-cyan-400" />
-                DEPLOY BATTLE PROTOCOL
+                AWAKEN DREAM RITUAL
               </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-6 py-4">
               <div className="space-y-3">
-                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Protocol Identifier (Optional)</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Ritual Name (Optional)</Label>
                 <Input
                   type="text"
-                  placeholder="Neural Clash Alpha, Crypto Supremacy..."
+                  placeholder="Dream Clash Alpha, Cosmic Supremacy..."
                   value={battleTitle}
                   onChange={(e) => setBattleTitle(e.target.value.slice(0, 20))}
                   className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 font-mono"
                   maxLength={20}
-                  data-testid="input-protocol-name"
+                  data-testid="input-ritual-name"
                 />
                 <p className="text-cyan-400/50 text-xs font-mono">
                   {battleTitle.length}/20 characters
@@ -801,7 +801,7 @@ export default function Battles() {
                     onChange={(e) => setBattleDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer font-mono"
-                    data-testid="input-protocol-date"
+                    data-testid="input-ritual-date"
                   />
                 </div>
 
@@ -812,7 +812,7 @@ export default function Battles() {
                     value={battleTime}
                     onChange={(e) => setBattleTime(e.target.value)}
                     className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer font-mono"
-                    data-testid="input-protocol-time"
+                    data-testid="input-ritual-time"
                   />
                 </div>
 
@@ -822,7 +822,7 @@ export default function Battles() {
                     value={battleDuration}
                     onChange={(e) => setBattleDuration(e.target.value)}
                     className="w-full bg-black/50 border border-cyan-500/30 text-white rounded-md px-3 py-2 focus:border-cyan-500 focus:outline-none font-mono"
-                    data-testid="select-protocol-duration"
+                    data-testid="select-ritual-duration"
                   >
                     <option value="3">3 Hours</option>
                     <option value="4">4 Hours</option>
@@ -832,31 +832,31 @@ export default function Battles() {
               </div>
 
               <div>
-                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Stake Amount (Dreamz)</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Pledge Amount (Dreamz)</Label>
                 <Input
                   type="number"
                   min="1"
                   max={user?.auraPoints || 0}
-                  placeholder="Enter stake amount"
+                  placeholder="Enter pledge amount"
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
                   className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 font-mono"
-                  data-testid="input-protocol-stake"
+                  data-testid="input-ritual-pledge"
                 />
                 <p className="text-cyan-400/50 text-sm mt-1 font-mono">
-                  Available: {user?.auraPoints || 0} DRZ • Both agents must stake equal amounts
+                  Available: {user?.auraPoints || 0} DRZ • Both dreamers must pledge equal amounts
                 </p>
               </div>
 
               <div>
-                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Protocol Description (Optional)</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Ritual Description (Optional)</Label>
                 <Textarea
                   placeholder="Define your challenge parameters..."
                   value={battleDescription}
                   onChange={(e) => setBattleDescription(e.target.value)}
                   className="bg-black/50 border-cyan-500/30 text-white resize-none focus:border-cyan-500 font-mono"
                   rows={3}
-                  data-testid="textarea-protocol-desc"
+                  data-testid="textarea-ritual-desc"
                 />
               </div>
 
@@ -865,7 +865,7 @@ export default function Battles() {
                   variant="outline"
                   onClick={() => setShowCreateBattle(false)}
                   className="flex-1 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 font-mono"
-                  data-testid="button-abort-protocol"
+                  data-testid="button-abort-ritual"
                 >
                   ABORT
                 </Button>
@@ -873,9 +873,9 @@ export default function Battles() {
                   onClick={handleCreateBattle}
                   disabled={!selectedOpponent}
                   className="flex-1 bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 hover:from-cyan-400 hover:via-blue-500 hover:to-cyan-400 text-black font-black font-mono shadow-lg shadow-cyan-500/30"
-                  data-testid="button-execute-protocol"
+                  data-testid="button-execute-ritual"
                 >
-                  DEPLOY PROTOCOL
+                  AWAKEN RITUAL
                 </Button>
               </div>
             </div>
@@ -893,7 +893,7 @@ export default function Battles() {
               </div>
               
               <div>
-                <h3 className="text-2xl font-bold text-white mb-2 font-mono">PROTOCOL ERROR!</h3>
+                <h3 className="text-2xl font-bold text-white mb-2 font-mono">RITUAL ERROR!</h3>
                 <p className="text-red-100/70 leading-relaxed font-mono text-sm">
                   {balanceErrorMessage}
                 </p>
