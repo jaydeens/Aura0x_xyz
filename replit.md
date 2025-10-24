@@ -1,8 +1,8 @@
-# Aura - Creators & Streamers Social Network
+# Dreamz - AI-Powered Web3 Social Platform
 
 ## Overview
 
-Aura is a comprehensive Web3 social platform that combines learning, reputation building, and community engagement. Users build their "aura" through daily crypto lessons, 1v1 battles, and a vouching system where community members can stake ETH to vouch for others. The platform integrates Twitter/X authentication, wallet connectivity, and smart contract interactions on Base Sepolia testnet.
+Dreamz (formerly Aura) is a comprehensive Web3 social platform that combines learning, reputation building, and community engagement with AI-crypto aesthetics. Users build their "Dreamz Points" (formerly Aura Points) through daily crypto lessons, 1v1 protocol battles, and a vouching system where community members can stake USDC to vouch for others. The platform integrates Twitter/X authentication, multi-chain wallet connectivity (Solana + Ethereum), and is preparing for CARV SVM Chain integration.
 
 ## System Architecture
 
@@ -58,9 +58,12 @@ Key entities include:
 - **Access Control**: Authentication requirements and input validation for all operations
 
 ### Web3 Integration
-- **Smart Contracts**: Deployed on Base Sepolia testnet
-- **Wallet Support**: MetaMask, WalletConnect, and mobile wallet compatibility
-- **Transaction Handling**: Ethers.js for blockchain interactions
+- **Smart Contracts**: Currently on Base Mainnet, preparing for CARV SVM Chain migration
+- **Wallet Support**: 
+  - **Solana Wallets**: Phantom, Backpack (for CARV SVM Chain)
+  - **Ethereum Wallets**: MetaMask, WalletConnect, Trust Wallet, Coinbase Wallet
+- **Transaction Handling**: Ethers.js for Ethereum, Solana Web3.js preparation for SVM
+- **Target Chain**: CARV SVM Chain Testnet (Solana-based with Ethereum settlement)
 
 ## Data Flow
 
@@ -76,7 +79,8 @@ Key entities include:
 - **OpenAI API**: GPT-4o for lesson and quiz generation
 - **Twitter API v2**: OAuth authentication and social features
 - **Neon Database**: Serverless PostgreSQL hosting
-- **Base Sepolia**: Ethereum L2 testnet for smart contracts
+- **Base Mainnet**: Current Ethereum L2 for smart contracts
+- **CARV SVM Chain Testnet**: Target Solana-based chain (RPC: https://rpc.testnet.carv.io/rpc)
 
 ### Development Tools
 - **Replit**: Primary development and hosting environment
@@ -113,6 +117,9 @@ Key entities include:
 
 ```
 Changelog:
+- October 24, 2025. CARV SVM CHAIN INTEGRATION: Added comprehensive Solana wallet support (Phantom, Backpack) alongside existing Ethereum wallets. Updated WalletConnect component to support both blockchain ecosystems. Configured CARV SVM Chain testnet (https://rpc.testnet.carv.io/rpc) as target network. Users can now connect with Solana-native wallets for optimal CARV SVM experience or continue using Ethereum wallets via bridge.
+- October 24, 2025. COMPLETE REBRAND TO DREAMZ: Transformed entire platform from "Aura/Steeze" purple/pink theme to "Dreamz/Potions" blue/cyan AI-crypto aesthetic. Redesigned ALL page layouts with asymmetric structures (not just color changes): Battles page with 2x2 stats grid and vertical tab sidebar, Leaderboard with card-based grid and floating search, Potions page with 3-column asymmetric layout. Updated navigation to collapsible left sidebar with overlay behavior. Redesigned loading screens with hexagonal spinners, circuit boards, and neural network themes (completely different from original Aura animations). Updated all terminology throughout codebase.
+- October 24, 2025. SIDEBAR NAVIGATION UPDATE: Converted top navigation bar to collapsible left sidebar with floating toggle button. Sidebar overlays content rather than pushing it, maintaining full-width page layouts. Added smooth animations and backdrop overlay when sidebar is open. All pages now responsive to sidebar state without fixed left padding.
 - August 6, 2025. STEEZE TWO-TRANSACTION FLOW IMPLEMENTED: Fixed Steeze purchase flow to properly implement the correct user experience: 1) USDC approval transaction, 2) Steeze purchase transaction. Updated frontend to call the actual buySteeze() function on the deployed contract (0xf209E955Ad3711EE983627fb52A32615455d8cC3) instead of relying on backend processing. Users now get the proper wallet transaction sequence as intended.
 - August 6, 2025. STEEZE PLATFORM SIGNER FIX: Fixed "Platform signer not configured" error that was blocking Steeze purchases after USDC approval. Removed platform signer dependency and enabled direct purchase processing based on USDC approval transactions. System now successfully completes Steeze purchases at 1 USDC = 10 STEEZE rate without requiring backend wallet configuration.
 - August 6, 2025. STEEZE PURCHASE FLOW FIX: Fixed critical issue where USDC approval transactions were being rejected by backend validation. Updated transaction verification to accept both USDC approval transactions (to USDC contract) and direct Steeze transactions (to Steeze contract). System now properly processes two-step purchase flow: 1) User approves USDC spending, 2) Backend executes Steeze purchase transaction. Also added network verification that skips problematic checks for Trust Wallet while validating other wallets are on Base Mainnet.
