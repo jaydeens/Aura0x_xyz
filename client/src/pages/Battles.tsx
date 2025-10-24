@@ -331,7 +331,7 @@ export default function Battles() {
       <Navigation />
       
       {/* REDESIGNED LAYOUT: Add sidebar spacing + new structure */}
-      <div className="relative z-10 md:pt-0 pt-16 px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 pt-24 md:pt-20 px-4 sm:px-6 lg:px-8 pb-8">
         {/* Floating Initiate Protocol Button - TOP RIGHT */}
         <div className="fixed top-20 md:top-6 right-6 z-50">
           <Button 

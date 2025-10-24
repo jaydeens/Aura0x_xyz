@@ -837,7 +837,7 @@ export default function SteezeStack() {
       <Navigation />
       
       {/* REDESIGNED LAYOUT: Add sidebar spacing + new asymmetric structure */}
-      <div className="relative z-10 md:pt-0 pt-16 px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 pt-24 md:pt-20 px-4 sm:px-6 lg:px-8 pb-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
