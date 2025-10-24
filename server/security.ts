@@ -176,11 +176,19 @@ export const validateWalletSecurity = async (req: any, res: Response, next: Next
     const clientIP = getClientIP(req);
     
     if (walletAddress) {
+      // Debug logging
+      console.log('Validating wallet address:', walletAddress);
+      console.log('Address length:', walletAddress.length);
+      console.log('Address type:', typeof walletAddress);
+      
       // Validate wallet address format (supports both Ethereum and Solana)
       // Ethereum: 0x-prefixed hex, 42 chars
       // Solana: base58-encoded, 32-44 chars
       const isEthereumAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
       const isSolanaAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress);
+      
+      console.log('Is Ethereum?', isEthereumAddress);
+      console.log('Is Solana?', isSolanaAddress);
       
       if (!isEthereumAddress && !isSolanaAddress) {
         logSecurityEvent('INVALID_WALLET_FORMAT', 'MEDIUM', null, clientIP, req.get('User-Agent'), req.path, {
