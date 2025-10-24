@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Wallet, ExternalLink, CheckCircle, AlertCircle, Smartphone, QrCode } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 
 declare global {
   interface Window {
@@ -32,6 +33,8 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [walletType, setWalletType] = useState<'ethereum' | 'solana' | null>(null);
+  const [carvConnection, setCarvConnection] = useState<Connection | null>(null);
+  const [carvConnected, setCarvConnected] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -315,23 +318,40 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       bridgeUrl: 'https://bridge.testnet.carv.io',
     };
 
-    if (walletType === 'solana') {
-      // For Solana wallets, just notify the user about CARV SVM
-      toast({
-        title: "CARV SVM Chain",
-        description: `Connected to ${networkConfig.chainName}. Visit ${networkConfig.bridgeUrl} to bridge assets.`,
-        duration: 6000,
-      });
-      return;
-    }
+    try {
+      // Create real Solana connection to CARV SVM RPC
+      const connection = new Connection(networkConfig.rpcUrl, 'confirmed');
+      setCarvConnection(connection);
 
-    // For Ethereum wallets, no network switching needed for CARV SVM
-    // CARV SVM is Solana-based, Ethereum wallets can still interact via bridge
-    toast({
-      title: "CARV SVM Chain Info",
-      description: `Using CARV SVM Chain testnet. Bridge assets at ${networkConfig.bridgeUrl}`,
-      duration: 5000,
-    });
+      // Verify connection health with a lightweight read
+      const version = await connection.getVersion();
+      console.log('CARV SVM RPC Version:', version);
+      
+      setCarvConnected(true);
+
+      if (walletType === 'solana') {
+        toast({
+          title: "✨ Connected to CARV SVM",
+          description: `Successfully connected to ${networkConfig.chainName}. RPC health verified!`,
+          duration: 6000,
+        });
+      } else {
+        toast({
+          title: "CARV SVM Chain Ready",
+          description: `CARV SVM testnet RPC active. Bridge assets at ${networkConfig.bridgeUrl}`,
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to connect to CARV SVM:', error);
+      setCarvConnected(false);
+      toast({
+        title: "CARV SVM Connection Issue",
+        description: "Could not verify CARV SVM RPC. Please check your internet connection.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
   };
 
   const disconnectWallet = () => {
@@ -510,8 +530,17 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
         
         <div className="mt-4 p-3 bg-cyan-950/30 rounded-lg border border-cyan-500/30">
           <div className="flex items-center gap-2 text-cyan-300 text-xs">
-            <AlertCircle className="h-4 w-4 flex-shrink-0" />
-            <span>CARV SVM Chain is Solana-based. Phantom or Backpack recommended for best experience.</span>
+            {carvConnected ? (
+              <>
+                <CheckCircle className="h-4 w-4 flex-shrink-0 text-green-400" />
+                <span>✨ CARV SVM RPC Connected - Phantom or Backpack recommended for best experience</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span>CARV SVM Chain is Solana-based. Phantom or Backpack recommended for best experience.</span>
+              </>
+            )}
           </div>
         </div>
       </CardContent>
