@@ -53,6 +53,18 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+
+// Helper function to validate both Ethereum and Solana wallet addresses
+function isValidWalletAddress(address: string): boolean {
+  // Ethereum address: 0x-prefixed hex, 42 characters total
+  const isEthereumAddress = /^0x[a-fA-F0-9]{40}$/.test(address);
+  
+  // Solana address: base58-encoded, typically 32-44 characters
+  // Base58 alphabet excludes: 0, O, I, l
+  const isSolanaAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+  
+  return isEthereumAddress || isSolanaAddress;
+}
 import express from "express";
 import Stripe from "stripe";
 
@@ -361,8 +373,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Wallet address is required" });
       }
 
-      // Validate wallet address format
-      if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+      // Validate wallet address format (supports both Ethereum and Solana)
+      if (!isValidWalletAddress(walletAddress)) {
         return res.status(400).json({ message: "Invalid wallet address format" });
       }
 
@@ -421,8 +433,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Wallet address is required" });
       }
 
-      // Validate wallet address format
-      if (!web3Service.isValidAddress(walletAddress)) {
+      // Validate wallet address format (supports both Ethereum and Solana)
+      if (!isValidWalletAddress(walletAddress)) {
         return res.status(400).json({ message: "Invalid wallet address format" });
       }
 
