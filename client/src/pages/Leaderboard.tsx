@@ -146,7 +146,7 @@ export default function Leaderboard() {
       <Navigation />
       
       {/* REDESIGNED LAYOUT: Add sidebar spacing + floating search */}
-      <main className="relative md:pl-64 md:pt-0 pt-16 pb-12 px-4 sm:px-6 lg:px-8">
+      <main className="relative md:pt-0 pt-16 pb-12 px-4 sm:px-6 lg:px-8">
         {/* Floating Search - TOP RIGHT */}
         <div className="fixed top-20 md:top-6 right-6 z-50 w-80 max-w-[calc(100vw-3rem)]">
           <div className="bg-gradient-to-br from-[#0A1929] to-black border border-[#00D9FF]/40 rounded-2xl p-4 shadow-2xl shadow-[#00D9FF]/20 backdrop-blur-xl" data-testid="panel-floating-search">

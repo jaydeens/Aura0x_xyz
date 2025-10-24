@@ -21,6 +21,7 @@ export default function Navigation() {
   const { toast } = useToast();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const currentUser = user as any;
 
   const handleLogout = async () => {
@@ -64,17 +65,41 @@ export default function Navigation() {
 
   return (
     <>
+      {/* Desktop Sidebar Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`hidden md:flex fixed top-4 left-4 z-50 items-center justify-center w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 rounded-xl shadow-2xl shadow-cyan-500/50 transition-all duration-300 ${
+          sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+        data-testid="button-desktop-sidebar-toggle"
+        aria-label="Toggle sidebar"
+      >
+        <Menu className="w-6 h-6 text-white" />
+      </button>
+
       {/* Desktop Left Sidebar */}
-      <nav className="hidden md:flex fixed left-0 top-0 h-screen w-64 z-50 bg-gradient-to-b from-black via-blue-950/90 to-black backdrop-blur-xl border-r border-cyan-500/30 shadow-2xl shadow-cyan-500/20 flex-col" data-testid="navbar-main">
+      <nav className={`hidden md:flex fixed left-0 top-0 h-screen w-64 z-50 bg-gradient-to-b from-black via-blue-950/90 to-black backdrop-blur-xl border-r border-cyan-500/30 shadow-2xl shadow-cyan-500/20 flex-col transition-transform duration-300 ease-in-out ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`} data-testid="navbar-main">
         <div className="flex flex-col h-full p-6">
-          {/* Logo */}
-          <Link href="/">
-            <div className="flex items-center justify-center cursor-pointer mb-8 group" data-testid="link-home">
-              <div className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
-                DREAMZ
+          {/* Logo and Close Button */}
+          <div className="flex items-center justify-between mb-8">
+            <Link href="/">
+              <div className="flex items-center cursor-pointer group" data-testid="link-home">
+                <div className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+                  DREAMZ
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 hover:bg-cyan-500/10 rounded-lg transition-colors"
+              data-testid="button-close-sidebar"
+              aria-label="Close sidebar"
+            >
+              <X className="w-5 h-5 text-cyan-400" />
+            </button>
+          </div>
 
           {/* User Info Card */}
           {!isLoading && isAuthenticated && currentUser && (
