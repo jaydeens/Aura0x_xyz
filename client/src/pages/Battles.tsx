@@ -275,15 +275,42 @@ export default function Battles() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 via-blue-600 to-blue-800 rounded-lg flex items-center justify-center mx-auto mb-6 animate-pulse shadow-2xl shadow-cyan-500/50">
-            <div className="w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+        {/* Circuit Board Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,217,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,217,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        </div>
+        
+        <div className="relative z-10 text-center px-4">
+          {/* Rotating Diamond Grid */}
+          <div className="relative w-24 h-24 mx-auto mb-6">
+            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-2 animate-pulse">
+              {[...Array(9)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-full h-full border border-cyan-400/30 ${i === 4 ? 'bg-cyan-400/20' : 'bg-cyan-400/5'}`}
+                  style={{ 
+                    animationDelay: `${i * 0.1}s`,
+                    transform: 'rotate(45deg)'
+                  }}
+                ></div>
+              ))}
+            </div>
           </div>
-          <div className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-600 bg-clip-text text-transparent animate-pulse">
-            LOADING PROTOCOLS...
+          
+          <div className="space-y-2">
+            <div className="text-3xl font-black font-mono tracking-wider bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+              &lt; LOADING COMBAT ARENA /&gt;
+            </div>
+            <div className="flex items-center justify-center gap-1 text-cyan-400/60 font-mono text-xs">
+              <span className="animate-pulse">[</span>
+              <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>■</span>
+              <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>■</span>
+              <span className="animate-pulse" style={{ animationDelay: '0.6s' }}>■</span>
+              <span className="animate-pulse">]</span>
+              <span className="ml-2">PROTOCOL SYNC</span>
+            </div>
           </div>
-          <div className="mt-2 text-sm text-cyan-500/60 font-mono">Initializing Battle Matrix</div>
         </div>
       </div>
     );
