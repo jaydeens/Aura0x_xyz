@@ -217,8 +217,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.warn("Twitter authentication setup failed:", error);
   }
 
-  // Seed aura levels on startup
-  await storage.seedAuraLevels();
+  // Seed dreamz levels on startup
+  await storage.seedDreamzLevels();
 
   // User search endpoint (must come before /api/users/:userId to avoid route conflicts)
   app.get('/api/users/search', async (req: any, res) => {
@@ -383,7 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // If wallet is at least 60 days old and user doesn't already have wallet connected
         if (walletAge >= 60 && (!currentUser || !currentUser.walletAddress)) {
-          await storage.updateUserAura(userId, 100, 'vouching');
+          await storage.updateUserDreamz(userId, 100, 'vouching');
           bonusAwarded = true;
           bonusMessage = "🎉 Wallet bonus: +100 Aura Points for connecting a mature wallet!";
           console.log(`Awarded 100 Aura Points to user ${userId} for connecting mature wallet`);
@@ -475,7 +475,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // If wallet is at least 60 days old and user doesn't already have wallet connected
         if (walletAge >= 60 && (!currentUser || !currentUser.walletAddress)) {
-          await storage.updateUserAura(userId, 100, 'vouching');
+          await storage.updateUserDreamz(userId, 100, 'vouching');
           bonusAwarded = true;
           bonusMessage = "🎉 Wallet bonus: +100 Aura Points for connecting a mature wallet!";
           console.log(`Awarded 100 Aura Points to user ${userId} for connecting mature wallet`);
@@ -1262,7 +1262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Update user streak and aura points
         await storage.updateUserStreak(userId, newStreak);
-        await storage.updateUserAura(userId, 10, 'lessons');
+        await storage.updateUserDreamz(userId, 10, 'lessons');
         
         // Update last lesson date to today
         const today = new Date();
@@ -1286,7 +1286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Update user streak and aura points
         await storage.updateUserStreak(userId, newStreak);
-        await storage.updateUserAura(userId, 10, 'lessons');
+        await storage.updateUserDreamz(userId, 10, 'lessons');
         
         // Update last lesson date to today
         const today = new Date();
@@ -1355,8 +1355,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updates.winnerId = winnerId;
         
         // Winner takes all opponent's staked Aura Points
-        await storage.updateUserAura(battle.challengerId, battle.opponentStake, 'battles');
-        await storage.updateUserAura(battle.opponentId, -battle.opponentStake, 'battles');
+        await storage.updateUserDreamz(battle.challengerId, battle.opponentStake, 'battles');
+        await storage.updateUserDreamz(battle.opponentId, -battle.opponentStake, 'battles');
         
         // Create notifications
         await storage.createNotification({
@@ -1382,8 +1382,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updates.winnerId = winnerId;
         
         // Winner takes all challenger's staked Aura Points
-        await storage.updateUserAura(battle.opponentId, battle.challengerStake, 'battles');
-        await storage.updateUserAura(battle.challengerId, -battle.challengerStake, 'battles');
+        await storage.updateUserDreamz(battle.opponentId, battle.challengerStake, 'battles');
+        await storage.updateUserDreamz(battle.challengerId, -battle.challengerStake, 'battles');
         
         // Create notifications
         await storage.createNotification({
@@ -1676,7 +1676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Update user's Steeze balance
-      await storage.updateUserSteezeBalance(userId, -amount);
+      await storage.updateUserPotionsBalance(userId, -amount);
 
       // Update battle vote counts
       const voteField = participantId === battle.challengerId ? 'challengerVotes' : 'opponentVotes';
@@ -1870,7 +1870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Award aura points to recipient
-      await storage.updateUserAura(vouchedUser.id, verification.auraPoints!, 'vouching');
+      await storage.updateUserDreamz(vouchedUser.id, verification.auraPoints!, 'vouching');
       
       // Track USDC earnings (70% goes to vouched user as per contract)
       const usdcEarnings = verification.usdcAmount! * 0.7;
@@ -1932,7 +1932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get voucher's aura level to determine multiplier
-      const auraLevels = await storage.getAuraLevels();
+      const auraLevels = await storage.getDreamzLevels();
       const userStreakDays = voucher.currentStreak || 0;
       const userLevel = auraLevels.find(level => 
         userStreakDays >= level.minDays && (level.maxDays === null || userStreakDays <= level.maxDays)
@@ -1953,7 +1953,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Award aura points to the vouched user
-      await storage.updateUserAura(vouchedUserId, finalAuraPoints, 'vouching');
+      await storage.updateUserDreamz(vouchedUserId, finalAuraPoints, 'vouching');
 
       // Update USDC earnings (70% of vouched amount goes to the user)
       const usdcEarnings = usdcAmount * 0.7;
@@ -2326,10 +2326,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update user balance in database
       if (result.steezeAmount) {
-        await storage.updateUserSteezeBalance(userId, result.steezeAmount, 'purchase');
+        await storage.updateUserPotionsBalance(userId, result.steezeAmount, 'purchase');
         
         // Create transaction record
-        await storage.createSteezeTransaction({
+        await storage.createPotionsTransaction({
           id: `steeze_${Date.now()}_${Math.random()}`,
           userId,
           type: 'purchase',
@@ -2385,10 +2385,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update user balance in database
       if (result.usdcAmount) {
-        await storage.updateUserSteezeBalance(userId, -steezeAmount, 'redeem');
+        await storage.updateUserPotionsBalance(userId, -steezeAmount, 'redeem');
         
         // Create transaction record
-        await storage.createSteezeTransaction({
+        await storage.createPotionsTransaction({
           id: `steeze_${Date.now()}_${Math.random()}`,
           userId,
           type: 'redeem',
@@ -2437,7 +2437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Create transaction record
-      const transaction = await storage.createSteezeTransaction({
+      const transaction = await storage.createPotionsTransaction({
         userId: user.id,
         type: "purchase",
         amount: steezeAmount,
@@ -2490,7 +2490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Create transaction record
-      const transaction = await storage.createSteezeTransaction({
+      const transaction = await storage.createPotionsTransaction({
         userId,
         type: "purchase",
         amount: steezeAmount,
@@ -2583,7 +2583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allUsers = await storage.searchUsers("", "");
       let duplicate = false;
       for (const u of allUsers) {
-        const userTransactions = await storage.getUserSteezeTransactions(u.id);
+        const userTransactions = await storage.getUserPotionsTransactions(u.id);
         if (userTransactions.find(tx => tx.transactionHash === transactionHash)) {
           duplicate = true;
           break;
@@ -2620,7 +2620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create transaction record for the actual transaction sender
-      const transaction = await storage.createSteezeTransaction({
+      const transaction = await storage.createPotionsTransaction({
         userId: transactionUser.id,
         type: "purchase",
         amount: steezeAmount,
@@ -2665,7 +2665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const transactions = await storage.getUserSteezeTransactions(userId);
+      const transactions = await storage.getUserPotionsTransactions(userId);
       res.json(transactions);
     } catch (error: any) {
       console.error("Error getting Steeze transactions:", error);
@@ -2697,7 +2697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create redeem transaction record
-      const transaction = await storage.createSteezeTransaction({
+      const transaction = await storage.createPotionsTransaction({
         userId,
         type: "redeem",
         amount: verification.steezeAmount || 0,
@@ -2754,7 +2754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create redeem transaction
-      const transaction = await storage.createSteezeTransaction({
+      const transaction = await storage.createPotionsTransaction({
         userId,
         type: "redeem",
         amount,
@@ -2793,7 +2793,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const transactions = await storage.getUserSteezeTransactions(userId);
+      const transactions = await storage.getUserPotionsTransactions(userId);
       res.json(transactions);
     } catch (error: any) {
       console.error("Error fetching Steeze transactions:", error);
@@ -3351,7 +3351,7 @@ Building my Web3 empire one achievement at a time! 🚀
   // Aura levels route
   app.get('/api/aura-levels', async (req, res) => {
     try {
-      const levels = await storage.getAuraLevels();
+      const levels = await storage.getDreamzLevels();
       res.json(levels);
     } catch (error) {
       console.error("Error fetching aura levels:", error);

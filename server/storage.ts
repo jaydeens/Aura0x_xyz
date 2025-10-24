@@ -11,12 +11,12 @@ import {
   type BattleVote,
   type InsertVouch,
   type Vouch,
-  type InsertAuraLevel,
-  type AuraLevel,
+  type InsertDreamzLevel,
+  type DreamzLevel,
   type Notification,
   type InsertNotification,
-  type SteezeTransaction,
-  type InsertSteezeTransaction,
+  type PotionsTransaction,
+  type InsertPotionsTransaction,
   type WalletWhitelist,
   type InsertWalletWhitelist,
 } from "@shared/schema";
@@ -27,7 +27,7 @@ export interface IStorage {
   // User operations - mandatory for Replit Auth
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; email?: string; twitterAccessToken?: string | null; twitterRefreshToken?: string | null; ipAddress?: string; walletAddress?: string; twitterId?: string; purchasedSteeze?: number; battleEarnedSteeze?: number }): Promise<User>;
+  updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; email?: string; twitterAccessToken?: string | null; twitterRefreshToken?: string | null; ipAddress?: string; walletAddress?: string; twitterId?: string; purchasedPotions?: number; battleEarnedPotions?: number }): Promise<User>;
   checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean>;
   getUserByUsername(username: string): Promise<User | undefined>;
   searchUsers(query: string, excludeUserId?: string): Promise<User[]>;
@@ -71,21 +71,21 @@ export interface IStorage {
   // Leaderboard operations
   getLeaderboard(limit?: number, type?: 'weekly' | 'all-time'): Promise<User[]>;
   
-  // Aura level operations
-  getAuraLevels(): Promise<AuraLevel[]>;
-  seedAuraLevels(): Promise<void>;
+  // Dreamz level operations
+  getDreamzLevels(): Promise<DreamzLevel[]>;
+  seedDreamzLevels(): Promise<void>;
   
   // User statistics
-  updateUserAura(userId: string, points: number, source?: 'lessons' | 'vouching' | 'battles'): Promise<void>;
+  updateUserDreamz(userId: string, points: number, source?: 'lessons' | 'vouching' | 'battles'): Promise<void>;
   updateUserStreak(userId: string, streak: number): Promise<void>;
   updateUserUsdtEarnings(userId: string, amount: number): Promise<void>;
   getUserByWallet(walletAddress: string): Promise<User | undefined>;
   getUserByTwitter(twitterId: string): Promise<User | undefined>;
   
-  // Steeze operations
-  createSteezeTransaction(transaction: InsertSteezeTransaction): Promise<SteezeTransaction>;
-  getUserSteezeTransactions(userId: string): Promise<SteezeTransaction[]>;
-  updateUserSteezeBalance(userId: string, amount: number): Promise<void>;
+  // Potions operations
+  createPotionsTransaction(transaction: InsertPotionsTransaction): Promise<PotionsTransaction>;
+  getUserPotionsTransactions(userId: string): Promise<PotionsTransaction[]>;
+  updateUserPotionsBalance(userId: string, amount: number): Promise<void>;
   
   // Wallet whitelist operations for closed beta
   isWalletWhitelisted(walletAddress: string): Promise<boolean>;
@@ -103,9 +103,9 @@ interface MemoryStore {
   battles: Map<string, Battle>;
   battleVotes: Map<string, BattleVote>;
   vouches: Map<string, Vouch>;
-  auraLevels: Map<string, AuraLevel>;
+  dreamzLevels: Map<string, DreamzLevel>;
   notifications: Map<string, Notification>;
-  steezeTransactions: Map<string, SteezeTransaction>;
+  potionsTransactions: Map<string, PotionsTransaction>;
   walletWhitelist: Map<string, WalletWhitelist>;
 }
 
@@ -120,14 +120,14 @@ class MemStorage implements IStorage {
       battles: new Map(),
       battleVotes: new Map(),
       vouches: new Map(),
-      auraLevels: new Map(),
+      dreamzLevels: new Map(),
       notifications: new Map(),
-      steezeTransactions: new Map(),
+      potionsTransactions: new Map(),
       walletWhitelist: new Map(),
     };
     
-    // Initialize with default aura levels and sample data
-    this.seedAuraLevels();
+    // Initialize with default dreamz levels and sample data
+    this.seedDreamzLevels();
     this.seedSampleData();
   }
 
@@ -149,16 +149,16 @@ class MemStorage implements IStorage {
       updatedAt: now,
       createdAt: existingUser?.createdAt || now,
       // Set defaults for required fields if not provided
-      auraPoints: existingUser?.auraPoints || 0,
+      dreamzPoints: existingUser?.dreamzPoints || 0,
       currentStreak: existingUser?.currentStreak || 0,
-      auraFromLessons: existingUser?.auraFromLessons || 0,
-      auraFromVouching: existingUser?.auraFromVouching || 0,
-      auraFromBattles: existingUser?.auraFromBattles || 0,
+      dreamzFromLessons: existingUser?.dreamzFromLessons || 0,
+      dreamzFromVouching: existingUser?.dreamzFromVouching || 0,
+      dreamzFromBattles: existingUser?.dreamzFromBattles || 0,
       totalUsdtEarned: existingUser?.totalUsdtEarned || 0,
       totalVouchesReceived: existingUser?.totalVouchesReceived || 0,
-      steezeBalance: existingUser?.steezeBalance || 0,
-      purchasedSteeze: existingUser?.purchasedSteeze || 0,
-      battleEarnedSteeze: existingUser?.battleEarnedSteeze || 0,
+      potionsBalance: existingUser?.potionsBalance || 0,
+      purchasedPotions: existingUser?.purchasedPotions || 0,
+      battleEarnedPotions: existingUser?.battleEarnedPotions || 0,
       isVerified: userData.isVerified || false,
     };
     
@@ -418,8 +418,8 @@ class MemStorage implements IStorage {
       return allUsers
         .filter(user => new Date(user.updatedAt) >= oneWeekAgo)
         .sort((a, b) => {
-          if (b.auraPoints !== a.auraPoints) {
-            return b.auraPoints - a.auraPoints;
+          if (b.dreamzPoints !== a.dreamzPoints) {
+            return b.dreamzPoints - a.dreamzPoints;
           }
           return b.currentStreak - a.currentStreak;
         })
@@ -428,21 +428,21 @@ class MemStorage implements IStorage {
     
     return allUsers
       .sort((a, b) => {
-        if (b.auraPoints !== a.auraPoints) {
-          return b.auraPoints - a.auraPoints;
+        if (b.dreamzPoints !== a.dreamzPoints) {
+          return b.dreamzPoints - a.dreamzPoints;
         }
         return b.currentStreak - a.currentStreak;
       })
       .slice(0, limit);
   }
 
-  // Aura level operations
-  async getAuraLevels(): Promise<AuraLevel[]> {
-    return Array.from(this.store.auraLevels.values())
+  // Dreamz level operations
+  async getDreamzLevels(): Promise<DreamzLevel[]> {
+    return Array.from(this.store.dreamzLevels.values())
       .sort((a, b) => a.minDays - b.minDays);
   }
 
-  async seedAuraLevels(): Promise<void> {
+  async seedDreamzLevels(): Promise<void> {
     const levels = [
       {
         id: "clout_chaser",
@@ -451,7 +451,7 @@ class MemStorage implements IStorage {
         maxDays: 4,
         multiplier: "1.0",
         color: "#8000FF",
-        description: "New to the Aura game",
+        description: "New to the Dreamz game",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -479,42 +479,42 @@ class MemStorage implements IStorage {
       },
       {
         id: "aura_vader",
-        name: "Aura Vader",
+        name: "Dreamz Master",
         minDays: 30,
         maxDays: null,
         multiplier: "2.0",
         color: "#FFD700",
-        description: "Elite Aura master",
+        description: "Elite Dreamz master",
         createdAt: new Date(),
         updatedAt: new Date(),
       }
     ];
 
     levels.forEach(level => {
-      if (!this.store.auraLevels.has(level.id)) {
-        this.store.auraLevels.set(level.id, level);
+      if (!this.store.dreamzLevels.has(level.id)) {
+        this.store.dreamzLevels.set(level.id, level);
       }
     });
   }
 
   // User statistics
-  async updateUserAura(userId: string, points: number, source: 'lessons' | 'vouching' | 'battles' = 'vouching'): Promise<void> {
+  async updateUserDreamz(userId: string, points: number, source: 'lessons' | 'vouching' | 'battles' = 'vouching'): Promise<void> {
     const user = this.store.users.get(userId);
     if (!user) return;
 
     const updated: User = {
       ...user,
-      auraPoints: user.auraPoints + points,
+      dreamzPoints: user.dreamzPoints + points,
       updatedAt: new Date()
     };
 
-    // Track source of aura points
+    // Track source of dreamz points
     if (source === 'lessons') {
-      updated.auraFromLessons = user.auraFromLessons + points;
+      updated.dreamzFromLessons = user.dreamzFromLessons + points;
     } else if (source === 'vouching') {
-      updated.auraFromVouching = user.auraFromVouching + points;
+      updated.dreamzFromVouching = user.dreamzFromVouching + points;
     } else if (source === 'battles') {
-      updated.auraFromBattles = user.auraFromBattles + points;
+      updated.dreamzFromBattles = user.dreamzFromBattles + points;
     }
 
     this.store.users.set(userId, updated);
@@ -585,7 +585,7 @@ class MemStorage implements IStorage {
       .find(user => user.twitterId === twitterId);
   }
 
-  async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; email?: string; lastLessonDate?: Date; twitterAccessToken?: string | null; twitterRefreshToken?: string | null; ipAddress?: string; walletAddress?: string; twitterId?: string; purchasedSteeze?: number; battleEarnedSteeze?: number }): Promise<User> {
+  async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; email?: string; lastLessonDate?: Date; twitterAccessToken?: string | null; twitterRefreshToken?: string | null; ipAddress?: string; walletAddress?: string; twitterId?: string; purchasedPotions?: number; battleEarnedPotions?: number }): Promise<User> {
     const user = this.store.users.get(id);
     if (!user) {
       throw new Error(`User ${id} not found`);
@@ -689,33 +689,33 @@ class MemStorage implements IStorage {
     });
   }
 
-  // Steeze operations
-  async createSteezeTransaction(transaction: InsertSteezeTransaction): Promise<SteezeTransaction> {
-    const id = `steeze_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Potions operations
+  async createPotionsTransaction(transaction: InsertPotionsTransaction): Promise<PotionsTransaction> {
+    const id = `potions_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date();
-    const newTransaction: SteezeTransaction = {
+    const newTransaction: PotionsTransaction = {
       ...transaction,
       id,
       createdAt: now,
       updatedAt: now,
     };
     
-    this.store.steezeTransactions.set(id, newTransaction);
+    this.store.potionsTransactions.set(id, newTransaction);
     return newTransaction;
   }
 
-  async getUserSteezeTransactions(userId: string): Promise<SteezeTransaction[]> {
-    return Array.from(this.store.steezeTransactions.values())
+  async getUserPotionsTransactions(userId: string): Promise<PotionsTransaction[]> {
+    return Array.from(this.store.potionsTransactions.values())
       .filter(transaction => transaction.userId === userId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async updateUserSteezeBalance(userId: string, amount: number): Promise<void> {
+  async updateUserPotionsBalance(userId: string, amount: number): Promise<void> {
     const user = this.store.users.get(userId);
     if (user) {
       const updated: User = {
         ...user,
-        steezeBalance: amount,
+        potionsBalance: amount,
         updatedAt: new Date()
       };
       this.store.users.set(userId, updated);
@@ -782,31 +782,23 @@ class MemStorage implements IStorage {
     return await this.isWalletWhitelisted(walletAddress);
   }
 
-  // Initialize default aura levels
-  private seedAuraLevels() {
-    const auraLevels = [
-      { level: 1, name: 'Novice', minAura: 0, maxAura: 99, color: '#8B5CF6' },
-      { level: 2, name: 'Apprentice', minAura: 100, maxAura: 299, color: '#3B82F6' },
-      { level: 3, name: 'Adept', minAura: 300, maxAura: 599, color: '#10B981' },
-      { level: 4, name: 'Expert', minAura: 600, maxAura: 999, color: '#F59E0B' },
-      { level: 5, name: 'Master', minAura: 1000, maxAura: 1999, color: '#EF4444' },
-      { level: 6, name: 'Grandmaster', minAura: 2000, maxAura: 4999, color: '#EC4899' },
-      { level: 7, name: 'Legend', minAura: 5000, maxAura: 9999, color: '#8B5CF6' },
-      { level: 8, name: 'Mythic', minAura: 10000, maxAura: 19999, color: '#6366F1' },
-      { level: 9, name: 'Celestial', minAura: 20000, maxAura: 49999, color: '#A855F7' },
-      { level: 10, name: 'Transcendent', minAura: 50000, maxAura: 99999, color: '#F97316' },
-      { level: 11, name: 'Omnipotent', minAura: 100000, maxAura: 999999, color: '#DC2626' }
+  // Initialize default dreamz levels (duplicate/legacy - main method is at line 448)
+  private seedDreamzLevelsLegacy() {
+    const dreamzLevels = [
+      { level: 1, name: 'Novice', minDreamz: 0, maxDreamz: 99, color: '#2196F3' },
+      { level: 2, name: 'Apprentice', minDreamz: 100, maxDreamz: 299, color: '#1976D2' },
+      { level: 3, name: 'Adept', minDreamz: 300, maxDreamz: 599, color: '#0D47A1' },
+      { level: 4, name: 'Expert', minDreamz: 600, maxDreamz: 999, color: '#00BCD4' },
+      { level: 5, name: 'Master', minDreamz: 1000, maxDreamz: 1999, color: '#0097A7' },
+      { level: 6, name: 'Grandmaster', minDreamz: 2000, maxDreamz: 4999, color: '#00838F' },
+      { level: 7, name: 'Legend', minDreamz: 5000, maxDreamz: 9999, color: '#006064' },
+      { level: 8, name: 'Mythic', minDreamz: 10000, maxDreamz: 19999, color: '#01579B' },
+      { level: 9, name: 'Celestial', minDreamz: 20000, maxDreamz: 49999, color: '#0277BD' },
+      { level: 10, name: 'Transcendent', minDreamz: 50000, maxDreamz: 99999, color: '#0288D1' },
+      { level: 11, name: 'Omnipotent', minDreamz: 100000, maxDreamz: 999999, color: '#039BE5' }
     ];
 
-    auraLevels.forEach((level, index) => {
-      const auraLevel: AuraLevel = {
-        id: `level_${level.level}`,
-        ...level,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      this.store.auraLevels.set(auraLevel.id, auraLevel);
-    });
+    // This method is not currently used - main seed method is seedDreamzLevels
   }
 
   // Migrate real production data from PostgreSQL to in-memory storage  
@@ -824,7 +816,7 @@ class MemStorage implements IStorage {
         username: 'tozcam81',
         walletAddress: '0x8618a79074811d17078d2476412eb6538c8e3665',
         twitterUsername: 'tozcam81',
-        auraPoints: 130,
+        dreamzPoints: 130,
         currentStreak: 3,
         lastLessonDate: new Date('2025-08-06 12:15:00.717'),
         totalVouchesReceived: 0,
@@ -833,20 +825,20 @@ class MemStorage implements IStorage {
         portfolioGrowth: 0,
         walletAge: 0,
         isVerified: false,
-        auraFromLessons: 30,
-        auraFromVouching: 100,
-        auraFromBattles: 0,
+        dreamzFromLessons: 30,
+        dreamzFromVouching: 100,
+        dreamzFromBattles: 0,
         totalUsdtEarned: 0,
-        steezeBalance: 0,
-        battleEarnedSteeze: 0,
-        purchasedSteeze: 0,
+        potionsBalance: 0,
+        battleEarnedPotions: 0,
+        purchasedPotions: 0,
         createdAt: new Date('2025-07-27 21:20:09.593089'),
         updatedAt: new Date('2025-08-06 15:15:44.427')
       },
       {
         id: 'wallet_0x6b4125de118407d9159264096c085d777226bfc0',
         walletAddress: '0x6b4125de118407d9159264096c085d777226bfc0',
-        auraPoints: 110,
+        dreamzPoints: 110,
         currentStreak: 1,
         lastLessonDate: new Date('2025-08-06 12:28:01.473'),
         totalVouchesReceived: 0,
@@ -855,20 +847,20 @@ class MemStorage implements IStorage {
         portfolioGrowth: 0,
         walletAge: 173,
         isVerified: false,
-        auraFromLessons: 10,
-        auraFromVouching: 0,
-        auraFromBattles: 0,
+        dreamzFromLessons: 10,
+        dreamzFromVouching: 0,
+        dreamzFromBattles: 0,
         totalUsdtEarned: 0,
-        steezeBalance: 0,
-        battleEarnedSteeze: 0,
-        purchasedSteeze: 0,
+        potionsBalance: 0,
+        battleEarnedPotions: 0,
+        purchasedPotions: 0,
         createdAt: new Date('2025-08-05 21:33:18.802214'),
         updatedAt: new Date('2025-08-06 12:28:01.473')
       },
       {
         id: 'wallet_0x863283d940b9e4dddd447ecbdb62e6d32824ba09',
         walletAddress: '0x863283d940b9e4dddd447ecbdb62e6d32824ba09',
-        auraPoints: 100,
+        dreamzPoints: 100,
         currentStreak: 0,
         totalVouchesReceived: 0,
         totalBattlesWon: 0,
@@ -876,20 +868,20 @@ class MemStorage implements IStorage {
         portfolioGrowth: 0,
         walletAge: 72,
         isVerified: false,
-        auraFromLessons: 0,
-        auraFromVouching: 0,
-        auraFromBattles: 0,
+        dreamzFromLessons: 0,
+        dreamzFromVouching: 0,
+        dreamzFromBattles: 0,
         totalUsdtEarned: 0,
-        steezeBalance: 0,
-        battleEarnedSteeze: 0,
-        purchasedSteeze: 0,
+        potionsBalance: 0,
+        battleEarnedPotions: 0,
+        purchasedPotions: 0,
         createdAt: new Date('2025-08-03 15:35:30.595887'),
         updatedAt: new Date('2025-08-03 15:35:30.595887')
       },
       {
         id: 'wallet_0x196c17c9bc9b32d5f8a3d76995930d7c12e1e886',
         walletAddress: '0x196c17c9bc9b32d5f8a3d76995930d7c12e1e886',
-        auraPoints: 100,
+        dreamzPoints: 100,
         currentStreak: 0,
         totalVouchesReceived: 0,
         totalBattlesWon: 0,
@@ -897,13 +889,13 @@ class MemStorage implements IStorage {
         portfolioGrowth: 0,
         walletAge: 314,
         isVerified: false,
-        auraFromLessons: 0,
-        auraFromVouching: 0,
-        auraFromBattles: 0,
+        dreamzFromLessons: 0,
+        dreamzFromVouching: 0,
+        dreamzFromBattles: 0,
         totalUsdtEarned: 0,
-        steezeBalance: 0,
-        battleEarnedSteeze: 0,
-        purchasedSteeze: 0,
+        potionsBalance: 0,
+        battleEarnedPotions: 0,
+        purchasedPotions: 0,
         createdAt: new Date('2025-08-03 13:34:21.071411'),
         updatedAt: new Date('2025-08-03 13:34:21.058')
       },
@@ -912,7 +904,7 @@ class MemStorage implements IStorage {
         email: 'test@example.com',
         username: 'TestRedeemer',
         walletAddress: '0x1234567890123456789012345678901234567890',
-        auraPoints: 100,
+        dreamzPoints: 100,
         currentStreak: 5,
         totalVouchesReceived: 0,
         totalBattlesWon: 0,
@@ -920,13 +912,13 @@ class MemStorage implements IStorage {
         portfolioGrowth: 0,
         walletAge: 0,
         isVerified: false,
-        auraFromLessons: 0,
-        auraFromVouching: 0,
-        auraFromBattles: 0,
+        dreamzFromLessons: 0,
+        dreamzFromVouching: 0,
+        dreamzFromBattles: 0,
         totalUsdtEarned: 0,
-        steezeBalance: 0,
-        battleEarnedSteeze: 50,
-        purchasedSteeze: 0,
+        potionsBalance: 0,
+        battleEarnedPotions: 50,
+        purchasedPotions: 0,
         createdAt: new Date('2025-08-03 12:07:50.36263'),
         updatedAt: new Date('2025-08-03 12:07:50.36263')
       }
@@ -948,7 +940,7 @@ class MemStorage implements IStorage {
         voucherUserId: 'wallet_0xd9dfa2feead8247ee0deb4081bfdb12e00f3532e',
         vouchedUserId: 'wallet_0x1c11262b204ee2d0146315a05b4cf42ca61d33e4',
         usdcAmount: 1,
-        auraAwarded: 10,
+        dreamzAwarded: 10,
         multiplier: 1.0,
         status: 'completed' as const,
         createdAt: new Date('2025-08-06 13:11:53.992464'),
@@ -959,7 +951,7 @@ class MemStorage implements IStorage {
         voucherUserId: 'wallet_0xf6dbc4185935c32c962c36100f7daa9ab5155412',
         vouchedUserId: 'wallet_0xa2eadf509870570e85d5dda31f5d5effcfcf5c30',
         usdcAmount: 1,
-        auraAwarded: 10,
+        dreamzAwarded: 10,
         multiplier: 1.0,
         status: 'completed' as const,
         createdAt: new Date('2025-08-03 11:50:08.012938'),
@@ -971,8 +963,8 @@ class MemStorage implements IStorage {
       this.store.vouches.set(vouchData.id, vouchData);
     });
 
-    // Real production steeze transactions
-    const realSteezeTransactions = [
+    // Real production potions transactions
+    const realPotionsTransactions = [
       {
         id: '7af75693-a1a0-4966-8d49-679b6899f058',
         userId: 'wallet_0xdca9ef7e7231d6e1646f984ac0a12d75a5c5ff34',
@@ -1011,37 +1003,37 @@ class MemStorage implements IStorage {
       }
     ];
 
-    realSteezeTransactions.forEach(transactionData => {
-      this.store.steezeTransactions.set(transactionData.id, transactionData);
+    realPotionsTransactions.forEach(transactionData => {
+      this.store.potionsTransactions.set(transactionData.id, transactionData);
     });
 
     // Add remaining users from PostgreSQL to match the full 76 user count
     // These are condensed entries to preserve the correct user count and total aura (2370)
     const remainingUsers = [
       // Users with 100 aura points (most common value)
-      { id: 'wallet_0xfbeb9de5688b43fb52684bbae0c265fc3fac48cd', walletAddress: '0xfbeb9de5688b43fb52684bbae0c265fc3fac48cd', auraPoints: 100, currentStreak: 0, auraFromLessons: 0, auraFromVouching: 0, auraFromBattles: 0, totalUsdtEarned: 0, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
-      { id: 'wallet_0xbeb91a24e7853d4a79e8bac41a469f50b9daba49', walletAddress: '0xbeb91a24e7853d4a79e8bac41a469f50b9daba49', auraPoints: 100, currentStreak: 0, auraFromLessons: 0, auraFromVouching: 0, auraFromBattles: 0, totalUsdtEarned: 0, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
-      { id: 'wallet_0x98f0d5186d85f9750d80c8d491fc561a6f074a7c', walletAddress: '0x98f0d5186d85f9750d80c8d491fc561a6f074a7c', auraPoints: 100, currentStreak: 0, auraFromLessons: 0, auraFromVouching: 0, auraFromBattles: 0, totalUsdtEarned: 0, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-08-07'), updatedAt: new Date('2025-08-07') },
-      { id: 'wallet_0xf0e7d317bd15706b99cd6df8cc42c673504ec90f', walletAddress: '0xf0e7d317bd15706b99cd6df8cc42c673504ec90f', auraPoints: 100, currentStreak: 0, auraFromLessons: 0, auraFromVouching: 0, auraFromBattles: 0, totalUsdtEarned: 0, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
-      { id: 'wallet_0xfeaee8ddbdd37c23ee82740dce970cd4bfc8053f', walletAddress: '0xfeaee8ddbdd37c23ee82740dce970cd4bfc8053f', auraPoints: 100, currentStreak: 0, auraFromLessons: 0, auraFromVouching: 0, auraFromBattles: 0, totalUsdtEarned: 0, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-08-06'), updatedAt: new Date('2025-08-06') },
-      { id: 'wallet_0x7b9d0e4491d7aa8f23f32f245dea935130e9e2fd', walletAddress: '0x7b9d0e4491d7aa8f23f32f245dea935130e9e2fd', auraPoints: 100, currentStreak: 0, auraFromLessons: 0, auraFromVouching: 0, auraFromBattles: 0, totalUsdtEarned: 0, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 1, isVerified: false, createdAt: new Date('2025-08-06'), updatedAt: new Date('2025-08-06') },
+      { id: 'wallet_0xfbeb9de5688b43fb52684bbae0c265fc3fac48cd', walletAddress: '0xfbeb9de5688b43fb52684bbae0c265fc3fac48cd', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
+      { id: 'wallet_0xbeb91a24e7853d4a79e8bac41a469f50b9daba49', walletAddress: '0xbeb91a24e7853d4a79e8bac41a469f50b9daba49', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
+      { id: 'wallet_0x98f0d5186d85f9750d80c8d491fc561a6f074a7c', walletAddress: '0x98f0d5186d85f9750d80c8d491fc561a6f074a7c', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-07'), updatedAt: new Date('2025-08-07') },
+      { id: 'wallet_0xf0e7d317bd15706b99cd6df8cc42c673504ec90f', walletAddress: '0xf0e7d317bd15706b99cd6df8cc42c673504ec90f', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
+      { id: 'wallet_0xfeaee8ddbdd37c23ee82740dce970cd4bfc8053f', walletAddress: '0xfeaee8ddbdd37c23ee82740dce970cd4bfc8053f', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-06'), updatedAt: new Date('2025-08-06') },
+      { id: 'wallet_0x7b9d0e4491d7aa8f23f32f245dea935130e9e2fd', walletAddress: '0x7b9d0e4491d7aa8f23f32f245dea935130e9e2fd', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 1, isVerified: false, createdAt: new Date('2025-08-06'), updatedAt: new Date('2025-08-06') },
       // Key users with higher aura points
-      { id: 'wallet_0xf6dbc4185935c32c962c36100f7daa9ab5155412', username: 'David', twitterId: '1822005433470533634', twitterUsername: 'snowlinkag', walletAddress: '0xf6dbc4185935c32c962c36100f7daa9ab5155412', auraPoints: 70, currentStreak: 0, auraFromLessons: 30, auraFromVouching: 50, auraFromBattles: 0, totalUsdtEarned: 0.00007, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 21, isVerified: false, createdAt: new Date('2025-06-09'), updatedAt: new Date('2025-08-07') },
-      { id: 'wallet_0xe2e5767c48871fd56a86165d7ad1e7ef65be5065', username: 'iteryum', twitterId: '1654061934709227521', twitterUsername: 'iteryum', walletAddress: '0xe2e5767c48871fd56a86165d7ad1e7ef65be5065', auraPoints: 50, currentStreak: 12, auraFromLessons: 120, auraFromVouching: 10, auraFromBattles: 0, totalUsdtEarned: 0.7, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-07-27'), updatedAt: new Date('2025-08-07') },
-      { id: 'wallet_0xa2eadf509870570e85d5dda31f5d5effcfcf5c30', walletAddress: '0xa2eadf509870570e85d5dda31f5d5effcfcf5c30', auraPoints: 50, currentStreak: 11, auraFromLessons: 110, auraFromVouching: 10, auraFromBattles: 0, totalUsdtEarned: 0.7, steezeBalance: 0, battleEarnedSteeze: 0, purchasedSteeze: 0, isVerified: false, createdAt: new Date('2025-07-27'), updatedAt: new Date('2025-08-06') },
+      { id: 'wallet_0xf6dbc4185935c32c962c36100f7daa9ab5155412', username: 'David', twitterId: '1822005433470533634', twitterUsername: 'snowlinkag', walletAddress: '0xf6dbc4185935c32c962c36100f7daa9ab5155412', dreamzPoints: 70, currentStreak: 0, dreamzFromLessons: 30, dreamzFromVouching: 50, dreamzFromBattles: 0, totalUsdtEarned: 0.00007, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 21, isVerified: false, createdAt: new Date('2025-06-09'), updatedAt: new Date('2025-08-07') },
+      { id: 'wallet_0xe2e5767c48871fd56a86165d7ad1e7ef65be5065', username: 'iteryum', twitterId: '1654061934709227521', twitterUsername: 'iteryum', walletAddress: '0xe2e5767c48871fd56a86165d7ad1e7ef65be5065', dreamzPoints: 50, currentStreak: 12, dreamzFromLessons: 120, dreamzFromVouching: 10, dreamzFromBattles: 0, totalUsdtEarned: 0.7, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-07-27'), updatedAt: new Date('2025-08-07') },
+      { id: 'wallet_0xa2eadf509870570e85d5dda31f5d5effcfcf5c30', walletAddress: '0xa2eadf509870570e85d5dda31f5d5effcfcf5c30', dreamzPoints: 50, currentStreak: 11, dreamzFromLessons: 110, dreamzFromVouching: 10, dreamzFromBattles: 0, totalUsdtEarned: 0.7, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-07-27'), updatedAt: new Date('2025-08-06') },
       // Add 60+ more users with various aura amounts to reach the 2370 total
       ...Array.from({length: 61}, (_, i) => ({
         id: `wallet_0x${i.toString().padStart(40, '0')}`,
         walletAddress: `0x${i.toString().padStart(40, '0')}`,
-        auraPoints: i < 30 ? 100 : (i < 50 ? 40 : (i < 55 ? 20 : 10)), // Distribution to match 2370 total
+        dreamzPoints: i < 30 ? 100 : (i < 50 ? 40 : (i < 55 ? 20 : 10)), // Distribution to match 2370 total
         currentStreak: Math.floor(Math.random() * 5),
-        auraFromLessons: Math.floor(Math.random() * 50),
-        auraFromVouching: Math.floor(Math.random() * 20),
-        auraFromBattles: 0,
+        dreamzFromLessons: Math.floor(Math.random() * 50),
+        dreamzFromVouching: Math.floor(Math.random() * 20),
+        dreamzFromBattles: 0,
         totalUsdtEarned: 0,
-        steezeBalance: 0,
-        battleEarnedSteeze: 0,
-        purchasedSteeze: 0,
+        potionsBalance: 0,
+        battleEarnedPotions: 0,
+        purchasedPotions: 0,
         isVerified: false,
         createdAt: new Date('2025-07-01'),
         updatedAt: new Date('2025-08-01'),
@@ -1079,7 +1071,7 @@ class MemStorage implements IStorage {
           "Use well-audited and community-trusted bridge protocols to mitigate security risks",
           "Engage with community forums to stay informed about latest developments and security practices"
         ],
-        auraReward: 100,
+        dreamzReward: 100,
         difficulty: "intermediate",
         estimatedReadTime: 15,
         isActive: true,
@@ -1105,7 +1097,7 @@ class MemStorage implements IStorage {
           "Diversify across multiple protocols to reduce risk",
           "Stay updated on protocol changes and security audits"
         ],
-        auraReward: 100,
+        dreamzReward: 100,
         difficulty: "beginner",
         estimatedReadTime: 12,
         isActive: true,
@@ -1129,9 +1121,9 @@ class MemStorage implements IStorage {
     });
 
     console.log('✓ Complete production data migrated successfully from PostgreSQL to in-memory storage');
-    console.log(`✓ Loaded ${realUsers.length + remainingUsers.length} users (full 76), ${realVouches.length} vouches, ${realSteezeTransactions.length} steeze transactions`);
+    console.log(`✓ Loaded ${realUsers.length + remainingUsers.length} users (full 76), ${realVouches.length} vouches, ${realPotionsTransactions.length} potions transactions`);
     console.log(`✓ Added ${sampleLessons.length} sample lessons with quiz data for testing`);
-    console.log('✓ Data includes: tozcam81 (130 AP), all real wallets, proper aura distribution (2370 total)');
+    console.log('✓ Data includes: tozcam81 (130 DP), all real wallets, proper dreamz distribution (2370 total)');
     console.log('✓ Cost-effective storage preserving full production dataset');
   }
 }
