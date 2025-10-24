@@ -47,7 +47,7 @@
 }
 
 body {
-  background: linear-gradient(to bottom, #8B5CF6 0%, #000000 100%);
+  background: linear-gradient(to bottom, #0047AB 0%, #000000 100%);
   background-attachment: fixed;
   min-height: 100vh;
   /* Mobile optimizations */
@@ -79,28 +79,29 @@ body {
 }
 
 :root {
-  --background: 0 0% 5%; /* Almost Black */
-  --foreground: 0 0% 98%; /* Almost White */
-  --muted: 270 10% 15%; /* Dark Purple Muted */
-  --muted-foreground: 270 5% 65%; /* Light Purple Gray */
-  --popover: 0 0% 8%; /* Dark Popover */
-  --popover-foreground: 0 0% 95%; /* Light */
-  --card: 270 20% 8%; /* Dark Card with Purple Tint */
-  --card-foreground: 0 0% 95%; /* Light */
-  --border: 270 50% 20%; /* Purple Border */
-  --input: 270 30% 12%; /* Dark Input */
-  --primary: 300 100% 60%; /* Bright Pink/Purple */
+  --background: 0 0% 3%; /* Deep Black */
+  --foreground: 210 100% 98%; /* Cool White */
+  --muted: 220 20% 12%; /* Dark Blue Muted */
+  --muted-foreground: 215 15% 60%; /* Steel Gray */
+  --popover: 220 30% 8%; /* Dark Blue Popover */
+  --popover-foreground: 210 100% 95%; /* Light */
+  --card: 220 40% 7%; /* Dark Card with Blue Tint */
+  --card-foreground: 210 100% 95%; /* Light */
+  --border: 217 50% 25%; /* Electric Blue Border */
+  --input: 220 35% 10%; /* Dark Blue Input */
+  --primary: 217 91% 60%; /* Bright Electric Blue */
   --primary-foreground: 0 0% 98%; /* White */
-  --secondary: 270 20% 15%; /* Dark Secondary */
-  --secondary-foreground: 300 30% 80%; /* Light Pink */
-  --accent: 180 100% 50%; /* Cyan Accent */
+  --secondary: 220 30% 15%; /* Dark Blue Secondary */
+  --secondary-foreground: 217 70% 85%; /* Light Blue */
+  --accent: 195 100% 50%; /* Cyan Accent */
   --accent-foreground: 0 0% 10%; /* Dark */
   --destructive: 0 84.2% 60.2%; /* Red */
   --destructive-foreground: 0 0% 98%; /* White */
-  --ring: 300 100% 60%; /* Pink Ring */
-  --radius: 1rem;
+  --ring: 217 91% 60%; /* Blue Ring */
+  --radius: 0.75rem;
   --success: 142.1 76.2% 50%; /* Bright Green */
   --warning: 38 92% 60%; /* Bright Orange */
+  --ai-glow: 217 91% 60%; /* AI Blue Glow */
 }
 
 @keyframes float {
@@ -253,8 +254,12 @@ body {
 }
 
 /* Gradient backgrounds */
-.bg-aura-gradient {
+.bg-dreamz-gradient {
   background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+}
+
+.bg-ai-gradient {
+  background: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(195 100% 50%) 100%);
 }
 
 .bg-battle-gradient {
@@ -263,6 +268,13 @@ body {
 
 .bg-success-gradient {
   background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(174 100% 50%) 100%);
+}
+
+.bg-cyber-grid {
+  background-image: 
+    linear-gradient(0deg, rgba(33, 150, 243, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(33, 150, 243, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
 /* Card hover effects */
