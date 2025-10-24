@@ -41,7 +41,7 @@ export const users = pgTable("users", {
   twitterAccessToken: text("twitter_access_token"),
   twitterRefreshToken: text("twitter_refresh_token"),
   isVerified: boolean("is_verified").default(false),
-  auraPoints: integer("aura_points").default(0),
+  dreamzPoints: integer("dreamz_points").default(0),
   currentStreak: integer("current_streak").default(0),
   lastLessonDate: timestamp("last_lesson_date"),
   totalVouchesReceived: decimal("total_vouches_received").default("0"),
@@ -49,16 +49,16 @@ export const users = pgTable("users", {
   totalBattlesLost: integer("total_battles_lost").default(0),
   portfolioGrowth: decimal("portfolio_growth").default("0"),
   walletAge: integer("wallet_age").default(0),
-  // Aura points breakdown tracking
-  auraFromLessons: integer("aura_from_lessons").default(0),
-  auraFromVouching: integer("aura_from_vouching").default(0),
-  auraFromBattles: integer("aura_from_battles").default(0),
+  // Dreamz points breakdown tracking
+  dreamzFromLessons: integer("dreamz_from_lessons").default(0),
+  dreamzFromVouching: integer("dreamz_from_vouching").default(0),
+  dreamzFromBattles: integer("dreamz_from_battles").default(0),
   // USDT earnings tracking
   totalUsdtEarned: decimal("total_usdt_earned").default("0"),
-  // Steeze token balances
-  steezeBalance: integer("steeze_balance").default(0),
-  battleEarnedSteeze: integer("battle_earned_steeze").default(0),
-  purchasedSteeze: integer("purchased_steeze").default(0),
+  // Potions token balances
+  potionsBalance: integer("potions_balance").default(0),
+  battleEarnedPotions: integer("battle_earned_potions").default(0),
+  purchasedPotions: integer("purchased_potions").default(0),
   ipAddress: varchar("ip_address", { length: 45 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -69,7 +69,7 @@ export const lessons = pgTable("lessons", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   keyTakeaways: jsonb("key_takeaways").notNull(),
-  auraReward: integer("aura_reward").default(100),
+  dreamzReward: integer("dreamz_reward").default(100),
   difficulty: varchar("difficulty").default("beginner"),
   estimatedReadTime: integer("estimated_read_time").default(15),
   isActive: boolean("is_active").default(true),
@@ -89,7 +89,7 @@ export const userLessons = pgTable("user_lessons", {
   quizCompleted: boolean("quiz_completed").default(false),
   tweetUrl: varchar("tweet_url"),
   tweetId: varchar("tweet_id"),
-  auraEarned: integer("aura_earned").default(0),
+  dreamzEarned: integer("dreamz_earned").default(0),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -128,14 +128,14 @@ export const vouches = pgTable("vouches", {
   fromUserId: varchar("from_user_id").notNull().references(() => users.id),
   toUserId: varchar("to_user_id").notNull().references(() => users.id),
   usdtAmount: decimal("usdt_amount").notNull(),
-  auraPoints: integer("aura_points").notNull(),
+  dreamzPoints: integer("dreamz_points").notNull(),
   multiplier: decimal("multiplier").default("1"),
   transactionHash: varchar("transaction_hash"),
   battleId: uuid("battle_id").references(() => battles.id), // if vouch is for a battle
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const auraLevels = pgTable("aura_levels", {
+export const dreamzLevels = pgTable("dreamz_levels", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
   minDays: integer("min_days").notNull(),
@@ -158,12 +158,12 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Steeze transactions table
-export const steezeTransactions = pgTable("steeze_transactions", {
+// Potions transactions table
+export const potionsTransactions = pgTable("potions_transactions", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: varchar("user_id").notNull().references(() => users.id),
   type: varchar("type").notNull(), // 'purchase', 'redeem', 'transfer', 'battle_support'
-  amount: integer("amount").notNull(), // Amount of Steeze tokens
+  amount: integer("amount").notNull(), // Amount of Potions tokens
   usdtAmount: decimal("usdt_amount").notNull(), // ETH value involved (keeping column name for compatibility)
   rate: decimal("rate").notNull(), // Exchange rate used (0.01 for purchase, 0.007 for redeem)
   status: varchar("status").default("completed"), // 'pending', 'completed', 'failed'
@@ -302,7 +302,7 @@ export const insertVouchSchema = createInsertSchema(vouches).omit({
   createdAt: true,
 });
 
-export const insertAuraLevelSchema = createInsertSchema(auraLevels).omit({
+export const insertDreamzLevelSchema = createInsertSchema(dreamzLevels).omit({
   id: true,
 });
 
@@ -310,7 +310,7 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
-export const insertSteezeTransactionSchema = createInsertSchema(steezeTransactions).omit({
+export const insertPotionsTransactionSchema = createInsertSchema(potionsTransactions).omit({
   id: true,
   createdAt: true,
 });
@@ -327,10 +327,10 @@ export type InsertBattleVote = z.infer<typeof insertBattleVoteSchema>;
 export type BattleVote = typeof battleVotes.$inferSelect;
 export type InsertVouch = z.infer<typeof insertVouchSchema>;
 export type Vouch = typeof vouches.$inferSelect;
-export type InsertAuraLevel = z.infer<typeof insertAuraLevelSchema>;
-export type AuraLevel = typeof auraLevels.$inferSelect;
+export type InsertDreamzLevel = z.infer<typeof insertDreamzLevelSchema>;
+export type DreamzLevel = typeof dreamzLevels.$inferSelect;
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
-export type InsertSteezeTransaction = z.infer<typeof insertSteezeTransactionSchema>;
-export type SteezeTransaction = typeof steezeTransactions.$inferSelect;
+export type InsertPotionsTransaction = z.infer<typeof insertPotionsTransactionSchema>;
+export type PotionsTransaction = typeof potionsTransactions.$inferSelect;
