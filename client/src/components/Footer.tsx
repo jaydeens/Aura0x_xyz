@@ -15,22 +15,22 @@ const GitBookLogo = ({ className }: { className?: string }) => (
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-gray-800/50 bg-gradient-to-r from-black/80 via-purple-900/20 to-pink-900/20 backdrop-blur-sm">
+    <footer className="relative border-t border-cyan-500/30 bg-gradient-to-r from-black via-blue-950/50 to-black backdrop-blur-sm">
       {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute bottom-0 left-1/4 w-32 h-32 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-full blur-2xl animate-pulse-slow"></div>
-        <div className="absolute bottom-0 right-1/3 w-24 h-24 bg-gradient-to-br from-blue-600/15 to-purple-600/15 rounded-full blur-xl animate-float"></div>
+        <div className="absolute bottom-0 left-1/4 w-32 h-32 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-full blur-2xl animate-pulse-slow"></div>
+        <div className="absolute bottom-0 right-1/3 w-24 h-24 bg-gradient-to-br from-blue-600/15 to-cyan-600/15 rounded-full blur-xl animate-float"></div>
       </div>
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col items-center justify-center space-y-6">
           {/* Logo and Title */}
           <div className="text-center">
-            <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-2">
-              AURA
+            <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent mb-2">
+              DREAMZ
             </h3>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Creators & Streamers Social Network
+            <p className="text-gray-400 text-sm sm:text-base font-mono">
+              Neural Reputation Protocol // AI-Powered Network
             </p>
           </div>
 
@@ -40,7 +40,7 @@ export default function Footer() {
               asChild
               variant="outline"
               size="sm"
-              className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30 text-white hover:bg-gradient-to-r hover:from-purple-600/40 hover:to-pink-600/40 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
+              className="bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border-cyan-500/30 text-white hover:bg-gradient-to-r hover:from-cyan-600/40 hover:to-blue-600/40 hover:border-cyan-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
             >
               <a
                 href="https://aura-13.gitbook.io/aura/"
@@ -48,9 +48,9 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2"
               >
-                <GitBookLogo className="w-5 h-5 group-hover:text-purple-300 transition-colors" />
-                <span className="font-semibold">GitBook</span>
-                <ExternalLink className="w-3 h-3 group-hover:text-purple-300 transition-colors" />
+                <GitBookLogo className="w-5 h-5 group-hover:text-cyan-300 transition-colors" />
+                <span className="font-semibold font-mono">Documentation</span>
+                <ExternalLink className="w-3 h-3 group-hover:text-cyan-300 transition-colors" />
               </a>
             </Button>
 
@@ -58,7 +58,7 @@ export default function Footer() {
               asChild
               variant="outline"
               size="sm"
-              className="bg-gradient-to-r from-blue-600/20 to-sky-600/20 border-blue-500/30 text-white hover:bg-gradient-to-r hover:from-blue-600/40 hover:to-sky-600/40 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
+              className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-white hover:bg-gradient-to-r hover:from-blue-600/40 hover:to-cyan-600/40 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
             >
               <a
                 href="https://x.com/Aura_0x"
@@ -66,9 +66,9 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2"
               >
-                <SiX className="w-4 h-4 group-hover:text-blue-300 transition-colors" />
-                <span className="font-semibold">Follow on X</span>
-                <ExternalLink className="w-3 h-3 group-hover:text-blue-300 transition-colors" />
+                <SiX className="w-4 h-4 group-hover:text-cyan-300 transition-colors" />
+                <span className="font-semibold font-mono">Follow Network</span>
+                <ExternalLink className="w-3 h-3 group-hover:text-cyan-300 transition-colors" />
               </a>
             </Button>
 
@@ -76,7 +76,7 @@ export default function Footer() {
               asChild
               variant="outline"
               size="sm"
-              className="bg-gradient-to-r from-indigo-600/20 to-violet-600/20 border-indigo-500/30 text-white hover:bg-gradient-to-r hover:from-indigo-600/40 hover:to-violet-600/40 hover:border-indigo-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
+              className="bg-gradient-to-r from-blue-600/20 to-blue-800/20 border-blue-500/30 text-white hover:bg-gradient-to-r hover:from-blue-600/40 hover:to-blue-800/40 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 group flex-shrink-0"
             >
               <a
                 href="https://discord.gg/uyWWJPMmWx"
@@ -84,17 +84,17 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2"
               >
-                <SiDiscord className="w-4 h-4 group-hover:text-indigo-300 transition-colors" />
-                <span className="font-semibold">Join Discord</span>
-                <ExternalLink className="w-3 h-3 group-hover:text-indigo-300 transition-colors" />
+                <SiDiscord className="w-4 h-4 group-hover:text-blue-300 transition-colors" />
+                <span className="font-semibold font-mono">Join Protocol</span>
+                <ExternalLink className="w-3 h-3 group-hover:text-blue-300 transition-colors" />
               </a>
             </Button>
           </div>
 
           {/* Footer Text */}
-          <div className="text-center text-gray-500 text-xs sm:text-sm border-t border-gray-800/50 pt-6 w-full">
-            <p>&copy; 2025 Aura Platform. Built on Base Sepolia Testnet.</p>
-            <p className="mt-1">Transforming Web3 education through gamified social learning.</p>
+          <div className="text-center text-gray-500 text-xs sm:text-sm border-t border-cyan-800/30 pt-6 w-full font-mono">
+            <p>&copy; 2025 Dreamz Protocol // Blockchain Infrastructure Layer</p>
+            <p className="mt-1">Neural Reputation Layer // AI-Driven Consensus Network</p>
           </div>
         </div>
       </div>
