@@ -10,6 +10,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 declare global {
   interface Window {
     ethereum?: any;
+    solana?: any;
+    phantom?: {
+      solana?: any;
+    };
+    backpack?: any;
   }
 }
 
@@ -26,6 +31,7 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
   const [balance, setBalance] = useState<string>("0");
   const [isConnecting, setIsConnecting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [walletType, setWalletType] = useState<'ethereum' | 'solana' | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -175,6 +181,69 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
 
 
 
+  const connectSolanaWallet = async (provider: 'phantom' | 'backpack') => {
+    setIsConnecting(true);
+    try {
+      let wallet: any;
+      
+      if (provider === 'phantom') {
+        wallet = window.phantom?.solana || window.solana;
+        if (!wallet || !wallet.isPhantom) {
+          window.open('https://phantom.app/', '_blank');
+          toast({
+            title: "Phantom Not Found",
+            description: "Opening Phantom download page. Please install Phantom wallet.",
+            duration: 5000,
+          });
+          setIsConnecting(false);
+          return;
+        }
+      } else if (provider === 'backpack') {
+        wallet = window.backpack;
+        if (!wallet) {
+          window.open('https://www.backpack.app/', '_blank');
+          toast({
+            title: "Backpack Not Found",
+            description: "Opening Backpack download page. Please install Backpack wallet.",
+            duration: 5000,
+          });
+          setIsConnecting(false);
+          return;
+        }
+      }
+
+      // Connect to wallet
+      const response = await wallet.connect();
+      const publicKey = response.publicKey.toString();
+      
+      setAddress(publicKey);
+      setIsConnected(true);
+      setWalletType('solana');
+      
+      onConnect?.(publicKey);
+      
+      // Authenticate with backend
+      authenticateWallet.mutate(publicKey);
+      
+      // Show CARV network info
+      await switchToCARVNetwork();
+      
+      toast({
+        title: `${provider === 'phantom' ? 'Phantom' : 'Backpack'} Connected`,
+        description: `Connected to ${publicKey.slice(0, 6)}...${publicKey.slice(-4)}`,
+      });
+    } catch (error: any) {
+      console.error(`Error connecting ${provider} wallet:`, error);
+      toast({
+        title: "Connection Failed",
+        description: error.message || `Failed to connect ${provider} wallet. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const connectWallet = async () => {
     // Mobile-specific wallet detection
     if (isMobile && !window.ethereum) {
@@ -206,9 +275,10 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
         const walletAddress = accounts[0];
         setAddress(walletAddress);
         setIsConnected(true);
+        setWalletType('ethereum');
         
-        // Switch to Base network if needed
-        await switchToBaseNetwork();
+        // Show CARV network info
+        await switchToCARVNetwork();
         
         if (showBalance) {
           await fetchBalance(walletAddress);
@@ -236,49 +306,32 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     }
   };
 
-  const switchToBaseNetwork = async () => {
-    // Environment-based network configuration
-    const isProduction = import.meta.env.NODE_ENV === 'production';
-    const networkConfig = isProduction ? {
-      chainId: '0x2105', // Base Mainnet (8453 in hex)
-      chainName: 'Base',
-      rpcUrls: ['https://mainnet.base.org'],
-      blockExplorerUrls: ['https://basescan.org'],
-    } : {
-      chainId: '0x2105', // Base Mainnet (8453 in hex)
-      chainName: 'Base Mainnet',
-      rpcUrls: ['https://mainnet.base.org'],
-      blockExplorerUrls: ['https://basescan.org'],
+  const switchToCARVNetwork = async () => {
+    // CARV SVM Chain testnet configuration
+    const networkConfig = {
+      rpcUrl: 'https://rpc.testnet.carv.io/rpc',
+      chainName: 'CARV SVM Chain Testnet',
+      explorerUrl: 'https://explorer.testnet.carv.io/',
+      bridgeUrl: 'https://bridge.testnet.carv.io',
     };
 
-    try {
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: networkConfig.chainId }],
+    if (walletType === 'solana') {
+      // For Solana wallets, just notify the user about CARV SVM
+      toast({
+        title: "CARV SVM Chain",
+        description: `Connected to ${networkConfig.chainName}. Visit ${networkConfig.bridgeUrl} to bridge assets.`,
+        duration: 6000,
       });
-    } catch (switchError: any) {
-      // This error code indicates that the chain has not been added to MetaMask
-      if (switchError.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: networkConfig.chainId,
-              chainName: networkConfig.chainName,
-              nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18,
-              },
-              rpcUrls: networkConfig.rpcUrls,
-              blockExplorerUrls: networkConfig.blockExplorerUrls,
-            }],
-          });
-        } catch (addError) {
-          console.error(`Error adding ${networkConfig.chainName} network:`, addError);
-        }
-      }
+      return;
     }
+
+    // For Ethereum wallets, no network switching needed for CARV SVM
+    // CARV SVM is Solana-based, Ethereum wallets can still interact via bridge
+    toast({
+      title: "CARV SVM Chain Info",
+      description: `Using CARV SVM Chain testnet. Bridge assets at ${networkConfig.bridgeUrl}`,
+      duration: 5000,
+    });
   };
 
   const disconnectWallet = () => {
@@ -346,92 +399,121 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
           Connect Wallet
         </CardTitle>
         <CardDescription className="text-sm">
-          Connect your Web3 wallet to participate in vouching and battles
+          Connect your wallet to CARV SVM Chain for battles and vouching
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
+        {/* Desktop wallet options */}
+        {!isMobile && (
+          <>
+            <div className="space-y-3">
+              <div className="text-sm font-semibold text-cyan-400">Solana Wallets (Recommended for CARV SVM)</div>
+              
+              <Button 
+                onClick={() => connectSolanaWallet('phantom')} 
+                disabled={isConnecting}
+                className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
+                data-testid="button-connect-phantom"
+              >
+                <Wallet className="h-5 w-5" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold">Phantom</div>
+                  <div className="text-xs opacity-80">Solana wallet for CARV SVM</div>
+                </div>
+              </Button>
+              
+              <Button 
+                onClick={() => connectSolanaWallet('backpack')} 
+                disabled={isConnecting}
+                variant="outline"
+                className="w-full flex items-center gap-3 h-12 border-cyan-500/30 hover:bg-cyan-500/10"
+                data-testid="button-connect-backpack"
+              >
+                <Wallet className="h-5 w-5" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold">Backpack</div>
+                  <div className="text-xs opacity-70">xNFT-enabled wallet</div>
+                </div>
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-700" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or use Ethereum wallet</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Button 
+                onClick={connectWallet} 
+                disabled={isConnecting}
+                variant="outline"
+                className="w-full h-12 border-orange-500/30 hover:bg-orange-500/10"
+                data-testid="button-connect-metamask"
+              >
+                <Wallet className="h-5 w-5 mr-2" />
+                {isConnecting ? "Connecting..." : "MetaMask / Ethereum Wallet"}
+              </Button>
+            </div>
+          </>
+        )}
+
         {/* Mobile wallet options */}
-        {isMobile ? (
+        {isMobile && (
           <div className="space-y-3">
+            <div className="text-sm font-semibold text-cyan-400 mb-2">Solana Wallets (CARV SVM)</div>
+            
+            <Button 
+              onClick={() => connectSolanaWallet('phantom')} 
+              disabled={isConnecting}
+              className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
+            >
+              <Smartphone className="h-5 w-5" />
+              <div>
+                <div className="font-semibold">Phantom</div>
+                <div className="text-xs opacity-80">Solana wallet</div>
+              </div>
+            </Button>
+            
+            <Button 
+              onClick={() => connectSolanaWallet('backpack')} 
+              disabled={isConnecting}
+              variant="outline"
+              className="w-full flex items-center gap-3 h-12"
+            >
+              <Smartphone className="h-5 w-5" />
+              <div>
+                <div className="font-semibold">Backpack</div>
+                <div className="text-xs opacity-70">xNFT wallet</div>
+              </div>
+            </Button>
+
+            <div className="text-xs text-center text-muted-foreground my-2">Ethereum Wallets</div>
+            
             <Button 
               onClick={() => connectMobileWallet('metamask')} 
               disabled={isConnecting}
-              className="w-full flex items-center gap-3 h-12 text-left justify-start bg-orange-500 hover:bg-orange-600"
+              variant="outline"
+              className="w-full flex items-center gap-3 h-12"
             >
               <Smartphone className="h-5 w-5" />
               <div>
                 <div className="font-semibold">MetaMask</div>
-                <div className="text-xs opacity-80">Most popular wallet</div>
+                <div className="text-xs opacity-70">Ethereum wallet</div>
               </div>
             </Button>
-            
-            <Button 
-              onClick={() => connectMobileWallet('trust')} 
-              disabled={isConnecting}
-              variant="outline"
-              className="w-full flex items-center gap-3 h-12 text-left justify-start"
-            >
-              <Smartphone className="h-5 w-5" />
-              <div>
-                <div className="font-semibold">Trust Wallet</div>
-                <div className="text-xs opacity-70">Mobile-first wallet</div>
-              </div>
-            </Button>
-            
-            <Button 
-              onClick={() => connectMobileWallet('walletconnect')} 
-              disabled={isConnecting}
-              variant="outline"
-              className="w-full flex items-center gap-3 h-12 text-left justify-start"
-            >
-              <QrCode className="h-5 w-5" />
-              <div>
-                <div className="font-semibold">WalletConnect</div>
-                <div className="text-xs opacity-70">Scan QR code</div>
-              </div>
-            </Button>
-            
-            <Button 
-              onClick={() => connectMobileWallet('coinbase')} 
-              disabled={isConnecting}
-              variant="outline"
-              className="w-full flex items-center gap-3 h-12 text-left justify-start"
-            >
-              <Smartphone className="h-5 w-5" />
-              <div>
-                <div className="font-semibold">Coinbase Wallet</div>
-                <div className="text-xs opacity-70">Easy to use</div>
-              </div>
-            </Button>
-          </div>
-        ) : (
-          /* Desktop wallet connection */
-          <Button 
-            onClick={connectWallet} 
-            disabled={isConnecting}
-            className="w-full h-12"
-          >
-            {isConnecting ? "Connecting..." : "Connect Wallet"}
-          </Button>
-        )}
-        
-        {!window.ethereum && !isMobile && (
-          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
-              <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">Please install a Web3 wallet extension</span>
-            </div>
           </div>
         )}
         
-        {isMobile && (
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-              <Smartphone className="h-4 w-4" />
-              <span className="text-sm">Choose your preferred mobile wallet above</span>
-            </div>
+        <div className="mt-4 p-3 bg-cyan-950/30 rounded-lg border border-cyan-500/30">
+          <div className="flex items-center gap-2 text-cyan-300 text-xs">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span>CARV SVM Chain is Solana-based. Phantom or Backpack recommended for best experience.</span>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
