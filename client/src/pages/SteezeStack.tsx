@@ -845,26 +845,26 @@ export default function SteezeStack() {
               <Brain className="w-8 h-8 text-white animate-pulse" />
             </div>
             <div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent tracking-tight" data-testid="heading-potions-vault">
-                NEURAL POTIONS VAULT
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent tracking-tight" data-testid="heading-elixirs-treasury">
+                DREAM ELIXIRS TREASURY
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <Network className="w-4 h-4 text-cyan-400" />
-                <p className="text-cyan-300/80 text-sm font-medium" data-testid="text-vault-description">Acquire & Liquidate Neural Potions via USDC</p>
+                <p className="text-cyan-300/80 text-sm font-medium" data-testid="text-treasury-description">Acquire & Liquidate Dream Elixirs via USDC</p>
                 <Cpu className="w-4 h-4 text-cyan-400" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Network Status Bar */}
-        <Card className="bg-gradient-to-r from-blue-900/40 via-blue-950/40 to-black/60 backdrop-blur-xl border border-cyan-500/30 shadow-lg shadow-cyan-500/10 mb-6" data-testid="card-blockchain-status">
+        {/* Dreamchain Status Bar */}
+        <Card className="bg-gradient-to-r from-blue-900/40 via-blue-950/40 to-black/60 backdrop-blur-xl border border-cyan-500/30 shadow-lg shadow-cyan-500/10 mb-6" data-testid="card-dreamchain-status">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${isOnCorrectNetwork ? 'bg-cyan-400 shadow-lg shadow-cyan-400/50' : 'bg-red-500 shadow-lg shadow-red-500/50'} animate-pulse`} data-testid="indicator-network-status" />
+                <div className={`w-3 h-3 rounded-full ${isOnCorrectNetwork ? 'bg-cyan-400 shadow-lg shadow-cyan-400/50' : 'bg-red-500 shadow-lg shadow-red-500/50'} animate-pulse`} data-testid="indicator-beacon-status" />
                 <div>
-                  <p className="text-xs text-cyan-300/60 font-medium">Blockchain Network</p>
+                  <p className="text-xs text-cyan-300/60 font-medium">Dreamchain Beacon</p>
                   <p className="text-sm font-bold text-white flex items-center gap-2" data-testid="text-current-network">
                     {currentChainId === BASE_MAINNET.chainId 
                       ? <><Network className="w-3 h-3" /> Base Mainnet ✓</> 
@@ -879,8 +879,8 @@ export default function SteezeStack() {
                 size="sm" 
                 onClick={refreshNetworkStatus}
                 className="text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/10 p-2 h-auto"
-                title="Refresh network status"
-                data-testid="button-refresh-blockchain"
+                title="Refresh beacon status"
+                data-testid="button-refresh-dreamchain"
               >
                 <RotateCcw className="w-4 h-4" />
               </Button>
@@ -903,17 +903,17 @@ export default function SteezeStack() {
           {/* LEFT COLUMN: Balance Stats + Transaction History */}
           <div className="lg:col-span-1 space-y-6">
             {/* Balance Cards - Vertical Stack */}
-            <Card className="bg-gradient-to-br from-blue-900/60 to-black border border-cyan-500/30 shadow-xl shadow-cyan-500/10" data-testid="card-vault-balance">
+            <Card className="bg-gradient-to-br from-blue-900/60 to-black border border-cyan-500/30 shadow-xl shadow-cyan-500/10" data-testid="card-treasury-balance">
               <CardHeader className="border-b border-cyan-500/20">
                 <CardTitle className="text-white flex items-center gap-2">
                   <Database className="w-5 h-5 text-cyan-400" />
-                  Total Vault
+                  Total Treasury
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="text-center mb-6">
-                  <div className="text-4xl font-black text-white mb-2" data-testid="text-total-vault">{totalBalance.toLocaleString()}</div>
-                  <div className="text-cyan-400 text-sm font-mono uppercase tracking-wider">POTIONS</div>
+                  <div className="text-4xl font-black text-white mb-2" data-testid="text-total-treasury">{totalBalance.toLocaleString()}</div>
+                  <div className="text-cyan-400 text-sm font-mono uppercase tracking-wider">ELIXIRS</div>
                 </div>
                 
                 <div className="space-y-3">
@@ -922,7 +922,7 @@ export default function SteezeStack() {
                       <TrendingUp className="w-4 h-4 text-green-400" />
                       <span className="text-green-300 text-sm font-medium">Acquired</span>
                     </div>
-                    <span className="text-white font-bold" data-testid="text-vault-acquired">{purchasedPotions.toLocaleString()}</span>
+                    <span className="text-white font-bold" data-testid="text-treasury-acquired">{purchasedPotions.toLocaleString()}</span>
                   </div>
                   
                   <div className="flex items-center justify-between p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
@@ -930,7 +930,7 @@ export default function SteezeStack() {
                       <Sparkles className="w-4 h-4 text-orange-400" />
                       <span className="text-orange-300 text-sm font-medium">Earned</span>
                     </div>
-                    <span className="text-white font-bold" data-testid="text-vault-earned">{earnedPotions.toLocaleString()}</span>
+                    <span className="text-white font-bold" data-testid="text-treasury-earned">{earnedPotions.toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
