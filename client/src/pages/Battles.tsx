@@ -23,7 +23,10 @@ import {
   Target,
   Plus,
   Filter,
-  X
+  X,
+  Brain,
+  Cpu,
+  Network
 } from "lucide-react";
 import {
   Dialog,
@@ -42,7 +45,6 @@ export default function Battles() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   
-  // Update active tab when URL changes
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tabFromUrl = urlParams.get('tab');
@@ -67,7 +69,6 @@ export default function Battles() {
   const [showBalanceError, setShowBalanceError] = useState(false);
   const [balanceErrorMessage, setBalanceErrorMessage] = useState("");
 
-  // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
@@ -99,8 +100,8 @@ export default function Battles() {
     },
     onSuccess: () => {
       toast({
-        title: "Battle Created!",
-        description: "Your battle challenge has been sent successfully.",
+        title: "Battle Protocol Initiated!",
+        description: "Your challenge has been transmitted to the blockchain.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/battles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/battles/user"] });
@@ -121,13 +122,12 @@ export default function Battles() {
       }
       toast({
         title: "Error",
-        description: "Failed to create battle. Please try again.",
+        description: "Battle protocol failed. Please retry transaction.",
         variant: "destructive",
       });
     },
   });
 
-  // Search for opponents
   const searchOpponents = async (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
@@ -151,7 +151,7 @@ export default function Battles() {
     if (!selectedOpponent) {
       toast({
         title: "Error",
-        description: "Please select an opponent to challenge.",
+        description: "Please select a target to challenge.",
         variant: "destructive",
       });
       return;
@@ -170,16 +170,14 @@ export default function Battles() {
     const userBalance = user?.auraPoints || 0;
     const opponentBalance = selectedOpponent.auraPoints || 0;
 
-    // Check if user has enough balance
     if (stakeAmountNum > userBalance) {
-      setBalanceErrorMessage("You don't have enough Aura Points to stake this amount!");
+      setBalanceErrorMessage("Insufficient Dreamz balance to execute this protocol!");
       setShowBalanceError(true);
       return;
     }
 
-    // Check if opponent has enough balance
     if (stakeAmountNum > opponentBalance) {
-      setBalanceErrorMessage("Why are you trying to rob this farmer of all their Aura? This user does not have enough balance to join this battle");
+      setBalanceErrorMessage("Target lacks sufficient Dreamz reserves to accept this challenge protocol");
       setShowBalanceError(true);
       return;
     }
@@ -187,7 +185,7 @@ export default function Battles() {
     if (!battleDate) {
       toast({
         title: "Error",
-        description: "Please select a battle date.",
+        description: "Please select a battle timestamp.",
         variant: "destructive",
       });
       return;
@@ -197,7 +195,7 @@ export default function Battles() {
     if (battleDateTime <= new Date()) {
       toast({
         title: "Error",
-        description: "Battle date and time must be in the future.",
+        description: "Battle timestamp must be in the future.",
         variant: "destructive",
       });
       return;
@@ -207,7 +205,7 @@ export default function Battles() {
       title: battleTitle.trim() || null,
       opponentId: selectedOpponent.id,
       stakeAmount: stakeAmountNum,
-      description: battleDescription.trim() || "A battle of Web3 aura and reputation!",
+      description: battleDescription.trim() || "An AI-powered battle of crypto supremacy!",
       battleDate: battleDateTime.toISOString(),
       duration: parseInt(battleDuration),
     });
@@ -247,7 +245,6 @@ export default function Battles() {
     
     let filteredBattles = battles;
     
-    // Filter by tab type first
     switch (tabType) {
       case 'live':
         filteredBattles = battles.filter((b: any) => b.status === 'active');
@@ -265,7 +262,6 @@ export default function Battles() {
         filteredBattles = battles;
     }
     
-    // Apply status filter
     if (statusFilter !== 'all') {
       filteredBattles = filteredBattles.filter((b: any) => b.status === statusFilter);
     }
@@ -279,170 +275,158 @@ export default function Battles() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 via-blue-600 to-blue-800 rounded-lg flex items-center justify-center mx-auto mb-6 animate-pulse shadow-2xl shadow-cyan-500/50">
+            <div className="w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <div className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
-            LOADING BATTLES...
+          <div className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-600 bg-clip-text text-transparent animate-pulse">
+            LOADING PROTOCOLS...
           </div>
+          <div className="mt-2 text-sm text-cyan-500/60 font-mono">Initializing Battle Matrix</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 relative overflow-hidden">
-      {/* TikTok Background Effects */}
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* AI-Crypto Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-ping"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black"></div>
+        <div className="absolute top-40 left-20 w-[500px] h-[500px] bg-gradient-to-br from-cyan-500/10 to-blue-600/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-40 right-20 w-[600px] h-[600px] bg-gradient-to-br from-blue-500/10 to-cyan-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-br from-cyan-600/5 to-blue-500/5 rounded-full blur-3xl"></div>
+        {/* Grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       </div>
+      
       <Navigation />
+      
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pt-20 sm:pt-24">
-        {/* Mobile-Optimized Header */}
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16 relative">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full px-3 sm:px-6 py-2 sm:py-3 mb-4 sm:mb-6 animate-bounce">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-ping"></div>
-            <span className="text-white font-black text-xs sm:text-sm tracking-wider">LIVE BATTLES</span>
+        {/* Futuristic Header */}
+        <div className="mb-12 relative">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse" data-testid="indicator-pulse-1"></div>
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} data-testid="indicator-pulse-2"></div>
+            <Badge className="bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-cyan-400 border border-cyan-500/30 px-6 py-2 font-mono text-xs tracking-widest" data-testid="badge-live-protocol">
+              <Brain className="w-3 h-3 mr-2 inline" />
+              LIVE BATTLE PROTOCOL
+            </Badge>
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} data-testid="indicator-pulse-3"></div>
+            <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse" style={{ animationDelay: '0.6s' }} data-testid="indicator-pulse-4"></div>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-4 sm:mb-6 text-white leading-tight">
-            EPIC
-            <span className="block bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
-              SHOWDOWNS
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-center mb-6 leading-none" data-testid="heading-main">
+            <span className="block text-white">NEURAL</span>
+            <span className="block bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-600 bg-clip-text text-transparent">
+              COMBAT ARENA
             </span>
-            <span className="block text-white">GOING VIRAL</span>
           </h1>
           
-          <p className="text-sm sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto font-medium mb-6 sm:mb-8 px-4">Real Challenges, real drama, real aura🔥 Watch legends clash live and see who becomes the next sensation</p>
-        </div>
+          <p className="text-center text-cyan-100/60 text-base sm:text-lg max-w-3xl mx-auto font-light leading-relaxed mb-4" data-testid="text-description">
+            Compete in AI-powered crypto battles. Stake Dreamz, deploy strategies, dominate the blockchain.
+          </p>
 
-        {/* Mobile-Optimized Battle Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-16">
-          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
-            <CardContent className="p-3 sm:p-4 lg:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-xs sm:text-sm font-medium mb-1 sm:mb-2">Total Battles</p>
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground group-hover:text-primary transition-colors">
-                    {stats.total}
-                  </p>
+          {/* Horizontal Stats Bar */}
+          <div className="max-w-5xl mx-auto mt-10">
+            <div className="bg-gradient-to-r from-blue-950/40 via-blue-900/40 to-blue-950/40 backdrop-blur-sm border border-cyan-500/20 rounded-2xl p-1">
+              <div className="flex items-center justify-around py-4">
+                <div className="text-center px-4 border-r border-cyan-500/20" data-testid="stat-total">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Network className="w-5 h-5 text-cyan-400" />
+                    <span className="text-cyan-400/70 text-xs font-mono uppercase tracking-wider">Network</span>
+                  </div>
+                  <div className="text-3xl font-black text-white">{stats.total}</div>
                 </div>
-                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
-                  <Sword className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                
+                <div className="text-center px-4 border-r border-cyan-500/20" data-testid="stat-active">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Zap className="w-5 h-5 text-cyan-400" />
+                    <span className="text-cyan-400/70 text-xs font-mono uppercase tracking-wider">Active</span>
+                  </div>
+                  <div className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{stats.live}</div>
+                </div>
+                
+                <div className="text-center px-4 border-r border-cyan-500/20" data-testid="stat-scheduled">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Clock className="w-5 h-5 text-cyan-400" />
+                    <span className="text-cyan-400/70 text-xs font-mono uppercase tracking-wider">Scheduled</span>
+                  </div>
+                  <div className="text-3xl font-black text-white">{stats.upcoming}</div>
+                </div>
+                
+                <div className="text-center px-4" data-testid="stat-resolved">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Trophy className="w-5 h-5 text-cyan-400" />
+                    <span className="text-cyan-400/70 text-xs font-mono uppercase tracking-wider">Resolved</span>
+                  </div>
+                  <div className="text-3xl font-black text-white">{stats.completed}</div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium mb-2">Live Battles</p>
-                  <p className="text-4xl font-black text-primary group-hover:scale-105 transition-transform">
-                    {stats.live}
-                  </p>
-                </div>
-                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
-                  <Zap className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium mb-2">Upcoming</p>
-                  <p className="text-4xl font-black text-foreground group-hover:text-primary transition-colors">
-                    {stats.upcoming}
-                  </p>
-                </div>
-                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
-                  <Clock className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium mb-2">Completed</p>
-                  <p className="text-4xl font-black text-foreground group-hover:text-primary transition-colors">
-                    {stats.completed}
-                  </p>
-                </div>
-                <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
-                  <Trophy className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Battle Tabs */}
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-            <div className="flex justify-center w-full lg:w-auto">
-              <TabsList className="grid grid-cols-4 bg-card/50 border border-border/50 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
-                <TabsTrigger 
-                  value="live" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Live ({stats.live})
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="upcoming" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
-                >
-                  <Clock className="w-4 h-4 mr-2" />
-                  Upcoming ({stats.upcoming})
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="completed" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
-                >
-                  <Trophy className="w-4 h-4 mr-2" />
-                  Completed ({stats.completed})
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="my-battles" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl transition-all duration-300 font-medium px-4 py-3 hover:bg-primary/10"
-                >
-                  <Target className="w-4 h-4 mr-2" />
-                  My Battles
-                </TabsTrigger>
-              </TabsList>
             </div>
+          </div>
+        </div>
+
+        {/* Battle Control Center */}
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-8">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-8">
+            <TabsList className="grid grid-cols-4 bg-gradient-to-r from-blue-950/60 via-blue-900/60 to-blue-950/60 border border-cyan-500/20 backdrop-blur-md rounded-xl p-1.5 shadow-lg shadow-cyan-500/10" data-testid="tabs-list">
+              <TabsTrigger 
+                value="live" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/50 rounded-lg transition-all duration-300 font-mono text-xs px-3 py-2.5 hover:bg-cyan-500/10"
+                data-testid="tab-live"
+              >
+                <Cpu className="w-4 h-4 mr-2" />
+                LIVE ({stats.live})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="upcoming" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/50 rounded-lg transition-all duration-300 font-mono text-xs px-3 py-2.5 hover:bg-cyan-500/10"
+                data-testid="tab-upcoming"
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                QUEUED ({stats.upcoming})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="completed" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/50 rounded-lg transition-all duration-300 font-mono text-xs px-3 py-2.5 hover:bg-cyan-500/10"
+                data-testid="tab-completed"
+              >
+                <Trophy className="w-4 h-4 mr-2" />
+                ARCHIVE ({stats.completed})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="my-battles" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/50 rounded-lg transition-all duration-300 font-mono text-xs px-3 py-2.5 hover:bg-cyan-500/10"
+                data-testid="tab-my-battles"
+              >
+                <Target className="w-4 h-4 mr-2" />
+                MY PROTOCOL
+              </TabsTrigger>
+            </TabsList>
 
             <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 px-6 py-3 rounded-xl font-semibold"
+              className="bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 hover:from-cyan-400 hover:via-blue-500 hover:to-cyan-400 text-black font-black shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/50 transition-all duration-300 px-8 py-6 rounded-xl text-sm tracking-wider"
               onClick={() => setShowCreateBattle(true)}
+              data-testid="button-create-battle"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Create Battle
+              INITIATE PROTOCOL
             </Button>
           </div>
 
-          {/* Status Filter - Only show on My Battles tab */}
           {selectedTab === 'my-battles' && (
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-card border border-border rounded-lg">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 bg-gradient-to-r from-blue-950/30 via-blue-900/30 to-blue-950/30 border border-cyan-500/20 rounded-xl backdrop-blur-sm" data-testid="filter-container">
               <div className="flex items-center gap-4">
-                <Label className="text-foreground font-medium">Filter by Status:</Label>
+                <Label className="text-cyan-400 font-mono text-xs uppercase tracking-wider">Filter Protocol:</Label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-input border border-border text-foreground rounded-md px-3 py-2 min-w-[150px] focus:border-primary focus:outline-none"
+                  className="bg-black/50 border border-cyan-500/30 text-cyan-100 rounded-lg px-4 py-2 min-w-[150px] focus:border-cyan-500 focus:outline-none font-mono text-sm"
+                  data-testid="select-status-filter"
                 >
-                  <option value="all">All Statuses</option>
+                  <option value="all">All Status</option>
                   <option value="pending">Pending</option>
                   <option value="accepted">Accepted</option>
                   <option value="active">Active</option>
@@ -452,22 +436,22 @@ export default function Battles() {
                 </select>
               </div>
               
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-4 text-xs font-mono">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-warning rounded-full"></div>
-                  <span className="text-muted-foreground">Pending: {stats.pending}</span>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full" data-testid="indicator-pending"></div>
+                  <span className="text-cyan-400/60">PENDING: {stats.pending}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-primary rounded-full"></div>
-                  <span className="text-muted-foreground">Accepted: {stats.accepted}</span>
+                  <div className="w-2 h-2 bg-cyan-500 rounded-full" data-testid="indicator-accepted"></div>
+                  <span className="text-cyan-400/60">ACCEPTED: {stats.accepted}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
-                  <span className="text-muted-foreground">Withdrawn: {stats.withdrawn}</span>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full" data-testid="indicator-withdrawn"></div>
+                  <span className="text-cyan-400/60">WITHDRAWN: {stats.withdrawn}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-destructive rounded-full"></div>
-                  <span className="text-muted-foreground">Cancelled: {stats.cancelled}</span>
+                  <div className="w-2 h-2 bg-red-500 rounded-full" data-testid="indicator-cancelled"></div>
+                  <span className="text-cyan-400/60">CANCELLED: {stats.cancelled}</span>
                 </div>
               </div>
             </div>
@@ -475,17 +459,17 @@ export default function Battles() {
 
           {/* Live Battles */}
           <TabsContent value="live" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Live Battles</h2>
-              <Badge className="bg-[#00FF88]/20 text-[#00FF88]">
-                {stats.live} Active
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text" data-testid="heading-live-battles">ACTIVE PROTOCOLS</h2>
+              <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 font-mono" data-testid="badge-active-count">
+                {stats.live} ONLINE
               </Badge>
             </div>
 
             {battlesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                  <div key={i} className="h-72 bg-gradient-to-br from-blue-950/40 to-black border border-cyan-500/20 rounded-xl animate-pulse" data-testid={`skeleton-battle-${i}`} />
                 ))}
               </div>
             ) : liveBattles && liveBattles.length > 0 ? (
@@ -495,44 +479,39 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <div className="relative">
-                <Card className="bg-gradient-to-br from-[#1A1A1B] via-[#2A1A2A] to-[#1A1A1B] border-primary/20 shadow-xl">
-                  <CardContent className="p-20 text-center relative overflow-hidden">
-                    {/* Background decoration */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"></div>
-                    <div className="absolute top-8 left-8 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-8 right-8 w-24 h-24 bg-primary/15 rounded-full blur-2xl"></div>
+              <div className="relative" data-testid="empty-live-battles">
+                <Card className="bg-gradient-to-br from-blue-950/20 via-black to-blue-950/20 border border-cyan-500/20 shadow-2xl shadow-cyan-500/10">
+                  <CardContent className="p-16 text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-500/5 via-transparent to-transparent"></div>
                     
-                    {/* Content */}
                     <div className="relative z-10">
-                      <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/30 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg">
-                        <Sword className="w-12 h-12 text-primary" />
+                      <div className="w-28 h-28 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 rounded-xl flex items-center justify-center mx-auto mb-8 border border-cyan-500/20">
+                        <Cpu className="w-14 h-14 text-cyan-500/60" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white mb-4">No Live Aura Clashes</h3>
-                      <p className="text-gray-300 mb-10 max-w-lg mx-auto text-lg leading-relaxed">
-                        The arena awaits a champion. Step forward and prove your aura dominance in epic Web3 clashes!
+                      <h3 className="text-4xl font-black text-white mb-4">NO ACTIVE PROTOCOLS</h3>
+                      <p className="text-cyan-100/50 mb-12 max-w-md mx-auto text-lg font-light">
+                        The neural network awaits challengers. Deploy your first battle protocol and stake Dreamz to dominate.
                       </p>
-                      <div className="space-y-4">
-                        <Button 
-                          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                          onClick={() => setShowCreateBattle(true)}
-                        >
-                          <Plus className="w-5 h-5 mr-2" />
-                          Create Your First Aura Clash
-                        </Button>
-                        <div className="flex items-center justify-center space-x-6 text-sm text-gray-400 mt-6">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            <span>Stake Aura Points</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            <span>Challenge Warriors</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            <span>Win Rewards</span>
-                          </div>
+                      <Button 
+                        className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black px-10 py-4 text-base shadow-xl shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+                        onClick={() => setShowCreateBattle(true)}
+                        data-testid="button-create-first-battle"
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        DEPLOY PROTOCOL
+                      </Button>
+                      <div className="flex items-center justify-center space-x-8 text-xs text-cyan-400/40 mt-8 font-mono">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                          <span>STAKE DREAMZ</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                          <span>AI COMBAT</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                          <span>WIN POTIONS</span>
                         </div>
                       </div>
                     </div>
@@ -544,17 +523,17 @@ export default function Battles() {
 
           {/* Upcoming Battles */}
           <TabsContent value="upcoming" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Upcoming Battles</h2>
-              <Badge className="bg-[#9933FF]/20 text-[#9933FF]">
-                {stats.upcoming} Scheduled
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text" data-testid="heading-upcoming-battles">QUEUED PROTOCOLS</h2>
+              <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/40 font-mono" data-testid="badge-upcoming-count">
+                {stats.upcoming} IN QUEUE
               </Badge>
             </div>
 
             {battlesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                  <div key={i} className="h-72 bg-gradient-to-br from-blue-950/40 to-black border border-cyan-500/20 rounded-xl animate-pulse" data-testid={`skeleton-upcoming-${i}`} />
                 ))}
               </div>
             ) : upcomingBattles && upcomingBattles.length > 0 ? (
@@ -564,12 +543,12 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-card border-border">
-                <CardContent className="p-12 text-center">
-                  <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">No Upcoming Battles</h3>
-                  <p className="text-muted-foreground">
-                    No battles are scheduled yet.
+              <Card className="bg-gradient-to-br from-blue-950/20 to-black border border-cyan-500/20" data-testid="empty-upcoming-battles">
+                <CardContent className="p-14 text-center">
+                  <Clock className="w-16 h-16 text-cyan-500/40 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold text-white mb-2">NO QUEUED PROTOCOLS</h3>
+                  <p className="text-cyan-100/50 font-light">
+                    No battles scheduled in the pipeline.
                   </p>
                 </CardContent>
               </Card>
@@ -578,17 +557,17 @@ export default function Battles() {
 
           {/* Completed Battles */}
           <TabsContent value="completed" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Completed Battles</h2>
-              <Badge className="bg-[#FFD700]/20 text-[#FFD700]">
-                {stats.completed} Finished
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text" data-testid="heading-completed-battles">PROTOCOL ARCHIVE</h2>
+              <Badge className="bg-green-500/20 text-green-400 border border-green-500/40 font-mono" data-testid="badge-completed-count">
+                {stats.completed} RESOLVED
               </Badge>
             </div>
 
             {battlesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                  <div key={i} className="h-72 bg-gradient-to-br from-blue-950/40 to-black border border-cyan-500/20 rounded-xl animate-pulse" data-testid={`skeleton-completed-${i}`} />
                 ))}
               </div>
             ) : completedBattles && completedBattles.length > 0 ? (
@@ -598,12 +577,12 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-card border-border">
-                <CardContent className="p-12 text-center">
-                  <Trophy className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">No Completed Battles</h3>
-                  <p className="text-muted-foreground">
-                    No battles have been completed yet.
+              <Card className="bg-gradient-to-br from-blue-950/20 to-black border border-cyan-500/20" data-testid="empty-completed-battles">
+                <CardContent className="p-14 text-center">
+                  <Trophy className="w-16 h-16 text-cyan-500/40 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold text-white mb-2">NO ARCHIVED PROTOCOLS</h3>
+                  <p className="text-cyan-100/50 font-light">
+                    No battles have been resolved yet.
                   </p>
                 </CardContent>
               </Card>
@@ -612,17 +591,17 @@ export default function Battles() {
 
           {/* My Battles */}
           <TabsContent value="my-battles" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">My Battles</h2>
-              <Badge className="bg-[#8000FF]/20 text-[#8000FF]">
-                {userBattles?.length || 0} Total
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text" data-testid="heading-my-battles">MY PROTOCOLS</h2>
+              <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 font-mono" data-testid="badge-my-battles-count">
+                {userBattles?.length || 0} TOTAL
               </Badge>
             </div>
 
             {userBattlesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-64 bg-[#1A1A1B] rounded-lg animate-pulse" />
+                  <div key={i} className="h-72 bg-gradient-to-br from-blue-950/40 to-black border border-cyan-500/20 rounded-xl animate-pulse" data-testid={`skeleton-my-battle-${i}`} />
                 ))}
               </div>
             ) : getFilteredBattles('my-battles') && getFilteredBattles('my-battles').length > 0 ? (
@@ -632,19 +611,20 @@ export default function Battles() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-card border-border">
-                <CardContent className="p-12 text-center">
-                  <Target className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">No Battles Yet</h3>
-                  <p className="text-muted-foreground mb-6">
-                    You haven't participated in any battles yet. Start your journey!
+              <Card className="bg-gradient-to-br from-blue-950/20 to-black border border-cyan-500/20" data-testid="empty-my-battles">
+                <CardContent className="p-14 text-center">
+                  <Target className="w-16 h-16 text-cyan-500/40 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold text-white mb-2">NO PROTOCOLS DEPLOYED</h3>
+                  <p className="text-cyan-100/50 mb-8 font-light">
+                    You haven't engaged in any battle protocols yet. Initialize your first challenge.
                   </p>
                   <Button 
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black"
                     onClick={() => setShowCreateBattle(true)}
+                    data-testid="button-create-battle-my"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Battle
+                    DEPLOY PROTOCOL
                   </Button>
                 </CardContent>
               </Card>
@@ -652,36 +632,38 @@ export default function Battles() {
           </TabsContent>
         </Tabs>
 
-        {/* Enhanced Create Battle Dialog */}
+        {/* Create Battle Dialog */}
         <Dialog open={showCreateBattle} onOpenChange={(open) => {
           setShowCreateBattle(open);
           if (!open) resetBattleForm();
         }}>
-          <DialogContent className="bg-gradient-to-br from-[#1A1A1B] to-[#0A0A0B] border-2 border-[#8000FF]/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-gradient-to-br from-blue-950 via-black to-blue-950 border-2 border-cyan-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-create-battle">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-black bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] bg-clip-text text-transparent">⚔️ INITIATE AURA CHALLENGE</DialogTitle>
+              <DialogTitle className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-600 bg-clip-text text-transparent">
+                <Brain className="w-8 h-8 inline mr-3 text-cyan-400" />
+                DEPLOY BATTLE PROTOCOL
+              </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-6 py-4">
-              {/* Battle Title */}
               <div className="space-y-3">
-                <Label className="text-white font-semibold">Battle Title (Optional)</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Protocol Identifier (Optional)</Label>
                 <Input
                   type="text"
-                  placeholder="Epic Showdown, Final Face-off..."
+                  placeholder="Neural Clash Alpha, Crypto Supremacy..."
                   value={battleTitle}
                   onChange={(e) => setBattleTitle(e.target.value.slice(0, 20))}
-                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                  className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 font-mono"
                   maxLength={20}
+                  data-testid="input-battle-title"
                 />
-                <p className="text-gray-400 text-sm">
+                <p className="text-cyan-400/50 text-xs font-mono">
                   {battleTitle.length}/20 characters
                 </p>
               </div>
 
-              {/* Opponent Search */}
               <div className="space-y-3">
-                <Label className="text-white font-semibold">Find Your Opponent</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Target Selection</Label>
                 <div className="relative">
                   <Input
                     placeholder="Search by username or wallet address..."
@@ -690,18 +672,18 @@ export default function Battles() {
                       setOpponentSearch(e.target.value);
                       searchOpponents(e.target.value);
                     }}
-                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white pr-10"
+                    className="bg-black/50 border-cyan-500/30 text-white pr-10 focus:border-cyan-500 font-mono"
+                    data-testid="input-opponent-search"
                   />
                   {isSearching && (
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-[#8000FF]/30 border-t-[#8000FF] rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
                     </div>
                   )}
                 </div>
                 
-                {/* Search Results */}
                 {searchResults.length > 0 && (
-                  <div className="max-h-40 overflow-y-auto bg-[#0A0A0B] border border-[#8000FF]/20 rounded-lg">
+                  <div className="max-h-40 overflow-y-auto bg-black/80 border border-cyan-500/30 rounded-lg">
                     {searchResults.map((user) => (
                       <div
                         key={user.id}
@@ -710,23 +692,24 @@ export default function Battles() {
                           setOpponentSearch(user.username || user.walletAddress);
                           setSearchResults([]);
                         }}
-                        className="p-4 hover:bg-[#8000FF]/10 cursor-pointer border-b border-[#8000FF]/10 last:border-b-0 transition-colors"
+                        className="p-4 hover:bg-cyan-500/10 cursor-pointer border-b border-cyan-500/10 last:border-b-0 transition-colors"
+                        data-testid={`search-result-${user.id}`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-[#8000FF] to-[#9933FF] rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold text-sm">
+                            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                              <span className="text-white font-bold text-sm font-mono">
                                 {(user.username || user.walletAddress)?.[0]?.toUpperCase() || 'A'}
                               </span>
                             </div>
                             <div>
-                              <p className="text-white font-medium">{user.username || 'Anonymous'}</p>
-                              <p className="text-gray-400 text-sm">{user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}</p>
+                              <p className="text-white font-medium font-mono">{user.username || 'Anonymous'}</p>
+                              <p className="text-cyan-400/60 text-sm font-mono">{user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-[#8000FF] font-bold">{user.auraPoints || 0} AP</p>
-                            <p className="text-gray-400 text-sm">Streak: {user.currentStreak || 0}</p>
+                            <p className="text-cyan-400 font-bold font-mono">{user.auraPoints || 0} DRZ</p>
+                            <p className="text-cyan-400/60 text-sm font-mono">Streak: {user.currentStreak || 0}</p>
                           </div>
                         </div>
                       </div>
@@ -734,13 +717,12 @@ export default function Battles() {
                   </div>
                 )}
 
-                {/* Selected Opponent */}
                 {selectedOpponent && (
-                  <div className="bg-gradient-to-r from-[#8000FF]/10 to-[#9933FF]/10 border border-[#8000FF]/30 rounded-lg p-4">
+                  <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/40 rounded-lg p-4" data-testid="selected-opponent">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-bold">Challenging: {selectedOpponent.username || 'Anonymous'}</p>
-                        <p className="text-gray-300 text-sm">{selectedOpponent.walletAddress}</p>
+                        <p className="text-white font-bold font-mono">TARGET: {selectedOpponent.username || 'Anonymous'}</p>
+                        <p className="text-cyan-300/80 text-sm font-mono">{selectedOpponent.walletAddress}</p>
                       </div>
                       <Button
                         variant="outline"
@@ -749,7 +731,8 @@ export default function Battles() {
                           setSelectedOpponent(null);
                           setOpponentSearch("");
                         }}
-                        className="border-[#FF3366]/50 text-[#FF3366] hover:bg-[#FF3366]/10"
+                        className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                        data-testid="button-remove-opponent"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -758,35 +741,37 @@ export default function Battles() {
                 )}
               </div>
 
-              {/* Battle Settings */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label className="text-white font-semibold">Battle Date</Label>
+                  <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Timestamp</Label>
                   <Input
                     type="date"
                     value={battleDate}
                     onChange={(e) => setBattleDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer font-mono"
+                    data-testid="input-battle-date"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-white font-semibold">Battle Time</Label>
+                  <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Time</Label>
                   <Input
                     type="time"
                     value={battleTime}
                     onChange={(e) => setBattleTime(e.target.value)}
-                    className="bg-[#0A0A0B] border-[#8000FF]/30 text-white [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer font-mono"
+                    data-testid="input-battle-time"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-white font-semibold">Duration (Hours)</Label>
+                  <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Duration (Hrs)</Label>
                   <select
                     value={battleDuration}
                     onChange={(e) => setBattleDuration(e.target.value)}
-                    className="w-full bg-[#0A0A0B] border border-[#8000FF]/30 text-white rounded-md px-3 py-2"
+                    className="w-full bg-black/50 border border-cyan-500/30 text-white rounded-md px-3 py-2 focus:border-cyan-500 focus:outline-none font-mono"
+                    data-testid="select-battle-duration"
                   >
                     <option value="3">3 Hours</option>
                     <option value="4">4 Hours</option>
@@ -796,7 +781,7 @@ export default function Battles() {
               </div>
 
               <div>
-                <Label className="text-white font-semibold">Stake Amount (Aura Points)</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Stake Amount (Dreamz)</Label>
                 <Input
                   type="number"
                   min="1"
@@ -804,21 +789,23 @@ export default function Battles() {
                   placeholder="Enter stake amount"
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
-                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white"
+                  className="bg-black/50 border-cyan-500/30 text-white focus:border-cyan-500 font-mono"
+                  data-testid="input-stake-amount"
                 />
-                <p className="text-gray-400 text-sm mt-1">
-                  Available: {user?.auraPoints || 0} AP • Both players must stake the same amount
+                <p className="text-cyan-400/50 text-sm mt-1 font-mono">
+                  Available: {user?.auraPoints || 0} DRZ • Both agents must stake equal amounts
                 </p>
               </div>
 
               <div>
-                <Label className="text-white font-semibold">Battle Description (Optional)</Label>
+                <Label className="text-cyan-400 font-mono text-sm uppercase tracking-wider">Protocol Description (Optional)</Label>
                 <Textarea
-                  placeholder="Describe the challenge or add a message..."
+                  placeholder="Define your challenge parameters..."
                   value={battleDescription}
                   onChange={(e) => setBattleDescription(e.target.value)}
-                  className="bg-[#0A0A0B] border-[#8000FF]/30 text-white resize-none"
+                  className="bg-black/50 border-cyan-500/30 text-white resize-none focus:border-cyan-500 font-mono"
                   rows={3}
+                  data-testid="textarea-battle-description"
                 />
               </div>
 
@@ -826,16 +813,18 @@ export default function Battles() {
                 <Button
                   variant="outline"
                   onClick={() => setShowCreateBattle(false)}
-                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                  className="flex-1 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 font-mono"
+                  data-testid="button-cancel-battle"
                 >
-                  Cancel
+                  ABORT
                 </Button>
                 <Button
                   onClick={handleCreateBattle}
                   disabled={!selectedOpponent}
-                  className="flex-1 bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/80 hover:via-[#9933FF]/80 hover:to-[#FF3366]/80 font-bold"
+                  className="flex-1 bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 hover:from-cyan-400 hover:via-blue-500 hover:to-cyan-400 text-black font-black font-mono shadow-lg shadow-cyan-500/30"
+                  data-testid="button-submit-battle"
                 >
-                  SEND BATTLE REQUEST
+                  DEPLOY PROTOCOL
                 </Button>
               </div>
             </div>
@@ -844,26 +833,27 @@ export default function Battles() {
 
         {/* Balance Error Modal */}
         <Dialog open={showBalanceError} onOpenChange={setShowBalanceError}>
-          <DialogContent className="bg-gradient-to-br from-[#1A0033] to-[#330066] border-2 border-[#FF3366] max-w-md mx-auto">
+          <DialogContent className="bg-gradient-to-br from-red-950 via-black to-red-950 border-2 border-red-500/50 max-w-md mx-auto" data-testid="dialog-balance-error">
             <div className="text-center space-y-6 p-6">
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#FF3366] to-[#FF6B9D] rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-red-500/30 to-red-600/30 rounded-xl flex items-center justify-center border border-red-500/50">
+                <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
               
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">Balance Insufficient!</h3>
-                <p className="text-gray-300 leading-relaxed">
+                <h3 className="text-2xl font-bold text-white mb-2 font-mono">PROTOCOL ERROR!</h3>
+                <p className="text-red-100/70 leading-relaxed font-mono text-sm">
                   {balanceErrorMessage}
                 </p>
               </div>
 
               <Button 
                 onClick={() => setShowBalanceError(false)}
-                className="w-full bg-gradient-to-r from-[#8000FF] via-[#9933FF] to-[#FF3366] hover:from-[#8000FF]/80 hover:via-[#9933FF]/80 hover:to-[#FF3366]/80 text-white font-bold py-3 rounded-xl"
+                className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-black py-3 rounded-lg font-mono"
+                data-testid="button-close-error"
               >
-                Got it!
+                ACKNOWLEDGED
               </Button>
             </div>
           </DialogContent>
