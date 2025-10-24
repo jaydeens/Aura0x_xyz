@@ -659,7 +659,7 @@ export class Web3Service {
   }> {
     try {
       console.log(`[Web3] Verifying transaction: ${transactionHash}`);
-      console.log(`[Web3] Expected contract address: ${STEEZE_CONTRACT.address}`);
+      console.log(`[Web3] Expected contract address: ${POTIONS_CONTRACT.address}`);
       
       const provider = this.initBaseProvider();
       const receipt = await provider.getTransactionReceipt(transactionHash);
@@ -673,7 +673,7 @@ export class Web3Service {
       }
 
       // Check if transaction was to the Steeze contract OR USDC contract (for approval)
-      const contractAddress = STEEZE_CONTRACT.address.toLowerCase();
+      const contractAddress = POTIONS_CONTRACT.address.toLowerCase();
       const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'.toLowerCase(); // Base Mainnet USDC
       const receiptTo = receipt.to?.toLowerCase();
       console.log(`[Web3] Steeze contract: ${contractAddress}, USDC contract: ${usdcContractAddress}, Receipt to: ${receiptTo}`);
@@ -888,14 +888,14 @@ export class Web3Service {
       }
       
       // Check if Steeze contract is deployed
-      if (STEEZE_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
-        return { success: false, error: "Steeze contract not deployed" };
+      if (POTIONS_CONTRACT.address === "0x0000000000000000000000000000000000000000") {
+        return { success: false, error: "Potions contract not deployed" };
       }
       
       const provider = this.initBaseProvider();
       const contract = new ethers.Contract(
-        STEEZE_CONTRACT.address,
-        STEEZE_CONTRACT.abi,
+        POTIONS_CONTRACT.address,
+        POTIONS_CONTRACT.abi,
         this.platformSigner
       );
       
@@ -912,7 +912,7 @@ export class Web3Service {
       }
       
       // Check contract USDC balance for redemption
-      const contractUsdcBalance = await this.getUSDCBalance(STEEZE_CONTRACT.address);
+      const contractUsdcBalance = await this.getUSDCBalance(POTIONS_CONTRACT.address);
       if (contractUsdcBalance < usdcAmount) {
         return { success: false, error: "Contract has insufficient USDC liquidity for redemption" };
       }
@@ -996,7 +996,7 @@ export class Web3Service {
       const fromBlock = Math.max(currentBlock - 100, 0); // Check last 100 blocks
       
       const steezeEventFilter = {
-        address: STEEZE_CONTRACT.address,
+        address: POTIONS_CONTRACT.address,
         topics: [ethers.id("SteezeBought(address,uint256,uint256)")],
         fromBlock,
         toBlock: currentBlock
@@ -1006,7 +1006,7 @@ export class Web3Service {
       
       for (const log of logs) {
         try {
-          const eventInterface = new ethers.Interface(STEEZE_CONTRACT.abi);
+          const eventInterface = new ethers.Interface(POTIONS_CONTRACT.abi);
           const parsedLog = eventInterface.parseLog(log);
           
           if (parsedLog && parsedLog.name === 'SteezeBought') {
