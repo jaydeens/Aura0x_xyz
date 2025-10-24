@@ -96,8 +96,8 @@ export default function LiveBattle() {
     };
   }, [battleId, isAuthenticated]);
 
-  // Gift Steeze mutation
-  const giftSteeze = useMutation({
+  // Gift Potions mutation
+  const giftPotions = useMutation({
     mutationFn: async ({ battleId, participantId, amount }: { battleId: string, participantId: string, amount: number }) => {
       const response = await apiRequest("POST", "/api/battles/gift", {
         battleId,
@@ -108,8 +108,8 @@ export default function LiveBattle() {
     },
     onSuccess: () => {
       toast({
-        title: "Steeze Gifted!",
-        description: `Successfully gifted ${giftAmount} Steeze tokens`,
+        title: "Potions Gifted!",
+        description: `Successfully gifted ${giftAmount} Potions tokens`,
       });
       setShowGiftDialog(false);
       setGiftAmount("");
@@ -118,7 +118,7 @@ export default function LiveBattle() {
     onError: (error: any) => {
       toast({
         title: "Gift Failed",
-        description: error.message || "Failed to gift Steeze tokens",
+        description: error.message || "Failed to gift Potions tokens",
         variant: "destructive",
       });
     },
@@ -149,11 +149,11 @@ export default function LiveBattle() {
     return () => clearInterval(interval);
   }, [battle, battleId, queryClient]);
 
-  const handleGiftSteeze = () => {
+  const handleGiftPotions = () => {
     if (!user || !isAuthenticated) {
       toast({
         title: "Authentication Required",
-        description: "Please log in to gift Steeze tokens",
+        description: "Please log in to gift Potions tokens",
         variant: "destructive",
       });
       return;
@@ -171,7 +171,7 @@ export default function LiveBattle() {
       return;
     }
 
-    giftSteeze.mutate({
+    giftPotions.mutate({
       battleId,
       participantId: selectedParticipant,
       amount,
@@ -429,7 +429,7 @@ export default function LiveBattle() {
                         <div className="text-3xl font-bold text-blue-400">
                           {(battle as any).challengerVotes || 0}
                         </div>
-                        <div className="text-sm text-gray-400">Steeze received</div>
+                        <div className="text-sm text-gray-400">Potions received</div>
                         
                         <Progress 
                           value={challengerPercentage} 
@@ -449,12 +449,12 @@ export default function LiveBattle() {
                             disabled={!isAuthenticated}
                           >
                             <Gift className="w-4 h-4" />
-                            <span>Gift Steeze</span>
+                            <span>Gift Potions</span>
                           </Button>
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
                             <Trophy className="w-4 h-4" />
-                            <span>Final Steeze: {(battle as any).challengerVotes || 0}</span>
+                            <span>Final Potions: {(battle as any).challengerVotes || 0}</span>
                           </div>
                         )}
                       </div>
@@ -531,7 +531,7 @@ export default function LiveBattle() {
                         <div className="text-3xl font-bold text-red-400">
                           {(battle as any).opponentVotes || 0}
                         </div>
-                        <div className="text-sm text-gray-400">Steeze received</div>
+                        <div className="text-sm text-gray-400">Potions received</div>
                         
                         <Progress 
                           value={opponentPercentage} 
@@ -551,12 +551,12 @@ export default function LiveBattle() {
                             disabled={!isAuthenticated}
                           >
                             <Gift className="w-4 h-4" />
-                            <span>Gift Steeze</span>
+                            <span>Gift Potions</span>
                           </Button>
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
                             <Trophy className="w-4 h-4" />
-                            <span>Final Steeze: {(battle as any).opponentVotes || 0}</span>
+                            <span>Final Potions: {(battle as any).opponentVotes || 0}</span>
                           </div>
                         )}
                       </div>
@@ -627,25 +627,25 @@ export default function LiveBattle() {
           <Dialog open={showGiftDialog} onOpenChange={setShowGiftDialog}>
             <DialogContent className="bg-[#1A1A1B] border-primary/20">
               <DialogHeader>
-                <DialogTitle className="text-white">Gift Steeze Tokens</DialogTitle>
+                <DialogTitle className="text-white">Gift Potions Tokens</DialogTitle>
                 <DialogDescription className="text-gray-400">
-                  Support your favorite participant by gifting Steeze tokens
+                  Support your favorite participant by gifting Potions tokens
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-[#8000FF]/10 rounded-lg border border-[#8000FF]/20">
                   <div className="flex items-center gap-2">
                     <Coins className="w-5 h-5 text-[#8000FF]" />
-                    <span className="text-white font-medium">Your Steeze Balance</span>
+                    <span className="text-white font-medium">Your Potions Balance</span>
                   </div>
                   <div className="text-[#8000FF] font-bold text-lg">
-                    {(user as any)?.steezeBalance || 0} STEEZE
+                    {(user as any)?.potionsBalance || 0} POTIONS
                   </div>
                 </div>
                 
                 <div>
                   <label className="text-sm font-medium text-white mb-2 block">
-                    Amount (Steeze Tokens)
+                    Amount (Potions Tokens)
                   </label>
                   <Input
                     type="number"
@@ -654,19 +654,19 @@ export default function LiveBattle() {
                     placeholder="Enter amount"
                     className="bg-gray-800 border-gray-600 text-white"
                     min="1"
-                    max={(user as any)?.steezeBalance || 0}
+                    max={(user as any)?.potionsBalance || 0}
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Maximum: {(user as any)?.steezeBalance || 0} STEEZE
+                    Maximum: {(user as any)?.potionsBalance || 0} POTIONS
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    onClick={handleGiftSteeze}
-                    disabled={giftSteeze.isPending || !giftAmount}
+                    onClick={handleGiftPotions}
+                    disabled={giftPotions.isPending || !giftAmount}
                     className="flex-1 bg-primary hover:bg-primary/80"
                   >
-                    {giftSteeze.isPending ? (
+                    {giftPotions.isPending ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                         Gifting...
@@ -674,7 +674,7 @@ export default function LiveBattle() {
                     ) : (
                       <>
                         <Gift className="w-4 h-4 mr-2" />
-                        Gift Steeze
+                        Gift Potions
                       </>
                     )}
                   </Button>

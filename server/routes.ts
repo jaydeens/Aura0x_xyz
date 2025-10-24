@@ -48,7 +48,7 @@ const requireAuth = (req: any, res: any, next: any) => {
   // No valid authentication found
   return res.status(401).json({ message: "Unauthorized" });
 };
-import { web3Service, STEEZE_CONTRACT } from "./web3";
+import { web3Service, POTIONS_CONTRACT } from "./web3";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -2186,7 +2186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Steeze Stack API routes - Base Sepolia Contract Integration
-  app.get("/api/steeze/rate", async (req, res) => {
+  app.get("/api/potions/rate", async (req, res) => {
     try {
       const rate = await web3Service.getSteezeRate();
       res.json({ steezePerUsdc: rate });
@@ -2196,7 +2196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/steeze/balance", async (req: any, res) => {
+  app.get("/api/potions/balance", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
@@ -2226,7 +2226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/steeze/balance/:address", async (req, res) => {
+  app.get("/api/potions/balance/:address", async (req, res) => {
     try {
       const { address } = req.params;
       const balance = await web3Service.getUserSteezeBalance(address);
@@ -2258,7 +2258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/steeze/purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
+  app.post("/api/potions/purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
       const { usdcAmount } = req.body;
       const userId = req.session?.user?.id;
@@ -2295,7 +2295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const rate = await web3Service.getSteezeRate();
       
       res.json({ 
-        contractAddress: STEEZE_CONTRACT.address,
+        contractAddress: POTIONS_CONTRACT.address,
         chainId: 8453, // Base Mainnet
         steezePerUsdc: rate,
         networkName: "Base Mainnet"
@@ -2307,7 +2307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Backend-controlled Steeze purchase (secure)
-  app.post("/api/steeze/backend-purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
+  app.post("/api/potions/backend-purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
       const { usdcAmount } = req.body;
       const userId = req.session?.user?.id;
@@ -2353,7 +2353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Backend-controlled Steeze redemption (secure)
-  app.post("/api/steeze/backend-redeem", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
+  app.post("/api/potions/backend-redeem", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
       const { steezeAmount } = req.body;
       const userId = req.session?.user?.id;
@@ -2412,7 +2412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Process specific transaction manually
-  app.post("/api/steeze/process-transaction", async (req: any, res) => {
+  app.post("/api/potions/process-transaction", async (req: any, res) => {
     try {
       const { transactionHash, walletAddress } = req.body;
       
@@ -2462,7 +2462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Manual balance fix endpoint
-  app.post("/api/steeze/manual-fix", async (req: any, res) => {
+  app.post("/api/potions/manual-fix", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
@@ -2513,7 +2513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-  app.post("/api/steeze/confirm-purchase", async (req, res) => {
+  app.post("/api/potions/confirm-purchase", async (req, res) => {
     try {
       console.log('Confirm purchase request body:', req.body);
       
@@ -2651,7 +2651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/steeze/transactions", async (req: any, res) => {
+  app.get("/api/potions/transactions", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
@@ -2673,7 +2673,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/steeze/redeem-confirm", async (req: any, res) => {
+  app.post("/api/potions/redeem-confirm", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
@@ -2725,7 +2725,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/steeze/redeem", async (req: any, res) => {
+  app.post("/api/potions/redeem", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;
@@ -2779,7 +2779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/steeze/transactions", async (req: any, res) => {
+  app.get("/api/potions/transactions", async (req: any, res) => {
     try {
       // Get user ID from either wallet session or OAuth
       let userId: string | null = null;

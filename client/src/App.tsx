@@ -23,13 +23,13 @@ function Router() {
   // Show loading during authentication check
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-blue-950 to-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse">
             <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <div className="text-2xl font-black bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
-            LOADING AURA...
+          <div className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent animate-pulse">
+            LOADING DREAMZ...
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/profile/:userId" component={UserProfilePage} />
       <Route path="/user/:userId" component={UserProfilePage} />
-      <Route path="/steeze-stack" component={SteezeStack} />
+      <Route path="/potions" component={SteezeStack} />
       <Route path="/settings" component={Settings} />
       <Route path="/admin/whitelist" component={WhitelistAdmin} />
       <Route path="*" component={NotFound} />

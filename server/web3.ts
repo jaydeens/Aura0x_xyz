@@ -148,8 +148,8 @@ export const VOUCHING_CONTRACT = {
   ]
 };
 
-// Steeze Contract Configuration
-export const STEEZE_CONTRACT = {
+// Potions Contract Configuration (contract still uses Steeze ABI for compatibility)
+export const POTIONS_CONTRACT = {
   // Always use mainnet contract since we're on Base mainnet
   address: process.env.STEEZE_CONTRACT_ADDRESS_MAINNET || "0xf209E955Ad3711EE983627fb52A32615455d8cC3",
   
@@ -332,9 +332,9 @@ export class Web3Service {
    * Initialize platform signer for backend-controlled transactions
    */
   private initializePlatformSigner() {
-    if (STEEZE_CONTRACT.platformPrivateKey && this.baseProvider) {
+    if (POTIONS_CONTRACT.platformPrivateKey && this.baseProvider) {
       try {
-        this.platformSigner = new ethers.Wallet(STEEZE_CONTRACT.platformPrivateKey, this.baseProvider);
+        this.platformSigner = new ethers.Wallet(POTIONS_CONTRACT.platformPrivateKey, this.baseProvider);
         console.log("Platform signer initialized for address:", this.platformSigner.address);
       } catch (error) {
         console.error("Failed to initialize platform signer:", error);
@@ -615,7 +615,7 @@ export class Web3Service {
   async getSteezeRate(): Promise<number> {
     try {
       const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
+      const contract = new ethers.Contract(POTIONS_CONTRACT.address, POTIONS_CONTRACT.abi, provider);
       
       const buyPrice = await contract.buyPrice();
       // buyPrice is the cost in wei per 1 Steeze token
@@ -636,7 +636,7 @@ export class Web3Service {
   async getUserSteezeBalance(userAddress: string): Promise<number> {
     try {
       const provider = this.initBaseProvider();
-      const contract = new ethers.Contract(STEEZE_CONTRACT.address, STEEZE_CONTRACT.abi, provider);
+      const contract = new ethers.Contract(POTIONS_CONTRACT.address, POTIONS_CONTRACT.abi, provider);
       
       const balance = await contract.steezeBalance(userAddress);
       return parseInt(balance.toString());

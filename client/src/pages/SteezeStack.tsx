@@ -281,7 +281,7 @@ export default function SteezeStack() {
 
   // Fetch user's Steeze balances
   const { data: balanceData } = useQuery({
-    queryKey: ["/api/steeze/balance"],
+    queryKey: ["/api/potions/balance"],
     enabled: !!user,
   });
 
@@ -293,7 +293,7 @@ export default function SteezeStack() {
 
   // Fetch transaction history
   const { data: transactionsData = [] } = useQuery({
-    queryKey: ["/api/steeze/transactions"],
+    queryKey: ["/api/potions/transactions"],
     enabled: !!user,
   });
 
@@ -864,11 +864,11 @@ export default function SteezeStack() {
       if (!txHash) {
         throw new Error('Transaction hash is missing');
       }
-      return apiRequest('POST', '/api/steeze/confirm-purchase', { transactionHash: txHash });
+      return apiRequest('POST', '/api/potions/confirm-purchase', { transactionHash: txHash });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/steeze/transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/potions/transactions"] });
       toast({
         title: "Purchase Confirmed",
         description: "Steeze tokens added to your balance",
@@ -893,7 +893,7 @@ export default function SteezeStack() {
   // Confirm redeem mutation
   const confirmRedeemMutation = useMutation({
     mutationFn: async (txHash: string) => {
-      const response = await fetch('/api/steeze/redeem-confirm', {
+      const response = await fetch('/api/potions/redeem-confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transactionHash: txHash })
@@ -902,8 +902,8 @@ export default function SteezeStack() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/steeze/balance"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/steeze/transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/potions/transactions"] });
       toast({
         title: "Redeem Confirmed",
         description: "USDC sent to your wallet",
