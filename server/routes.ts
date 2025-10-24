@@ -56,11 +56,13 @@ import fs from "fs";
 import express from "express";
 import Stripe from "stripe";
 
-// Initialize Stripe
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Initialize Stripe (optional)
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn('Stripe not initialized: STRIPE_SECRET_KEY not found');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 
