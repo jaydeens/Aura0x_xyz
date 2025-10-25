@@ -78,7 +78,17 @@ export default function SteezeStack() {
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
-  const isOnCorrectNetwork = currentChainId === BASE_MAINNET.chainId;
+  
+  // Detect wallet type from address format
+  const isSolanaWallet = (address: string | undefined) => {
+    if (!address) return false;
+    // Solana addresses are base58, typically 32-44 chars, no 0x prefix
+    // Ethereum addresses are 0x-prefixed, 42 chars
+    return !address.startsWith('0x') && address.length >= 32 && address.length <= 44;
+  };
+  
+  const connectedWithSolana = isSolanaWallet(userWalletAddress);
+  const isOnCorrectNetwork = connectedWithSolana || currentChainId === BASE_MAINNET.chainId;
 
   const refreshNetworkStatus = async () => {
     const provider = window.trustwallet || window.ethereum;
@@ -866,7 +876,9 @@ export default function SteezeStack() {
                 <div>
                   <p className="text-xs text-cyan-300/60 font-medium">Dreamchain Beacon</p>
                   <p className="text-sm font-bold text-white flex items-center gap-2" data-testid="text-current-network">
-                    {currentChainId === BASE_MAINNET.chainId 
+                    {connectedWithSolana
+                      ? <><Network className="w-3 h-3" /> CARV SVM Chain ✓</>
+                      : currentChainId === BASE_MAINNET.chainId 
                       ? <><Network className="w-3 h-3" /> CARV SVM Chain ✓</> 
                       : currentChainId 
                         ? getNetworkName(currentChainId)
