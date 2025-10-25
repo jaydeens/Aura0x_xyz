@@ -501,7 +501,7 @@ export default function Leaderboard() {
 
           {/* Network Operations CTA */}
           <Card className="bg-gradient-to-r from-[#0A1929] to-black border-[#00D9FF]/40 shadow-[0_0_25px_#00D9FF]/30 overflow-hidden" data-testid="card-operations-cta">
-            <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 opacity-[0.03]">
               <div className="absolute inset-0" style={{
                 backgroundImage: `
                   linear-gradient(#00D9FF 1px, transparent 1px),
