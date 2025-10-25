@@ -430,29 +430,29 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
               <div className="text-sm font-semibold text-cyan-400">Solana Wallets (Recommended for CARV SVM)</div>
               
               <Button 
-                onClick={() => connectSolanaWallet('phantom')} 
-                disabled={isConnecting}
-                className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
-                data-testid="button-connect-phantom"
-              >
-                <Wallet className="h-5 w-5" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold">Phantom</div>
-                  <div className="text-xs opacity-80">Solana wallet for CARV SVM</div>
-                </div>
-              </Button>
-              
-              <Button 
                 onClick={() => connectSolanaWallet('backpack')} 
                 disabled={isConnecting}
-                variant="outline"
-                className="w-full flex items-center gap-3 h-12 border-cyan-500/30 hover:bg-cyan-500/10"
+                className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
                 data-testid="button-connect-backpack"
               >
                 <Wallet className="h-5 w-5" />
                 <div className="flex-1 text-left">
                   <div className="font-semibold">Backpack</div>
-                  <div className="text-xs opacity-70">xNFT-enabled wallet</div>
+                  <div className="text-xs opacity-80">xNFT-enabled wallet for CARV SVM</div>
+                </div>
+              </Button>
+              
+              <Button 
+                onClick={() => connectSolanaWallet('phantom')} 
+                disabled={isConnecting}
+                variant="outline"
+                className="w-full flex items-center gap-3 h-12 border-cyan-500/30 hover:bg-cyan-500/10"
+                data-testid="button-connect-phantom"
+              >
+                <Wallet className="h-5 w-5" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold">Phantom</div>
+                  <div className="text-xs opacity-70">Solana wallet</div>
                 </div>
               </Button>
             </div>
@@ -487,27 +487,27 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
             <div className="text-sm font-semibold text-cyan-400 mb-2">Solana Wallets (CARV SVM)</div>
             
             <Button 
-              onClick={() => connectSolanaWallet('phantom')} 
+              onClick={() => connectSolanaWallet('backpack')} 
               disabled={isConnecting}
               className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
             >
               <Smartphone className="h-5 w-5" />
               <div>
-                <div className="font-semibold">Phantom</div>
-                <div className="text-xs opacity-80">Solana wallet</div>
+                <div className="font-semibold">Backpack</div>
+                <div className="text-xs opacity-80">xNFT wallet for CARV SVM</div>
               </div>
             </Button>
             
             <Button 
-              onClick={() => connectSolanaWallet('backpack')} 
+              onClick={() => connectSolanaWallet('phantom')} 
               disabled={isConnecting}
               variant="outline"
               className="w-full flex items-center gap-3 h-12"
             >
               <Smartphone className="h-5 w-5" />
               <div>
-                <div className="font-semibold">Backpack</div>
-                <div className="text-xs opacity-70">xNFT wallet</div>
+                <div className="font-semibold">Phantom</div>
+                <div className="text-xs opacity-70">Solana wallet</div>
               </div>
             </Button>
 
@@ -533,12 +533,12 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
             {carvConnected ? (
               <>
                 <CheckCircle className="h-4 w-4 flex-shrink-0 text-green-400" />
-                <span>✨ CARV SVM RPC Connected - Phantom or Backpack recommended for best experience</span>
+                <span>✨ CARV SVM RPC Connected - Backpack or Phantom recommended for best experience</span>
               </>
             ) : (
               <>
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                <span>CARV SVM Chain is Solana-based. Phantom or Backpack recommended for best experience.</span>
+                <span>CARV SVM Chain is Solana-based. Backpack or Phantom recommended for best experience.</span>
               </>
             )}
           </div>
