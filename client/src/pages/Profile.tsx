@@ -22,7 +22,10 @@ import {
   X,
   Heart,
   Wallet,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  Zap,
+  Brain
 } from "lucide-react";
 
 // Helper function to check unauthorized errors
@@ -104,10 +107,10 @@ export default function Profile() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-blue-950 to-cyan-950 flex items-center justify-center">
         <div className="animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl flex items-center justify-center">
-            <User className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-600 to-blue-800 rounded-3xl flex items-center justify-center border border-cyan-400/30 shadow-2xl shadow-cyan-500/50">
+            <Brain className="w-8 h-8 text-white animate-pulse" />
           </div>
         </div>
       </div>
@@ -116,16 +119,16 @@ export default function Profile() {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-gradient-to-br from-black via-blue-950 to-cyan-950">
         <Navigation />
         <main className="pt-20 pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="animate-pulse space-y-6">
-              <div className="h-48 bg-purple-800/20 rounded-3xl backdrop-blur-xl"></div>
+              <div className="h-48 bg-blue-800/20 rounded-3xl backdrop-blur-xl border border-cyan-500/20"></div>
               <div className="grid lg:grid-cols-3 gap-6">
-                <div className="h-96 bg-purple-800/20 rounded-3xl backdrop-blur-xl"></div>
-                <div className="h-96 bg-blue-800/20 rounded-3xl backdrop-blur-xl"></div>
-                <div className="h-96 bg-pink-800/20 rounded-3xl backdrop-blur-xl"></div>
+                <div className="h-96 bg-blue-800/20 rounded-3xl backdrop-blur-xl border border-cyan-500/20"></div>
+                <div className="h-96 bg-blue-800/20 rounded-3xl backdrop-blur-xl border border-blue-500/20"></div>
+                <div className="h-96 bg-cyan-800/20 rounded-3xl backdrop-blur-xl border border-cyan-500/20"></div>
               </div>
             </div>
           </div>
@@ -136,18 +139,18 @@ export default function Profile() {
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-gradient-to-br from-black via-blue-950 to-cyan-950">
         <Navigation />
         <main className="pt-20 pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+            <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 backdrop-blur-xl rounded-3xl p-8 border border-cyan-500/30 shadow-2xl">
               <div className="text-center">
-                <User className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+                <User className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
                 <h2 className="text-2xl font-black text-white mb-2">User Not Found</h2>
                 <p className="text-white/60 mb-6">The profile you're looking for doesn't exist or has been removed.</p>
                 <Button 
                   onClick={() => window.location.href = "/"}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-black"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black"
                 >
                   Go Home
                 </Button>
@@ -163,37 +166,37 @@ export default function Profile() {
   const battleStats = viewingOwnProfile ? { total: 0, won: 0, lost: 0 } : (profileData as any)?.battleStats || { total: 0, won: 0, lost: 0 };
   const vouchStats = viewingOwnProfile ? { received: 0, given: 0 } : (profileData as any)?.vouchStats || { received: 0, given: 0 };
 
-  // Get aura level info
+  // Get dreamz level info
   const currentAuraLevel = auraLevels?.find((level: any) => 
-    profileUser?.auraPoints >= level.minPoints && 
-    profileUser?.auraPoints <= level.maxPoints
+    profileUser?.dreamzPoints >= level.minPoints && 
+    profileUser?.dreamzPoints <= level.maxPoints
   ) || auraLevels?.[0];
 
   const nextAuraLevel = auraLevels?.find((level: any) => 
-    level.minPoints > (profileUser?.auraPoints || 0)
+    level.minPoints > (profileUser?.dreamzPoints || 0)
   );
 
   const progressToNext = nextAuraLevel ? 
-    Math.min(100, ((profileUser?.auraPoints || 0) - (currentAuraLevel?.minPoints || 0)) / 
+    Math.min(100, ((profileUser?.dreamzPoints || 0) - (currentAuraLevel?.minPoints || 0)) / 
     ((nextAuraLevel.minPoints - (currentAuraLevel?.minPoints || 0)) / 100)) : 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
-      {/* Animated background orbs */}
+    <div className="min-h-screen bg-gradient-to-br from-black via-blue-950 to-cyan-950">
+      {/* Animated background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full blur-2xl animate-float"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-full blur-xl animate-bounce-slow"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-cyan-600/10 rounded-full blur-2xl animate-bounce-slow"></div>
       </div>
       
       <Navigation />
       <main className="relative pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Profile Header */}
-          <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl mb-8">
+          <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 backdrop-blur-xl rounded-3xl p-8 border border-cyan-500/30 shadow-2xl mb-8">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="relative group">
-                <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl flex items-center justify-center relative overflow-hidden">
+                <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 via-blue-600 to-blue-800 rounded-3xl flex items-center justify-center relative overflow-hidden border border-cyan-400/30 shadow-2xl shadow-cyan-500/50">
                   {profileUser?.profileImageUrl ? (
                     <img 
                       src={profileUser.profileImageUrl} 
@@ -206,7 +209,7 @@ export default function Profile() {
                   {viewingOwnProfile && (
                     <Button
                       size="sm"
-                      className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 p-0 border-2 border-white/20"
+                      className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 p-0 border-2 border-white/20"
                     >
                       <Camera className="w-4 h-4" />
                     </Button>
@@ -216,7 +219,7 @@ export default function Profile() {
               
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <h1 className="text-4xl font-black bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                  <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent">
                     {profileUser?.username || profileUser?.firstName || "Anonymous User"}
                   </h1>
                   {currentAuraLevel && (
@@ -234,16 +237,16 @@ export default function Profile() {
                 
                 <div className="flex flex-wrap gap-6 text-white/80 mb-6">
                   <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 text-purple-400" />
-                    <span className="font-bold">{profileUser?.auraPoints || 0} Aura Points</span>
+                    <Sparkles className="w-5 h-5 text-cyan-400" />
+                    <span className="font-bold">{profileUser?.dreamzPoints || 0} Dreamz Points</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-pink-400" />
+                    <Zap className="w-5 h-5 text-blue-400" />
                     <span className="font-bold">{profileUser?.currentStreak || 0} Day Streak</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Wallet className="w-5 h-5 text-cyan-400" />
-                    <span className="font-bold">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} ETH Earned</span>
+                    <span className="font-bold">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} USDC Earned</span>
                   </div>
                 </div>
 
@@ -251,14 +254,14 @@ export default function Profile() {
                 {(profileUser?.walletAddress || profileUser?.twitterUsername) && (
                   <div className="flex flex-wrap gap-3">
                     {profileUser?.walletAddress && (
-                      <div className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-purple-500/20">
-                        <Wallet className="w-4 h-4 text-purple-400" />
+                      <div className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-cyan-500/30">
+                        <Wallet className="w-4 h-4 text-cyan-400" />
                         <span className="text-sm text-white font-mono">
                           {profileUser.walletAddress.slice(0, 6)}...{profileUser.walletAddress.slice(-4)}
                         </span>
                         <button
                           onClick={() => navigator.clipboard.writeText(profileUser.walletAddress)}
-                          className="ml-1 p-1 hover:bg-purple-500/20 rounded-lg transition-colors"
+                          className="ml-1 p-1 hover:bg-cyan-500/20 rounded-lg transition-colors"
                           title="Copy wallet address"
                         >
                           <ExternalLink className="w-3 h-3 text-white/60" />
@@ -267,8 +270,8 @@ export default function Profile() {
                     )}
                     
                     {profileUser?.twitterUsername && (
-                      <div className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-purple-500/20">
-                        <svg className="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="currentColor">
+                      <div className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-blue-500/30">
+                        <svg className="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                         </svg>
                         <span className="text-sm text-white">@{profileUser.twitterUsername}</span>
@@ -276,7 +279,7 @@ export default function Profile() {
                           href={`https://x.com/${profileUser.twitterUsername}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="ml-1 p-1 hover:bg-purple-500/20 rounded-lg transition-colors"
+                          className="ml-1 p-1 hover:bg-blue-500/20 rounded-lg transition-colors"
                           title="View X profile"
                         >
                           <ExternalLink className="w-3 h-3 text-white/60" />
@@ -291,45 +294,45 @@ export default function Profile() {
 
           {/* Stats Grid */}
           <div className="grid lg:grid-cols-3 gap-6">
-            {/* Aura Level Progress */}
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-6 border border-purple-500/20 shadow-2xl">
+            {/* Dreamz Level Progress */}
+            <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 backdrop-blur-xl rounded-3xl p-6 border border-cyan-500/30 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/50">
                   <Crown className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-white">Aura Level</h3>
+                <h3 className="text-2xl font-black text-white">Dreamz Level</h3>
               </div>
               
               <div className="text-center mb-6">
-                <div className="text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-2">
+                <div className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent mb-2">
                   {currentAuraLevel?.name || "Unknown"}
                 </div>
                 <div className="text-white/60 text-sm">
-                  {profileUser?.auraPoints || 0} / ∞ Aura Points
+                  {profileUser?.dreamzPoints || 0} / ∞ Dreamz Points
                 </div>
               </div>
               
-              <div className="w-full bg-black/20 rounded-full h-4 mb-4">
+              <div className="w-full bg-black/30 rounded-full h-4 mb-4 border border-cyan-500/20">
                 <div 
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 h-4 rounded-full transition-all duration-500 shadow-lg"
+                  className="bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-600 h-4 rounded-full transition-all duration-500 shadow-lg shadow-cyan-500/50"
                   style={{ width: `${progressToNext}%` }}
                 />
               </div>
               
               {nextAuraLevel && (
                 <div className="text-center text-sm text-white/60">
-                  {nextAuraLevel.minPoints - (profileUser?.auraPoints || 0)} points to {nextAuraLevel.name}
+                  {nextAuraLevel.minPoints - (profileUser?.dreamzPoints || 0)} points to {nextAuraLevel.name}
                 </div>
               )}
             </div>
 
-            {/* Battle Stats */}
-            <div className="bg-gradient-to-br from-blue-800/30 to-purple-900/30 backdrop-blur-xl rounded-3xl p-6 border border-blue-500/20 shadow-2xl">
+            {/* Dream Duel Stats */}
+            <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 backdrop-blur-xl rounded-3xl p-6 border border-blue-500/30 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/50">
                   <Trophy className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-white">Battle Statistics</h3>
+                <h3 className="text-2xl font-black text-white">Dream Duel Stats</h3>
               </div>
               
               <div className="grid grid-cols-3 gap-4 text-center mb-4">
@@ -357,9 +360,9 @@ export default function Profile() {
             </div>
 
             {/* Vouch Stats */}
-            <div className="bg-gradient-to-br from-pink-800/30 to-rose-900/30 backdrop-blur-xl rounded-3xl p-6 border border-pink-500/20 shadow-2xl">
+            <div className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 backdrop-blur-xl rounded-3xl p-6 border border-cyan-500/30 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/50">
                   <Heart className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-2xl font-black text-white">Vouch Statistics</h3>
@@ -367,7 +370,7 @@ export default function Profile() {
               
               <div className="grid grid-cols-2 gap-4 text-center mb-4">
                 <div>
-                  <div className="text-2xl font-black text-white">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} ETH</div>
+                  <div className="text-2xl font-black text-white">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} USDC</div>
                   <div className="text-white/60 text-sm">Received</div>
                 </div>
                 <div>
@@ -377,7 +380,7 @@ export default function Profile() {
               </div>
               
               <div className="text-center text-sm text-white/60">
-                ETH vouching activity and community support
+                USDC vouching activity and community support
               </div>
             </div>
           </div>
