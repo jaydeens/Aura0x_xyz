@@ -179,7 +179,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       // Check network
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
-      const targetChainId = 8453; // Base Mainnet
+      const targetChainId = 8453; // CARV SVM Chain (Base-compatible)
       
       if (Number(network.chainId) !== targetChainId) {
         try {
@@ -193,7 +193,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
               method: 'wallet_addEthereumChain',
               params: [{
                 chainId: `0x${targetChainId.toString(16)}`,
-                chainName: 'Base Mainnet',
+                chainName: 'CARV SVM Chain',
                 nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
                 rpcUrls: ['https://mainnet.base.org'],
                 blockExplorerUrls: ['https://basescan.org'],
@@ -210,7 +210,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
       const contract = new ethers.Contract(contractInfo.contractAddress, contractInfo.abi, signer);
       
       // USDC contract for approval
-      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base Mainnet USDC
+      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // CARV SVM Chain USDC
       const usdcABI = [
         {
           "constant": false,

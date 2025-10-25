@@ -867,7 +867,7 @@ export default function SteezeStack() {
                   <p className="text-xs text-cyan-300/60 font-medium">Dreamchain Beacon</p>
                   <p className="text-sm font-bold text-white flex items-center gap-2" data-testid="text-current-network">
                     {currentChainId === BASE_MAINNET.chainId 
-                      ? <><Network className="w-3 h-3" /> Base Mainnet ✓</> 
+                      ? <><Network className="w-3 h-3" /> CARV SVM Chain ✓</> 
                       : currentChainId 
                         ? getNetworkName(currentChainId)
                         : "Detecting..."}
@@ -887,10 +887,10 @@ export default function SteezeStack() {
             </div>
             {!isOnCorrectNetwork && currentChainId !== null && (
               <div className="mt-3 px-3 py-2 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-                <p className="text-xs text-orange-400" data-testid="text-network-warning">Switch to Base Mainnet required</p>
+                <p className="text-xs text-orange-400" data-testid="text-network-warning">Switch to CARV SVM Chain required</p>
                 {currentChainId === 33875 && (
                   <p className="text-xs text-cyan-400 mt-1">
-                    Trust Wallet: tap network selector → choose "Base"
+                    Trust Wallet: tap network selector → choose "CARV SVM"
                   </p>
                 )}
               </div>
@@ -1058,7 +1058,7 @@ export default function SteezeStack() {
                           <h4 className="text-orange-300 font-medium text-sm" data-testid="text-wrong-network-acquire">Wrong Network</h4>
                         </div>
                         <p className="text-orange-200 text-xs">
-                          Currently on {getNetworkName(currentChainId)}. Will auto-switch to Base.
+                          Currently on {getNetworkName(currentChainId)}. Will auto-switch to CARV SVM Chain.
                         </p>
                       </div>
                     )}
@@ -1166,7 +1166,7 @@ export default function SteezeStack() {
                           <h4 className="text-orange-300 font-medium text-sm" data-testid="text-wrong-network-liquidate">Wrong Network</h4>
                         </div>
                         <p className="text-orange-200 text-xs">
-                          Currently on {getNetworkName(currentChainId)}. Will auto-switch to Base.
+                          Currently on {getNetworkName(currentChainId)}. Will auto-switch to CARV SVM Chain.
                         </p>
                       </div>
                     )}
