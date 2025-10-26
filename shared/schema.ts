@@ -169,7 +169,7 @@ export const potionsTransactions = pgTable("potions_transactions", {
   status: varchar("status").default("completed"), // 'pending', 'completed', 'failed'
   transactionHash: text("transaction_hash"), // Blockchain transaction hash if applicable
   recipientId: varchar("recipient_id").references(() => users.id), // For transfers or battle support
-  battleId: varchar("battle_id").references(() => battles.id), // For battle support transactions
+  battleId: uuid("battle_id").references(() => battles.id), // For battle support transactions
   createdAt: timestamp("created_at").defaultNow(),
 });
 
