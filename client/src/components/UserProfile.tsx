@@ -51,8 +51,8 @@ export default function UserProfile({ userId }: UserProfileProps) {
     retry: false,
   });
 
-  const { data: auraLevels } = useQuery({
-    queryKey: ["/api/aura-levels"],
+  const { data: dreamzLevels } = useQuery({
+    queryKey: ["/api/dreamz-levels"],
     retry: false,
   });
 

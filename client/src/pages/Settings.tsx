@@ -54,8 +54,8 @@ export default function Settings() {
     queryKey: ["/api/social/x-status"],
   });
 
-  const { data: auraLevels } = useQuery({
-    queryKey: ["/api/aura-levels"],
+  const { data: dreamzLevels } = useQuery({
+    queryKey: ["/api/dreamz-levels"],
   });
 
   const currentUser = user as any;

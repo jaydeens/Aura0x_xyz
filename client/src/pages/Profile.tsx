@@ -77,8 +77,8 @@ export default function Profile() {
   // Use current user data for own profile, or fetched data for others
   const userData = viewingOwnProfile ? currentUser : (profileData as any)?.user;
 
-  const { data: auraLevels } = useQuery({
-    queryKey: ["/api/aura-levels"],
+  const { data: dreamzLevels } = useQuery({
+    queryKey: ["/api/dreamz-levels"],
     retry: false,
   });
 
@@ -167,18 +167,18 @@ export default function Profile() {
   const vouchStats = viewingOwnProfile ? { received: 0, given: 0 } : (profileData as any)?.vouchStats || { received: 0, given: 0 };
 
   // Get dreamz level info
-  const currentAuraLevel = auraLevels?.find((level: any) => 
+  const currentDreamzLevel = dreamzLevels?.find((level: any) => 
     profileUser?.dreamzPoints >= level.minPoints && 
     profileUser?.dreamzPoints <= level.maxPoints
-  ) || auraLevels?.[0];
+  ) || dreamzLevels?.[0];
 
-  const nextAuraLevel = auraLevels?.find((level: any) => 
+  const nextDreamzLevel = dreamzLevels?.find((level: any) => 
     level.minPoints > (profileUser?.dreamzPoints || 0)
   );
 
-  const progressToNext = nextAuraLevel ? 
-    Math.min(100, ((profileUser?.dreamzPoints || 0) - (currentAuraLevel?.minPoints || 0)) / 
-    ((nextAuraLevel.minPoints - (currentAuraLevel?.minPoints || 0)) / 100)) : 100;
+  const progressToNext = nextDreamzLevel ? 
+    Math.min(100, ((profileUser?.dreamzPoints || 0) - (currentDreamzLevel?.minPoints || 0)) / 
+    ((nextDreamzLevel.minPoints - (currentDreamzLevel?.minPoints || 0)) / 100)) : 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-blue-950 to-cyan-950">
@@ -222,15 +222,15 @@ export default function Profile() {
                   <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent">
                     {profileUser?.username || profileUser?.firstName || "Anonymous User"}
                   </h1>
-                  {currentAuraLevel && (
+                  {currentDreamzLevel && (
                     <Badge 
                       className="text-white border-0 font-black px-3 py-1"
                       style={{ 
-                        background: `linear-gradient(135deg, ${currentAuraLevel.color}, ${currentAuraLevel.color}80)` 
+                        background: `linear-gradient(135deg, ${currentDreamzLevel.color}, ${currentDreamzLevel.color}80)` 
                       }}
                     >
                       <Crown className="w-3 h-3 mr-1" />
-                      {currentAuraLevel.name}
+                      {currentDreamzLevel.name}
                     </Badge>
                   )}
                 </div>
@@ -305,7 +305,7 @@ export default function Profile() {
               
               <div className="text-center mb-6">
                 <div className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 bg-clip-text text-transparent mb-2">
-                  {currentAuraLevel?.name || "Unknown"}
+                  {currentDreamzLevel?.name || "Unknown"}
                 </div>
                 <div className="text-white/60 text-sm">
                   {profileUser?.dreamzPoints || 0} / ∞ Dreamz Points
@@ -319,9 +319,9 @@ export default function Profile() {
                 />
               </div>
               
-              {nextAuraLevel && (
+              {nextDreamzLevel && (
                 <div className="text-center text-sm text-white/60">
-                  {nextAuraLevel.minPoints - (profileUser?.dreamzPoints || 0)} points to {nextAuraLevel.name}
+                  {nextDreamzLevel.minPoints - (profileUser?.dreamzPoints || 0)} points to {nextDreamzLevel.name}
                 </div>
               )}
             </div>

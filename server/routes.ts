@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username: user.username,
         walletAddress: user.walletAddress,
         profileImageUrl: user.profileImageUrl,
-        auraPoints: user.auraPoints,
+        dreamzPoints: user.dreamzPoints,
         currentStreak: user.currentStreak,
         totalVouchesReceived: user.totalVouchesReceived,
         totalUsdtEarned: user.totalUsdtEarned,
@@ -314,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: `wallet_${walletAddress.toLowerCase()}`,
           walletAddress: walletAddress.toLowerCase(),
           walletAge,
-          auraPoints: 100, // Starting points for new users
+          dreamzPoints: 100, // Starting points for new users
           currentStreak: 0,
           totalBattlesWon: 0,
           totalBattlesLost: 0,
@@ -397,8 +397,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (walletAge >= 60 && (!currentUser || !currentUser.walletAddress)) {
           await storage.updateUserDreamz(userId, 100, 'vouching');
           bonusAwarded = true;
-          bonusMessage = "🎉 Wallet bonus: +100 Aura Points for connecting a mature wallet!";
-          console.log(`Awarded 100 Aura Points to user ${userId} for connecting mature wallet`);
+          bonusMessage = "🎉 Wallet bonus: +100 Dreamz Points for connecting a mature wallet!";
+          console.log(`Awarded 100 Dreamz Points to user ${userId} for connecting mature wallet`);
         }
       } catch (error) {
         console.error("Error checking wallet age:", error);
@@ -489,8 +489,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (walletAge >= 60 && (!currentUser || !currentUser.walletAddress)) {
           await storage.updateUserDreamz(userId, 100, 'vouching');
           bonusAwarded = true;
-          bonusMessage = "🎉 Wallet bonus: +100 Aura Points for connecting a mature wallet!";
-          console.log(`Awarded 100 Aura Points to user ${userId} for connecting mature wallet`);
+          bonusMessage = "🎉 Wallet bonus: +100 Dreamz Points for connecting a mature wallet!";
+          console.log(`Awarded 100 Dreamz Points to user ${userId} for connecting mature wallet`);
         }
       } catch (error) {
         console.error("Error checking wallet age:", error);
@@ -1056,7 +1056,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               keyTakeaways: lessonData.keyTakeaways,
               difficulty: lessonData.difficulty,
               estimatedReadTime: lessonData.estimatedReadTime,
-              auraReward: 10,
+              dreamzReward: 10,
               isActive: true,
               quizQuestion: quiz.question,
               quizOptions: quiz.options,
@@ -1175,7 +1175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             quizCompleted: true,
             quizScore: 1,
             completed: false,
-            auraEarned: 0
+            dreamzEarned: 0
           });
         }
       } catch (error) {
@@ -1268,11 +1268,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lessonId,
           completed: true,
           tweetUrl,
-          auraEarned: 10,
+          dreamzEarned: 10,
           completedAt: new Date(),
         });
         
-        // Update user streak and aura points
+        // Update user streak and dreamz points
         await storage.updateUserStreak(userId, newStreak);
         await storage.updateUserDreamz(userId, 10, 'lessons');
         
@@ -1283,7 +1283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           lesson: completedLesson,
           newStreak,
-          auraEarned: 10,
+          dreamzEarned: 10,
         });
       } else {
         // Create new completion record
@@ -1292,11 +1292,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lessonId,
           completed: true,
           tweetUrl,
-          auraEarned: 10,
+          dreamzEarned: 10,
           completedAt: new Date(),
         });
         
-        // Update user streak and aura points
+        // Update user streak and dreamz points
         await storage.updateUserStreak(userId, newStreak);
         await storage.updateUserDreamz(userId, 10, 'lessons');
         
@@ -1307,7 +1307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           lesson: completedLesson,
           newStreak,
-          auraEarned: 10,
+          dreamzEarned: 10,
         });
       }
     } catch (error) {
@@ -1338,7 +1338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`Activating battle ${battle.id}`);
             await storage.updateBattle(battle.id, { status: 'active' });
           } else if (now >= endTime && battle.status !== 'completed') {
-            // Battle should be completed - determine winner and redistribute Aura Points
+            // Battle should be completed - determine winner and redistribute Dreamz Points
             console.log(`Completing battle ${battle.id} - voting ended at ${battle.votingEndsAt}`);
             await completeBattleAndDetermineWinner(battle);
           }
@@ -1366,7 +1366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         winnerId = battle.challengerId;
         updates.winnerId = winnerId;
         
-        // Winner takes all opponent's staked Aura Points
+        // Winner takes all opponent's staked Dreamz Points
         await storage.updateUserDreamz(battle.challengerId, battle.opponentStake, 'battles');
         await storage.updateUserDreamz(battle.opponentId, -battle.opponentStake, 'battles');
         
@@ -1376,7 +1376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: battle.challengerId,
           type: "battle_won",
           title: "Battle Victory!",
-          message: `You won the battle and gained ${battle.opponentStake} Aura Points!`,
+          message: `You won the battle and gained ${battle.opponentStake} Dreamz Points!`,
           relatedId: battle.id,
         });
         
@@ -1385,7 +1385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: battle.opponentId,
           type: "battle_lost",
           title: "Battle Defeat",
-          message: `You lost the battle and ${battle.opponentStake} Aura Points.`,
+          message: `You lost the battle and ${battle.opponentStake} Dreamz Points.`,
           relatedId: battle.id,
         });
         
@@ -1403,7 +1403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: battle.opponentId,
           type: "battle_won",
           title: "Battle Victory!",
-          message: `You won the battle and gained ${battle.challengerStake} Aura Points!`,
+          message: `You won the battle and gained ${battle.challengerStake} Dreamz Points!`,
           relatedId: battle.id,
         });
         
@@ -1412,18 +1412,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: battle.challengerId,
           type: "battle_lost",
           title: "Battle Defeat",
-          message: `You lost the battle and ${battle.challengerStake} Aura Points.`,
+          message: `You lost the battle and ${battle.challengerStake} Dreamz Points.`,
           relatedId: battle.id,
         });
         
       } else {
-        // Draw - no Aura Point redistribution
+        // Draw - no Dreamz Point redistribution
         await storage.createNotification({
           id: `notif_${Date.now()}_${Math.random()}`,
           userId: battle.challengerId,
           type: "battle_draw",
           title: "Battle Draw",
-          message: "The battle ended in a draw. No Aura Points were redistributed.",
+          message: "The battle ended in a draw. No Dreamz Points were redistributed.",
           relatedId: battle.id,
         });
         
@@ -1432,7 +1432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: battle.opponentId,
           type: "battle_draw",
           title: "Battle Draw",
-          message: "The battle ended in a draw. No Aura Points were redistributed.",
+          message: "The battle ended in a draw. No Dreamz Points were redistributed.",
           relatedId: battle.id,
         });
       }
@@ -1737,8 +1737,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user has enough aura points
       const user = await storage.getUser(userId);
-      if (!user || (user.auraPoints || 0) < stakeAmount) {
-        return res.status(400).json({ message: "Insufficient Aura Points" });
+      if (!user || (user.dreamzPoints || 0) < stakeAmount) {
+        return res.status(400).json({ message: "Insufficient Dreamz Points" });
       }
       
       // Calculate battle dates
@@ -1768,7 +1768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: opponent.id,
         type: "battle_challenge",
         title: "New Battle Challenge!",
-        message: `You have been challenged to a battle with ${stakeAmount} Aura stake.`,
+        message: `You have been challenged to a battle with ${stakeAmount} Dreamz stake.`,
         relatedId: battle.id,
       });
 
@@ -1778,7 +1778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         challengerId: userId,
         opponentId: opponent.id,
         stakeAmount,
-        description: description || "A battle of Web3 aura and reputation!",
+        description: description || "A battle of Web3 dreamz and reputation!",
         battleDate: battleStartDate.toISOString(),
         duration: duration || 4,
         status: "pending",
@@ -1867,7 +1867,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           walletAddress: verification.vouchedUser!,
           username: verification.vouchedUser!.slice(0, 6) + '...' + verification.vouchedUser!.slice(-4),
           currentStreak: 0,
-          auraPoints: 0
+          dreamzPoints: 0
         });
       }
       
@@ -1876,13 +1876,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fromUserId: userId,
         toUserId: vouchedUser.id,
         usdtAmount: verification.usdcAmount!.toString(),
-        auraPoints: verification.auraPoints!,
+        dreamzPoints: verification.dreamzPoints!,
         multiplier: "1.0",
         transactionHash,
       });
       
-      // Award aura points to recipient
-      await storage.updateUserDreamz(vouchedUser.id, verification.auraPoints!, 'vouching');
+      // Award dreamz points to recipient
+      await storage.updateUserDreamz(vouchedUser.id, verification.dreamzPoints!, 'vouching');
       
       // Track USDC earnings (70% goes to vouched user as per contract)
       const usdcEarnings = verification.usdcAmount! * 0.7;
@@ -1895,14 +1895,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: vouchedUser.id,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${verification.usdcAmount} USDC and awarded ${verification.auraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${verification.usdcAmount} USDC and awarded ${verification.dreamzPoints} dreamz points!`,
         isRead: false
       });
       
       res.json({
         success: true,
         vouch,
-        auraAwarded: verification.auraPoints,
+        dreamzAwarded: verification.dreamzPoints,
         usdcAmount: verification.usdcAmount,
         vouchedUser: vouchedUser.walletAddress
       });
@@ -1951,21 +1951,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ) || auraLevels[0]; // Default to first level if none found
 
       // Calculate aura points: 1 USDC = 10 APs, with level multiplier
-      const baseAuraPoints = usdcAmount * 10; // 10 APs per USDC
-      const finalAuraPoints = Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
+      const baseDreamzPoints = usdcAmount * 10; // 10 APs per USDC
+      const finalDreamzPoints = Math.round(baseDreamzPoints * parseFloat(userLevel.vouchingMultiplier || "1.0"));
 
       // Create vouch record
       const vouch = await storage.createVouch({
         fromUserId: voucherId,
         toUserId: vouchedUserId,
         usdtAmount: usdcAmount.toString(),
-        auraPoints: finalAuraPoints,
+        dreamzPoints: finalDreamzPoints,
         transactionHash,
         multiplier: userLevel.vouchingMultiplier
       });
 
       // Award aura points to the vouched user
-      await storage.updateUserDreamz(vouchedUserId, finalAuraPoints, 'vouching');
+      await storage.updateUserDreamz(vouchedUserId, finalDreamzPoints, 'vouching');
 
       // Update USDC earnings (70% of vouched amount goes to the user)
       const usdcEarnings = usdcAmount * 0.7;
@@ -1978,14 +1978,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: vouchedUserId,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${usdcAmount} USDC and awarded ${finalAuraPoints} aura points!`,
+        message: `${voucherName} vouched for you with ${usdcAmount} USDC and awarded ${finalDreamzPoints} aura points!`,
         isRead: false
       });
 
       res.json({
         success: true,
         vouch,
-        auraAwarded: finalAuraPoints,
+        dreamzAwarded: finalDreamzPoints,
         multiplier: parseFloat(userLevel.vouchingMultiplier || "1.0"),
         levelName: userLevel.name
       });
@@ -2059,7 +2059,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         platformWallet: "0x1c11262B204EE2d0146315A05b4cf42CA61D33e4",
         minAmount: 1,
         maxAmount: 100,
-        baseAuraPointsPerUSDC: 10,
+        baseDreamzPointsPerUSDC: 10,
         abi: [
           {
             "inputs": [
@@ -2159,14 +2159,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const totalUsdcGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
       const totalUsdcReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
-      const totalAuraReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
+      const totalDreamzReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
 
       res.json({
         vouchesGiven: vouchesGiven.length,
         vouchesReceived: vouchesReceived.length,
         totalUsdcGiven,
         totalUsdcReceived,
-        totalAuraReceived,
+        totalDreamzReceived,
         recentVouches: vouches.slice(0, 10)
       });
     } catch (error: any) {
@@ -2987,9 +2987,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Enhanced tweet content with streak information
-      let tweetText = `🎯 Just completed "${lessonTitle}" on @AuraPlatform! 
+      let tweetText = `🎯 Just completed "${lessonTitle}" on @DreamzPlatform! 
       
-💫 Earned ${auraEarned} Aura points`;
+💫 Earned ${auraEarned} Dreamz points`;
       
       if (streakDays > 0) {
         tweetText += `
@@ -3000,7 +3000,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 Building my Web3 knowledge one lesson at a time! 🚀
 
-#AuraLearning #Web3Education #BuildingMyAura #LearnToEarn`;
+#DreamzLearning #Web3Education #BuildingMyDreamz #LearnToEarn`;
 
       // Check if user has proper Twitter API access
       if (!twitterUser?.twitterAccessToken || !twitterUser?.twitterRefreshToken) {
@@ -3076,16 +3076,16 @@ Building my Web3 knowledge one lesson at a time! 🚀
         return res.status(400).json({ message: "X account not connected" });
       }
 
-      const tweetText = `⚔️ Victory in the Aura Arena! 
+      const tweetText = `⚔️ Victory in the Dreamz Arena! 
 
-Just defeated @${opponentUsername} in an epic Web3 battle on @AuraPlatform! 
+Just defeated @${opponentUsername} in an epic Web3 battle on @DreamzPlatform! 
 
-💎 Earned ${auraEarned} Aura points
+💎 Earned ${auraEarned} Dreamz points
 🏆 Climbing the leaderboard
 
 Ready for the next challenger! 
 
-#AuraBattle #Web3Gaming #Victory #CryptoChampion`;
+#DreamzBattle #Web3Gaming #Victory #CryptoChampion`;
 
       // Check if user has proper Twitter API access
       if (!twitterUser?.twitterAccessToken || !twitterUser?.twitterRefreshToken) {
@@ -3134,18 +3134,18 @@ Ready for the next challenger!
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { milestone, totalAura, rank } = req.body;
+      const { milestone, totalDreamz, rank } = req.body;
       const user = await storage.getUser(userId);
 
       if (!user?.twitterAccessToken) {
         return res.status(400).json({ message: "X account not connected" });
       }
 
-      let tweetText = `🎯 Milestone Achieved on @AuraPlatform! 
+      let tweetText = `🎯 Milestone Achieved on @DreamzPlatform! 
 
 ${milestone}
 
-💫 Total Aura: ${totalAura?.toLocaleString()}`;
+💫 Total Dreamz: ${totalDreamz?.toLocaleString()}`;
 
       if (rank) {
         tweetText += `
@@ -3156,7 +3156,7 @@ ${milestone}
 
 Building my Web3 empire one achievement at a time! 🚀
 
-#AuraMilestone #Web3Achievement #BuildingMyAura #CryptoSuccess`;
+#DreamzMilestone #Web3Achievement #BuildingMyDreamz #CryptoSuccess`;
 
       const tweetResponse = await fetch('https://api.twitter.com/2/tweets', {
         method: 'POST',
@@ -3198,7 +3198,7 @@ Building my Web3 empire one achievement at a time! 🚀
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { content, includeAuraTag = true } = req.body;
+      const { content, includeDreamzTag = true } = req.body;
       const user = await storage.getUser(userId);
 
       if (!user?.twitterAccessToken) {
@@ -3207,8 +3207,8 @@ Building my Web3 empire one achievement at a time! 🚀
 
       // Validate content length (Twitter's limit is 280 characters)
       let tweetText = content;
-      if (includeAuraTag && !tweetText.includes('@AuraPlatform') && !tweetText.includes('#Aura')) {
-        tweetText += '\n\n#BuildingMyAura @AuraPlatform';
+      if (includeDreamzTag && !tweetText.includes('@DreamzPlatform') && !tweetText.includes('#Dreamz')) {
+        tweetText += '\n\n#BuildingMyDreamz @DreamzPlatform';
       }
 
       if (tweetText.length > 280) {
@@ -3328,7 +3328,7 @@ Building my Web3 empire one achievement at a time! 🚀
       const totalUsers = allUsers.length;
       
       // Get total aura points across all users
-      const totalAura = allUsers.reduce((sum, user: any) => sum + (user.auraPoints || 0), 0);
+      const totalDreamz = allUsers.reduce((sum, user: any) => sum + (user.auraPoints || 0), 0);
       
       // Get battles data
       const allBattles = await storage.getBattles();
@@ -3347,12 +3347,12 @@ Building my Web3 empire one achievement at a time! 🚀
       
       res.json({
         totalUsers,
-        totalAura,
+        totalDreamz,
         activeBattles,
         completedBattles,
         totalLessons,
         completedLessonsCount,
-        averageAuraPerUser: totalUsers > 0 ? Math.round(totalAura / totalUsers) : 0,
+        averageDreamzPerUser: totalUsers > 0 ? Math.round(totalDreamz / totalUsers) : 0,
       });
     } catch (error) {
       console.error("Error fetching platform stats:", error);
@@ -3360,8 +3360,8 @@ Building my Web3 empire one achievement at a time! 🚀
     }
   });
 
-  // Aura levels route
-  app.get('/api/aura-levels', async (req, res) => {
+  // Dreamz levels route
+  app.get('/api/dreamz-levels', async (req, res) => {
     try {
       const levels = await storage.getDreamzLevels();
       res.json(levels);
