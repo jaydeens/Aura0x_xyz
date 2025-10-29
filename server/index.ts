@@ -74,12 +74,13 @@ app.use((req, res, next) => {
     app.use(express.static(path.resolve(process.cwd(), 'dist/public'), {
       maxAge: '1h',
       etag: true,
-      lastModified: true
+      lastModified: true,
+      index: 'index.html'
     }));
     
     // Fallback for SPA routing - serve index.html for all non-API routes
     app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/attached_assets')) {
         return next();
       }
       res.sendFile(path.resolve(process.cwd(), 'dist/public/index.html'));
