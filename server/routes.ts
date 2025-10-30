@@ -20,21 +20,6 @@ import {
   getClientIP 
 } from "./security";
 import cors from "cors";
-import { web3Service, POTIONS_CONTRACT } from "./web3";
-import { z } from "zod";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import express from "express";
-import Stripe from "stripe";
-
-// Initialize Stripe (optional)
-let stripe: Stripe | null = null;
-if (process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-} else {
-  console.warn('Stripe not initialized: STRIPE_SECRET_KEY not found');
-}
 
 // Simple authentication middleware for wallet and Twitter auth
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -63,6 +48,11 @@ const requireAuth = (req: any, res: any, next: any) => {
   // No valid authentication found
   return res.status(401).json({ message: "Unauthorized" });
 };
+import { web3Service, POTIONS_CONTRACT } from "./web3";
+import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 // Helper function to validate both Ethereum and Solana wallet addresses
 function isValidWalletAddress(address: string): boolean {
@@ -75,16 +65,18 @@ function isValidWalletAddress(address: string): boolean {
   
   return isEthereumAddress || isSolanaAddress;
 }
+import express from "express";
+import Stripe from "stripe";
 
-// Helper function to detect if address is Solana
-function isSolanaAddress(address: string): boolean {
-  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+// Initialize Stripe (optional)
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn('Stripe not initialized: STRIPE_SECRET_KEY not found');
 }
 
-// Helper function to detect if address is Ethereum
-function isEthereumAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{40}$/.test(address);
-}
+
 
 // Validation schemas
 const completeLessonSchema = z.object({
@@ -2264,17 +2256,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!isValidWalletAddress(address)) {
         return res.status(400).json({ message: "Invalid wallet address" });
-      }
-      
-      // Solana wallets cannot hold ERC-20 USDC from Base Mainnet
-      // Return 0 balance for Solana addresses
-      if (isSolanaAddress(address)) {
-        return res.json({ 
-          balance: 0, 
-          address,
-          currency: "USDC",
-          note: "Solana wallets cannot hold Base Mainnet USDC"
-        });
       }
       
       const balance = await web3Service.getUSDCBalance(address);

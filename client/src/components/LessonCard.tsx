@@ -24,7 +24,7 @@ interface Lesson {
   title: string;
   content: string;
   keyTakeaways: string[];
-  dreamzReward: number;
+  auraReward: number;
   difficulty: string;
   estimatedReadTime: number;
   isActive: boolean;
@@ -42,7 +42,7 @@ interface LessonCardProps {
 interface LessonStatus {
   completed: boolean;
   quizCompleted: boolean;
-  dreamzEarned: number;
+  auraEarned: number;
 }
 
 export default function LessonCard({ lesson }: LessonCardProps) {
@@ -254,7 +254,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
           <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="flex items-center gap-1 text-accent font-semibold">
               <Zap className="w-4 h-4" />
-              <span>+{lesson.dreamzReward}</span>
+              <span>+{lesson.auraReward}</span>
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                   </Badge>
                   <div className="flex items-center gap-1 text-accent font-semibold">
                     <Zap className="w-4 h-4" />
-                    <span>+{lesson.dreamzReward} Dreamz Points</span>
+                    <span>+{lesson.auraReward} Aura Points</span>
                   </div>
                 </div>
                 
@@ -438,7 +438,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
                       ) : (
                         <>
                           <Zap className="w-4 h-4 mr-2" />
-                          Claim +{lesson.dreamzReward} DPs
+                          Claim +{lesson.auraReward} APs
                         </>
                       )}
                     </Button>
@@ -453,7 +453,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
             onClick={() => setShowFullLesson(true)}
           >
             <Zap className="w-4 h-4 mr-2" />
-            Build Dreamz
+            Build Aura
           </Button>
         </div>
       </CardContent>
