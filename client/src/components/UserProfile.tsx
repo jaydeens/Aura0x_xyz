@@ -330,24 +330,25 @@ export default function UserProfile({ userId }: UserProfileProps) {
                   canVouchMore;
 
   return (
-    <Card className="bg-black/40 border border-purple-500/20">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16">
+    <div className="space-y-6">
+      {/* Profile Header Card */}
+      <div className="bg-gradient-to-br from-purple-900/40 via-black/60 to-cyan-900/40 border border-cyan-500/20 rounded-2xl p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-6">
+            <Avatar className="w-20 h-20 ring-2 ring-cyan-500/50">
               <AvatarImage src={profileUser.profileImageUrl} />
-              <AvatarFallback className="bg-purple-500 text-white text-xl">
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-cyan-500 text-white text-2xl font-bold">
                 {profileUser.username?.[0]?.toUpperCase() || "?"}
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-white text-xl">{profileUser.username || "Anonymous"}</CardTitle>
+              <h1 className="text-white text-3xl font-bold mb-1">{profileUser.username || "Anonymous"}</h1>
               {userLevel && (
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2">
                   <span className={`${getLevelColor(userLevel.name)}`}>
                     {getLevelIcon(userLevel.name)}
                   </span>
-                  <span className="text-white/80">{userLevel.name}</span>
+                  <span className="text-cyan-300 font-medium">{userLevel.name}</span>
                 </div>
               )}
             </div>
@@ -356,22 +357,22 @@ export default function UserProfile({ userId }: UserProfileProps) {
           {canVouch && (
             <Dialog open={isVouchDialogOpen} onOpenChange={setIsVouchDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
-                  <Heart className="w-4 h-4 mr-2" />
+                <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold px-6 py-6 text-lg rounded-xl">
+                  <Heart className="w-5 h-5 mr-2" />
                   {totalVouchedAmount > 0 ? `Vouch More (${remainingAmount.toFixed(2)} left)` : "Vouch"}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-black/90 border border-purple-500/20 text-white">
+              <DialogContent className="bg-gradient-to-br from-black via-blue-950/50 to-cyan-950/50 border border-cyan-500/20 text-white">
                 <DialogHeader>
-                  <DialogTitle className="text-white flex items-center gap-2">
-                    <Coins className="w-5 h-5 text-purple-400" />
+                  <DialogTitle className="text-white flex items-center gap-2 text-xl">
+                    <Coins className="w-5 h-5 text-cyan-400" />
                     Vouch for {profileUser.username}
                   </DialogTitle>
                 </DialogHeader>
                 
                 <div className="space-y-6">
                   {/* Vouching Info */}
-                  <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 space-y-3">
+                  <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 space-y-3">
                     <div className="space-y-2">
                       <span className="text-white/80">Vouching Amount (USDC):</span>
                       <Input
@@ -380,7 +381,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                         max={Math.min(MAX_USDC_AMOUNT, remainingAmount)}
                         value={vouchAmount}
                         onChange={(e) => setVouchAmount(Math.max(MIN_USDC_AMOUNT, Math.min(remainingAmount, parseInt(e.target.value) || MIN_USDC_AMOUNT)).toString())}
-                        className="bg-black/20 border-purple-500/30 text-white"
+                        className="bg-black/20 border-cyan-500/30 text-white"
                         placeholder={`Enter amount (${MIN_USDC_AMOUNT}-${Math.min(MAX_USDC_AMOUNT, remainingAmount)})`}
                       />
                       <div className="text-sm text-white/60">
@@ -426,9 +427,9 @@ export default function UserProfile({ userId }: UserProfileProps) {
                         </div>
                       </div>
                     )}
-                    <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
-                      <span className="text-white font-medium">Aura Award:</span>
-                      <span className="text-purple-400 font-bold">{parseInt(vouchAmount) * 10} points ({vouchAmount} × 10)</span>
+                    <div className="flex items-center justify-between pt-2 border-t border-cyan-500/20">
+                      <span className="text-white font-medium">Dreamz Award:</span>
+                      <span className="text-cyan-400 font-bold">{parseInt(vouchAmount) * 10} points ({vouchAmount} × 10)</span>
                     </div>
                   </div>
 
@@ -447,7 +448,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
                   <Button
                     onClick={handleVouchSubmit}
                     disabled={isProcessing || vouchMutation.isPending || parseInt(vouchAmount) > currentUsdcBalance}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold disabled:opacity-50 py-6 text-lg rounded-xl"
                   >
                     {isProcessing || vouchMutation.isPending ? (
                       <div className="flex items-center gap-2">
@@ -467,75 +468,92 @@ export default function UserProfile({ userId }: UserProfileProps) {
           )}
 
           {!canVouchMore && totalVouchedAmount >= 100 && (
-            <Badge variant="outline" className="text-green-400 border-green-400">
+            <Badge variant="outline" className="text-green-400 border-green-400 px-4 py-2 text-sm">
               Max Vouched (100 USDC)
             </Badge>
           )}
           
           {totalVouchedAmount > 0 && canVouchMore && (
-            <Badge variant="outline" className="text-blue-400 border-blue-400">
+            <Badge variant="outline" className="text-cyan-400 border-cyan-400 px-4 py-2 text-sm">
               Vouched {totalVouchedAmount.toFixed(2)} USDC
             </Badge>
           )}
         </div>
-      </CardHeader>
 
-      <CardContent className="space-y-6">
-        {/* User Stats */}
+        {/* User Stats - Gradient Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 text-center">
-            <div className="text-purple-400 text-2xl font-bold">{(profileUser as any).auraPoints || 0}</div>
-            <div className="text-white/60 text-sm">Total Aura</div>
-          </div>
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-center">
-            <div className="text-blue-400 text-2xl font-bold">{profileUser.currentStreak || 0}</div>
-            <div className="text-white/60 text-sm">Streak Days</div>
-          </div>
-          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
-            <div className="text-green-400 text-2xl font-bold">{vouchStats?.vouchesReceived || 0}</div>
-            <div className="text-white/60 text-sm">Vouches Received</div>
-          </div>
-          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">{Number((vouchStats as any)?.totalUsdcReceived || 0).toFixed(2)}</div>
-            <div className="text-white/60 text-sm">USDC Received</div>
-          </div>
-        </div>
-
-        {/* Wallet Status */}
-        <div className="bg-gray-500/10 border border-gray-500/20 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Wallet className="w-5 h-5 text-gray-400" />
-              <span className="text-white">Wallet Status</span>
+          {/* Total Dreamz - Purple/Blue Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-purple-800/20 border border-purple-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{(profileUser as any).dreamzPoints || 0}</div>
+              <div className="text-purple-200 text-sm font-medium">Total Dreamz</div>
             </div>
-            {profileUser.walletAddress ? (
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-green-400 border-green-400">
-                  Connected
-                </Badge>
-                <span className="text-white/60 font-mono text-sm">
-                  {profileUser.walletAddress.slice(0, 6)}...{profileUser.walletAddress.slice(-4)}
-                </span>
-              </div>
-            ) : (
-              <Badge variant="outline" className="text-red-400 border-red-400">
-                Not Connected
-              </Badge>
-            )}
+            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          {/* Streak Days - Blue Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-blue-600/20 via-cyan-600/20 to-blue-800/20 border border-blue-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{profileUser.currentStreak || 0}</div>
+              <div className="text-blue-200 text-sm font-medium">Streak Days</div>
+            </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          {/* Vouches Received - Green Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-green-600/20 via-emerald-600/20 to-green-800/20 border border-green-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{vouchStats?.vouchesReceived || 0}</div>
+              <div className="text-green-200 text-sm font-medium">Vouches Received</div>
+            </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          {/* USDC Received - Gold/Yellow Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-yellow-600/20 via-amber-600/20 to-yellow-800/20 border border-yellow-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{Number((vouchStats as any)?.totalUsdcReceived || 0).toFixed(2)}</div>
+              <div className="text-yellow-200 text-sm font-medium">USDC Received</div>
+            </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full blur-2xl"></div>
           </div>
         </div>
+      </div>
 
-        {/* Vouching Notice */}
-        {!canVouch && currentUser && currentUser.id !== userId && (
-          <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
-            <p className="text-orange-300 text-sm">
-              {!currentUser.walletAddress && "You need to connect your wallet to vouch for users."}
-              {!profileUser.walletAddress && "This user needs to connect their wallet to receive vouches."}
-              {!canVouchMore && "You have reached the maximum vouch amount (100 USDC) for this user."}
-            </p>
+      {/* Wallet Status Card */}
+      <div className="bg-gradient-to-br from-gray-900/60 via-black/60 to-gray-900/60 border border-gray-500/20 rounded-2xl p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Wallet className="w-6 h-6 text-gray-300" />
+            <span className="text-white text-lg font-medium">Wallet Status</span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          {profileUser.walletAddress ? (
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-green-400 border-green-400 px-3 py-1">
+                Connected
+              </Badge>
+              <span className="text-white/80 font-mono text-sm bg-black/30 px-3 py-1 rounded-lg">
+                {profileUser.walletAddress.slice(0, 6)}...{profileUser.walletAddress.slice(-4)}
+              </span>
+            </div>
+          ) : (
+            <Badge variant="outline" className="text-red-400 border-red-400 px-3 py-1">
+              Not Connected
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      {/* Vouching Notice */}
+      {!canVouch && currentUser && currentUser.id !== userId && (
+        <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4">
+          <p className="text-orange-300 text-sm">
+            {!currentUser.walletAddress && "You need to connect your wallet to vouch for users."}
+            {!profileUser.walletAddress && "This user needs to connect their wallet to receive vouches."}
+            {!canVouchMore && "You have reached the maximum vouch amount (100 USDC) for this user."}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
