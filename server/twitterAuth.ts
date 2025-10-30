@@ -225,7 +225,7 @@ export function setupTwitterAuth(app: Express) {
           console.log("Twitter authentication successful for user:", user.id);
           // Add small delay to ensure session is persisted
           setTimeout(() => {
-            res.redirect("/dashboard");
+            res.redirect("/");
           }, 100);
         });
       }
