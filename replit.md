@@ -46,3 +46,18 @@ Preferred communication style: Simple, everyday language.
 - **TanStack Query**: For server state management.
 - **Ethers.js**: For Ethereum blockchain interactions.
 - **Passport.js**: For authentication strategies.
+
+## Recent Updates
+
+### October 30, 2025 - X (Twitter) API Integration Update
+- **New X Developer App**: Migrated from old Aura configuration to new Dreamz X Developer App credentials
+- **Dynamic Redirect URIs**: Updated OAuth 2.0 flow to use request-based host detection instead of hardcoded aura0x.xyz URLs
+- **Secure Credentials**: All API keys stored in Replit Secrets (TWITTER_CLIENT_ID, TWITTER_CLIENT_SECRET)
+- **Improved Reliability**: Implemented smart fallback chain (request host → REPLIT_DOMAINS → localhost) with comprehensive logging
+- **OAuth 2.0 Compliance**: Maintained PKCE flow security with consistent redirect URIs across initiation and callback flows
+
+### October 26, 2025 - Database Setup & Dreamz Rebrand
+- **Fresh PostgreSQL Database**: Created all 11 tables with proper schema (users, battles, vouches, potionsTransactions, dreamzLevels, lessons, userLessons, battleVotes, notifications, sessions, walletWhitelist)
+- **Dreamz Levels**: Populated 5-tier progression system (Genesis Node → Neural Master) with multipliers
+- **Complete Rebrand**: Updated entire codebase from "Aura" to "Dreamz" terminology (API endpoints, database columns, social media references, frontend components)
+- **Browser Branding**: Updated page title, meta tags, theme colors, and favicon to Dreamz AI-crypto aesthetic
