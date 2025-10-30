@@ -20,6 +20,21 @@ import {
   getClientIP 
 } from "./security";
 import cors from "cors";
+import { web3Service, POTIONS_CONTRACT } from "./web3";
+import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
+import Stripe from "stripe";
+
+// Initialize Stripe (optional)
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn('Stripe not initialized: STRIPE_SECRET_KEY not found');
+}
 
 // Simple authentication middleware for wallet and Twitter auth
 const isAuthenticated = (req: any, res: any, next: any) => {
@@ -48,11 +63,6 @@ const requireAuth = (req: any, res: any, next: any) => {
   // No valid authentication found
   return res.status(401).json({ message: "Unauthorized" });
 };
-import { web3Service, POTIONS_CONTRACT } from "./web3";
-import { z } from "zod";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 
 // Helper function to validate both Ethereum and Solana wallet addresses
 function isValidWalletAddress(address: string): boolean {
@@ -75,18 +85,6 @@ function isSolanaAddress(address: string): boolean {
 function isEthereumAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
-import express from "express";
-import Stripe from "stripe";
-
-// Initialize Stripe (optional)
-let stripe: Stripe | null = null;
-if (process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-} else {
-  console.warn('Stripe not initialized: STRIPE_SECRET_KEY not found');
-}
-
-
 
 // Validation schemas
 const completeLessonSchema = z.object({
