@@ -83,8 +83,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
   };
 
   const userLevel = getUserLevel();
-  const baseAuraPoints = 50; // Fixed aura points per vouch (contract determines this)
-  const finalAuraPoints = userLevel ? Math.round(baseAuraPoints * parseFloat(userLevel.vouchingMultiplier || "1.0")) : baseAuraPoints;
+  const baseDreamzPoints = 50; // Fixed dreamz points per vouch (contract determines this)
+  const finalDreamzPoints = userLevel ? Math.round(baseDreamzPoints * parseFloat(userLevel.vouchingMultiplier || "1.0")) : baseDreamzPoints;
   const currentEthBalance = (ethBalanceData as any)?.balance || 0;
 
   const vouchMutation = useMutation({
@@ -94,7 +94,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     onSuccess: (data) => {
       toast({
         title: "Vouch Successful!",
-        description: `Awarded ${data.auraAwarded} aura points (${data.multiplier}x multiplier)`,
+        description: `Awarded ${data.dreamzAwarded} dreamz points (${data.multiplier}x multiplier)`,
       });
       setSelectedUserId("");
       setTransactionHash("");
@@ -230,8 +230,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
             </Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-white/80">Base Aura Points:</span>
-            <span className="text-white">{baseAuraPoints}</span>
+            <span className="text-white/80">Base Dreamz Points:</span>
+            <span className="text-white">{baseDreamzPoints}</span>
           </div>
           {userLevel && (
             <div className="flex items-center justify-between">
@@ -248,8 +248,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
             </div>
           )}
           <div className="flex items-center justify-between pt-2 border-t border-purple-500/20">
-            <span className="text-white font-medium">Final Aura Award:</span>
-            <span className="text-purple-400 font-bold">{finalAuraPoints} points (Fixed)</span>
+            <span className="text-white font-medium">Final Dreamz Award:</span>
+            <span className="text-purple-400 font-bold">{finalDreamzPoints} points (Fixed)</span>
           </div>
           {REQUIRED_ETH_AMOUNT > currentEthBalance && (
             <div className="flex items-center justify-center pt-2">
@@ -282,7 +282,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
                       <div>
                         <span className="font-medium">{userData.username || "Anonymous"}</span>
                         <span className="text-purple-400 ml-2">
-                          {userData.totalAura} aura
+                          {userData.totalDreamz} dreamz
                         </span>
                       </div>
                     </div>
@@ -323,7 +323,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           ) : (
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
-              Confirm Vouch ({finalAuraPoints} aura)
+              Confirm Vouch ({finalDreamzPoints} dreamz)
             </div>
           )}
         </Button>
@@ -333,7 +333,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
           <p className="text-blue-300 text-sm">
             <strong>How it works:</strong> First approve {selectedAmount} USDC spending, then complete the vouch transaction. 
             They receive 70% ({(selectedAmount * 0.7).toFixed(2)} USDC) while 30% goes to the platform. 
-            They also get {finalAuraPoints} aura points based on your level multiplier.
+            They also get {finalDreamzPoints} dreamz points based on your level multiplier.
           </p>
         </div>
       </CardContent>

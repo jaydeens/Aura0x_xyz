@@ -65,6 +65,16 @@ function isValidWalletAddress(address: string): boolean {
   
   return isEthereumAddress || isSolanaAddress;
 }
+
+// Helper function to detect if address is Solana
+function isSolanaAddress(address: string): boolean {
+  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+}
+
+// Helper function to detect if address is Ethereum
+function isEthereumAddress(address: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
 import express from "express";
 import Stripe from "stripe";
 
@@ -2256,6 +2266,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!isValidWalletAddress(address)) {
         return res.status(400).json({ message: "Invalid wallet address" });
+      }
+      
+      // Solana wallets cannot hold ERC-20 USDC from Base Mainnet
+      // Return 0 balance for Solana addresses
+      if (isSolanaAddress(address)) {
+        return res.json({ 
+          balance: 0, 
+          address,
+          currency: "USDC",
+          note: "Solana wallets cannot hold Base Mainnet USDC"
+        });
       }
       
       const balance = await web3Service.getUSDCBalance(address);
