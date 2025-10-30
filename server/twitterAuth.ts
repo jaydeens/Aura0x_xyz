@@ -8,6 +8,30 @@ export function setupTwitterAuth(app: Express) {
     return;
   }
 
+  // Get redirect URI from environment
+  const getRedirectUri = (req?: any) => {
+    // Try to get host from request first (most reliable)
+    if (req?.get?.('host')) {
+      const protocol = req.get('host').includes('localhost') ? 'http' : 'https';
+      const redirectUri = `${protocol}://${req.get('host')}/api/auth/twitter/callback`;
+      console.log('Using request-based redirect URI:', redirectUri);
+      return redirectUri;
+    }
+    
+    // Fallback to REPLIT_DOMAINS
+    const domains = process.env.REPLIT_DOMAINS?.split(',') || [];
+    if (domains.length > 0) {
+      const primaryDomain = domains[0].trim();
+      const redirectUri = `https://${primaryDomain}/api/auth/twitter/callback`;
+      console.log('Using REPLIT_DOMAINS redirect URI:', redirectUri);
+      return redirectUri;
+    }
+    
+    // Last resort fallback (development only)
+    console.warn('No valid host found, using localhost fallback - this will fail in production!');
+    return 'http://localhost:5000/api/auth/twitter/callback';
+  };
+
   // Store pending OAuth requests
   const pendingOAuthRequests = new Map<string, { codeChallenge: string, codeVerifier: string }>();
 
@@ -29,10 +53,12 @@ export function setupTwitterAuth(app: Express) {
       // Store PKCE values for this request
       pendingOAuthRequests.set(state, { codeChallenge, codeVerifier });
       
+      const redirectUri = getRedirectUri(req);
+      
       const params = new URLSearchParams({
         response_type: 'code',
         client_id: process.env.TWITTER_CLIENT_ID!,
-        redirect_uri: 'https://aura0x.xyz/api/auth/twitter/callback',
+        redirect_uri: redirectUri,
         scope: 'tweet.read tweet.write users.read offline.access',
         state: state,
         code_challenge: codeChallenge,
@@ -77,10 +103,12 @@ export function setupTwitterAuth(app: Express) {
       pendingOAuthRequests.delete(state as string);
       
       // Exchange code for access token
+      const redirectUri = getRedirectUri(req);
+      
       const tokenParams = new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: process.env.TWITTER_CLIENT_ID!,
-        redirect_uri: 'https://aura0x.xyz/api/auth/twitter/callback',
+        redirect_uri: redirectUri,
         code: code as string,
         code_verifier: oauthData.codeVerifier
       });
