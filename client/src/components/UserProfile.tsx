@@ -80,13 +80,13 @@ export default function UserProfile({ userId }: UserProfileProps) {
 
   const currentUsdcBalance = usdcBalanceData?.balance || 0;
 
-  // Get current user's aura level and multiplier for vouching
+  // Get current user's dreamz level and multiplier for vouching
   const getCurrentUserLevel = () => {
-    if (!currentUser || !auraLevels || !Array.isArray(auraLevels)) return null;
-    return auraLevels.find((level: any) => 
+    if (!currentUser || !dreamzLevels || !Array.isArray(dreamzLevels)) return null;
+    return dreamzLevels.find((level: any) => 
       (currentUser.currentStreak || 0) >= level.minDays && 
       (level.maxDays === null || (currentUser.currentStreak || 0) <= level.maxDays)
-    ) || auraLevels[0];
+    ) || dreamzLevels[0];
   };
 
   const currentUserLevel = getCurrentUserLevel();
@@ -289,11 +289,11 @@ export default function UserProfile({ userId }: UserProfileProps) {
   };
 
   const getUserLevel = (user: any) => {
-    if (!user || !auraLevels || !Array.isArray(auraLevels)) return null;
-    return auraLevels.find((level: any) => 
+    if (!user || !dreamzLevels || !Array.isArray(dreamzLevels)) return null;
+    return dreamzLevels.find((level: any) => 
       (user.currentStreak || 0) >= level.minDays && 
       (level.maxDays === null || (user.currentStreak || 0) <= level.maxDays)
-    ) || auraLevels[0];
+    ) || dreamzLevels[0];
   };
 
   const userLevel = getUserLevel(profileUser);
