@@ -78,11 +78,11 @@ export default function Vouch() {
   }
 
   const getStreakLevel = (streak: number) => {
-    if (!auraLevels) return { name: "Clout Chaser", color: "#8000FF", icon: Zap, multiplier: 1.0 };
+    if (!dreamzLevels) return { name: "Clout Chaser", color: "#8000FF", icon: Zap, multiplier: 1.0 };
     
-    return auraLevels.find((level: any) => 
+    return dreamzLevels.find((level: any) => 
       streak >= level.minDays && (!level.maxDays || streak <= level.maxDays)
-    ) || auraLevels[0];
+    ) || dreamzLevels[0];
   };
 
   const userStreakLevel = getStreakLevel(user?.currentStreak || 0);
@@ -266,7 +266,7 @@ export default function Vouch() {
               </Card>
 
               {/* Streak Level Reference */}
-              {auraLevels && auraLevels.length > 0 && (
+              {dreamzLevels && dreamzLevels.length > 0 && (
                 <Card className="bg-[#1A1A1B] border-[#9933FF]/20">
                   <CardHeader>
                     <CardTitle className="text-lg font-bold text-white">
@@ -274,7 +274,7 @@ export default function Vouch() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {auraLevels.map((level: any) => {
+                    {dreamzLevels.map((level: any) => {
                       const LevelIcon = level.name === "Aura Vader" ? Crown : 
                                        level.name === "Grinder" ? Trophy :
                                        level.name === "Attention Seeker" ? Star : Zap;

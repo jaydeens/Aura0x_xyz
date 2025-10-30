@@ -430,7 +430,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Neural Tier System */}
-          {auraLevels && auraLevels.length > 0 && (
+          {dreamzLevels && dreamzLevels.length > 0 && (
             <Card className="bg-[#0A1929] border-[#00D9FF]/30 mb-10 shadow-[0_0_20px_#00D9FF]/20" data-testid="card-tier-system">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-[#00D9FF]" data-testid="heading-tier-protocol">

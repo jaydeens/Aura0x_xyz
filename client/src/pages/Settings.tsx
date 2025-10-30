@@ -59,9 +59,9 @@ export default function Settings() {
   });
 
   const currentUser = user as any;
-  const currentAuraLevel = auraLevels?.find?.((level: any) => 
-    currentUser?.auraPoints >= level.minAuraPoints
-  ) || auraLevels?.[0];
+  const currentAuraLevel = dreamzLevels?.find?.((level: any) => 
+    currentUser?.dreamzPoints >= level.minDreamzPoints
+  ) || dreamzLevels?.[0];
 
   const isTwitterConnected = !!twitterStatus?.connected;
 

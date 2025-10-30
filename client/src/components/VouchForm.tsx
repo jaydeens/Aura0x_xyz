@@ -73,13 +73,13 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
     staleTime: 10000, // Consider data stale after 10 seconds
   });
 
-  // Get current user's aura level and multiplier
+  // Get current user's dreamz level and multiplier
   const getUserLevel = () => {
-    if (!user || !auraLevels || !Array.isArray(auraLevels)) return null;
-    return auraLevels.find((level: any) => 
+    if (!user || !dreamzLevels || !Array.isArray(dreamzLevels)) return null;
+    return dreamzLevels.find((level: any) => 
       (user.currentStreak || 0) >= level.minDays && 
       (level.maxDays === null || (user.currentStreak || 0) <= level.maxDays)
-    ) || auraLevels[0];
+    ) || dreamzLevels[0];
   };
 
   const userLevel = getUserLevel();
@@ -149,14 +149,14 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       return;
     }
 
-    // Calculate final aura points for preview
-    const userAuraLevel = auraLevels?.find((level: any) => 
+    // Calculate final dreamz points for preview
+    const userDreamzLevel = dreamzLevels?.find((level: any) => 
       (user.currentStreak || 0) >= level.minDays && 
       (level.maxDays === null || (user.currentStreak || 0) <= level.maxDays)
-    ) || auraLevels?.[0];
+    ) || dreamzLevels?.[0];
     
-    const finalAura = userAuraLevel ? 
-      Math.round(50 * parseFloat(userAuraLevel.vouchingMultiplier || "1.0")) : 50;
+    const finalDreamz = userDreamzLevel ? 
+      Math.round(50 * parseFloat(userDreamzLevel.vouchingMultiplier || "1.0")) : 50;
 
     setIsProcessing(true);
     try {
