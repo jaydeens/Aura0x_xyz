@@ -108,10 +108,7 @@ export default function Landing() {
                 </span>
               </h1>
               
-              <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-2xl font-medium" data-testid="text-description">
-                Neural-powered credibility engine 🧠 Mint reputation NFTs, 
-                validate knowledge on-chain, and build unstoppable digital identity
-              </p>
+              <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-2xl font-medium" data-testid="text-description">Neural-powered credibility engine 🧠 Mint reputations, validate knowledge on-chain, challenge friends/foes and build unstoppable digital identity</p>
 
               {/* Vertical Stacked Buttons with Diagonal Offset */}
               <div className="flex flex-col gap-4 items-start transform lg:translate-x-12">
