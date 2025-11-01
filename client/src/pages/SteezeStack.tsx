@@ -597,7 +597,7 @@ export default function SteezeStack() {
           
           if (Number(network.chainId) !== BASE_MAINNET.chainId) {
             const networkName = getNetworkName(Number(network.chainId));
-            throw new Error(`Network Error: You're on ${networkName} but Potion purchases require Base network. Please switch to Base Mainnet in your wallet to use USDT transactions.`);
+            throw new Error(`Network Error: You're on ${networkName} but SLP purchases require Base network. Please switch to Base Mainnet in your wallet to use USDT transactions.`);
           }
           
           console.log("✓ Network verification passed - proceeding with USDT approval on Base network");
@@ -678,7 +678,7 @@ export default function SteezeStack() {
     },
     onSuccess: () => {
       toast({
-        title: "Potions Acquired!",
+        title: "SLP Acquired!",
         description: "Neural tokens successfully added to your vault",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
@@ -691,7 +691,7 @@ export default function SteezeStack() {
     onError: (error: Error) => {
       toast({
         title: "Transaction Failed",
-        description: error.message || "Failed to purchase potions",
+        description: error.message || "Failed to purchase SLP",
         variant: "destructive",
       });
       setIsPurchasing(false);
@@ -761,7 +761,7 @@ export default function SteezeStack() {
     },
     onSuccess: () => {
       toast({
-        title: "Potions Liquidated!",
+        title: "SLP Liquidated!",
         description: "USDT transfer initiated to your wallet",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
@@ -772,7 +772,7 @@ export default function SteezeStack() {
     onError: (error: Error) => {
       toast({
         title: "Liquidation Failed",
-        description: error.message || "Failed to redeem potions",
+        description: error.message || "Failed to redeem SLP",
         variant: "destructive",
       });
       setIsRedeeming(false);
@@ -812,7 +812,7 @@ export default function SteezeStack() {
     if (!potionsAmount || parseFloat(potionsAmount) <= 0) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid potions amount",
+        description: "Please enter a valid SLP amount",
         variant: "destructive",
       });
       return;
@@ -821,7 +821,7 @@ export default function SteezeStack() {
     if (parseFloat(potionsAmount) > earnedPotions) {
       toast({
         title: "Insufficient Balance",
-        description: "You can only liquidate earned potions",
+        description: "You can only liquidate earned SLP",
         variant: "destructive",
       });
       return;
@@ -1011,8 +1011,8 @@ export default function SteezeStack() {
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-cyan-400" data-testid={`text-ledger-amount-${tx.id}`}>
                             {(tx.type === 'purchase' || tx.type === 'buy') 
-                              ? `+${tx.potionsAmount?.toLocaleString() || 0} Potions`
-                              : `-${tx.potionsAmount?.toLocaleString() || 0} Potions`
+                              ? `+${tx.potionsAmount?.toLocaleString() || 0} SLP`
+                              : `-${tx.potionsAmount?.toLocaleString() || 0} SLP`
                             }
                           </span>
                           <span className="text-gray-400">
@@ -1051,7 +1051,7 @@ export default function SteezeStack() {
                 {!isConnected ? (
                   <div className="py-12 text-center">
                     <Wallet className="w-16 h-16 text-green-400/40 mx-auto mb-4" />
-                    <p className="text-green-300/60 mb-6">Connect wallet to acquire potions</p>
+                    <p className="text-green-300/60 mb-6">Connect wallet to acquire SLP</p>
                     <Button 
                       onClick={connectWallet}
                       className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg shadow-green-500/30"
@@ -1107,7 +1107,7 @@ export default function SteezeStack() {
                         <p className="text-sm text-green-300/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white flex items-center gap-2" data-testid="text-acquire-preview">
                           <Sparkles className="w-5 h-5 text-green-400" />
-                          {calculatePotionsAmount().toLocaleString()} POTIONS
+                          {calculatePotionsAmount().toLocaleString()} SLP
                         </p>
                       </div>
                     )}
@@ -1128,7 +1128,7 @@ export default function SteezeStack() {
                       ) : (
                         <>
                           <TrendingUp className="w-4 h-4 mr-2" />
-                          Acquire Potions
+                          Acquire SLP
                         </>
                       )}
                     </Button>
@@ -1159,7 +1159,7 @@ export default function SteezeStack() {
                 {!isConnected ? (
                   <div className="py-12 text-center">
                     <Wallet className="w-16 h-16 text-red-400/40 mx-auto mb-4" />
-                    <p className="text-red-300/60 mb-6">Connect wallet to liquidate potions</p>
+                    <p className="text-red-300/60 mb-6">Connect wallet to liquidate SLP</p>
                     <Button 
                       onClick={connectWallet}
                       className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 shadow-lg shadow-red-500/30"
@@ -1184,19 +1184,19 @@ export default function SteezeStack() {
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="potions-liquidate" className="text-red-300 font-medium flex items-center gap-2">
+                      <Label htmlFor="slp-liquidate" className="text-red-300 font-medium flex items-center gap-2">
                         <Sparkles className="w-4 h-4" />
-                        Potions Amount
+                        SLP Amount
                       </Label>
                       <Input
-                        id="potions-liquidate"
+                        id="slp-liquidate"
                         type="number"
                         step="1"
                         placeholder="1000"
                         value={potionsAmount}
                         onChange={(e) => setPotionsAmount(e.target.value)}
                         className="bg-black/30 border-red-500/30 text-white placeholder:text-red-400/30 focus:border-red-400"
-                        data-testid="input-liquidate-potions"
+                        data-testid="input-liquidate-slp"
                       />
                       <div className="text-sm text-red-300/60">
                         <span data-testid="text-max-liquidate">Max: {earnedPotions.toLocaleString()} earned</span>
@@ -1227,7 +1227,7 @@ export default function SteezeStack() {
                       ) : (
                         <>
                           <TrendingDown className="w-4 h-4 mr-2" />
-                          Liquidate Potions
+                          Liquidate SLP
                         </>
                       )}
                     </Button>
