@@ -30,42 +30,17 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { ethers } from "ethers";
 import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance } from "@/lib/carvSVM";
 
 declare global {
   interface Window {
-    ethereum?: any;
-    trustwallet?: any;
-    phantom?: any;
+    phantom?: {
+      solana?: any;
+    };
     solana?: any;
     backpack?: any;
   }
 }
-
-const BASE_MAINNET = {
-  chainId: 8453,
-  chainName: "Base Mainnet",
-  rpcUrl: "https://mainnet.base.org",
-  blockExplorer: "https://basescan.org/",
-};
-
-const getNetworkName = (chainId: number): string => {
-  const networks: Record<number, string> = {
-    1: "Ethereum Mainnet",
-    8453: "Base Mainnet", 
-    84532: "Base Sepolia",
-    33875: "Unknown Network (33875)",
-    137: "Polygon Mainnet",
-    56: "BSC Mainnet",
-    43114: "Avalanche Mainnet",
-    250: "Fantom Mainnet",
-    10: "Optimism Mainnet",
-    42161: "Arbitrum One",
-    1337: "Local Network"
-  };
-  return networks[chainId] || `Chain ID: ${chainId}`;
-};
 
 export default function SteezeStack() {
   const { user } = useAuth();
@@ -75,7 +50,6 @@ export default function SteezeStack() {
   const [potionsAmount, setPotionsAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
-  const [currentChainId, setCurrentChainId] = useState<number | null>(BASE_MAINNET.chainId);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
@@ -91,7 +65,9 @@ export default function SteezeStack() {
     return !address.startsWith('0x') && address.length >= 32 && address.length <= 44;
   };
   
-  const connectedWithSolana = isSolanaWallet(userWalletAddress);
+  // Check both runtime walletAddress (from connect button) and stored userWalletAddress
+  const effectiveAddress = walletAddress || userWalletAddress;
+  const connectedWithSolana = isSolanaWallet(effectiveAddress);
   const isOnCorrectNetwork = connectedWithSolana;
   
   // Get Solana wallet object
@@ -107,80 +83,37 @@ export default function SteezeStack() {
   };
 
   const refreshNetworkStatus = async () => {
-    const provider = window.trustwallet || window.ethereum;
-    const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
+    const wallet = getSolanaWallet();
     
-    if (!provider) {
+    if (!wallet) {
       toast({
-        title: "No Wallet Found",
-        description: "Please ensure your wallet is connected",
+        title: "No Solana Wallet Found",
+        description: "Please install Phantom or Backpack wallet",
         variant: "destructive"
       });
       return;
     }
     
     try {
-      let chainId: string | null = null;
+      const isConnected = wallet.isConnected || wallet.connected;
       
-      if (isTrustWallet) {
-        console.log("Refreshing Trust Wallet network status...");
-        
-        try {
-          chainId = await provider.request({ method: 'eth_chainId' });
-          console.log("Trust Wallet refresh - chainId:", chainId);
-          
-          if (provider.networkVersion) {
-            const networkVersionChainId = `0x${parseInt(provider.networkVersion).toString(16)}`;
-            console.log("Trust Wallet refresh - networkVersion:", networkVersionChainId);
-            if (chainId !== networkVersionChainId) {
-              console.log("Using networkVersion for Trust Wallet:", networkVersionChainId);
-              chainId = networkVersionChainId;
-            }
-          }
-        } catch (e) {
-          console.log("Trust Wallet refresh failed, trying direct properties");
-          if (provider.chainId) {
-            chainId = provider.chainId;
-          } else if (provider.networkVersion) {
-            chainId = `0x${parseInt(provider.networkVersion).toString(16)}`;
-          }
-        }
-      } else {
-        try {
-          chainId = await provider.request({ method: 'eth_chainId' });
-        } catch (e) {
-          const ethersProvider = new ethers.BrowserProvider(provider);
-          const network = await ethersProvider.getNetwork();
-          chainId = `0x${network.chainId.toString(16)}`;
-        }
-      }
-
-      if (chainId && chainId !== "0x" && !isNaN(parseInt(chainId, 16))) {
-        const actualChainId = parseInt(chainId, 16);
-        console.log(`Refreshed network detection: ${actualChainId} (Base Mainnet: ${BASE_MAINNET.chainId})`);
-        setCurrentChainId(actualChainId);
-        
+      if (isConnected) {
         toast({
-          title: "Network Status Updated", 
-          description: actualChainId === BASE_MAINNET.chainId 
-            ? "✓ Connected to Base Mainnet" 
-            : `Connected to ${getNetworkName(actualChainId)}`,
-        });
-      } else if (isTrustWallet) {
-        console.log("Trust Wallet - forcing Base Mainnet assumption");
-        setCurrentChainId(BASE_MAINNET.chainId);
-        toast({
-          title: "Network Status Updated",
-          description: "✓ Set to Base Mainnet (Trust Wallet network detection bypassed)",
+          title: "CARV SVM Chain",
+          description: "✓ Solana wallet connected and ready",
         });
       } else {
-        throw new Error("Could not detect network");
+        toast({
+          title: "Wallet Not Connected",
+          description: "Please connect your Solana wallet",
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      console.error("Failed to refresh network status:", error);
+      console.error("Failed to check wallet status:", error);
       toast({
-        title: "Network Detection Failed",
-        description: "Please check your wallet connection and try switching networks manually",
+        title: "Status Check Failed",
+        description: "Please check your wallet connection",
         variant: "destructive"
       });
     }
@@ -195,111 +128,12 @@ export default function SteezeStack() {
 
   useEffect(() => {
     const effectiveAddress = userWalletAddress || walletAddress;
-    if (effectiveAddress) {
-      queryClient.removeQueries({ 
-        queryKey: ['/api/wallet/usdt-balance']
-      });
-      
-      setUsdtBalance(0);
+    if (effectiveAddress && connectedWithSolana) {
+      console.log(`Wallet changed to: ${effectiveAddress} (Solana wallet)`);
+      // Refetch USDT balance when wallet changes
       refetchUsdtBalance();
-      
-      console.log(`Wallet changed to: ${effectiveAddress}`);
-      console.log("Wallet State:", {
-        isConnected,
-        walletAddress,
-        userWalletAddress,
-        effectiveWalletAddress: effectiveAddress,
-        currentChainId,
-        expectedChainId: BASE_MAINNET.chainId,
-        isOnCorrectNetwork
-      });
     }
-  }, [userWalletAddress, walletAddress]);
-
-  useEffect(() => {
-    const checkNetwork = async () => {
-      if (!isConnected) return;
-      
-      const provider = window.trustwallet || window.ethereum;
-      const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
-      
-      if (isTrustWallet) {
-        console.log("Trust Wallet detected - skipping network detection, assuming Base Mainnet");
-        console.log("Reason: Trust Wallet mobile returns invalid chainId (NaN/Unknown Network) but functions correctly on Base");
-        setCurrentChainId(BASE_MAINNET.chainId);
-        return;
-      }
-      
-      try {
-        let chainId: string | null = null;
-        
-        if (provider) {
-          if (isTrustWallet) {
-            console.log("Trust Wallet detected - attempting network detection with fallbacks");
-            
-            try {
-              chainId = await provider.request({ method: 'eth_chainId' });
-              console.log("Trust Wallet chainId response:", chainId);
-              
-              if (!chainId || chainId === "0x" || chainId === "NaN" || isNaN(parseInt(chainId, 16))) {
-                console.log("Trust Wallet returned invalid chainId, using fallback assumption");
-                setCurrentChainId(BASE_MAINNET.chainId);
-                return;
-              }
-            } catch (trustError) {
-              console.log("Trust Wallet network request failed, assuming Base Mainnet:", trustError);
-              setCurrentChainId(BASE_MAINNET.chainId);
-              return;
-            }
-          } else {
-            try {
-              chainId = await provider.request({ method: 'eth_chainId' });
-              console.log("Standard network detection successful:", chainId);
-            } catch (e) {
-              console.log("Standard method failed, trying ethers...");
-              
-              try {
-                const ethersProvider = new ethers.BrowserProvider(provider);
-                const network = await ethersProvider.getNetwork();
-                chainId = `0x${network.chainId.toString(16)}`;
-                console.log("Ethers network detection successful:", chainId);
-              } catch (e2) {
-                console.log("Ethers method also failed");
-                
-                if (provider.chainId) {
-                  chainId = provider.chainId;
-                  console.log("Direct chainId property found:", chainId);
-                }
-              }
-            }
-          }
-        }
-
-        if (chainId && chainId !== "0x" && !isNaN(parseInt(chainId, 16))) {
-          const actualChainId = parseInt(chainId, 16);
-          console.log(`Detected network: ${actualChainId} (${getNetworkName(actualChainId)}) - Base Mainnet is ${BASE_MAINNET.chainId}`);
-          setCurrentChainId(actualChainId);
-          
-          if (actualChainId === BASE_MAINNET.chainId) {
-            console.log("✓ Successfully detected Base Mainnet");
-          } else {
-            console.log(`⚠ Wrong network detected: ${getNetworkName(actualChainId)} instead of Base Mainnet`);
-          }
-        } else {
-          console.log("Could not detect network - leaving as null");
-          setCurrentChainId(null);
-        }
-      } catch (error) {
-        console.error("Error checking network:", error);
-        if (userWalletAddress) {
-          console.log("Using fallback: setting to Base Mainnet for authenticated user");
-          setCurrentChainId(BASE_MAINNET.chainId);
-        }
-      }
-    };
-
-    checkNetwork();
-  }, [isConnected, userWalletAddress]);
+  }, [userWalletAddress, walletAddress, connectedWithSolana]);
 
   const { data: balanceData } = useQuery({
     queryKey: ["/api/potions/balance"],
@@ -317,9 +151,23 @@ export default function SteezeStack() {
   });
 
   const effectiveWalletAddress = userWalletAddress || walletAddress;
+  
+  // Fetch USDT balance directly from CARV SVM Chain for Solana wallets
   const { data: usdtBalanceData, refetch: refetchUsdtBalance, isRefetching } = useQuery({
-    queryKey: [`/api/wallet/usdt-balance/${effectiveWalletAddress}`],
-    enabled: !!effectiveWalletAddress && (isConnected || !!userWalletAddress),
+    queryKey: [`carv-svm-usdt-balance`, effectiveWalletAddress],
+    queryFn: async () => {
+      if (!effectiveWalletAddress || !connectedWithSolana) {
+        return { balance: 0 };
+      }
+      try {
+        const balance = await getSolanaUSDTBalance(effectiveWalletAddress);
+        return { balance };
+      } catch (error) {
+        console.error("Error fetching Solana USDT balance:", error);
+        return { balance: 0 };
+      }
+    },
+    enabled: !!effectiveWalletAddress && connectedWithSolana,
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
     staleTime: 10000,
@@ -333,215 +181,42 @@ export default function SteezeStack() {
   const transactions = (transactionsData as any[]) || [];
 
   const connectWallet = async () => {
-    if (!window.ethereum) {
+    const wallet = getSolanaWallet();
+    
+    if (!wallet) {
       toast({
-        title: "Web3 Wallet Required",
-        description: "Please install MetaMask or a compatible wallet",
+        title: "Solana Wallet Required",
+        description: "Please install Phantom or Backpack wallet for CARV SVM Chain",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
+      const response = await wallet.connect();
+      const pubkey = response.publicKey || wallet.publicKey;
       
-      const chainId = await window.ethereum.request({
-        method: "eth_chainId",
-      });
+      if (!pubkey) {
+        throw new Error("Could not get wallet public key");
+      }
 
-      setWalletAddress(accounts[0]);
-      setCurrentChainId(parseInt(chainId, 16));
+      const address = pubkey.toString();
+      setWalletAddress(address);
       setIsConnected(true);
 
       toast({
-        title: "Wallet Synced",
-        description: `Connected to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
+        title: "Wallet Connected",
+        description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)} on CARV SVM`,
       });
     } catch (error: any) {
       toast({
         title: "Connection Failed",
-        description: error.message || "Failed to connect wallet",
+        description: error.message || "Failed to connect Solana wallet",
         variant: "destructive",
       });
     }
   };
 
-  const switchToBaseMainnet = async () => {
-    const provider = window.trustwallet || window.ethereum;
-    if (!provider) {
-      toast({
-        title: "Wallet Not Found",
-        description: "Please install a Web3 wallet like MetaMask or Trust Wallet",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    try {
-      console.log(`Switching to Base Mainnet (Chain ID: ${BASE_MAINNET.chainId})`);
-      
-      if (!isConnected) {
-        await connectWallet();
-      }
-      
-      const isTrustWallet = window.trustwallet || (provider && provider.isTrust);
-      if (isTrustWallet) {
-        console.log("Trust Wallet detected - skipping network check, assuming Base Mainnet");
-        setCurrentChainId(BASE_MAINNET.chainId);
-        toast({
-          title: "Trust Wallet Network Set",
-          description: "Set to Base Mainnet (Trust Wallet network detection bypassed)",
-        });
-        return true;
-      }
-      
-      try {
-        const currentChainId = await provider.request({ method: 'eth_chainId' });
-        const parsedChainId = parseInt(currentChainId, 16);
-        
-        console.log(`Current network: ${parsedChainId} (${getNetworkName(parsedChainId)})`);
-        
-        if (parsedChainId === BASE_MAINNET.chainId) {
-          setCurrentChainId(parsedChainId);
-          toast({
-            title: "Already on Base Mainnet",
-            description: "You're already connected to the correct network",
-          });
-          return true;
-        } else {
-          toast({
-            title: "Wrong Network Detected",
-            description: `Currently on ${getNetworkName(parsedChainId)}. Switching to Base Mainnet...`,
-          });
-        }
-      } catch (e) {
-        console.log("Could not check current network, proceeding with switch...");
-      }
-      
-      try {
-        console.log("Attempting to switch to Base Mainnet...");
-        
-        toast({
-          title: "Switching Network",
-          description: "Please confirm the network switch in your wallet",
-        });
-
-        await provider.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
-        });
-        
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        let attempts = 0;
-        let switched = false;
-        
-        while (attempts < 5 && !switched) {
-          try {
-            const newChainId = await provider.request({ method: 'eth_chainId' });
-            const parsedChainId = parseInt(newChainId, 16);
-            
-            console.log(`Verification attempt ${attempts + 1}: Chain ID ${parsedChainId}`);
-            
-            if (parsedChainId === BASE_MAINNET.chainId) {
-              setCurrentChainId(parsedChainId);
-              toast({
-                title: "Network Switched",
-                description: "Successfully switched to Base Mainnet",
-              });
-              switched = true;
-              return true;
-            }
-            
-            setCurrentChainId(parsedChainId);
-            attempts++;
-            
-            if (attempts < 5) {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-          } catch (e) {
-            console.log(`Verification attempt ${attempts + 1} failed:`, e);
-            attempts++;
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-        
-        if (!switched) {
-          toast({
-            title: "Please Switch to Base Network",
-            description: "In Trust Wallet: tap the network selector and choose 'Base'. In other wallets: switch to Base Mainnet network.",
-            variant: "destructive"
-          });
-          return false;
-        }
-        
-        return false;
-      } catch (switchError: any) {
-        console.error("Switch error:", switchError);
-        
-        if (switchError.code === 4902) {
-          console.log("Adding Base Mainnet network...");
-          await provider.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: `0x${BASE_MAINNET.chainId.toString(16)}`,
-              chainName: BASE_MAINNET.chainName,
-              rpcUrls: [BASE_MAINNET.rpcUrl],
-              blockExplorerUrls: [BASE_MAINNET.blockExplorer],
-              nativeCurrency: {
-                name: "ETH",
-                symbol: "ETH",
-                decimals: 18,
-              },
-            }],
-          });
-          
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          const newChainId = await provider.request({ method: 'eth_chainId' });
-          const parsedChainId = parseInt(newChainId, 16);
-          setCurrentChainId(parsedChainId);
-          
-          if (parsedChainId === BASE_MAINNET.chainId) {
-            toast({
-              title: "Network Added",
-              description: "Base Mainnet network added and switched successfully",
-            });
-            return true;
-          }
-          
-          return false;
-        } else {
-          throw switchError;
-        }
-      }
-    } catch (error: any) {
-      console.error("Network switch error:", error);
-      
-      if (error.code === 4001) {
-        toast({
-          title: "Network Switch Cancelled",
-          description: "Please switch to Base Mainnet to continue",
-          variant: "destructive",
-        });
-      } else if (error.code === -32002) {
-        toast({
-          title: "Request Pending",
-          description: "Please check your wallet app to complete the network switch",
-          variant: "default",
-        });
-      } else {
-        toast({
-          title: "Network Switch Failed",
-          description: error.message || "Failed to switch to Base Mainnet. Please try manually switching in your wallet.",
-          variant: "destructive",
-        });
-      }
-      return false;
-    }
-  };
 
   const purchaseMutation = useMutation({
     mutationFn: async ({ usdtValue, potionsAmount }: { usdtValue: number; potionsAmount: number }) => {
@@ -767,11 +442,7 @@ export default function SteezeStack() {
                   <p className="text-sm font-bold text-white flex items-center gap-2" data-testid="text-current-network">
                     {connectedWithSolana
                       ? <><Network className="w-3 h-3" /> CARV SVM Chain ✓</>
-                      : currentChainId === BASE_MAINNET.chainId 
-                      ? <><Network className="w-3 h-3" /> CARV SVM Chain ✓</> 
-                      : currentChainId 
-                        ? getNetworkName(currentChainId)
-                        : "Detecting..."}
+                      : "Not Connected"}
                   </p>
                 </div>
               </div>
