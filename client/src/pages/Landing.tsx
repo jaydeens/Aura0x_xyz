@@ -96,11 +96,6 @@ export default function Landing() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
             {/* Left Column - Content */}
             <div className="space-y-8 transform lg:-rotate-2">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 rounded-full px-6 py-3 backdrop-blur-xl" data-testid="badge-ai-crypto">
-                <Network className="w-4 h-4 text-cyan-400 animate-pulse" />
-                <span className="text-cyan-400 font-black text-sm tracking-widest">WEB3 SOCIAL CREATOR/REPUTATION LAYER</span>
-              </div>
-              
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none" data-testid="heading-main">
                 <span className="block text-white mb-2">FORGE YOUR</span>
                 <span className="block bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-pulse mb-2">
@@ -148,7 +143,7 @@ export default function Landing() {
                         </div>
                         <div className="text-cyan-400 font-black text-sm uppercase tracking-widest flex items-center gap-2">
                           <Users className="w-4 h-4" />
-                          VALIDATORS
+                          CREATORS/USERS
                         </div>
                       </div>
                       <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -214,7 +209,7 @@ export default function Landing() {
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight" data-testid="heading-leaderboard">
               <span className="block text-white mb-2">ELITE</span>
               <span className="block bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent mb-2">
-                VALIDATORS
+                CREATORS/USERS
               </span>
               <span className="block text-white">ON-CHAIN</span>
             </h2>
@@ -257,7 +252,7 @@ export default function Landing() {
                       <div className="space-y-4">
                         <div>
                           <div className="font-black text-2xl text-white mb-2 truncate" data-testid={`text-username-${index + 1}`}>
-                            {user.username || 'Anonymous Validator'}
+                            {user.username || 'Anonymous User'}
                           </div>
                           <div className="text-gray-400 font-bold text-base flex items-center gap-2" data-testid={`text-battles-${index + 1}`}>
                             <Trophy className="w-4 h-4 text-cyan-400" />
@@ -305,8 +300,8 @@ export default function Landing() {
                 <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full flex items-center justify-center" data-testid="icon-empty-leaderboard">
                   <Trophy className="w-16 h-16 text-cyan-400 animate-pulse" />
                 </div>
-                <h3 className="text-4xl font-black mb-6 text-white" data-testid="heading-empty-leaderboard">GENESIS VALIDATOR</h3>
-                <p className="text-xl text-gray-400 mb-8 font-medium leading-relaxed">No validators in the network yet... Become the first node to mint reputation and initialize the protocol</p>
+                <h3 className="text-4xl font-black mb-6 text-white" data-testid="heading-empty-leaderboard">GENESIS CREATOR</h3>
+                <p className="text-xl text-gray-400 mb-8 font-medium leading-relaxed">No creators in the network yet... Become the first to mint reputation and initialize the protocol</p>
                 <Button 
                   onClick={handleLogin}
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-black text-xl px-12 py-6 rounded-2xl shadow-2xl hover:shadow-cyan-500/40 transform hover:scale-110 transition-all duration-300"
@@ -346,7 +341,7 @@ export default function Landing() {
             <div>
               <h4 className="font-black mb-6 text-cyan-400 uppercase tracking-widest text-sm">PROTOCOL</h4>
               <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Validator Dashboard</a></li>
+                <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Creator Dashboard</a></li>
                 <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Proof Arena</a></li>
                 <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Reputation Graph</a></li>
                 <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Knowledge Vaults</a></li>
