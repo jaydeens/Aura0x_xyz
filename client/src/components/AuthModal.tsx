@@ -23,7 +23,8 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-[#1A1A1B] border-[#8000FF]/20">
         <DialogHeader>
-          <DialogTitle className="text-center text-white">Join Aura</DialogTitle>
+          <DialogTitle className="text-center text-white">Join Dreamz
+</DialogTitle>
           <DialogDescription className="text-center text-gray-400">
             Choose how you want to connect and verify your identity
           </DialogDescription>
