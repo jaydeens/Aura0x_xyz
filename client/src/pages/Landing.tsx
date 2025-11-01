@@ -280,7 +280,7 @@ export default function Landing() {
                         {isTopThree && (
                           <Badge className="w-full justify-center bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-3 font-black text-sm" data-testid={`badge-top-${index + 1}`}>
                             <Sparkles className="w-4 h-4 mr-2" />
-                            ELITE NODE
+                            ELITE USER
                           </Badge>
                         )}
                       </div>
