@@ -971,7 +971,7 @@ export default function SteezeStack() {
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="text-center">
-                    <div className="text-3xl font-black text-white mb-1" data-testid="text-usdt-reserves">{currentUsdtBalance.toFixed(2)}</div>
+                    <div className="text-3xl font-black text-white mb-1" data-testid="text-usdt-reserves">{currentUsdtBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     <div className="text-blue-400 text-sm font-mono uppercase">USDT</div>
                   </div>
                 </CardContent>
@@ -1091,7 +1091,7 @@ export default function SteezeStack() {
                         data-testid="input-acquire-usdt"
                       />
                       <div className="flex justify-between text-sm text-green-300/60">
-                        <span data-testid="text-available-usdt">Available: {currentUsdtBalance.toFixed(2)}</span>
+                        <span data-testid="text-available-usdt">Available: {currentUsdtBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         <button 
                           onClick={() => setUsdtAmount(currentUsdtBalance.toString())}
                           className="text-green-400 hover:text-green-300 font-medium"
