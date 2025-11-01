@@ -925,7 +925,7 @@ export default function SteezeStack() {
               <CardContent className="p-6">
                 <div className="text-center mb-6">
                   <div className="text-4xl font-black text-white mb-2" data-testid="text-total-treasury">{totalBalance.toLocaleString()}</div>
-                  <div className="text-cyan-400 text-sm font-mono uppercase tracking-wider">ELIXIRS</div>
+                  <div className="text-cyan-400 text-sm font-mono uppercase tracking-wider">SLP</div>
                 </div>
                 
                 <div className="space-y-3">
