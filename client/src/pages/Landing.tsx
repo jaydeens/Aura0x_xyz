@@ -183,7 +183,7 @@ export default function Landing() {
                         </div>
                         <div className="text-cyan-400 font-black text-sm uppercase tracking-widest flex items-center gap-2">
                           <Zap className="w-4 h-4 animate-pulse" />
-                          ACTIVE PROOFS
+                          ACTIVE CHALLENGES
                         </div>
                       </div>
                       <div className="w-16 h-16 bg-gradient-to-br from-cyan-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -256,7 +256,7 @@ export default function Landing() {
                           </div>
                           <div className="text-gray-400 font-bold text-base flex items-center gap-2" data-testid={`text-battles-${index + 1}`}>
                             <Trophy className="w-4 h-4 text-cyan-400" />
-                            {user.totalBattlesWon || 0} proofs validated
+                            {user.totalBattlesWon || 0} challenges won
                           </div>
                         </div>
 
@@ -342,7 +342,7 @@ export default function Landing() {
               <h4 className="font-black mb-6 text-cyan-400 uppercase tracking-widest text-sm">PROTOCOL</h4>
               <ul className="space-y-3 text-gray-400">
                 <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Creator Dashboard</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Proof Arena</a></li>
+                <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Challenge Arena</a></li>
                 <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Reputation Graph</a></li>
                 <li><a href="#" className="hover:text-cyan-400 transition-colors font-medium">Knowledge Vaults</a></li>
               </ul>
