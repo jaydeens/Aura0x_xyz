@@ -453,7 +453,7 @@ export default function LessonCard({ lesson }: LessonCardProps) {
             onClick={() => setShowFullLesson(true)}
           >
             <Zap className="w-4 h-4 mr-2" />
-            Build Aura
+            Build Knowledge
           </Button>
         </div>
       </CardContent>
