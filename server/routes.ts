@@ -2201,7 +2201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/potions/rate", async (req, res) => {
     try {
       const rate = await web3Service.getSteezeRate();
-      res.json({ steezePerUsdc: rate });
+      res.json({ potionsPerUsdt: rate });
     } catch (error: any) {
       console.error("Error getting Steeze rate:", error);
       res.status(500).json({ message: "Failed to get Steeze rate" });
@@ -2330,7 +2330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         contractAddress: POTIONS_CONTRACT.address,
         chainId: 8453, // Base Mainnet
-        steezePerUsdc: rate,
+        potionsPerUsdt: rate,
         networkName: "Base Mainnet"
       });
     } catch (error: any) {

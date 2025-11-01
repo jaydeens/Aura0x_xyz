@@ -67,14 +67,14 @@ export default function SteezeStack() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { triggerSteezeCelebration } = useCelebration();
-  const [usdcAmount, setUsdcAmount] = useState("");
+  const [usdtAmount, setUsdtAmount] = useState("");
   const [potionsAmount, setPotionsAmount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [currentChainId, setCurrentChainId] = useState<number | null>(BASE_MAINNET.chainId);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
-  const [usdcBalance, setUsdcBalance] = useState<number>(0);
+  const [usdtBalance, setUsdtBalance] = useState<number>(0);
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
@@ -181,11 +181,11 @@ export default function SteezeStack() {
     const effectiveAddress = userWalletAddress || walletAddress;
     if (effectiveAddress) {
       queryClient.removeQueries({ 
-        queryKey: ['/api/wallet/usdc-balance']
+        queryKey: ['/api/wallet/usdt-balance']
       });
       
-      setUsdcBalance(0);
-      refetchUsdcBalance();
+      setUsdtBalance(0);
+      refetchUsdtBalance();
       
       console.log(`Wallet changed to: ${effectiveAddress}`);
       console.log("Wallet State:", {
@@ -301,8 +301,8 @@ export default function SteezeStack() {
   });
 
   const effectiveWalletAddress = userWalletAddress || walletAddress;
-  const { data: usdcBalanceData, refetch: refetchUsdcBalance, isRefetching } = useQuery({
-    queryKey: [`/api/wallet/usdc-balance/${effectiveWalletAddress}`],
+  const { data: usdtBalanceData, refetch: refetchUsdtBalance, isRefetching } = useQuery({
+    queryKey: [`/api/wallet/usdt-balance/${effectiveWalletAddress}`],
     enabled: !!effectiveWalletAddress && (isConnected || !!userWalletAddress),
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
@@ -312,7 +312,7 @@ export default function SteezeStack() {
   const purchasedPotions = (balanceData as any)?.purchasedSteeze || 0;
   const earnedPotions = (balanceData as any)?.battleEarnedSteeze || 0;
   const totalBalance = purchasedPotions + earnedPotions;
-  const currentUsdcBalance = (usdcBalanceData as any)?.balance || 0;
+  const currentUsdtBalance = (usdtBalanceData as any)?.balance || 0;
 
   const transactions = (transactionsData as any[]) || [];
 
@@ -528,7 +528,7 @@ export default function SteezeStack() {
   };
 
   const purchaseMutation = useMutation({
-    mutationFn: async ({ usdcValue, potionsAmount }: { usdcValue: number; potionsAmount: number }) => {
+    mutationFn: async ({ usdtValue, potionsAmount }: { usdtValue: number; potionsAmount: number }) => {
       if (!window.ethereum) {
         throw new Error("Web3 wallet not detected. Please install MetaMask.");
       }
@@ -593,14 +593,14 @@ export default function SteezeStack() {
       if (!isTrustWallet) {
         try {
           const network = await provider.getNetwork();
-          console.log("Final network verification before USDC approval:", network.chainId);
+          console.log("Final network verification before USDT approval:", network.chainId);
           
           if (Number(network.chainId) !== BASE_MAINNET.chainId) {
             const networkName = getNetworkName(Number(network.chainId));
-            throw new Error(`Network Error: You're on ${networkName} but Potion purchases require Base network. Please switch to Base Mainnet in your wallet to use USDC transactions.`);
+            throw new Error(`Network Error: You're on ${networkName} but Potion purchases require Base network. Please switch to Base Mainnet in your wallet to use USDT transactions.`);
           }
           
-          console.log("✓ Network verification passed - proceeding with USDC approval on Base network");
+          console.log("✓ Network verification passed - proceeding with USDT approval on Base network");
         } catch (networkError) {
           console.error("Network verification failed:", networkError);
           throw networkError;
@@ -609,8 +609,8 @@ export default function SteezeStack() {
         console.log("✓ Trust Wallet detected - skipping network verification, assuming Base network");
       }
       
-      const usdcContractAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
-      const usdcABI = [
+      const usdtContractAddress = '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2';
+      const usdtABI = [
         {
           "constant": false,
           "inputs": [
@@ -624,21 +624,21 @@ export default function SteezeStack() {
           "type": "function"
         }
       ];
-      const usdcContract = new ethers.Contract(usdcContractAddress, usdcABI, signer);
+      const usdtContract = new ethers.Contract(usdtContractAddress, usdtABI, signer);
       
       const contractAddress = "0xf209E955Ad3711EE983627fb52A32615455d8cC3";
-      const usdcAmountWei = ethers.parseUnits(usdcValue.toString(), 6);
+      const usdtAmountWei = ethers.parseUnits(usdtValue.toString(), 6);
       
       console.log("Purchase Debug Info:");
-      console.log("- USDC Value:", usdcValue);
-      console.log("- USDC Amount Wei:", usdcAmountWei.toString());
+      console.log("- USDT Value:", usdtValue);
+      console.log("- USDT Amount Wei:", usdtAmountWei.toString());
       console.log("- Contract Address:", contractAddress);
-      console.log("- USDC Contract:", usdcContractAddress);
-      console.log("- User Balance:", currentUsdcBalance);
+      console.log("- USDT Contract:", usdtContractAddress);
+      console.log("- User Balance:", currentUsdtBalance);
       
       toast({
-        title: "Approving USDC",
-        description: "Please approve USDC spending in your wallet...",
+        title: "Approving USDT",
+        description: "Please approve USDT spending in your wallet...",
       });
       
       console.log("Trust Wallet detected:", !!isTrustWallet);
@@ -647,28 +647,28 @@ export default function SteezeStack() {
       if (isTrustWallet) {
         console.log("Using Trust Wallet optimized approval");
         try {
-          approvalTx = await usdcContract.approve(contractAddress, usdcAmountWei);
+          approvalTx = await usdtContract.approve(contractAddress, usdtAmountWei);
           console.log("Trust Wallet approval submitted:", approvalTx.hash);
         } catch (e) {
           console.error("Trust Wallet approval failed:", e);
-          throw new Error("Failed to approve USDC spending. Please check your Trust Wallet app and try again.");
+          throw new Error("Failed to approve USDT spending. Please check your Trust Wallet app and try again.");
         }
       } else {
-        approvalTx = await usdcContract.approve(contractAddress, usdcAmountWei);
+        approvalTx = await usdtContract.approve(contractAddress, usdtAmountWei);
       }
       
-      console.log("USDC approval transaction hash:", approvalTx.hash);
+      console.log("USDT approval transaction hash:", approvalTx.hash);
       toast({
         title: "Waiting for approval...",
-        description: "Confirming USDC spending approval on Base network...",
+        description: "Confirming USDT spending approval on Base network...",
       });
       
       console.log("Waiting for approval confirmation (1 block)...");
       await approvalTx.wait(1);
-      console.log("✓ USDC approval confirmed on Base network");
+      console.log("✓ USDT approval confirmed on Base network");
 
       const response = await apiRequest('POST', '/api/potions/purchase', {
-        usdcAmount: usdcValue,
+        usdtAmount: usdtValue,
         potionsAmount,
         txHash: approvalTx.hash,
         walletAddress: walletAddress || userWalletAddress,
@@ -683,8 +683,8 @@ export default function SteezeStack() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/transactions"] });
-      setUsdcAmount("");
-      refetchUsdcBalance();
+      setUsdtAmount("");
+      refetchUsdtBalance();
       setIsPurchasing(false);
       triggerSteezeCelebration();
     },
@@ -699,7 +699,7 @@ export default function SteezeStack() {
   });
 
   const redeemMutation = useMutation({
-    mutationFn: async ({ potionsAmount, usdcValue }: { potionsAmount: number; usdcValue: number }) => {
+    mutationFn: async ({ potionsAmount, usdtValue }: { potionsAmount: number; usdtValue: number }) => {
       if (!window.ethereum) {
         throw new Error("Web3 wallet not detected");
       }
@@ -762,7 +762,7 @@ export default function SteezeStack() {
     onSuccess: () => {
       toast({
         title: "Potions Liquidated!",
-        description: "USDC transfer initiated to your wallet",
+        description: "USDT transfer initiated to your wallet",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/transactions"] });
@@ -780,22 +780,22 @@ export default function SteezeStack() {
   });
 
   const calculatePotionsAmount = () => {
-    const usdcValue = parseFloat(usdcAmount || "0");
-    const rate = (purchaseInfo as any)?.potionsPerUsdc || 1;
-    return Math.floor(usdcValue * rate);
+    const usdtValue = parseFloat(usdtAmount || "0");
+    const rate = (purchaseInfo as any)?.potionsPerUsdt || 1;
+    return Math.floor(usdtValue * rate);
   };
 
-  const calculateUsdcAmount = () => {
+  const calculateUsdtAmount = () => {
     const potions = parseFloat(potionsAmount || "0");
-    const rate = (purchaseInfo as any)?.potionsPerUsdc || 1;
+    const rate = (purchaseInfo as any)?.potionsPerUsdt || 1;
     return potions / rate;
   };
 
   const handlePurchase = async () => {
-    if (!usdcAmount || parseFloat(usdcAmount) <= 0) {
+    if (!usdtAmount || parseFloat(usdtAmount) <= 0) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter a valid USDC amount",
+        description: "Please enter a valid USDT amount",
         variant: "destructive",
       });
       return;
@@ -803,7 +803,7 @@ export default function SteezeStack() {
 
     setIsPurchasing(true);
     purchaseMutation.mutate({
-      usdcValue: parseFloat(usdcAmount),
+      usdtValue: parseFloat(usdtAmount),
       potionsAmount: calculatePotionsAmount(),
     });
   };
@@ -830,7 +830,7 @@ export default function SteezeStack() {
     setIsRedeeming(true);
     redeemMutation.mutate({
       potionsAmount: parseFloat(potionsAmount),
-      usdcValue: calculateUsdcAmount(),
+      usdtValue: calculateUsdtAmount(),
     });
   };
 
@@ -860,7 +860,7 @@ export default function SteezeStack() {
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <Network className="w-4 h-4 text-cyan-400" />
-                <p className="text-cyan-300/80 text-sm font-medium" data-testid="text-treasury-description">Acquire & Liquidate Dream Elixirs via USDC</p>
+                <p className="text-cyan-300/80 text-sm font-medium" data-testid="text-treasury-description">Acquire & Liquidate Dream Elixirs via USDT</p>
                 <Cpu className="w-4 h-4 text-cyan-400" />
               </div>
             </div>
@@ -948,19 +948,19 @@ export default function SteezeStack() {
               </CardContent>
             </Card>
 
-            {/* USDC Balance Card */}
+            {/* USDT Balance Card */}
             {isConnected && (
-              <Card className="bg-gradient-to-br from-blue-900/60 to-black border border-blue-500/30 shadow-xl" data-testid="card-usdc-reserves">
+              <Card className="bg-gradient-to-br from-blue-900/60 to-black border border-blue-500/30 shadow-xl" data-testid="card-usdt-reserves">
                 <CardHeader className="border-b border-blue-500/20">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-white flex items-center gap-2">
                       <Wallet className="w-5 h-5 text-blue-400" />
-                      USDC Reserves
+                      USDT Reserves
                     </CardTitle>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => refetchUsdcBalance()}
+                      onClick={() => refetchUsdtBalance()}
                       disabled={isRefetching}
                       className="text-blue-400/60 hover:text-blue-300 hover:bg-blue-500/10 p-1 h-auto"
                       data-testid="button-refresh-reserves"
@@ -971,8 +971,8 @@ export default function SteezeStack() {
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="text-center">
-                    <div className="text-3xl font-black text-white mb-1" data-testid="text-usdc-reserves">{currentUsdcBalance.toFixed(2)}</div>
-                    <div className="text-blue-400 text-sm font-mono uppercase">USDC</div>
+                    <div className="text-3xl font-black text-white mb-1" data-testid="text-usdt-reserves">{currentUsdtBalance.toFixed(2)}</div>
+                    <div className="text-blue-400 text-sm font-mono uppercase">USDT</div>
                   </div>
                 </CardContent>
               </Card>
@@ -1041,7 +1041,7 @@ export default function SteezeStack() {
                       ACQUIRE
                     </CardTitle>
                     <CardDescription className="text-green-300/60 text-sm">
-                      Purchase with USDC
+                      Purchase with USDT
                     </CardDescription>
                   </div>
                 </div>
@@ -1076,33 +1076,33 @@ export default function SteezeStack() {
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="usdc-acquire" className="text-green-300 font-medium flex items-center gap-2">
+                      <Label htmlFor="usdt-acquire" className="text-green-300 font-medium flex items-center gap-2">
                         <Binary className="w-4 h-4" />
-                        USDC Amount
+                        USDT Amount
                       </Label>
                       <Input
-                        id="usdc-acquire"
+                        id="usdt-acquire"
                         type="number"
                         step="0.01"
                         placeholder="1.0"
-                        value={usdcAmount}
-                        onChange={(e) => setUsdcAmount(e.target.value)}
+                        value={usdtAmount}
+                        onChange={(e) => setUsdtAmount(e.target.value)}
                         className="bg-black/30 border-green-500/30 text-white placeholder:text-green-400/30 focus:border-green-400"
-                        data-testid="input-acquire-usdc"
+                        data-testid="input-acquire-usdt"
                       />
                       <div className="flex justify-between text-sm text-green-300/60">
-                        <span data-testid="text-available-usdc">Available: {currentUsdcBalance.toFixed(2)}</span>
+                        <span data-testid="text-available-usdt">Available: {currentUsdtBalance.toFixed(2)}</span>
                         <button 
-                          onClick={() => setUsdcAmount(currentUsdcBalance.toString())}
+                          onClick={() => setUsdtAmount(currentUsdtBalance.toString())}
                           className="text-green-400 hover:text-green-300 font-medium"
-                          data-testid="button-max-usdc"
+                          data-testid="button-max-usdt"
                         >
                           Use Max
                         </button>
                       </div>
                     </div>
 
-                    {usdcAmount && (
+                    {usdtAmount && (
                       <div className="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/30">
                         <p className="text-sm text-green-300/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white flex items-center gap-2" data-testid="text-acquire-preview">
@@ -1114,7 +1114,7 @@ export default function SteezeStack() {
 
                     <Button
                       onClick={handlePurchase}
-                      disabled={!usdcAmount || isPurchasing || parseFloat(usdcAmount || "0") > currentUsdcBalance}
+                      disabled={!usdtAmount || isPurchasing || parseFloat(usdtAmount || "0") > currentUsdtBalance}
                       className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 shadow-lg shadow-green-500/30"
                       data-testid="button-execute-acquire"
                     >
@@ -1123,8 +1123,8 @@ export default function SteezeStack() {
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Processing...
                         </>
-                      ) : parseFloat(usdcAmount || "0") > currentUsdcBalance ? (
-                        <>Insufficient USDC</>
+                      ) : parseFloat(usdtAmount || "0") > currentUsdtBalance ? (
+                        <>Insufficient USDT</>
                       ) : (
                         <>
                           <TrendingUp className="w-4 h-4 mr-2" />
@@ -1149,7 +1149,7 @@ export default function SteezeStack() {
                       LIQUIDATE
                     </CardTitle>
                     <CardDescription className="text-red-300/60 text-sm">
-                      Convert to USDC
+                      Convert to USDT
                     </CardDescription>
                   </div>
                 </div>
@@ -1208,7 +1208,7 @@ export default function SteezeStack() {
                         <p className="text-sm text-red-300/60 mb-1">You will receive</p>
                         <p className="text-2xl font-bold text-white flex items-center gap-2" data-testid="text-liquidate-preview">
                           <Binary className="w-5 h-5 text-red-400" />
-                          {calculateUsdcAmount().toFixed(4)} USDC
+                          {calculateUsdtAmount().toFixed(4)} USDT
                         </p>
                       </div>
                     )}
