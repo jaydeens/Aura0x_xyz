@@ -786,14 +786,12 @@ export default function SteezeStack() {
                 <RotateCcw className="w-4 h-4" />
               </Button>
             </div>
-            {!isOnCorrectNetwork && currentChainId !== null && (
+            {!isOnCorrectNetwork && !connectedWithSolana && (
               <div className="mt-3 px-3 py-2 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-                <p className="text-xs text-orange-400" data-testid="text-network-warning">Switch to CARV SVM Chain required</p>
-                {currentChainId === 33875 && (
-                  <p className="text-xs text-cyan-400 mt-1">
-                    Trust Wallet: tap network selector → choose "CARV SVM"
-                  </p>
-                )}
+                <p className="text-xs text-orange-400" data-testid="text-network-warning">Solana wallet required for CARV SVM Chain</p>
+                <p className="text-xs text-cyan-400 mt-1">
+                  Please connect Phantom or Backpack wallet
+                </p>
               </div>
             )}
           </CardContent>
@@ -952,14 +950,14 @@ export default function SteezeStack() {
                   </div>
                 ) : (
                   <>
-                    {!isOnCorrectNetwork && currentChainId !== null && (
+                    {!isOnCorrectNetwork && !connectedWithSolana && (
                       <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                          <h4 className="text-orange-300 font-medium text-sm" data-testid="text-wrong-network-acquire">Wrong Network</h4>
+                          <h4 className="text-orange-300 font-medium text-sm" data-testid="text-wrong-network-acquire">Solana Wallet Required</h4>
                         </div>
                         <p className="text-orange-200 text-xs">
-                          Currently on {getNetworkName(currentChainId)}. Will auto-switch to CARV SVM Chain.
+                          CARV SVM Chain requires Phantom or Backpack wallet.
                         </p>
                       </div>
                     )}
@@ -1060,14 +1058,14 @@ export default function SteezeStack() {
                   </div>
                 ) : (
                   <>
-                    {!isOnCorrectNetwork && currentChainId !== null && (
+                    {!isOnCorrectNetwork && !connectedWithSolana && (
                       <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                          <h4 className="text-orange-300 font-medium text-sm" data-testid="text-wrong-network-liquidate">Wrong Network</h4>
+                          <h4 className="text-orange-300 font-medium text-sm" data-testid="text-wrong-network-liquidate">Solana Wallet Required</h4>
                         </div>
                         <p className="text-orange-200 text-xs">
-                          Currently on {getNetworkName(currentChainId)}. Will auto-switch to CARV SVM Chain.
+                          CARV SVM Chain requires Phantom or Backpack wallet.
                         </p>
                       </div>
                     )}
