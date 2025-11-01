@@ -11,8 +11,8 @@ export const CARV_SVM_CONFIG = {
 };
 
 export const SLP_EXCHANGE_RATES = {
-  buyRate: 1, // 1 USDT = 1 SLP (before platform fees)
-  sellRate: 0.007, // 0.7 USDT per 100 SLP = 0.007 USDT per SLP
+  buyRate: 100, // 1 USDT = 100 SLP (or 1 SLP = 0.01 USDT)
+  sellRate: 0.007, // 1 SLP = 0.007 USDT
   platformFee: 0.3, // 30% platform fee
   liquidityRetention: 0.7, // 70% stays in contract
 };

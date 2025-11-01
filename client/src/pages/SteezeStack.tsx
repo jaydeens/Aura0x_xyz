@@ -31,11 +31,15 @@ import {
   TrendingDown
 } from "lucide-react";
 import { ethers } from "ethers";
+import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance } from "@/lib/carvSVM";
 
 declare global {
   interface Window {
     ethereum?: any;
     trustwallet?: any;
+    phantom?: any;
+    solana?: any;
+    backpack?: any;
   }
 }
 
@@ -88,7 +92,19 @@ export default function SteezeStack() {
   };
   
   const connectedWithSolana = isSolanaWallet(userWalletAddress);
-  const isOnCorrectNetwork = connectedWithSolana || currentChainId === BASE_MAINNET.chainId;
+  const isOnCorrectNetwork = connectedWithSolana;
+  
+  // Get Solana wallet object
+  const getSolanaWallet = () => {
+    if (window.phantom?.solana?.isPhantom) {
+      return window.phantom.solana;
+    } else if (window.solana && window.solana.isPhantom) {
+      return window.solana;
+    } else if (window.backpack) {
+      return window.backpack;
+    }
+    return null;
+  };
 
   const refreshNetworkStatus = async () => {
     const provider = window.trustwallet || window.ethereum;
@@ -529,149 +545,42 @@ export default function SteezeStack() {
 
   const purchaseMutation = useMutation({
     mutationFn: async ({ usdtValue, potionsAmount }: { usdtValue: number; potionsAmount: number }) => {
-      if (!window.ethereum) {
-        throw new Error("Web3 wallet not detected. Please install MetaMask.");
-      }
-      
       if (!isConnected) {
         throw new Error("Please connect your wallet first");
       }
       
-      const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
-      if (isTrustWallet) {
-        console.log("Trust Wallet detected in purchase - skipping network verification, assuming Base Mainnet");
-        setCurrentChainId(BASE_MAINNET.chainId);
-      } else {
-        let actualChainId = currentChainId;
-        try {
-          const freshChainId = await window.ethereum.request({ method: 'eth_chainId' });
-          actualChainId = parseInt(freshChainId, 16);
-          console.log(`Purchase - Fresh network check: ${actualChainId} (Base Mainnet is ${BASE_MAINNET.chainId})`);
-          
-          if (actualChainId !== currentChainId) {
-            setCurrentChainId(actualChainId);
-          }
-        } catch (networkError) {
-          console.warn("Could not verify network for purchase, using cached value:", currentChainId);
-        }
-
-        if (actualChainId !== BASE_MAINNET.chainId) {
-          console.log(`Purchase - Auto-switching from Chain ID ${actualChainId} to Base Mainnet (${BASE_MAINNET.chainId})`);
-          
-          try {
-            await window.ethereum.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
-            });
-            
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
-            const parsedChainId = parseInt(newChainId, 16);
-            
-            if (parsedChainId !== BASE_MAINNET.chainId) {
-              throw new Error("Network switch failed. Please manually switch to Base Mainnet in your wallet.");
-            }
-            
-            setCurrentChainId(parsedChainId);
-          } catch (switchError) {
-            console.error("Purchase - Auto network switch failed:", switchError);
-            throw new Error("Please switch to Base Mainnet in your wallet and try again");
-          }
-        } else {
-          console.log("✓ Purchase - Already on Base Mainnet - no network switch needed");
-        }
-      }
-
-      if (userWalletAddress && walletAddress.toLowerCase() !== userWalletAddress.toLowerCase()) {
-        throw new Error("Please connect the wallet associated with your account");
-      }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      
-      if (!isTrustWallet) {
-        try {
-          const network = await provider.getNetwork();
-          console.log("Final network verification before USDT approval:", network.chainId);
-          
-          if (Number(network.chainId) !== BASE_MAINNET.chainId) {
-            const networkName = getNetworkName(Number(network.chainId));
-            throw new Error(`Network Error: You're on ${networkName} but SLP purchases require Base network. Please switch to Base Mainnet in your wallet to use USDT transactions.`);
-          }
-          
-          console.log("✓ Network verification passed - proceeding with USDT approval on Base network");
-        } catch (networkError) {
-          console.error("Network verification failed:", networkError);
-          throw networkError;
-        }
-      } else {
-        console.log("✓ Trust Wallet detected - skipping network verification, assuming Base network");
+      if (!connectedWithSolana) {
+        throw new Error("Please connect a Solana wallet (Phantom or Backpack) to purchase SLP on CARV SVM Chain");
       }
       
-      const usdtContractAddress = '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2';
-      const usdtABI = [
-        {
-          "constant": false,
-          "inputs": [
-            {"name": "_spender", "type": "address"},
-            {"name": "_value", "type": "uint256"}
-          ],
-          "name": "approve",
-          "outputs": [{"name": "", "type": "bool"}],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }
-      ];
-      const usdtContract = new ethers.Contract(usdtContractAddress, usdtABI, signer);
-      
-      const contractAddress = "0xf209E955Ad3711EE983627fb52A32615455d8cC3";
-      const usdtAmountWei = ethers.parseUnits(usdtValue.toString(), 6);
-      
-      console.log("Purchase Debug Info:");
-      console.log("- USDT Value:", usdtValue);
-      console.log("- USDT Amount Wei:", usdtAmountWei.toString());
-      console.log("- Contract Address:", contractAddress);
-      console.log("- USDT Contract:", usdtContractAddress);
-      console.log("- User Balance:", currentUsdtBalance);
+      const wallet = getSolanaWallet();
+      if (!wallet) {
+        throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
+      }
       
       toast({
-        title: "Approving USDT",
-        description: "Please approve USDT spending in your wallet...",
+        title: "Processing Purchase",
+        description: "Please approve the transaction in your wallet...",
       });
       
-      console.log("Trust Wallet detected:", !!isTrustWallet);
+      console.log("Buying SLP on CARV SVM Chain:");
+      console.log("- USDT Amount:", usdtValue);
+      console.log("- SLP Amount:", potionsAmount);
+      console.log("- Wallet:", wallet.publicKey.toString());
       
-      let approvalTx;
-      if (isTrustWallet) {
-        console.log("Using Trust Wallet optimized approval");
-        try {
-          approvalTx = await usdtContract.approve(contractAddress, usdtAmountWei);
-          console.log("Trust Wallet approval submitted:", approvalTx.hash);
-        } catch (e) {
-          console.error("Trust Wallet approval failed:", e);
-          throw new Error("Failed to approve USDT spending. Please check your Trust Wallet app and try again.");
-        }
-      } else {
-        approvalTx = await usdtContract.approve(contractAddress, usdtAmountWei);
-      }
-      
-      console.log("USDT approval transaction hash:", approvalTx.hash);
-      toast({
-        title: "Waiting for approval...",
-        description: "Confirming USDT spending approval on Base network...",
+      const signature = await buySlp({
+        userWallet: wallet,
+        usdtAmount: usdtValue,
       });
       
-      console.log("Waiting for approval confirmation (1 block)...");
-      await approvalTx.wait(1);
-      console.log("✓ USDT approval confirmed on Base network");
-
+      console.log("✓ SLP purchase successful! Transaction:", signature);
+      
+      // Record transaction in backend
       const response = await apiRequest('POST', '/api/potions/purchase', {
         usdtAmount: usdtValue,
         potionsAmount,
-        txHash: approvalTx.hash,
-        walletAddress: walletAddress || userWalletAddress,
+        txHash: signature,
+        walletAddress: wallet.publicKey.toString(),
       });
       
       return await response.json();
@@ -700,61 +609,41 @@ export default function SteezeStack() {
 
   const redeemMutation = useMutation({
     mutationFn: async ({ potionsAmount, usdtValue }: { potionsAmount: number; usdtValue: number }) => {
-      if (!window.ethereum) {
-        throw new Error("Web3 wallet not detected");
-      }
-      
       if (!isConnected) {
         throw new Error("Please connect your wallet first");
       }
-
-      const isTrustWallet = window.trustwallet || (window.ethereum && window.ethereum.isTrust);
-      if (isTrustWallet) {
-        console.log("Trust Wallet detected in redeem - skipping network verification, assuming Base Mainnet");
-        setCurrentChainId(BASE_MAINNET.chainId);
-      } else {
-        let actualChainId = currentChainId;
-        try {
-          const freshChainId = await window.ethereum.request({ method: 'eth_chainId' });
-          actualChainId = parseInt(freshChainId, 16);
-          console.log(`Redeem - Fresh network check: ${actualChainId}`);
-          
-          if (actualChainId !== currentChainId) {
-            setCurrentChainId(actualChainId);
-          }
-        } catch (networkError) {
-          console.warn("Could not verify network for redeem, using cached value:", currentChainId);
-        }
-
-        if (actualChainId !== BASE_MAINNET.chainId) {
-          console.log(`Redeem - Auto-switching from Chain ID ${actualChainId} to Base Mainnet`);
-          
-          try {
-            await window.ethereum.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: `0x${BASE_MAINNET.chainId.toString(16)}` }],
-            });
-            
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
-            const parsedChainId = parseInt(newChainId, 16);
-            
-            if (parsedChainId !== BASE_MAINNET.chainId) {
-              throw new Error("Network switch failed. Please manually switch to Base Mainnet");
-            }
-            
-            setCurrentChainId(parsedChainId);
-          } catch (switchError) {
-            console.error("Redeem - Auto network switch failed:", switchError);
-            throw new Error("Please switch to Base Mainnet in your wallet and try again");
-          }
-        }
+      
+      if (!connectedWithSolana) {
+        throw new Error("Please connect a Solana wallet (Phantom or Backpack) to liquidate SLP on CARV SVM Chain");
       }
-
+      
+      const wallet = getSolanaWallet();
+      if (!wallet) {
+        throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
+      }
+      
+      toast({
+        title: "Processing Liquidation",
+        description: "Please approve the transaction in your wallet...",
+      });
+      
+      console.log("Selling SLP on CARV SVM Chain:");
+      console.log("- SLP Amount:", potionsAmount);
+      console.log("- USDT Value:", usdtValue);
+      console.log("- Wallet:", wallet.publicKey.toString());
+      
+      const signature = await sellSlp({
+        userWallet: wallet,
+        slpAmount: potionsAmount,
+      });
+      
+      console.log("✓ SLP liquidation successful! Transaction:", signature);
+      
+      // Record transaction in backend
       const response = await apiRequest('POST', '/api/potions/redeem', {
         potionsAmount,
-        walletAddress: walletAddress || userWalletAddress,
+        txHash: signature,
+        walletAddress: wallet.publicKey.toString(),
       });
       
       return await response.json();
