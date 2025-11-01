@@ -53,6 +53,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import * as carvSVM from "./carvSVM";
 
 // Helper function to validate both Ethereum and Solana wallet addresses
 function isValidWalletAddress(address: string): boolean {
@@ -2844,6 +2845,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error fetching Steeze transactions:", error);
       res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  // CARV SVM / SLP Endpoints
+  // Get USDT balance for a Solana wallet
+  app.get("/api/slp/balance/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      const balance = await carvSVM.getUSDTBalance(address);
+      res.json({ balance });
+    } catch (error: any) {
+      console.error("Error fetching USDT balance:", error);
+      res.status(500).json({ message: "Failed to fetch USDT balance" });
+    }
+  });
+
+  // Prepare buy SLP transaction (returns instruction data that frontend will use)
+  app.post("/api/slp/prepare-buy", async (req: any, res) => {
+    try {
+      const { walletAddress, usdtAmount } = req.body;
+      
+      if (!walletAddress || !usdtAmount) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+
+      const instructionData = carvSVM.createBuyInstructionData(usdtAmount);
+      const accounts = await carvSVM.getBuyTransactionAccounts(walletAddress);
+      
+      res.json({
+        instructionData: instructionData.data,
+        accounts,
+        config: carvSVM.CARV_SVM_CONFIG
+      });
+    } catch (error: any) {
+      console.error("Error preparing buy transaction:", error);
+      res.status(500).json({ message: "Failed to prepare buy transaction" });
+    }
+  });
+
+  // Prepare sell SLP transaction (returns instruction data that frontend will use)
+  app.post("/api/slp/prepare-sell", async (req: any, res) => {
+    try {
+      const { walletAddress, slpAmount } = req.body;
+      
+      if (!walletAddress || !slpAmount) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+
+      const instructionData = carvSVM.createSellInstructionData(slpAmount);
+      const accounts = await carvSVM.getSellTransactionAccounts(walletAddress);
+      
+      res.json({
+        instructionData: instructionData.data,
+        accounts,
+        config: carvSVM.CARV_SVM_CONFIG
+      });
+    } catch (error: any) {
+      console.error("Error preparing sell transaction:", error);
+      res.status(500).json({ message: "Failed to prepare sell transaction" });
     }
   });
 
