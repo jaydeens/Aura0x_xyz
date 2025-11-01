@@ -310,9 +310,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         // Create new user with wallet (no beta access check required)
         const walletAge = Math.floor(Math.random() * 365) + 30; // Random age to avoid network calls
+        // Preserve case for Solana addresses, lowercase for Ethereum
+        const isSolana = !walletAddress.startsWith('0x');
+        const normalizedAddress = isSolana ? walletAddress : walletAddress.toLowerCase();
         user = await storage.upsertUser({
-          id: `wallet_${walletAddress.toLowerCase()}`,
-          walletAddress: walletAddress.toLowerCase(),
+          id: `wallet_${normalizedAddress.toLowerCase()}`,
+          walletAddress: normalizedAddress,
           walletAge,
           dreamzPoints: 100, // Starting points for new users
           currentStreak: 0,
@@ -461,7 +464,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if this is a wallet user trying to bind to another wallet account
       const currentUser = await storage.getUser(userId);
-      if (currentUser && currentUser.walletAddress && currentUser.walletAddress !== walletAddress.toLowerCase()) {
+      // Normalize addresses for comparison (case-sensitive for Solana, insensitive for Ethereum)
+      const isSolana = !walletAddress.startsWith('0x');
+      const normalizedInputAddress = isSolana ? walletAddress : walletAddress.toLowerCase();
+      const normalizedCurrentAddress = currentUser?.walletAddress && !currentUser.walletAddress.startsWith('0x') 
+        ? currentUser.walletAddress 
+        : currentUser?.walletAddress?.toLowerCase();
+      
+      if (currentUser && currentUser.walletAddress && normalizedCurrentAddress !== normalizedInputAddress) {
         return res.status(400).json({ 
           message: "Your account is already linked to a different wallet address.",
           success: false 
@@ -499,8 +509,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update current user with wallet address
       const clientIP = getClientIP(req);
+      // Preserve case for Solana addresses, lowercase for Ethereum
+      const isSolanaWallet = !walletAddress.startsWith('0x');
+      const normalizedWalletAddress = isSolanaWallet ? walletAddress : walletAddress.toLowerCase();
       const updatedUser = await storage.updateUserProfile(userId, {
-        walletAddress: walletAddress.toLowerCase(),
+        walletAddress: normalizedWalletAddress,
         ipAddress: clientIP,
       });
 
