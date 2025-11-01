@@ -781,14 +781,14 @@ export default function SteezeStack() {
 
   const calculatePotionsAmount = () => {
     const usdtValue = parseFloat(usdtAmount || "0");
-    const rate = (purchaseInfo as any)?.potionsPerUsdt || 1;
-    return Math.floor(usdtValue * rate);
+    // Buy rate: 1 USDT = 100 SLP (or 1 SLP = 0.01 USDT)
+    return Math.floor(usdtValue * 100);
   };
 
   const calculateUsdtAmount = () => {
     const potions = parseFloat(potionsAmount || "0");
-    const rate = (purchaseInfo as any)?.potionsPerUsdt || 1;
-    return potions / rate;
+    // Sell rate: 1 SLP = 0.007 USDT (or 100 SLP = 0.7 USDT)
+    return potions * 0.007;
   };
 
   const handlePurchase = async () => {
