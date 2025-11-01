@@ -955,7 +955,7 @@ export default function SteezeStack() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-white flex items-center gap-2">
                       <Wallet className="w-5 h-5 text-blue-400" />
-                      USDT Reserves
+                      USDT Wallet Balance
                     </CardTitle>
                     <Button 
                       variant="ghost" 
