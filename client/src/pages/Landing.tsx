@@ -106,7 +106,6 @@ export default function Landing() {
                 <span className="block bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-pulse mb-2">
                   DREAMZ
                 </span>
-                <span className="block text-white">PROTOCOL</span>
               </h1>
               
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-2xl font-medium" data-testid="text-description">
