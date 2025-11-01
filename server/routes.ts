@@ -2249,7 +2249,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get USDC balance for wallet address
+  // Get USDT balance for wallet address (supports both Ethereum and Solana wallets)
+  app.get("/api/wallet/usdt-balance/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      if (!isValidWalletAddress(address)) {
+        return res.status(400).json({ message: "Invalid wallet address" });
+      }
+      
+      const balance = await web3Service.getUSDTBalance(address);
+      res.json({ 
+        balance: parseFloat(balance), 
+        address,
+        currency: "USDT"
+      });
+    } catch (error: any) {
+      console.error("Error getting USDT balance:", error);
+      res.status(500).json({ message: "Failed to get USDT balance" });
+    }
+  });
+  
+  // Legacy route for backwards compatibility
   app.get("/api/wallet/usdc-balance/:address", async (req, res) => {
     try {
       const { address } = req.params;
@@ -2258,15 +2279,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid wallet address" });
       }
       
-      const balance = await web3Service.getUSDCBalance(address);
+      const balance = await web3Service.getUSDTBalance(address);
       res.json({ 
         balance: parseFloat(balance), 
         address,
-        currency: "USDC"
+        currency: "USDT"
       });
     } catch (error: any) {
-      console.error("Error getting USDC balance:", error);
-      res.status(500).json({ message: "Failed to get USDC balance" });
+      console.error("Error getting USDT balance:", error);
+      res.status(500).json({ message: "Failed to get USDT balance" });
     }
   });
 

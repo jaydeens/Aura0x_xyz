@@ -110,10 +110,10 @@ export default function Vouch() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#8000FF] to-[#9933FF] bg-clip-text text-transparent">
-              Vouch with USDC
+              Vouch with USDT
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Support your favorite users by vouching with USDC. Your vouches convert to Aura Points with streak multipliers.
+              Support your favorite users by vouching with USDT. Your vouches convert to Dreamz Points with streak multipliers.
             </p>
           </div>
 

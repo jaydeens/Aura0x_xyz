@@ -246,7 +246,7 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Wallet className="w-5 h-5 text-cyan-400" />
-                    <span className="font-bold">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} USDC Earned</span>
+                    <span className="font-bold">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} USDT Earned</span>
                   </div>
                 </div>
 
@@ -370,7 +370,7 @@ export default function Profile() {
               
               <div className="grid grid-cols-2 gap-4 text-center mb-4">
                 <div>
-                  <div className="text-2xl font-black text-white">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} USDC</div>
+                  <div className="text-2xl font-black text-white">{Number((profileUser as any)?.totalUsdtEarned || 0).toFixed(4)} USDT</div>
                   <div className="text-white/60 text-sm">Received</div>
                 </div>
                 <div>
@@ -380,7 +380,7 @@ export default function Profile() {
               </div>
               
               <div className="text-center text-sm text-white/60">
-                USDC vouching activity and community support
+                USDT vouching activity and community support
               </div>
             </div>
           </div>

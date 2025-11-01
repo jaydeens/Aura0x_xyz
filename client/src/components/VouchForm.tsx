@@ -208,7 +208,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Coins className="w-5 h-5 text-purple-400" />
-          Vouch with USDC
+          Vouch with USDT
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -303,7 +303,7 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
             className="bg-black/20 border-white/20 text-white placeholder:text-white/40"
           />
           <p className="text-white/60 text-sm">
-            Complete the USDC vouching transaction through the smart contract (requires USDC approval first), then paste the transaction hash here.
+            Complete the USDT vouching transaction through the smart contract (requires USDT approval first), then paste the transaction hash here.
           </p>
         </div>
 
@@ -331,8 +331,8 @@ export default function VouchForm({ preselectedUserId }: VouchFormProps) {
         {/* Info Note */}
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
           <p className="text-blue-300 text-sm">
-            <strong>How it works:</strong> First approve {selectedAmount} USDC spending, then complete the vouch transaction. 
-            They receive 70% ({(selectedAmount * 0.7).toFixed(2)} USDC) while 30% goes to the platform. 
+            <strong>How it works:</strong> First approve {selectedAmount} USDT spending, then complete the vouch transaction. 
+            They receive 70% ({(selectedAmount * 0.7).toFixed(2)} USDT) while 30% goes to the platform. 
             They also get {finalAuraPoints} aura points based on your level multiplier.
           </p>
         </div>

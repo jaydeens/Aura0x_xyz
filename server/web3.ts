@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
 
 // Polygon testnet configuration
 export const POLYGON_TESTNET = {
@@ -257,7 +259,14 @@ export const POTIONS_CONTRACT = {
 // Current network configuration (switch to BASE_MAINNET for production)
 export const CURRENT_NETWORK = BASE_MAINNET; // Always use Base Mainnet for both prod and dev
 
-// USDC Contract Configuration for Base Mainnet
+// CARV SVM Chain configuration
+export const CARV_SVM_CONFIG = {
+  rpcUrl: 'https://rpc.testnet.carv.io/rpc',
+  usdtTokenAddress: '7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF',
+  platformWallet: 'HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat',
+};
+
+// USDC Contract Configuration for Base Mainnet (Legacy - now using USDT)
 export const USDC_CONTRACT = {
   address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base Mainnet (used for both prod and dev)
   decimals: 6, // USDC has 6 decimals
@@ -384,10 +393,73 @@ export class Web3Service {
     }
   }
 
-  async getUSDCBalance(address: string): Promise<string> {
+  /**
+   * Detect if address is Solana or Ethereum based on format
+   */
+  private isSolanaAddress(address: string): boolean {
+    // Solana addresses are base58, typically 32-44 chars, no 0x prefix
+    // Ethereum addresses are 0x-prefixed, 42 chars
+    return !address.startsWith('0x') && address.length >= 32 && address.length <= 44;
+  }
+
+  /**
+   * Get USDT balance for wallet address (supports both Ethereum and Solana wallets)
+   */
+  async getUSDTBalance(address: string): Promise<string> {
     try {
-      console.log(`Fetching USDC balance for address: ${address}`);
-      console.log(`Using USDC contract: ${USDC_CONTRACT.address}`);
+      if (this.isSolanaAddress(address)) {
+        // Solana wallet - check USDT balance on CARV SVM Chain
+        return await this.getSolanaUSDTBalance(address);
+      } else {
+        // Ethereum wallet - check USDT balance on Base Mainnet (using USDC contract for now)
+        return await this.getEthereumUSDTBalance(address);
+      }
+    } catch (error) {
+      console.error("Error getting USDT balance:", error);
+      return "0";
+    }
+  }
+
+  /**
+   * Get USDT balance for Solana wallet on CARV SVM Chain
+   */
+  private async getSolanaUSDTBalance(address: string): Promise<string> {
+    try {
+      console.log(`Fetching USDT balance for Solana address: ${address}`);
+      console.log(`Using CARV SVM RPC: ${CARV_SVM_CONFIG.rpcUrl}`);
+      console.log(`Using USDT token: ${CARV_SVM_CONFIG.usdtTokenAddress}`);
+      
+      const connection = new Connection(CARV_SVM_CONFIG.rpcUrl, 'confirmed');
+      const walletPubkey = new PublicKey(address);
+      const usdtMint = new PublicKey(CARV_SVM_CONFIG.usdtTokenAddress);
+      
+      const tokenAccount = await getAssociatedTokenAddress(
+        usdtMint,
+        walletPubkey
+      );
+      
+      const balance = await connection.getTokenAccountBalance(tokenAccount);
+      
+      if (!balance.value || !balance.value.uiAmount) {
+        console.log(`No USDT balance found for Solana address: ${address}`);
+        return "0";
+      }
+      
+      console.log(`USDT balance: ${balance.value.uiAmount} USDT`);
+      return balance.value.uiAmount.toString();
+    } catch (error) {
+      console.error("Error getting Solana USDT balance:", error);
+      return "0";
+    }
+  }
+
+  /**
+   * Get USDT balance for Ethereum wallet on Base Mainnet
+   */
+  private async getEthereumUSDTBalance(address: string): Promise<string> {
+    try {
+      console.log(`Fetching USDT balance for Ethereum address: ${address}`);
+      console.log(`Using USDC contract: ${USDC_CONTRACT.address}`); // Using USDC contract for now
       console.log(`Using RPC: ${CURRENT_NETWORK.rpcUrl}`);
       
       const provider = this.initBaseProvider();
@@ -396,13 +468,18 @@ export class Web3Service {
       
       console.log(`Raw balance: ${balance}`);
       const formattedBalance = ethers.formatUnits(balance, USDC_CONTRACT.decimals);
-      console.log(`Formatted balance: ${formattedBalance} USDC`);
+      console.log(`Formatted balance: ${formattedBalance} USDT`);
       
       return formattedBalance;
     } catch (error) {
-      console.error("Error getting USDC balance:", error);
+      console.error("Error getting Ethereum USDT balance:", error);
       return "0";
     }
+  }
+
+  // Legacy method for backward compatibility
+  async getUSDCBalance(address: string): Promise<string> {
+    return this.getUSDTBalance(address);
   }
 
   /**
