@@ -73,7 +73,6 @@ export default function Landing() {
           CONNECT
         </Button>
       </nav>
-
       {/* Animated Background Particles */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-blue-950/40 to-black">
@@ -85,7 +84,6 @@ export default function Landing() {
         {/* Grid overlay */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLCAxODMsIDIzNSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30"></div>
       </div>
-
       {/* Hero Section - Diagonal Layout */}
       <section className="relative min-h-screen flex items-center">
         <div className="absolute top-8 left-8 z-20">
@@ -100,7 +98,7 @@ export default function Landing() {
             <div className="space-y-8 transform lg:-rotate-2">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 rounded-full px-6 py-3 backdrop-blur-xl" data-testid="badge-ai-crypto">
                 <Network className="w-4 h-4 text-cyan-400 animate-pulse" />
-                <span className="text-cyan-400 font-black text-sm tracking-widest">DECENTRALIZED REPUTATION LAYER</span>
+                <span className="text-cyan-400 font-black text-sm tracking-widest">WEB3 SOCIAL CREATOR/REPUTATION LAYER</span>
               </div>
               
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none" data-testid="heading-main">
@@ -208,7 +206,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Floating Cards Leaderboard Section */}
       <section id="trending" className="relative py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
@@ -327,7 +324,6 @@ export default function Landing() {
           )}
         </div>
       </section>
-
       {/* Minimal Footer */}
       <footer className="relative border-t border-cyan-500/20 bg-gradient-to-br from-black via-blue-950/30 to-black py-16" data-testid="footer-landing">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
@@ -377,7 +373,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </div>
   );
