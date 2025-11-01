@@ -30,7 +30,7 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance } from "@/lib/carvSVM";
+import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance } from "@/lib/carvSVMClient";
 
 declare global {
   interface Window {

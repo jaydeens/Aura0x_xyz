@@ -1,0 +1,185 @@
+import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
+
+// TOKEN_PROGRAM_ID constant (avoiding @solana/spl-token import which has Buffer dependency)
+const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+
+export const CARV_SVM_CONFIG = {
+  rpcUrl: 'https://rpc.testnet.carv.io/rpc',
+  contractAddress: 'Bjj32BCTb6jvuNh4PF3dCP81cSqBVEts9K5pdxJw9RcA',
+  usdtTokenAddress: '7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF',
+  platformWallet: 'HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat',
+};
+
+export const SLP_EXCHANGE_RATES = {
+  buyRate: 100,
+  sellRate: 0.007,
+  platformFee: 0.3,
+  liquidityRetention: 0.7,
+};
+
+export function getCarvConnection(): Connection {
+  return new Connection(CARV_SVM_CONFIG.rpcUrl, 'confirmed');
+}
+
+// Get USDT balance from backend API
+export async function getUSDTBalance(walletAddress: string): Promise<number> {
+  try {
+    const response = await fetch(`/api/slp/balance/${walletAddress}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch USDT balance');
+    }
+    const data = await response.json();
+    return data.balance;
+  } catch (error) {
+    console.error('Error fetching USDT balance:', error);
+    return 0;
+  }
+}
+
+interface BuySlpParams {
+  userWallet: any;
+  usdtAmount: number;
+}
+
+// Buy SLP using backend API to prepare transaction (avoids Buffer dependency)
+export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<string> {
+  try {
+    if (!userWallet || !userWallet.publicKey) {
+      throw new Error('Wallet not connected');
+    }
+
+    const walletAddress = userWallet.publicKey.toBase58();
+    
+    // Get transaction data from backend (backend uses Buffer)
+    const response = await fetch('/api/slp/prepare-buy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress, usdtAmount }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to prepare buy transaction');
+    }
+
+    const { instructionData, accounts } = await response.json();
+    
+    const connection = getCarvConnection();
+    const userPubkey = userWallet.publicKey;
+    const programId = new PublicKey(accounts.programId);
+    
+    const transaction = new Transaction();
+    
+    // Build instruction using data from backend
+    const keys = [
+      { pubkey: userPubkey, isSigner: true, isWritable: true },
+      { pubkey: new PublicKey(accounts.userTokenAccount), isSigner: false, isWritable: true },
+      { pubkey: new PublicKey(accounts.poolTokenAccount), isSigner: false, isWritable: true },
+      { pubkey: new PublicKey(accounts.platformTokenAccount), isSigner: false, isWritable: true },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ];
+    
+    const instruction = new TransactionInstruction({
+      keys,
+      programId,
+      data: Uint8Array.from(instructionData),
+    });
+    
+    transaction.add(instruction);
+    transaction.feePayer = userPubkey;
+    
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    
+    const signedTx = await userWallet.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(signedTx.serialize());
+    
+    await connection.confirmTransaction(signature, 'confirmed');
+    
+    return signature;
+  } catch (error: any) {
+    console.error('Error buying SLP:', error);
+    throw new Error(error.message || 'Failed to buy SLP');
+  }
+}
+
+interface SellSlpParams {
+  userWallet: any;
+  slpAmount: number;
+}
+
+// Sell SLP using backend API to prepare transaction (avoids Buffer dependency)
+export async function sellSlp({ userWallet, slpAmount }: SellSlpParams): Promise<string> {
+  try {
+    if (!userWallet || !userWallet.publicKey) {
+      throw new Error('Wallet not connected');
+    }
+
+    const walletAddress = userWallet.publicKey.toBase58();
+    
+    // Get transaction data from backend (backend uses Buffer)
+    const response = await fetch('/api/slp/prepare-sell', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress, slpAmount }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to prepare sell transaction');
+    }
+
+    const { instructionData, accounts } = await response.json();
+    
+    const connection = getCarvConnection();
+    const userPubkey = userWallet.publicKey;
+    const programId = new PublicKey(accounts.programId);
+    
+    const transaction = new Transaction();
+    
+    // Build instruction using data from backend
+    const keys = [
+      { pubkey: userPubkey, isSigner: true, isWritable: true },
+      { pubkey: new PublicKey(accounts.userTokenAccount), isSigner: false, isWritable: true },
+      { pubkey: new PublicKey(accounts.poolTokenAccount), isSigner: false, isWritable: true },
+      { pubkey: new PublicKey(accounts.poolAuthority), isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ];
+    
+    const instruction = new TransactionInstruction({
+      keys,
+      programId,
+      data: Uint8Array.from(instructionData),
+    });
+    
+    transaction.add(instruction);
+    transaction.feePayer = userPubkey;
+    
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    
+    const signedTx = await userWallet.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(signedTx.serialize());
+    
+    await connection.confirmTransaction(signature, 'confirmed');
+    
+    return signature;
+  } catch (error: any) {
+    console.error('Error selling SLP:', error);
+    throw new Error(error.message || 'Failed to sell SLP');
+  }
+}
+
+export function calculateSlpFromUsdt(usdtAmount: number): number {
+  return usdtAmount * SLP_EXCHANGE_RATES.buyRate;
+}
+
+export function calculateUsdtFromSlp(slpAmount: number): number {
+  return slpAmount * SLP_EXCHANGE_RATES.sellRate;
+}
+
+export function calculatePlatformFee(usdtAmount: number): number {
+  return usdtAmount * SLP_EXCHANGE_RATES.platformFee;
+}
+
+export function calculateLiquidityAmount(usdtAmount: number): number {
+  return usdtAmount * SLP_EXCHANGE_RATES.liquidityRetention;
+}
