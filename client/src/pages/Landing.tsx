@@ -262,7 +262,7 @@ export default function Landing() {
 
                         <div className="pt-4 border-t border-cyan-500/30 space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-500 font-black text-xs uppercase tracking-wide">DREAMZ TOKENS</span>
+                            <span className="text-gray-500 font-black text-xs uppercase tracking-wide">DREAMZ POINTS</span>
                             <span className="font-black text-3xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent" data-testid={`text-dreamz-${index + 1}`}>
                               {user.dreamzPoints || 0}
                             </span>

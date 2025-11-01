@@ -515,7 +515,7 @@ export default function Leaderboard() {
                 Ready to Mine the Network?
               </h3>
               <p className="text-gray-300 mb-6 max-w-2xl mx-auto" data-testid="text-mine-description">
-                Execute smart contracts, decode blockchain mysteries, and harvest Dreamz tokens to dominate the neural rankings
+                Execute smart contracts, decode blockchain mysteries, and harvest Dreamz Points to dominate the neural rankings
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
