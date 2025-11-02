@@ -41,6 +41,19 @@ interface BuySlpParams {
   usdtAmount: number;
 }
 
+// Helper to deserialize instruction from backend
+function deserializeInstruction(serialized: any): TransactionInstruction {
+  return new TransactionInstruction({
+    programId: new PublicKey(serialized.programId),
+    keys: serialized.keys.map((k: any) => ({
+      pubkey: new PublicKey(k.pubkey),
+      isSigner: k.isSigner,
+      isWritable: k.isWritable,
+    })),
+    data: Uint8Array.from(serialized.data),
+  });
+}
+
 // Buy SLP using backend API to prepare transaction (avoids Buffer dependency)
 export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<string> {
   try {
@@ -61,7 +74,7 @@ export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<
       throw new Error('Failed to prepare buy transaction');
     }
 
-    const { instructionData, accounts } = await response.json();
+    const { instructionData, accounts, createInstructions } = await response.json();
     
     const connection = getCarvConnection();
     const userPubkey = userWallet.publicKey;
@@ -69,7 +82,14 @@ export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<
     
     const transaction = new Transaction();
     
-    // Build instruction using data from backend
+    // Add ATA creation instructions first (if any)
+    if (createInstructions && createInstructions.length > 0) {
+      for (const createIx of createInstructions) {
+        transaction.add(deserializeInstruction(createIx));
+      }
+    }
+    
+    // Build main buy instruction using data from backend
     const keys = [
       { pubkey: userPubkey, isSigner: true, isWritable: true },
       { pubkey: new PublicKey(accounts.userTokenAccount), isSigner: false, isWritable: true },
@@ -127,7 +147,7 @@ export async function sellSlp({ userWallet, slpAmount }: SellSlpParams): Promise
       throw new Error('Failed to prepare sell transaction');
     }
 
-    const { instructionData, accounts } = await response.json();
+    const { instructionData, accounts, createInstructions } = await response.json();
     
     const connection = getCarvConnection();
     const userPubkey = userWallet.publicKey;
@@ -135,7 +155,14 @@ export async function sellSlp({ userWallet, slpAmount }: SellSlpParams): Promise
     
     const transaction = new Transaction();
     
-    // Build instruction using data from backend
+    // Add ATA creation instructions first (if any)
+    if (createInstructions && createInstructions.length > 0) {
+      for (const createIx of createInstructions) {
+        transaction.add(deserializeInstruction(createIx));
+      }
+    }
+    
+    // Build main sell instruction using data from backend
     const keys = [
       { pubkey: userPubkey, isSigner: true, isWritable: true },
       { pubkey: new PublicKey(accounts.userTokenAccount), isSigner: false, isWritable: true },

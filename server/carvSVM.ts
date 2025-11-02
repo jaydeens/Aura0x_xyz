@@ -1,5 +1,5 @@
-import { Connection, PublicKey } from '@solana/web3.js';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
+import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 
 export const CARV_SVM_CONFIG = {
@@ -68,7 +68,20 @@ export function createSellInstructionData(slpAmount: number): { data: number[], 
   };
 }
 
-// Get token account addresses for buy transaction
+// Serialize instruction to array for client
+function serializeInstruction(instruction: TransactionInstruction) {
+  return {
+    programId: instruction.programId.toBase58(),
+    keys: instruction.keys.map(k => ({
+      pubkey: k.pubkey.toBase58(),
+      isSigner: k.isSigner,
+      isWritable: k.isWritable,
+    })),
+    data: Array.from(instruction.data),
+  };
+}
+
+// Get token account addresses for buy transaction + check if ATAs need creation
 export async function getBuyTransactionAccounts(userWalletAddress: string) {
   const connection = getCarvConnection();
   const userPubkey = new PublicKey(userWalletAddress);
@@ -80,15 +93,62 @@ export async function getBuyTransactionAccounts(userWalletAddress: string) {
   const poolTokenAccount = await getAssociatedTokenAddress(usdtMint, programId);
   const platformTokenAccount = await getAssociatedTokenAddress(usdtMint, platformWallet);
 
+  // Check which ATAs exist
+  const [userAccountInfo, poolAccountInfo, platformAccountInfo] = await Promise.all([
+    connection.getAccountInfo(userTokenAccount),
+    connection.getAccountInfo(poolTokenAccount),
+    connection.getAccountInfo(platformTokenAccount),
+  ]);
+
+  // Create instructions for missing ATAs
+  const createInstructions: any[] = [];
+  
+  if (!userAccountInfo) {
+    const createIx = createAssociatedTokenAccountInstruction(
+      userPubkey,  // payer
+      userTokenAccount,  // ata
+      userPubkey,  // owner
+      usdtMint,  // mint
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    createInstructions.push(serializeInstruction(createIx));
+  }
+  
+  if (!poolAccountInfo) {
+    const createIx = createAssociatedTokenAccountInstruction(
+      userPubkey,  // payer (user pays for pool ATA creation)
+      poolTokenAccount,  // ata
+      programId,  // owner
+      usdtMint,  // mint
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    createInstructions.push(serializeInstruction(createIx));
+  }
+  
+  if (!platformAccountInfo) {
+    const createIx = createAssociatedTokenAccountInstruction(
+      userPubkey,  // payer
+      platformTokenAccount,  // ata
+      platformWallet,  // owner
+      usdtMint,  // mint
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    createInstructions.push(serializeInstruction(createIx));
+  }
+
   return {
     userTokenAccount: userTokenAccount.toBase58(),
     poolTokenAccount: poolTokenAccount.toBase58(),
     platformTokenAccount: platformTokenAccount.toBase58(),
     programId: CARV_SVM_CONFIG.contractAddress,
+    createInstructions,
   };
 }
 
-// Get token account addresses for sell transaction
+// Get token account addresses for sell transaction + check if ATAs need creation
 export async function getSellTransactionAccounts(userWalletAddress: string) {
   const connection = getCarvConnection();
   const userPubkey = new PublicKey(userWalletAddress);
@@ -104,11 +164,45 @@ export async function getSellTransactionAccounts(userWalletAddress: string) {
     programId
   );
 
+  // Check which ATAs exist
+  const [userAccountInfo, poolAccountInfo] = await Promise.all([
+    connection.getAccountInfo(userTokenAccount),
+    connection.getAccountInfo(poolTokenAccount),
+  ]);
+
+  // Create instructions for missing ATAs
+  const createInstructions: any[] = [];
+  
+  if (!userAccountInfo) {
+    const createIx = createAssociatedTokenAccountInstruction(
+      userPubkey,  // payer
+      userTokenAccount,  // ata
+      userPubkey,  // owner
+      usdtMint,  // mint
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    createInstructions.push(serializeInstruction(createIx));
+  }
+  
+  if (!poolAccountInfo) {
+    const createIx = createAssociatedTokenAccountInstruction(
+      userPubkey,  // payer (user pays for pool ATA creation)
+      poolTokenAccount,  // ata
+      programId,  // owner
+      usdtMint,  // mint
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    createInstructions.push(serializeInstruction(createIx));
+  }
+
   return {
     userTokenAccount: userTokenAccount.toBase58(),
     poolTokenAccount: poolTokenAccount.toBase58(),
     poolAuthority: poolAuthority.toBase58(),
     programId: CARV_SVM_CONFIG.contractAddress,
+    createInstructions,
   };
 }
 
