@@ -233,6 +233,10 @@ export default function SteezeStack() {
         throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
       }
       
+      if (!wallet.publicKey) {
+        throw new Error("Wallet not connected. Please connect your wallet first.");
+      }
+      
       toast({
         title: "Processing Purchase",
         description: "Please approve the transaction in your wallet...",
@@ -295,6 +299,10 @@ export default function SteezeStack() {
       const wallet = getSolanaWallet();
       if (!wallet) {
         throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
+      }
+      
+      if (!wallet.publicKey) {
+        throw new Error("Wallet not connected. Please connect your wallet first.");
       }
       
       toast({
