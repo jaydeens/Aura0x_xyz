@@ -233,8 +233,16 @@ export default function SteezeStack() {
         throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
       }
       
+      // Ensure wallet is connected - if publicKey is not set, reconnect
       if (!wallet.publicKey) {
-        throw new Error("Wallet not connected. Please connect your wallet first.");
+        try {
+          const response = await wallet.connect();
+          if (!response.publicKey && !wallet.publicKey) {
+            throw new Error("Failed to connect wallet");
+          }
+        } catch (error: any) {
+          throw new Error("Wallet connection required. Please approve the connection request.");
+        }
       }
       
       toast({
@@ -301,8 +309,16 @@ export default function SteezeStack() {
         throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
       }
       
+      // Ensure wallet is connected - if publicKey is not set, reconnect
       if (!wallet.publicKey) {
-        throw new Error("Wallet not connected. Please connect your wallet first.");
+        try {
+          const response = await wallet.connect();
+          if (!response.publicKey && !wallet.publicKey) {
+            throw new Error("Failed to connect wallet");
+          }
+        } catch (error: any) {
+          throw new Error("Wallet connection required. Please approve the connection request.");
+        }
       }
       
       toast({
