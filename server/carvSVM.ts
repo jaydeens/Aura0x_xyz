@@ -49,9 +49,9 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
 export function createBuyInstructionData(usdtAmount: number): { data: number[], amountLamports: number } {
   const amountLamports = Math.floor(usdtAmount * 1_000_000);
   
-  // Calculate Anchor instruction discriminator for "buySlp"
+  // Calculate Anchor instruction discriminator for "buy_slp" (snake_case)
   const discriminator = createHash('sha256')
-    .update('global:buySlp')
+    .update('global:buy_slp')
     .digest()
     .slice(0, 8);
   
@@ -69,9 +69,9 @@ export function createBuyInstructionData(usdtAmount: number): { data: number[], 
 export function createSellInstructionData(slpAmount: number): { data: number[], slpAmountRaw: number } {
   const slpAmountRaw = Math.floor(slpAmount);
   
-  // Calculate Anchor instruction discriminator for "sellSlp"
+  // Calculate Anchor instruction discriminator for "sell_slp" (snake_case)
   const discriminator = createHash('sha256')
-    .update('global:sellSlp')
+    .update('global:sell_slp')
     .digest()
     .slice(0, 8);
   
