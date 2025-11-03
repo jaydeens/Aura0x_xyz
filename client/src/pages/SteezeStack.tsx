@@ -233,27 +233,46 @@ export default function SteezeStack() {
         throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
       }
       
-      // Ensure wallet is connected - if publicKey is not set, reconnect
-      if (!wallet.publicKey) {
-        try {
-          const response = await wallet.connect();
-          if (!response.publicKey && !wallet.publicKey) {
-            throw new Error("Failed to connect wallet");
-          }
-        } catch (error: any) {
-          throw new Error("Wallet connection required. Please approve the connection request.");
-        }
-      }
-      
       toast({
         title: "Processing Purchase",
-        description: "Please approve the transaction in your wallet...",
+        description: "Preparing transaction...",
       });
       
       console.log("Buying SLP on CARV SVM Chain:");
       console.log("- USDT Amount:", usdtValue);
       console.log("- SLP Amount:", potionsAmount);
-      console.log("- Wallet:", wallet.publicKey.toString());
+      console.log("- Wallet Address:", effectiveAddress);
+      
+      // Ensure wallet is connected before signing
+      if (!wallet.publicKey) {
+        console.log("Wallet needs connection for signing, requesting approval...");
+        
+        try {
+          const response = await wallet.connect();
+          const pubkey = response?.publicKey || wallet.publicKey;
+          
+          if (!pubkey) {
+            throw new Error("Failed to connect wallet");
+          }
+          
+          console.log("Wallet connected for signing:", pubkey.toString());
+        } catch (error: any) {
+          console.error("Wallet connect error:", error);
+          
+          if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
+            throw new Error("You need to approve the wallet connection to sign the transaction.");
+          } else if (error.message?.includes("already pending")) {
+            throw new Error("Please check your wallet - there's a pending connection request.");
+          } else {
+            throw new Error(`Wallet connection failed: ${error.message || "Please try again"}`);
+          }
+        }
+      }
+      
+      toast({
+        title: "Confirm Transaction",
+        description: "Please approve the transaction in your wallet...",
+      });
       
       const signature = await buySlp({
         userWallet: wallet,
@@ -309,27 +328,46 @@ export default function SteezeStack() {
         throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
       }
       
-      // Ensure wallet is connected - if publicKey is not set, reconnect
-      if (!wallet.publicKey) {
-        try {
-          const response = await wallet.connect();
-          if (!response.publicKey && !wallet.publicKey) {
-            throw new Error("Failed to connect wallet");
-          }
-        } catch (error: any) {
-          throw new Error("Wallet connection required. Please approve the connection request.");
-        }
-      }
-      
       toast({
         title: "Processing Liquidation",
-        description: "Please approve the transaction in your wallet...",
+        description: "Preparing transaction...",
       });
       
       console.log("Selling SLP on CARV SVM Chain:");
       console.log("- SLP Amount:", potionsAmount);
       console.log("- USDT Value:", usdtValue);
-      console.log("- Wallet:", wallet.publicKey.toString());
+      console.log("- Wallet Address:", effectiveAddress);
+      
+      // Ensure wallet is connected before signing
+      if (!wallet.publicKey) {
+        console.log("Wallet needs connection for signing, requesting approval...");
+        
+        try {
+          const response = await wallet.connect();
+          const pubkey = response?.publicKey || wallet.publicKey;
+          
+          if (!pubkey) {
+            throw new Error("Failed to connect wallet");
+          }
+          
+          console.log("Wallet connected for signing:", pubkey.toString());
+        } catch (error: any) {
+          console.error("Wallet connect error:", error);
+          
+          if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
+            throw new Error("You need to approve the wallet connection to sign the transaction.");
+          } else if (error.message?.includes("already pending")) {
+            throw new Error("Please check your wallet - there's a pending connection request.");
+          } else {
+            throw new Error(`Wallet connection failed: ${error.message || "Please try again"}`);
+          }
+        }
+      }
+      
+      toast({
+        title: "Confirm Transaction",
+        description: "Please approve the transaction in your wallet...",
+      });
       
       const signature = await sellSlp({
         userWallet: wallet,
