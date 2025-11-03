@@ -12,7 +12,7 @@ import LiveBattle from "@/pages/LiveBattle";
 import Leaderboard from "@/pages/Leaderboard";
 import Profile from "@/pages/Profile";
 import UserProfilePage from "@/pages/UserProfilePage";
-import SteezeStack from "@/pages/SteezeStack";
+import Potions from "@/pages/Potions";
 import Settings from "@/pages/Settings";
 import WhitelistAdmin from "@/pages/WhitelistAdmin";
 import NotFound from "@/pages/not-found";
@@ -123,7 +123,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/profile/:userId" component={UserProfilePage} />
       <Route path="/user/:userId" component={UserProfilePage} />
-      <Route path="/potions" component={SteezeStack} />
+      <Route path="/potions" component={Potions} />
       <Route path="/settings" component={Settings} />
       <Route path="/admin/whitelist" component={WhitelistAdmin} />
       <Route path="*" component={NotFound} />

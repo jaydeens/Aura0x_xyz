@@ -38,6 +38,7 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
 
 interface BuySlpParams {
   userWallet: any;
+  walletAddress: string;
   usdtAmount: number;
 }
 
@@ -55,13 +56,15 @@ function deserializeInstruction(serialized: any): TransactionInstruction {
 }
 
 // Buy SLP using backend API to prepare transaction (avoids Buffer dependency)
-export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<string> {
+export async function buySlp({ userWallet, walletAddress, usdtAmount }: BuySlpParams): Promise<string> {
   try {
-    if (!userWallet || !userWallet.publicKey) {
+    if (!userWallet) {
       throw new Error('Wallet not connected');
     }
 
-    const walletAddress = userWallet.publicKey.toBase58();
+    if (!walletAddress) {
+      throw new Error('Wallet address not found');
+    }
     
     // Get transaction data from backend (backend uses Buffer)
     const response = await fetch('/api/slp/prepare-buy', {
@@ -77,7 +80,7 @@ export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<
     const { instructionData, accounts, createInstructions } = await response.json();
     
     const connection = getCarvConnection();
-    const userPubkey = userWallet.publicKey;
+    const userPubkey = new PublicKey(walletAddress);
     const programId = new PublicKey(accounts.programId);
     
     const transaction = new Transaction();
@@ -124,17 +127,20 @@ export async function buySlp({ userWallet, usdtAmount }: BuySlpParams): Promise<
 
 interface SellSlpParams {
   userWallet: any;
+  walletAddress: string;
   slpAmount: number;
 }
 
 // Sell SLP using backend API to prepare transaction (avoids Buffer dependency)
-export async function sellSlp({ userWallet, slpAmount }: SellSlpParams): Promise<string> {
+export async function sellSlp({ userWallet, walletAddress, slpAmount }: SellSlpParams): Promise<string> {
   try {
-    if (!userWallet || !userWallet.publicKey) {
+    if (!userWallet) {
       throw new Error('Wallet not connected');
     }
 
-    const walletAddress = userWallet.publicKey.toBase58();
+    if (!walletAddress) {
+      throw new Error('Wallet address not found');
+    }
     
     // Get transaction data from backend (backend uses Buffer)
     const response = await fetch('/api/slp/prepare-sell', {
@@ -150,7 +156,7 @@ export async function sellSlp({ userWallet, slpAmount }: SellSlpParams): Promise
     const { instructionData, accounts, createInstructions } = await response.json();
     
     const connection = getCarvConnection();
-    const userPubkey = userWallet.publicKey;
+    const userPubkey = new PublicKey(walletAddress);
     const programId = new PublicKey(accounts.programId);
     
     const transaction = new Transaction();

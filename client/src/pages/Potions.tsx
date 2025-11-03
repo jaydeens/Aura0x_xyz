@@ -42,7 +42,7 @@ declare global {
   }
 }
 
-export default function SteezeStack() {
+export default function Potions() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { triggerSteezeCelebration } = useCelebration();
@@ -243,54 +243,6 @@ export default function SteezeStack() {
       console.log("- SLP Amount:", potionsAmount);
       console.log("- Wallet Address:", effectiveAddress);
       
-      // Ensure wallet is connected before signing
-      if (!wallet.publicKey) {
-        console.log("Wallet publicKey not found");
-        
-        // Check if wallet is already connected (Backpack/Phantom)
-        const isAlreadyConnected = wallet.isConnected || wallet.connected;
-        console.log("Wallet connection status:", isAlreadyConnected);
-        
-        if (!isAlreadyConnected) {
-          // Only call connect if not already connected
-          try {
-            console.log("Requesting wallet connection...");
-            const response = await wallet.connect();
-            const pubkey = response?.publicKey || wallet.publicKey;
-            
-            if (!pubkey) {
-              throw new Error("Failed to get wallet address");
-            }
-            
-            console.log("Wallet connected successfully:", pubkey.toString());
-          } catch (error: any) {
-            console.error("Wallet connect error:", error);
-            
-            if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
-              throw new Error("You cancelled the wallet connection. Please approve to continue.");
-            } else if (error.code === -32603) {
-              // Backpack wallet internal error - wallet might already be connected
-              console.log("Wallet connection error -32603, checking if publicKey is now available...");
-              if (!wallet.publicKey) {
-                throw new Error("Please refresh the page and try again.");
-              }
-            } else {
-              throw new Error(`Connection failed: ${error.message || "Please try again"}`);
-            }
-          }
-        } else {
-          // Wallet says it's connected but publicKey is missing - this is a wallet state issue
-          console.log("Wallet reports connected but publicKey missing, waiting for state sync...");
-          
-          // Give the wallet a moment to sync state
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          if (!wallet.publicKey) {
-            throw new Error("Wallet state error. Please refresh the page and reconnect your wallet.");
-          }
-        }
-      }
-      
       toast({
         title: "Confirm Transaction",
         description: "Please approve the transaction in your wallet...",
@@ -298,6 +250,7 @@ export default function SteezeStack() {
       
       const signature = await buySlp({
         userWallet: wallet,
+        walletAddress: effectiveAddress,
         usdtAmount: usdtValue,
       });
       
@@ -308,7 +261,7 @@ export default function SteezeStack() {
         usdtAmount: usdtValue,
         potionsAmount,
         txHash: signature,
-        walletAddress: wallet.publicKey.toString(),
+        walletAddress: effectiveAddress,
       });
       
       return await response.json();
@@ -360,54 +313,6 @@ export default function SteezeStack() {
       console.log("- USDT Value:", usdtValue);
       console.log("- Wallet Address:", effectiveAddress);
       
-      // Ensure wallet is connected before signing
-      if (!wallet.publicKey) {
-        console.log("Wallet publicKey not found");
-        
-        // Check if wallet is already connected (Backpack/Phantom)
-        const isAlreadyConnected = wallet.isConnected || wallet.connected;
-        console.log("Wallet connection status:", isAlreadyConnected);
-        
-        if (!isAlreadyConnected) {
-          // Only call connect if not already connected
-          try {
-            console.log("Requesting wallet connection...");
-            const response = await wallet.connect();
-            const pubkey = response?.publicKey || wallet.publicKey;
-            
-            if (!pubkey) {
-              throw new Error("Failed to get wallet address");
-            }
-            
-            console.log("Wallet connected successfully:", pubkey.toString());
-          } catch (error: any) {
-            console.error("Wallet connect error:", error);
-            
-            if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
-              throw new Error("You cancelled the wallet connection. Please approve to continue.");
-            } else if (error.code === -32603) {
-              // Backpack wallet internal error - wallet might already be connected
-              console.log("Wallet connection error -32603, checking if publicKey is now available...");
-              if (!wallet.publicKey) {
-                throw new Error("Please refresh the page and try again.");
-              }
-            } else {
-              throw new Error(`Connection failed: ${error.message || "Please try again"}`);
-            }
-          }
-        } else {
-          // Wallet says it's connected but publicKey is missing - this is a wallet state issue
-          console.log("Wallet reports connected but publicKey missing, waiting for state sync...");
-          
-          // Give the wallet a moment to sync state
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          if (!wallet.publicKey) {
-            throw new Error("Wallet state error. Please refresh the page and reconnect your wallet.");
-          }
-        }
-      }
-      
       toast({
         title: "Confirm Transaction",
         description: "Please approve the transaction in your wallet...",
@@ -415,6 +320,7 @@ export default function SteezeStack() {
       
       const signature = await sellSlp({
         userWallet: wallet,
+        walletAddress: effectiveAddress,
         slpAmount: potionsAmount,
       });
       
@@ -424,7 +330,7 @@ export default function SteezeStack() {
       const response = await apiRequest('POST', '/api/potions/redeem', {
         potionsAmount,
         txHash: signature,
-        walletAddress: wallet.publicKey.toString(),
+        walletAddress: effectiveAddress,
       });
       
       return await response.json();
