@@ -1,0 +1,185 @@
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint, InitializeAccount};
+
+pub const PLATFORM_WALLET: &str = "HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat";
+pub const USDT_MINT: &str = "7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF";
+
+declare_id!("Bjj32BCTb6jvuNh4PF3dCP81cSqBVEts9K5pdxJw9RcA");
+
+#[program]
+pub mod slp_exchange {
+    use super::*;
+    use std::str::FromStr;
+
+    // Initialize the pool account
+    pub fn initialize_pool(ctx: Context<InitializePool>) -> Result<()> {
+        let seeds = &[b"pool-authority".as_ref()];
+        let signer_seeds = &[&seeds[..]];
+
+        // Initialize the pool token account for USDT
+        token::initialize_account(
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(),
+                InitializeAccount {
+                    account: ctx.accounts.pool_token_account.to_account_info(),
+                    mint: ctx.accounts.usdt_mint.to_account_info(),
+                    authority: ctx.accounts.pool_authority.to_account_info(),
+                    rent: ctx.accounts.rent.to_account_info(),
+                },
+            )
+        )?;
+
+        Ok(())
+    }
+
+    // BUY SLP (Deposit USDT)
+    pub fn buy_slp(ctx: Context<BuySLP>, amount: u64) -> Result<()> {
+        require!(amount > 0, SlpError::InvalidAmount);
+
+        let platform_key = Pubkey::from_str(PLATFORM_WALLET).unwrap();
+
+        let user = ctx.accounts.user.to_account_info();
+        let token_program = ctx.accounts.token_program.to_account_info();
+
+        let fee_amount = amount * 30 / 100;
+        let pool_amount = amount - fee_amount;
+
+        // Transfer 70% to pool
+        let cpi_accounts_pool = Transfer {
+            from: ctx.accounts.user_token_account.to_account_info(),
+            to: ctx.accounts.pool_token_account.to_account_info(),
+            authority: user.clone(),
+        };
+        token::transfer(CpiContext::new(token_program.clone(), cpi_accounts_pool), pool_amount)?;
+
+        // Transfer 30% to platform
+        let cpi_accounts_fee = Transfer {
+            from: ctx.accounts.user_token_account.to_account_info(),
+            to: ctx.accounts.platform_token_account.to_account_info(),
+            authority: user.clone(),
+        };
+        token::transfer(CpiContext::new(token_program, cpi_accounts_fee), fee_amount)?;
+
+        emit!(BuySlpEvent {
+            user: *ctx.accounts.user.key,
+            amount_usdt: amount,
+            amount_slp: amount * 100,
+        });
+
+        Ok(())
+    }
+
+    // SELL SLP (Withdraw USDT)
+    pub fn sell_slp(ctx: Context<SellSLP>, slp_amount: u64) -> Result<()> {
+        require!(slp_amount > 0, SlpError::InvalidAmount);
+
+        let user = ctx.accounts.user.to_account_info();
+        let token_program = ctx.accounts.token_program.to_account_info();
+
+        // 100 SLP = 0.7 USDT → 1 SLP = 0.007 USDT
+        let usdt_to_send = (slp_amount as f64 * 0.007) as u64;
+
+        let seeds = &[b"pool-authority".as_ref()];
+        let signer_seeds = &[&seeds[..]];
+
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.pool_token_account.to_account_info(),
+            to: ctx.accounts.user_token_account.to_account_info(),
+            authority: ctx.accounts.pool_authority.to_account_info(),
+        };
+
+        token::transfer(
+            CpiContext::new_with_signer(token_program, cpi_accounts, signer_seeds),
+            usdt_to_send,
+        )?;
+
+        emit!(SellSlpEvent {
+            user: *ctx.accounts.user.key,
+            slp_amount,
+            usdt_received: usdt_to_send,
+        });
+
+        Ok(())
+    }
+}
+
+// CONTEXTS
+#[derive(Accounts)]
+pub struct InitializePool<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    #[account(
+        init,
+        payer = payer,
+        token::mint = usdt_mint,
+        token::authority = pool_authority,
+    )]
+    pub pool_token_account: Account<'info, TokenAccount>,
+
+    /// CHECK: PDA authority for the pool
+    #[account(seeds = [b"pool-authority"], bump)]
+    pub pool_authority: UncheckedAccount<'info>,
+
+    pub usdt_mint: Account<'info, Mint>,
+    pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct BuySLP<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    #[account(mut)]
+    pub user_token_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub pool_token_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub platform_token_account: Account<'info, TokenAccount>,
+
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct SellSLP<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    #[account(mut)]
+    pub user_token_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub pool_token_account: Account<'info, TokenAccount>,
+
+    /// CHECK: PDA for pool authority
+    #[account(seeds = [b"pool-authority"], bump)]
+    pub pool_authority: UncheckedAccount<'info>,
+
+    pub token_program: Program<'info, Token>,
+}
+
+// EVENTS
+#[event]
+pub struct BuySlpEvent {
+    pub user: Pubkey,
+    pub amount_usdt: u64,
+    pub amount_slp: u64,
+}
+
+#[event]
+pub struct SellSlpEvent {
+    pub user: Pubkey,
+    pub slp_amount: u64,
+    pub usdt_received: u64,
+}
+
+// ERRORS
+#[error_code]
+pub enum SlpError {
+    #[msg("Invalid amount.")]
+    InvalidAmount,
+}
