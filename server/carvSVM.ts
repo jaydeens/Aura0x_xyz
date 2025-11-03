@@ -46,10 +46,19 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
 
 // Create instruction data for buy transaction (uses Buffer - backend only)
 export function createBuyInstructionData(usdtAmount: number): { data: number[], amountLamports: number } {
+  const crypto = require('crypto');
   const amountLamports = Math.floor(usdtAmount * 1_000_000);
-  const instructionData = Buffer.alloc(9);
-  instructionData.writeUInt8(0, 0); // Instruction index for "buy"
-  instructionData.writeBigUInt64LE(BigInt(amountLamports), 1);
+  
+  // Calculate Anchor instruction discriminator for "buySlp"
+  const discriminator = crypto.createHash('sha256')
+    .update('global:buySlp')
+    .digest()
+    .slice(0, 8);
+  
+  const instructionData = Buffer.alloc(16); // 8 bytes discriminator + 8 bytes amount
+  discriminator.copy(instructionData, 0);
+  instructionData.writeBigUInt64LE(BigInt(amountLamports), 8);
+  
   return {
     data: Array.from(instructionData),
     amountLamports
@@ -58,10 +67,19 @@ export function createBuyInstructionData(usdtAmount: number): { data: number[], 
 
 // Create instruction data for sell transaction (uses Buffer - backend only)
 export function createSellInstructionData(slpAmount: number): { data: number[], slpAmountRaw: number } {
+  const crypto = require('crypto');
   const slpAmountRaw = Math.floor(slpAmount);
-  const instructionData = Buffer.alloc(9);
-  instructionData.writeUInt8(1, 0); // Instruction index for "sell"
-  instructionData.writeBigUInt64LE(BigInt(slpAmountRaw), 1);
+  
+  // Calculate Anchor instruction discriminator for "sellSlp"
+  const discriminator = crypto.createHash('sha256')
+    .update('global:sellSlp')
+    .digest()
+    .slice(0, 8);
+  
+  const instructionData = Buffer.alloc(16); // 8 bytes discriminator + 8 bytes amount
+  discriminator.copy(instructionData, 0);
+  instructionData.writeBigUInt64LE(BigInt(slpAmountRaw), 8);
+  
   return {
     data: Array.from(instructionData),
     slpAmountRaw
