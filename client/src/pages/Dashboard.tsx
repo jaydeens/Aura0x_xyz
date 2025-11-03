@@ -127,7 +127,7 @@ export default function Dashboard() {
                   <div className="p-2 bg-cyan-500/20 rounded-lg">
                     <Database className="w-5 h-5 text-cyan-400" />
                   </div>
-                  <span className="text-cyan-300 font-mono text-sm uppercase tracking-wider">Total SLEEP (SLP) POINTS</span>
+                  <span className="text-cyan-300 font-mono text-sm uppercase tracking-wider">Total DRMZ</span>
                 </div>
                 <div className="mb-4">
                   <div className="text-5xl sm:text-6xl font-black text-white mb-2 font-mono" data-testid="text-dreamz-points">
