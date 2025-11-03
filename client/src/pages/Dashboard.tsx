@@ -173,7 +173,7 @@ export default function Dashboard() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Blocks className="w-4 h-4 text-cyan-400" />
-                      <span className="text-gray-400 text-xs font-mono uppercase">Token Reserves</span>
+                      <span className="text-gray-400 text-xs font-mono uppercase">SLEEP POINTS ALLOCATION</span>
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                       <div data-testid="card-battle-potions">
