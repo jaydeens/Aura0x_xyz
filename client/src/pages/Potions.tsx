@@ -184,7 +184,7 @@ export default function Potions() {
   });
 
   // Check pool initialization status
-  const { data: poolStatus, refetch: refetchPoolStatus } = useQuery({
+  const { data: poolStatus, refetch: refetchPoolStatus, isLoading: isPoolStatusLoading } = useQuery({
     queryKey: ['pool-status'],
     queryFn: checkPoolStatus,
     enabled: connectedWithSolana,
@@ -711,7 +711,7 @@ export default function Potions() {
                     )}
 
                     {/* Pool Initialization Section */}
-                    {connectedWithSolana && !isPoolInitialized && (
+                    {connectedWithSolana && !isPoolStatusLoading && !isPoolInitialized && (
                       <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                         <div className="flex items-center gap-2 mb-3">
                           <Database className="w-5 h-5 text-blue-400" />
