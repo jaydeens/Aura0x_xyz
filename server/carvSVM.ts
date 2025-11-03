@@ -21,7 +21,7 @@ export function getCarvConnection(): Connection {
   return new Connection(CARV_SVM_CONFIG.rpcUrl, 'confirmed');
 }
 
-// Find the pool token account by searching program accounts
+// Find the pool token account by searching program accounts OR derive from PDA
 async function findPoolTokenAccount(
   connection: Connection,
   programId: PublicKey,
@@ -29,20 +29,49 @@ async function findPoolTokenAccount(
   poolAuthority: PublicKey
 ): Promise<PublicKey> {
   try {
-    // Get all token accounts for the USDT mint
-    const accounts = await connection.getTokenAccountsByOwner(poolAuthority, {
+    // First, try to find by owner (pool_authority)
+    const accountsByOwner = await connection.getTokenAccountsByOwner(poolAuthority, {
       mint,
     });
     
-    if (accounts.value.length > 0) {
-      console.log('[Pool] Found pool token account:', accounts.value[0].pubkey.toBase58());
-      return accounts.value[0].pubkey;
+    if (accountsByOwner.value.length > 0) {
+      console.log('[Pool] Found pool token account by owner:', accountsByOwner.value[0].pubkey.toBase58());
+      return accountsByOwner.value[0].pubkey;
     }
     
-    throw new Error('Pool token account not found. Please initialize the pool first.');
-  } catch (error) {
-    console.error('[Pool] Error finding pool token account:', error);
-    throw new Error('Pool not initialized. Contact support to initialize the liquidity pool.');
+    // If not found by owner, try searching all program accounts
+    console.log('[Pool] Searching for pool token account in program accounts...');
+    const programAccounts = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
+      filters: [
+        { dataSize: 165 }, // Token account size
+        {
+          memcmp: {
+            offset: 0,
+            bytes: mint.toBase58(), // Filter by mint
+          },
+        },
+      ],
+    });
+    
+    console.log('[Pool] Found', programAccounts.length, 'token accounts for USDT mint');
+    
+    // Check each account to find one with pool_authority
+    for (const account of programAccounts) {
+      const data = account.account.data;
+      // Parse token account: first 32 bytes is mint, next 32 is owner, next 8 is amount, next 4 is delegateOption, next 32 is delegate, etc.
+      // Authority is at offset 32
+      const ownerPubkey = new PublicKey(data.slice(32, 64));
+      
+      if (ownerPubkey.equals(poolAuthority)) {
+        console.log('[Pool] Found pool token account in program accounts:', account.pubkey.toBase58());
+        return account.pubkey;
+      }
+    }
+    
+    throw new Error('Pool token account not found. Pool may need to be initialized.');
+  } catch (error: any) {
+    console.error('[Pool] Error finding pool token account:', error.message);
+    throw new Error('Pool not initialized. Please contact the contract deployer to initialize the liquidity pool.');
   }
 }
 
