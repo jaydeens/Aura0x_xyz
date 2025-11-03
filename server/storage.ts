@@ -125,10 +125,9 @@ class MemStorage implements IStorage {
       potionsTransactions: new Map(),
       walletWhitelist: new Map(),
     };
-    
-    // Initialize with default dreamz levels and sample data
-    this.seedDreamzLevels();
-    this.seedSampleData();
+  }
+
+  async initializeMockData() {
   }
 
   // User operations - mandatory for Replit Auth
@@ -800,332 +799,627 @@ class MemStorage implements IStorage {
 
     // This method is not currently used - main seed method is seedDreamzLevels
   }
+}
 
-  // Migrate real production data from PostgreSQL to in-memory storage  
-  private seedSampleData() {
+// PostgreSQL storage implementation using Drizzle ORM
+import { db } from './db';
+import { 
+  users, 
+  lessons, 
+  userLessons, 
+  battles, 
+  battleVotes, 
+  vouches, 
+  dreamzLevels,
+  notifications,
+  potionsTransactions,
+  walletWhitelist
+} from '@shared/schema';
+import { eq, desc, and, or, sql, gte, lte, ilike } from 'drizzle-orm';
+
+class PgStorage implements IStorage {
+  constructor() {
+    // No initialization needed - db is already connected
+  }
+
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const userId = userData.id || `twitter_${userData.twitterId}` || `user_${Date.now()}`;
+    
+    const existingUser = await this.getUser(userId);
     const now = new Date();
     
-    // Real production users migrated from PostgreSQL database - top users by aura points
-    const realUsers = [
-      {
-        id: 'twitter_1842854724187410433',
-        twitterId: '1842854724187410433',
-        firstName: 'Tuğçe',
-        lastName: 'Türk',
-        profileImageUrl: 'https://pbs.twimg.com/profile_images/1894659951106084864/is4yk9dX_normal.jpg',
-        username: 'tozcam81',
-        walletAddress: '0x8618a79074811d17078d2476412eb6538c8e3665',
-        twitterUsername: 'tozcam81',
-        dreamzPoints: 130,
-        currentStreak: 3,
-        lastLessonDate: new Date('2025-08-06 12:15:00.717'),
-        totalVouchesReceived: 0,
-        totalBattlesWon: 0,
-        totalBattlesLost: 0,
-        portfolioGrowth: 0,
-        walletAge: 0,
-        isVerified: false,
-        dreamzFromLessons: 30,
-        dreamzFromVouching: 100,
-        dreamzFromBattles: 0,
-        totalUsdtEarned: 0,
-        potionsBalance: 0,
-        battleEarnedPotions: 0,
-        purchasedPotions: 0,
-        createdAt: new Date('2025-07-27 21:20:09.593089'),
-        updatedAt: new Date('2025-08-06 15:15:44.427')
-      },
-      {
-        id: 'wallet_0x6b4125de118407d9159264096c085d777226bfc0',
-        walletAddress: '0x6b4125de118407d9159264096c085d777226bfc0',
-        dreamzPoints: 110,
-        currentStreak: 1,
-        lastLessonDate: new Date('2025-08-06 12:28:01.473'),
-        totalVouchesReceived: 0,
-        totalBattlesWon: 0,
-        totalBattlesLost: 0,
-        portfolioGrowth: 0,
-        walletAge: 173,
-        isVerified: false,
-        dreamzFromLessons: 10,
-        dreamzFromVouching: 0,
-        dreamzFromBattles: 0,
-        totalUsdtEarned: 0,
-        potionsBalance: 0,
-        battleEarnedPotions: 0,
-        purchasedPotions: 0,
-        createdAt: new Date('2025-08-05 21:33:18.802214'),
-        updatedAt: new Date('2025-08-06 12:28:01.473')
-      },
-      {
-        id: 'wallet_0x863283d940b9e4dddd447ecbdb62e6d32824ba09',
-        walletAddress: '0x863283d940b9e4dddd447ecbdb62e6d32824ba09',
-        dreamzPoints: 100,
-        currentStreak: 0,
-        totalVouchesReceived: 0,
-        totalBattlesWon: 0,
-        totalBattlesLost: 0,
-        portfolioGrowth: 0,
-        walletAge: 72,
-        isVerified: false,
-        dreamzFromLessons: 0,
-        dreamzFromVouching: 0,
-        dreamzFromBattles: 0,
-        totalUsdtEarned: 0,
-        potionsBalance: 0,
-        battleEarnedPotions: 0,
-        purchasedPotions: 0,
-        createdAt: new Date('2025-08-03 15:35:30.595887'),
-        updatedAt: new Date('2025-08-03 15:35:30.595887')
-      },
-      {
-        id: 'wallet_0x196c17c9bc9b32d5f8a3d76995930d7c12e1e886',
-        walletAddress: '0x196c17c9bc9b32d5f8a3d76995930d7c12e1e886',
-        dreamzPoints: 100,
-        currentStreak: 0,
-        totalVouchesReceived: 0,
-        totalBattlesWon: 0,
-        totalBattlesLost: 0,
-        portfolioGrowth: 0,
-        walletAge: 314,
-        isVerified: false,
-        dreamzFromLessons: 0,
-        dreamzFromVouching: 0,
-        dreamzFromBattles: 0,
-        totalUsdtEarned: 0,
-        potionsBalance: 0,
-        battleEarnedPotions: 0,
-        purchasedPotions: 0,
-        createdAt: new Date('2025-08-03 13:34:21.071411'),
-        updatedAt: new Date('2025-08-03 13:34:21.058')
-      },
-      {
-        id: 'test_user_redemption',
-        email: 'test@example.com',
-        username: 'TestRedeemer',
-        walletAddress: '0x1234567890123456789012345678901234567890',
-        dreamzPoints: 100,
-        currentStreak: 5,
-        totalVouchesReceived: 0,
-        totalBattlesWon: 0,
-        totalBattlesLost: 0,
-        portfolioGrowth: 0,
-        walletAge: 0,
-        isVerified: false,
-        dreamzFromLessons: 0,
-        dreamzFromVouching: 0,
-        dreamzFromBattles: 0,
-        totalUsdtEarned: 0,
-        potionsBalance: 0,
-        battleEarnedPotions: 50,
-        purchasedPotions: 0,
-        createdAt: new Date('2025-08-03 12:07:50.36263'),
-        updatedAt: new Date('2025-08-03 12:07:50.36263')
-      }
-    ];
+    if (existingUser) {
+      // Update existing user
+      const updated = await db.update(users)
+        .set({
+          ...userData,
+          updatedAt: now,
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      return updated[0];
+    } else {
+      // Insert new user with defaults
+      const inserted = await db.insert(users)
+        .values({
+          ...userData,
+          id: userId,
+          createdAt: now,
+          updatedAt: now,
+          dreamzPoints: 0,
+          currentStreak: 0,
+          dreamzFromLessons: 0,
+          dreamzFromVouching: 0,
+          dreamzFromBattles: 0,
+          totalUsdtEarned: "0",
+          totalVouchesReceived: "0",
+          potionsBalance: 0,
+          purchasedPotions: 0,
+          battleEarnedPotions: 0,
+          isVerified: userData.isVerified || false,
+        })
+        .returning();
+      return inserted[0];
+    }
+  }
 
-    // Add all real users to storage
-    realUsers.forEach(userData => {
-      const user: User = {
-        ...userData,
-        displayName: userData.firstName && userData.lastName ? `${userData.firstName} ${userData.lastName}` : undefined
-      };
-      this.store.users.set(user.id, user);
-    });
+  async updateUserProfile(id: string, updates: { username?: string; profileImageUrl?: string; twitterUsername?: string; email?: string; twitterAccessToken?: string | null; twitterRefreshToken?: string | null; ipAddress?: string; walletAddress?: string; twitterId?: string; purchasedPotions?: number; battleEarnedPotions?: number }): Promise<User> {
+    const updated = await db.update(users)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    
+    if (!updated[0]) {
+      throw new Error(`User ${id} not found`);
+    }
+    return updated[0];
+  }
 
-    // Real production vouches
-    const realVouches = [
-      {
-        id: '10',
-        voucherUserId: 'wallet_0xd9dfa2feead8247ee0deb4081bfdb12e00f3532e',
-        vouchedUserId: 'wallet_0x1c11262b204ee2d0146315a05b4cf42ca61d33e4',
-        usdcAmount: 1,
-        dreamzAwarded: 10,
-        multiplier: 1.0,
-        status: 'completed' as const,
-        createdAt: new Date('2025-08-06 13:11:53.992464'),
-        updatedAt: new Date('2025-08-06 13:11:53.992464')
-      },
-      {
-        id: '9',
-        voucherUserId: 'wallet_0xf6dbc4185935c32c962c36100f7daa9ab5155412',
-        vouchedUserId: 'wallet_0xa2eadf509870570e85d5dda31f5d5effcfcf5c30',
-        usdcAmount: 1,
-        dreamzAwarded: 10,
-        multiplier: 1.0,
-        status: 'completed' as const,
-        createdAt: new Date('2025-08-03 11:50:08.012938'),
-        updatedAt: new Date('2025-08-03 11:50:08.012938')
-      }
-    ];
+  async checkUsernameAvailability(username: string, excludeUserId?: string): Promise<boolean> {
+    const result = await db.select()
+      .from(users)
+      .where(
+        excludeUserId 
+          ? and(eq(users.username, username), sql`${users.id} != ${excludeUserId}`)
+          : eq(users.username, username)
+      )
+      .limit(1);
+    return result.length === 0;
+  }
 
-    realVouches.forEach(vouchData => {
-      this.store.vouches.set(vouchData.id, vouchData);
-    });
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    return result[0];
+  }
 
-    // Real production potions transactions
-    const realPotionsTransactions = [
-      {
-        id: '7af75693-a1a0-4966-8d49-679b6899f058',
-        userId: 'wallet_0xdca9ef7e7231d6e1646f984ac0a12d75a5c5ff34',
-        type: 'purchase' as const,
-        amount: 1,
-        usdcAmount: 0.1,
-        rate: 10,
-        status: 'completed' as const,
-        transactionHash: '0x409e62881a895b20895b23338dbe56ef25db33e91ba0686de3d33a57c3c47dde',
-        createdAt: new Date('2025-08-06 13:09:26.914773'),
-        updatedAt: new Date('2025-08-06 13:09:26.914773')
-      },
-      {
-        id: '8f189c59-b9f4-4252-891e-52114dfae2c5',
-        userId: 'wallet_0x4fffe5d7e4cb7a700a37a928881fc5796eb50232',
-        type: 'purchase' as const,
-        amount: 1,
-        usdcAmount: 0.1,
-        rate: 10,
-        status: 'completed' as const,
-        transactionHash: '0xf4d19280bfd5dc0d380b6c2041180218c009665a8d0b85a628d80d0f67d1cd96',
-        createdAt: new Date('2025-08-06 13:07:51.144139'),
-        updatedAt: new Date('2025-08-06 13:07:51.144139')
-      },
-      {
-        id: 'dd788457-92d8-44bc-8129-eff88ac9e220',
-        userId: 'wallet_0xf6dbc4185935c32c962c36100f7daa9ab5155412',
-        type: 'purchase' as const,
-        amount: 10,
-        usdcAmount: 1.0,
-        rate: 0.1,
-        status: 'completed' as const,
-        transactionHash: '0x5839df1f3bbf0af4eaa6f9a33a90adc0703c0d0ad37c01105ddaf51decec527e',
-        createdAt: new Date('2025-08-03 12:04:28.867479'),
-        updatedAt: new Date('2025-08-03 12:04:28.867479')
-      }
-    ];
+  async searchUsers(query: string, excludeUserId?: string): Promise<User[]> {
+    const lowerQuery = `%${query.toLowerCase()}%`;
+    const result = await db.select()
+      .from(users)
+      .where(
+        and(
+          or(
+            ilike(users.username, lowerQuery),
+            ilike(users.walletAddress, lowerQuery)
+          ),
+          excludeUserId ? sql`${users.id} != ${excludeUserId}` : undefined
+        )
+      )
+      .limit(10);
+    return result;
+  }
 
-    realPotionsTransactions.forEach(transactionData => {
-      this.store.potionsTransactions.set(transactionData.id, transactionData);
-    });
+  async getUserByWallet(walletAddress: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+    return result[0];
+  }
 
-    // Add remaining users from PostgreSQL to match the full 76 user count
-    // These are condensed entries to preserve the correct user count and total aura (2370)
-    const remainingUsers = [
-      // Users with 100 aura points (most common value)
-      { id: 'wallet_0xfbeb9de5688b43fb52684bbae0c265fc3fac48cd', walletAddress: '0xfbeb9de5688b43fb52684bbae0c265fc3fac48cd', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
-      { id: 'wallet_0xbeb91a24e7853d4a79e8bac41a469f50b9daba49', walletAddress: '0xbeb91a24e7853d4a79e8bac41a469f50b9daba49', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
-      { id: 'wallet_0x98f0d5186d85f9750d80c8d491fc561a6f074a7c', walletAddress: '0x98f0d5186d85f9750d80c8d491fc561a6f074a7c', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-07'), updatedAt: new Date('2025-08-07') },
-      { id: 'wallet_0xf0e7d317bd15706b99cd6df8cc42c673504ec90f', walletAddress: '0xf0e7d317bd15706b99cd6df8cc42c673504ec90f', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-03'), updatedAt: new Date('2025-08-03') },
-      { id: 'wallet_0xfeaee8ddbdd37c23ee82740dce970cd4bfc8053f', walletAddress: '0xfeaee8ddbdd37c23ee82740dce970cd4bfc8053f', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-08-06'), updatedAt: new Date('2025-08-06') },
-      { id: 'wallet_0x7b9d0e4491d7aa8f23f32f245dea935130e9e2fd', walletAddress: '0x7b9d0e4491d7aa8f23f32f245dea935130e9e2fd', dreamzPoints: 100, currentStreak: 0, dreamzFromLessons: 0, dreamzFromVouching: 0, dreamzFromBattles: 0, totalUsdtEarned: 0, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 1, isVerified: false, createdAt: new Date('2025-08-06'), updatedAt: new Date('2025-08-06') },
-      // Key users with higher aura points
-      { id: 'wallet_0xf6dbc4185935c32c962c36100f7daa9ab5155412', username: 'David', twitterId: '1822005433470533634', twitterUsername: 'snowlinkag', walletAddress: '0xf6dbc4185935c32c962c36100f7daa9ab5155412', dreamzPoints: 70, currentStreak: 0, dreamzFromLessons: 30, dreamzFromVouching: 50, dreamzFromBattles: 0, totalUsdtEarned: 0.00007, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 21, isVerified: false, createdAt: new Date('2025-06-09'), updatedAt: new Date('2025-08-07') },
-      { id: 'wallet_0xe2e5767c48871fd56a86165d7ad1e7ef65be5065', username: 'iteryum', twitterId: '1654061934709227521', twitterUsername: 'iteryum', walletAddress: '0xe2e5767c48871fd56a86165d7ad1e7ef65be5065', dreamzPoints: 50, currentStreak: 12, dreamzFromLessons: 120, dreamzFromVouching: 10, dreamzFromBattles: 0, totalUsdtEarned: 0.7, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-07-27'), updatedAt: new Date('2025-08-07') },
-      { id: 'wallet_0xa2eadf509870570e85d5dda31f5d5effcfcf5c30', walletAddress: '0xa2eadf509870570e85d5dda31f5d5effcfcf5c30', dreamzPoints: 50, currentStreak: 11, dreamzFromLessons: 110, dreamzFromVouching: 10, dreamzFromBattles: 0, totalUsdtEarned: 0.7, potionsBalance: 0, battleEarnedPotions: 0, purchasedPotions: 0, isVerified: false, createdAt: new Date('2025-07-27'), updatedAt: new Date('2025-08-06') },
-      // Add 60+ more users with various aura amounts to reach the 2370 total
-      ...Array.from({length: 61}, (_, i) => ({
-        id: `wallet_0x${i.toString().padStart(40, '0')}`,
-        walletAddress: `0x${i.toString().padStart(40, '0')}`,
-        dreamzPoints: i < 30 ? 100 : (i < 50 ? 40 : (i < 55 ? 20 : 10)), // Distribution to match 2370 total
-        currentStreak: Math.floor(Math.random() * 5),
-        dreamzFromLessons: Math.floor(Math.random() * 50),
-        dreamzFromVouching: Math.floor(Math.random() * 20),
-        dreamzFromBattles: 0,
-        totalUsdtEarned: 0,
-        potionsBalance: 0,
-        battleEarnedPotions: 0,
-        purchasedPotions: 0,
-        isVerified: false,
-        createdAt: new Date('2025-07-01'),
-        updatedAt: new Date('2025-08-01'),
-        totalVouchesReceived: 0,
-        totalBattlesWon: 0,
-        totalBattlesLost: 0,
-        portfolioGrowth: 0,
-        walletAge: Math.floor(Math.random() * 400)
-      }))
-    ];
+  async getUserByTwitter(twitterId: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.twitterId, twitterId)).limit(1);
+    return result[0];
+  }
 
-    // Add all remaining users to reach 76 total
-    remainingUsers.forEach(userData => {
-      const user: User = {
-        ...userData,
-        displayName: userData.firstName && userData.lastName ? `${userData.firstName} ${userData.lastName}` : undefined,
-        totalVouchesReceived: userData.totalVouchesReceived || 0,
-        totalBattlesWon: userData.totalBattlesWon || 0,
-        totalBattlesLost: userData.totalBattlesLost || 0,
-        portfolioGrowth: userData.portfolioGrowth || 0,
-        walletAge: userData.walletAge || 0
-      };
-      this.store.users.set(user.id, user);
-    });
+  // Battle request operations (placeholder)
+  async createBattleRequest(request: any): Promise<any> {
+    return request;
+  }
 
-    // Add sample lessons with quiz data for testing
-    const sampleLessons = [
-      {
-        id: 1,
-        title: "Mastering Cross-Chain Bridge Security",
-        content: "Cross-chain bridges are critical infrastructure in the Web3 ecosystem, but they require careful security practices. Understanding how to use bridges safely is essential for building your Web3 aura. Always verify the compatibility of the asset and the destination blockchain before initiating a cross-chain transfer (2FA) where possible, and staying informed about the latest security advisories from bridge protocols you use. Engage with community discussions on platforms like Discord or Reddit to learn from experienced users and stay aware of any emerging threats or updates. By following these strategies, users can leverage cross-chain bridges effectively and securely, opening up new opportunities within the dynamic crypto landscape.",
-        keyTakeaways: [
-          "Always verify the compatibility of the asset and the destination blockchain before initiating a cross-chain transfer",
-          "Double-check transaction details and ensure sufficient balance to cover fees on both source and target chains",
-          "Use well-audited and community-trusted bridge protocols to mitigate security risks",
-          "Engage with community forums to stay informed about latest developments and security practices"
-        ],
-        dreamzReward: 100,
-        difficulty: "intermediate",
-        estimatedReadTime: 15,
-        isActive: true,
-        quizQuestion: "Which of the following actions will INCREASE your Web3 aura?",
-        quizOptions: [
-          "Frequently using unaudited cross-chain bridges for speedy transactions",
-          "Sharing personal keys on public forums to get help faster",
-          "Engaging with community discussions on platforms like Discord to stay informed about security advisories",
-          "Avoiding updates to wallet software to prevent bugs from newly released features"
-        ],
-        quizCorrectAnswer: 2,
-        quizExplanation: "Engaging with community discussions helps you stay informed about security practices and builds credibility. Sharing keys publicly, using unaudited bridges, and avoiding updates all damage your Web3 reputation and security.",
+  async getBattleRequests(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async updateBattleRequest(id: string, status: string): Promise<any> {
+    return {};
+  }
+
+  // Notification operations
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const inserted = await db.insert(notifications)
+      .values({
+        ...notification,
+        id: `notification_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        isRead: false,
         createdAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    const result = await db.select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(50);
+    return result;
+  }
+
+  async markNotificationAsRead(id: string): Promise<void> {
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.id, id));
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.userId, userId));
+  }
+
+  // Lesson operations
+  async createLesson(lesson: InsertLesson): Promise<Lesson> {
+    const inserted = await db.insert(lessons)
+      .values({
+        ...lesson,
+        isActive: lesson.isActive ?? true,
+        createdAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getLessons(limit = 10): Promise<Lesson[]> {
+    const result = await db.select()
+      .from(lessons)
+      .where(eq(lessons.isActive, true))
+      .orderBy(desc(lessons.createdAt))
+      .limit(limit);
+    return result;
+  }
+
+  async getDailyLessons(date: Date): Promise<Lesson[]> {
+    const startOfDay = new Date(date);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
+    const result = await db.select()
+      .from(lessons)
+      .where(
+        and(
+          eq(lessons.isActive, true),
+          sql`${lessons.createdAt} >= ${startOfDay}`,
+          sql`${lessons.createdAt} <= ${endOfDay}`
+        )
+      )
+      .orderBy(desc(lessons.createdAt))
+      .limit(3);
+    return result;
+  }
+
+  // User lesson operations
+  async getUserLessons(userId: string): Promise<UserLesson[]> {
+    const result = await db.select()
+      .from(userLessons)
+      .where(eq(userLessons.userId, userId))
+      .orderBy(desc(userLessons.createdAt));
+    return result;
+  }
+
+  async completeLesson(userLesson: InsertUserLesson): Promise<UserLesson> {
+    const inserted = await db.insert(userLessons)
+      .values({
+        ...userLesson,
+        createdAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getUserLessonByDate(userId: string, date: Date): Promise<UserLesson | undefined> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const result = await db.select()
+      .from(userLessons)
+      .where(
+        and(
+          eq(userLessons.userId, userId),
+          eq(userLessons.completed, true),
+          sql`${userLessons.completedAt} >= ${startOfDay}`,
+          sql`${userLessons.completedAt} <= ${endOfDay}`
+        )
+      )
+      .limit(1);
+    return result[0];
+  }
+
+  // Battle operations
+  async createBattle(battle: InsertBattle): Promise<Battle> {
+    const inserted = await db.insert(battles)
+      .values({
+        ...battle,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        totalVotes: 0,
+        challengerVotes: 0,
+        opponentVotes: 0,
+        totalVouchAmount: "0",
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getBattles(status?: string): Promise<Battle[]> {
+    let query = db.select().from(battles);
+    
+    if (status) {
+      query = query.where(eq(battles.status, status)) as any;
+    } else {
+      query = query.where(
+        or(
+          eq(battles.status, 'accepted'),
+          eq(battles.status, 'active'),
+          eq(battles.status, 'completed')
+        )
+      ) as any;
+    }
+    
+    const result = await query.orderBy(desc(battles.createdAt));
+    
+    // Add challenger and opponent details
+    const battlesWithUsers = await Promise.all(result.map(async (battle) => {
+      const challenger = await this.getUser(battle.challengerId);
+      const opponent = await this.getUser(battle.opponentId);
+      
+      return {
+        ...battle,
+        challenger,
+        opponent
+      };
+    }));
+    
+    return battlesWithUsers;
+  }
+
+  async getBattle(id: string): Promise<Battle | undefined> {
+    const result = await db.select().from(battles).where(eq(battles.id, id)).limit(1);
+    if (!result[0]) return undefined;
+    
+    const battle = result[0];
+    const challenger = await this.getUser(battle.challengerId);
+    const opponent = await this.getUser(battle.opponentId);
+    
+    return {
+      ...battle,
+      challenger: challenger ? {
+        id: challenger.id,
+        username: challenger.username,
+        firstName: challenger.firstName,
+        profileImageUrl: challenger.profileImageUrl
+      } : undefined,
+      opponent: opponent ? {
+        id: opponent.id,
+        username: opponent.username,
+        firstName: opponent.firstName,
+        profileImageUrl: opponent.profileImageUrl
+      } : undefined
+    } as any;
+  }
+
+  async updateBattle(id: string, updates: Partial<Battle>): Promise<Battle> {
+    const updated = await db.update(battles)
+      .set({
+        ...updates,
         updatedAt: new Date()
+      })
+      .where(eq(battles.id, id))
+      .returning();
+    
+    if (!updated[0]) {
+      throw new Error(`Battle ${id} not found`);
+    }
+    return updated[0];
+  }
+
+  async getUserBattles(userId: string): Promise<Battle[]> {
+    const result = await db.select()
+      .from(battles)
+      .where(
+        or(
+          eq(battles.challengerId, userId),
+          eq(battles.opponentId, userId)
+        )
+      )
+      .orderBy(desc(battles.createdAt));
+    
+    // Add challenger and opponent details
+    const battlesWithUsers = await Promise.all(result.map(async (battle) => {
+      const challenger = await this.getUser(battle.challengerId);
+      const opponent = await this.getUser(battle.opponentId);
+      
+      return {
+        ...battle,
+        challenger,
+        opponent
+      };
+    }));
+    
+    return battlesWithUsers;
+  }
+
+  // Battle vote operations
+  async createBattleVote(vote: InsertBattleVote): Promise<BattleVote> {
+    const inserted = await db.insert(battleVotes)
+      .values({
+        ...vote,
+        createdAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getBattleVotes(battleId: string): Promise<BattleVote[]> {
+    const result = await db.select()
+      .from(battleVotes)
+      .where(eq(battleVotes.battleId, battleId))
+      .orderBy(desc(battleVotes.createdAt));
+    return result;
+  }
+
+  // Vouch operations
+  async createVouch(vouch: InsertVouch): Promise<Vouch> {
+    const inserted = await db.insert(vouches)
+      .values({
+        ...vouch,
+        createdAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getUserVouches(userId: string): Promise<Vouch[]> {
+    const result = await db.select()
+      .from(vouches)
+      .where(
+        or(
+          eq(vouches.fromUserId, userId),
+          eq(vouches.toUserId, userId)
+        )
+      )
+      .orderBy(desc(vouches.createdAt));
+    return result;
+  }
+
+  // Leaderboard operations
+  async getLeaderboard(limit = 100, type: 'weekly' | 'all-time' = 'all-time'): Promise<User[]> {
+    let query = db.select().from(users);
+    
+    if (type === 'weekly') {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      query = query.where(sql`${users.updatedAt} >= ${oneWeekAgo}`) as any;
+    }
+    
+    const result = await query
+      .orderBy(sql`${users.dreamzPoints} DESC NULLS LAST`, sql`${users.currentStreak} DESC NULLS LAST`)
+      .limit(limit);
+    
+    return result;
+  }
+
+  // Dreamz level operations
+  async getDreamzLevels(): Promise<DreamzLevel[]> {
+    const result = await db.select()
+      .from(dreamzLevels)
+      .orderBy(dreamzLevels.minDays);
+    return result;
+  }
+
+  async seedDreamzLevels(): Promise<void> {
+    const levels = [
+      {
+        name: "Clout Chaser",
+        minDays: 0,
+        maxDays: 4,
+        multiplier: "1.0",
+        vouchingMultiplier: "1.0",
+        color: "#8000FF",
+        description: "New to the Dreamz game",
       },
       {
-        id: 2,
-        title: "DeFi Yield Farming Best Practices",
-        content: "Yield farming is a powerful way to earn passive income in DeFi, but success requires understanding the risks and implementing proper strategies. Smart yield farmers focus on diversification, risk management, and staying informed about protocol updates. Always research the underlying protocols, understand impermanent loss, and never invest more than you can afford to lose. Building a reputation in DeFi takes time and careful decision-making.",
-        keyTakeaways: [
-          "Research protocols thoroughly before depositing funds",
-          "Understand impermanent loss and its impact on returns",
-          "Diversify across multiple protocols to reduce risk",
-          "Stay updated on protocol changes and security audits"
-        ],
-        dreamzReward: 100,
-        difficulty: "beginner",
-        estimatedReadTime: 12,
-        isActive: true,
-        quizQuestion: "Which approach is BEST for building long-term Web3 reputation?",
-        quizOptions: [
-          "Investing all funds in the highest APY pools without research",
-          "Research protocols thoroughly and diversify across multiple audited platforms",
-          "Following anonymous Telegram tips for quick gains",
-          "Avoiding all DeFi protocols due to perceived risks"
-        ],
-        quizCorrectAnswer: 1,
-        quizExplanation: "Thorough research and diversification demonstrate wisdom and risk management skills that build long-term reputation. Chasing high yields without research, following anonymous tips, or avoiding DeFi entirely don't build Web3 credibility.",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        name: "Attention Seeker",
+        minDays: 5,
+        maxDays: 14,
+        multiplier: "1.25",
+        vouchingMultiplier: "1.25",
+        color: "#9933FF",
+        description: "Building momentum",
+      },
+      {
+        name: "Grinder",
+        minDays: 15,
+        maxDays: 29,
+        multiplier: "1.5",
+        vouchingMultiplier: "1.5",
+        color: "#00FF88",
+        description: "Consistent performer",
+      },
+      {
+        name: "Dreamz Master",
+        minDays: 30,
+        maxDays: null,
+        multiplier: "2.0",
+        vouchingMultiplier: "2.0",
+        color: "#FFD700",
+        description: "Elite Dreamz master",
       }
     ];
 
-    // Add sample lessons to storage
-    sampleLessons.forEach(lessonData => {
-      this.store.lessons.set(lessonData.id.toString(), lessonData as any);
-    });
+    for (const level of levels) {
+      // Check if level exists
+      const existing = await db.select()
+        .from(dreamzLevels)
+        .where(
+          and(
+            eq(dreamzLevels.minDays, level.minDays),
+            eq(dreamzLevels.name, level.name)
+          )
+        )
+        .limit(1);
+      
+      if (existing.length === 0) {
+        await db.insert(dreamzLevels).values(level);
+      }
+    }
+  }
 
-    console.log('✓ Complete production data migrated successfully from PostgreSQL to in-memory storage');
-    console.log(`✓ Loaded ${realUsers.length + remainingUsers.length} users (full 76), ${realVouches.length} vouches, ${realPotionsTransactions.length} potions transactions`);
-    console.log(`✓ Added ${sampleLessons.length} sample lessons with quiz data for testing`);
-    console.log('✓ Data includes: tozcam81 (130 DP), all real wallets, proper dreamz distribution (2370 total)');
-    console.log('✓ Cost-effective storage preserving full production dataset');
+  // User statistics
+  async updateUserDreamz(userId: string, points: number, source: 'lessons' | 'vouching' | 'battles' = 'vouching'): Promise<void> {
+    const user = await this.getUser(userId);
+    if (!user) return;
+
+    const updates: any = {
+      dreamzPoints: (user.dreamzPoints || 0) + points,
+      updatedAt: new Date()
+    };
+
+    if (source === 'lessons') {
+      updates.dreamzFromLessons = (user.dreamzFromLessons || 0) + points;
+    } else if (source === 'vouching') {
+      updates.dreamzFromVouching = (user.dreamzFromVouching || 0) + points;
+    } else if (source === 'battles') {
+      updates.dreamzFromBattles = (user.dreamzFromBattles || 0) + points;
+    }
+
+    await db.update(users)
+      .set(updates)
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserStreak(userId: string, streak: number): Promise<void> {
+    await db.update(users)
+      .set({
+        currentStreak: streak,
+        lastLessonDate: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserUsdtEarnings(userId: string, amount: number): Promise<void> {
+    const user = await this.getUser(userId);
+    if (!user) return;
+
+    const currentUsdt = parseFloat(user.totalUsdtEarned || "0");
+    const currentVouches = parseFloat(user.totalVouchesReceived || "0");
+
+    await db.update(users)
+      .set({
+        totalUsdtEarned: (currentUsdt + amount).toString(),
+        totalVouchesReceived: (currentVouches + amount).toString(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  // Potions operations
+  async createPotionsTransaction(transaction: InsertPotionsTransaction): Promise<PotionsTransaction> {
+    const inserted = await db.insert(potionsTransactions)
+      .values({
+        ...transaction,
+        createdAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async getUserPotionsTransactions(userId: string): Promise<PotionsTransaction[]> {
+    const result = await db.select()
+      .from(potionsTransactions)
+      .where(eq(potionsTransactions.userId, userId))
+      .orderBy(desc(potionsTransactions.createdAt));
+    return result;
+  }
+
+  async updateUserPotionsBalance(userId: string, amount: number): Promise<void> {
+    await db.update(users)
+      .set({
+        potionsBalance: sql`${users.potionsBalance} + ${amount}`,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  // Wallet whitelist operations
+  async isWalletWhitelisted(walletAddress: string): Promise<boolean> {
+    const result = await db.select()
+      .from(walletWhitelist)
+      .where(
+        and(
+          eq(walletWhitelist.walletAddress, walletAddress.toLowerCase()),
+          eq(walletWhitelist.isActive, true)
+        )
+      )
+      .limit(1);
+    return result.length > 0;
+  }
+
+  async addWalletToWhitelist(whitelist: InsertWalletWhitelist): Promise<WalletWhitelist> {
+    const inserted = await db.insert(walletWhitelist)
+      .values({
+        ...whitelist,
+        walletAddress: whitelist.walletAddress.toLowerCase(),
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return inserted[0];
+  }
+
+  async removeWalletFromWhitelist(walletAddress: string): Promise<void> {
+    await db.update(walletWhitelist)
+      .set({
+        isActive: false,
+        updatedAt: new Date()
+      })
+      .where(eq(walletWhitelist.walletAddress, walletAddress.toLowerCase()));
+  }
+
+  async getWhitelistedWallets(): Promise<WalletWhitelist[]> {
+    const result = await db.select()
+      .from(walletWhitelist)
+      .where(eq(walletWhitelist.isActive, true))
+      .orderBy(desc(walletWhitelist.createdAt));
+    return result;
+  }
+
+  async checkBetaAccess(walletAddress: string): Promise<boolean> {
+    return this.isWalletWhitelisted(walletAddress);
   }
 }
 
-export const storage = new MemStorage();
+// Switch to PostgreSQL for production - data persists across server restarts
+export const storage = new PgStorage();
