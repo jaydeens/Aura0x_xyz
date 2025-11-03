@@ -23,6 +23,7 @@ export const CONFIG = {
   rpcUrl: 'https://rpc.testnet.carv.io/rpc',
   usdtMint: new PublicKey('7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF'),
   platformWallet: new PublicKey('HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat'),
+  usdtDecimals: 9, // CARV SVM USDT uses 9 decimals, not 6!
 };
 
 export const RATES = {
@@ -190,13 +191,16 @@ export async function buySLP(
     const connection = getConnection();
     const poolPubkey = await getPoolPublicKey();
     
-    const totalLamports = Math.floor(usdtAmount * 1_000_000);
+    const decimalsMultiplier = Math.pow(10, CONFIG.usdtDecimals);
+    const totalLamports = Math.floor(usdtAmount * decimalsMultiplier);
     const poolAmount = Math.floor(totalLamports * RATES.poolRetention);
     const platformAmount = Math.floor(totalLamports * RATES.platformFee);
     
     console.log('[Buy SLP] Total USDT:', usdtAmount);
-    console.log('[Buy SLP] Pool amount:', poolAmount / 1_000_000, 'USDT');
-    console.log('[Buy SLP] Platform amount:', platformAmount / 1_000_000, 'USDT');
+    console.log('[Buy SLP] Decimals:', CONFIG.usdtDecimals);
+    console.log('[Buy SLP] Total lamports:', totalLamports);
+    console.log('[Buy SLP] Pool amount:', poolAmount / decimalsMultiplier, 'USDT');
+    console.log('[Buy SLP] Platform amount:', platformAmount / decimalsMultiplier, 'USDT');
     
     const transaction = new Transaction();
     

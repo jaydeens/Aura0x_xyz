@@ -21,6 +21,7 @@ export const CONFIG = {
   rpcUrl: 'https://rpc.testnet.carv.io/rpc',
   usdtMint: new PublicKey('7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF'),
   platformWallet: new PublicKey('HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat'),
+  usdtDecimals: 9, // CARV SVM USDT uses 9 decimals, not 6!
 };
 
 export function getConnection(): Connection {
@@ -125,7 +126,8 @@ export async function prepareSellTransaction(
     // Never trust client-provided amounts!
     const SELL_RATE = 0.007; // 1 SLP = 0.007 USDT
     const usdtAmount = slpAmount * SELL_RATE;
-    const usdtLamports = Math.floor(usdtAmount * 1_000_000);
+    const decimalsMultiplier = Math.pow(10, CONFIG.usdtDecimals);
+    const usdtLamports = Math.floor(usdtAmount * decimalsMultiplier);
     
     if (slpAmount <= 0) {
       throw new Error('Invalid SLP amount');
@@ -138,6 +140,7 @@ export async function prepareSellTransaction(
     console.log('[Prepare Sell] User:', userWalletAddress);
     console.log('[Prepare Sell] SLP Amount:', slpAmount);
     console.log('[Prepare Sell] USDT Amount (server-calculated):', usdtAmount);
+    console.log('[Prepare Sell] Decimals:', CONFIG.usdtDecimals);
     console.log('[Prepare Sell] USDT Lamports:', usdtLamports);
     console.log('[Prepare Sell] Pool:', poolKeypair.publicKey.toBase58());
     
