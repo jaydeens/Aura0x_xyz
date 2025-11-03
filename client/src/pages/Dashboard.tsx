@@ -178,7 +178,7 @@ export default function Dashboard() {
                     <div className="grid grid-cols-2 gap-6">
                       <div data-testid="card-battle-potions">
                         <div className="text-xl sm:text-2xl font-black text-white mb-1" data-testid="text-battle-potions">{(potionsBalance?.battleEarnedSteeze || 0).toLocaleString()}</div>
-                        <div className="text-cyan-300 text-xs font-mono">Combat Rewards</div>
+                        <div className="text-cyan-300 text-xs font-mono">Earned SLP</div>
                       </div>
                       <div data-testid="card-purchased-potions">
                         <div className="text-xl sm:text-2xl font-black text-white mb-1" data-testid="text-purchased-potions">{(potionsBalance?.purchasedSteeze || 0).toLocaleString()}</div>
