@@ -108,23 +108,31 @@ export async function buySlp({ userWallet, walletAddress, usdtAmount }: BuySlpPa
     });
     
     transaction.add(instruction);
-    transaction.feePayer = userPubkey;
     
     console.log('Getting latest blockhash...');
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
+    transaction.feePayer = userPubkey;
     console.log('Blockhash set:', blockhash);
     
     console.log('Requesting wallet signature...');
-    console.log('Wallet object:', userWallet);
-    console.log('Transaction:', transaction);
     
-    const signedTx = await userWallet.signTransaction(transaction);
-    console.log('Transaction signed successfully');
-    
-    console.log('Sending transaction...');
-    const signature = await connection.sendRawTransaction(signedTx.serialize());
-    console.log('Transaction sent, signature:', signature);
+    // Use signAndSendTransaction if available (Backpack), otherwise use signTransaction
+    let signature: string;
+    if (userWallet.signAndSendTransaction) {
+      console.log('Using signAndSendTransaction (Backpack method)');
+      const result = await userWallet.signAndSendTransaction(transaction);
+      signature = result.signature || result;
+      console.log('Transaction signed and sent, signature:', signature);
+    } else {
+      console.log('Using signTransaction + sendRawTransaction (Phantom method)');
+      const signedTx = await userWallet.signTransaction(transaction);
+      console.log('Transaction signed successfully');
+      
+      console.log('Sending transaction...');
+      signature = await connection.sendRawTransaction(signedTx.serialize());
+      console.log('Transaction sent, signature:', signature);
+    }
     
     console.log('Confirming transaction...');
     await connection.confirmTransaction(signature, 'confirmed');
@@ -200,13 +208,20 @@ export async function sellSlp({ userWallet, walletAddress, slpAmount }: SellSlpP
     });
     
     transaction.add(instruction);
-    transaction.feePayer = userPubkey;
     
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
+    transaction.feePayer = userPubkey;
     
-    const signedTx = await userWallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(signedTx.serialize());
+    // Use signAndSendTransaction if available (Backpack), otherwise use signTransaction
+    let signature: string;
+    if (userWallet.signAndSendTransaction) {
+      const result = await userWallet.signAndSendTransaction(transaction);
+      signature = result.signature || result;
+    } else {
+      const signedTx = await userWallet.signTransaction(transaction);
+      signature = await connection.sendRawTransaction(signedTx.serialize());
+    }
     
     await connection.confirmTransaction(signature, 'confirmed');
     
