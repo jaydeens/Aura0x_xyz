@@ -56,6 +56,21 @@ Preferred communication style: Simple, everyday language.
 - **Improved Reliability**: Implemented smart fallback chain (request host → REPLIT_DOMAINS → localhost) with comprehensive logging
 - **OAuth 2.0 Compliance**: Maintained PKCE flow security with consistent redirect URIs across initiation and callback flows
 
+### November 3, 2025 - CARV SVM SLP Trading Integration
+- **Simplified Architecture**: Replaced buggy Anchor contract with pure SPL Token transfers
+- **Client Module** (`client/src/lib/carvSVMSimple.ts`): Raw @solana/web3.js implementation for buy/sell/init operations
+- **Server Module** (`server/carvSVMSimple.ts`): Backend keypair signing for secure pool management
+- **Security Model**: SLP is completely OFF-CHAIN (database-only), USDT transfers are ON-CHAIN
+  - Buy: User sends USDT on-chain (70% pool, 30% platform) → receives off-chain SLP in database
+  - Sell: User's off-chain SLP validated/deducted → backend signs USDT transfer from pool to user
+  - Pool keypair stored in `POOL_TOKEN_ACCOUNT_KEYPAIR` secret, never exposed to frontend
+  - Server calculates all amounts using hardcoded rates (buy: 100 SLP/USDT, sell: 0.007 USDT/SLP)
+  - Authentication required, SLP balance checked before every sell operation
+- **Transaction Flow**:
+  1. initializePool(): Creates pool's associated token account (one-time)
+  2. buySLP(): Pure client-side SPL transfers, no backend signing needed
+  3. sellSLP(): Backend validates SLP, deducts from database, signs partial transaction, user completes
+
 ### October 26, 2025 - Database Setup & Dreamz Rebrand
 - **Fresh PostgreSQL Database**: Created all 11 tables with proper schema (users, battles, vouches, potionsTransactions, dreamzLevels, lessons, userLessons, battleVotes, notifications, sessions, walletWhitelist)
 - **Dreamz Levels**: Populated 5-tier progression system (Genesis Node → Neural Master) with multipliers
