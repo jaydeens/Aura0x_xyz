@@ -72,12 +72,20 @@ export default function Potions() {
   
   // Get Solana wallet object
   const getSolanaWallet = () => {
+    // Check for Backpack first (has priority if both are installed)
+    if (window.backpack?.isBackpack) {
+      return window.backpack;
+    }
+    // Then check for Phantom
     if (window.phantom?.solana?.isPhantom) {
       return window.phantom.solana;
-    } else if (window.solana && window.solana.isPhantom) {
+    }
+    if (window.solana?.isPhantom) {
       return window.solana;
-    } else if (window.backpack) {
-      return window.backpack;
+    }
+    // Fallback to any Solana provider
+    if (window.solana) {
+      return window.solana;
     }
     return null;
   };
@@ -181,6 +189,8 @@ export default function Potions() {
   const transactions = (transactionsData as any[]) || [];
 
   const connectWallet = async () => {
+    // User already has wallet connected from Landing page
+    // Just verify the wallet extension is available
     const wallet = getSolanaWallet();
     
     if (!wallet) {
@@ -192,29 +202,23 @@ export default function Potions() {
       return;
     }
 
-    try {
-      const response = await wallet.connect();
-      const pubkey = response.publicKey || wallet.publicKey;
-      
-      if (!pubkey) {
-        throw new Error("Could not get wallet public key");
-      }
-
-      const address = pubkey.toString();
-      setWalletAddress(address);
-      setIsConnected(true);
-
+    if (!userWalletAddress) {
       toast({
-        title: "Wallet Connected",
-        description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)} on CARV SVM`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Failed to connect Solana wallet",
+        title: "Not Authenticated",
+        description: "Please connect your wallet from the landing page first",
         variant: "destructive",
       });
+      return;
     }
+
+    // Use the already-authenticated wallet address
+    setWalletAddress(userWalletAddress);
+    setIsConnected(true);
+
+    toast({
+      title: "Wallet Ready",
+      description: `Using ${userWalletAddress.slice(0, 6)}...${userWalletAddress.slice(-4)} on CARV SVM`,
+    });
   };
 
 
@@ -234,18 +238,8 @@ export default function Potions() {
       }
       
       toast({
-        title: "Processing Purchase",
-        description: "Preparing transaction...",
-      });
-      
-      console.log("Buying SLP on CARV SVM Chain:");
-      console.log("- USDT Amount:", usdtValue);
-      console.log("- SLP Amount:", potionsAmount);
-      console.log("- Wallet Address:", effectiveAddress);
-      
-      toast({
-        title: "Confirm Transaction",
-        description: "Please approve the transaction in your wallet...",
+        title: "Preparing Transaction",
+        description: "Building transaction for CARV SVM Chain...",
       });
       
       const signature = await buySlp({

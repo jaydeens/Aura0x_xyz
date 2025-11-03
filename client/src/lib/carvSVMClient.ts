@@ -109,42 +109,25 @@ export async function buySlp({ userWallet, walletAddress, usdtAmount }: BuySlpPa
     
     transaction.add(instruction);
     
-    console.log('Getting latest blockhash...');
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = userPubkey;
-    console.log('Blockhash set:', blockhash);
     
-    console.log('Requesting wallet signature...');
+    // Sign transaction with wallet (works for both Phantom and Backpack)
+    const signedTx = await userWallet.signTransaction(transaction);
     
-    // Use signAndSendTransaction if available (Backpack), otherwise use signTransaction
-    let signature: string;
-    if (userWallet.signAndSendTransaction) {
-      console.log('Using signAndSendTransaction (Backpack method)');
-      const result = await userWallet.signAndSendTransaction(transaction);
-      signature = result.signature || result;
-      console.log('Transaction signed and sent, signature:', signature);
-    } else {
-      console.log('Using signTransaction + sendRawTransaction (Phantom method)');
-      const signedTx = await userWallet.signTransaction(transaction);
-      console.log('Transaction signed successfully');
-      
-      console.log('Sending transaction...');
-      signature = await connection.sendRawTransaction(signedTx.serialize());
-      console.log('Transaction sent, signature:', signature);
-    }
+    // Send signed transaction to CARV SVM Chain
+    const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+      skipPreflight: false,
+      preflightCommitment: 'confirmed',
+    });
     
-    console.log('Confirming transaction...');
+    // Confirm transaction
     await connection.confirmTransaction(signature, 'confirmed');
-    console.log('Transaction confirmed');
     
     return signature;
   } catch (error: any) {
-    console.error('Error buying SLP - Full error:', error);
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Error code:', error.code);
-    console.error('Error stack:', error.stack);
+    console.error('Error buying SLP:', error);
     throw new Error(error.message || 'Failed to buy SLP');
   }
 }
@@ -213,16 +196,16 @@ export async function sellSlp({ userWallet, walletAddress, slpAmount }: SellSlpP
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = userPubkey;
     
-    // Use signAndSendTransaction if available (Backpack), otherwise use signTransaction
-    let signature: string;
-    if (userWallet.signAndSendTransaction) {
-      const result = await userWallet.signAndSendTransaction(transaction);
-      signature = result.signature || result;
-    } else {
-      const signedTx = await userWallet.signTransaction(transaction);
-      signature = await connection.sendRawTransaction(signedTx.serialize());
-    }
+    // Sign transaction with wallet (works for both Phantom and Backpack)
+    const signedTx = await userWallet.signTransaction(transaction);
     
+    // Send signed transaction to CARV SVM Chain
+    const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+      skipPreflight: false,
+      preflightCommitment: 'confirmed',
+    });
+    
+    // Confirm transaction
     await connection.confirmTransaction(signature, 'confirmed');
     
     return signature;
