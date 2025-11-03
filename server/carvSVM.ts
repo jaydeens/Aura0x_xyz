@@ -1,4 +1,4 @@
-import { Connection, PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { Connection, PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, Keypair } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 import { createHash } from 'crypto';
@@ -19,6 +19,22 @@ export const SLP_EXCHANGE_RATES = {
 
 export function getCarvConnection(): Connection {
   return new Connection(CARV_SVM_CONFIG.rpcUrl, 'confirmed');
+}
+
+// Load the pool token account keypair from secrets
+export function getPoolTokenAccountKeypair(): Keypair {
+  const secretKey = process.env.POOL_TOKEN_ACCOUNT_KEYPAIR;
+  if (!secretKey) {
+    throw new Error('POOL_TOKEN_ACCOUNT_KEYPAIR secret not found');
+  }
+  
+  const secretKeyBytes = Buffer.from(secretKey, 'base64');
+  return Keypair.fromSecretKey(secretKeyBytes);
+}
+
+// Get the pool token account public key
+export function getPoolTokenAccountPubkey(): PublicKey {
+  return getPoolTokenAccountKeypair().publicKey;
 }
 
 // Find the pool token account by searching program accounts OR derive from PDA
@@ -80,20 +96,15 @@ async function findPoolTokenAccount(
 export async function checkPoolStatus(): Promise<{ initialized: boolean; poolTokenAccount?: string }> {
   try {
     const connection = getCarvConnection();
-    const programId = new PublicKey(CARV_SVM_CONFIG.contractAddress);
-    const usdtMint = new PublicKey(CARV_SVM_CONFIG.usdtTokenAddress);
+    const poolTokenAccountPubkey = getPoolTokenAccountPubkey();
     
-    const [poolAuthority] = PublicKey.findProgramAddressSync(
-      [Buffer.from('pool-authority')],
-      programId
-    );
+    // Check if the pool token account exists on-chain
+    const accountInfo = await connection.getAccountInfo(poolTokenAccountPubkey);
     
-    const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
-    
-    if (poolTokenAccount) {
+    if (accountInfo) {
       return {
         initialized: true,
-        poolTokenAccount: poolTokenAccount.toBase58(),
+        poolTokenAccount: poolTokenAccountPubkey.toBase58(),
       };
     }
     
@@ -128,21 +139,20 @@ export async function getInitializePoolAccounts(payerAddress: string) {
   const usdtMint = new PublicKey(CARV_SVM_CONFIG.usdtTokenAddress);
   
   // Derive pool authority PDA
-  const [poolAuthority, bump] = PublicKey.findProgramAddressSync(
+  const [poolAuthority] = PublicKey.findProgramAddressSync(
     [Buffer.from('pool-authority')],
     programId
   );
   
-  // Derive a new pool token account address using a PDA
-  // This will be created by the init constraint in Anchor
-  const [poolTokenAccount] = PublicKey.findProgramAddressSync(
-    [Buffer.from('pool-token-account')],
-    programId
-  );
+  // Use the pool token account keypair from secrets
+  const poolTokenAccountKeypair = getPoolTokenAccountKeypair();
+  const poolTokenAccount = poolTokenAccountKeypair.publicKey;
   
+  // Return the keypair secret key so the frontend can sign with it
   return {
     payer: payerPubkey.toBase58(),
     poolTokenAccount: poolTokenAccount.toBase58(),
+    poolTokenAccountSecretKey: Array.from(poolTokenAccountKeypair.secretKey), // Send as array for frontend
     poolAuthority: poolAuthority.toBase58(),
     usdtMint: usdtMint.toBase58(),
     tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
@@ -246,11 +256,12 @@ export async function getBuyTransactionAccounts(userWalletAddress: string) {
   const userTokenAccount = await getAssociatedTokenAddress(usdtMint, userPubkey);
   const platformTokenAccount = await getAssociatedTokenAddress(usdtMint, platformWallet);
   
-  // Find pool token account by searching for token accounts owned by the program
-  // that have the pool_authority as authority and USDT as mint
-  const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+  // Use the pool token account from the stored keypair
+  const poolTokenAccountPubkey = getPoolTokenAccountPubkey();
   
-  if (!poolTokenAccount) {
+  // Check if pool is initialized
+  const poolAccountInfo = await connection.getAccountInfo(poolTokenAccountPubkey);
+  if (!poolAccountInfo) {
     throw new Error('Pool not initialized. Please initialize the pool first.');
   }
 
@@ -289,7 +300,7 @@ export async function getBuyTransactionAccounts(userWalletAddress: string) {
 
   return {
     userTokenAccount: userTokenAccount.toBase58(),
-    poolTokenAccount: poolTokenAccount.toBase58(),
+    poolTokenAccount: poolTokenAccountPubkey.toBase58(),
     platformTokenAccount: platformTokenAccount.toBase58(),
     programId: CARV_SVM_CONFIG.contractAddress,
     createInstructions,
@@ -311,10 +322,12 @@ export async function getSellTransactionAccounts(userWalletAddress: string) {
 
   const userTokenAccount = await getAssociatedTokenAddress(usdtMint, userPubkey);
   
-  // Find pool token account by searching for token accounts owned by pool_authority
-  const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+  // Use the pool token account from the stored keypair
+  const poolTokenAccountPubkey = getPoolTokenAccountPubkey();
   
-  if (!poolTokenAccount) {
+  // Check if pool is initialized
+  const poolAccountInfo = await connection.getAccountInfo(poolTokenAccountPubkey);
+  if (!poolAccountInfo) {
     throw new Error('Pool not initialized. Please initialize the pool first.');
   }
 
@@ -338,7 +351,7 @@ export async function getSellTransactionAccounts(userWalletAddress: string) {
 
   return {
     userTokenAccount: userTokenAccount.toBase58(),
-    poolTokenAccount: poolTokenAccount.toBase58(),
+    poolTokenAccount: poolTokenAccountPubkey.toBase58(),
     poolAuthority: poolAuthority.toBase58(),
     programId: CARV_SVM_CONFIG.contractAddress,
     createInstructions,
