@@ -2873,6 +2873,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const instructionData = carvSVM.createBuyInstructionData(usdtAmount);
       const accounts = await carvSVM.getBuyTransactionAccounts(walletAddress);
       
+      console.log('[Buy SLP] Pool Token Account:', accounts.poolTokenAccount);
+      console.log('[Buy SLP] Create Instructions:', accounts.createInstructions.length, 'instructions');
+      
       res.json({
         instructionData: instructionData.data,
         accounts,

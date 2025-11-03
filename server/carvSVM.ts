@@ -21,6 +21,31 @@ export function getCarvConnection(): Connection {
   return new Connection(CARV_SVM_CONFIG.rpcUrl, 'confirmed');
 }
 
+// Find the pool token account by searching program accounts
+async function findPoolTokenAccount(
+  connection: Connection,
+  programId: PublicKey,
+  mint: PublicKey,
+  poolAuthority: PublicKey
+): Promise<PublicKey> {
+  try {
+    // Get all token accounts for the USDT mint
+    const accounts = await connection.getTokenAccountsByOwner(poolAuthority, {
+      mint,
+    });
+    
+    if (accounts.value.length > 0) {
+      console.log('[Pool] Found pool token account:', accounts.value[0].pubkey.toBase58());
+      return accounts.value[0].pubkey;
+    }
+    
+    throw new Error('Pool token account not found. Please initialize the pool first.');
+  } catch (error) {
+    console.error('[Pool] Error finding pool token account:', error);
+    throw new Error('Pool not initialized. Contact support to initialize the liquidity pool.');
+  }
+}
+
 export async function getUSDTBalance(walletAddress: string): Promise<number> {
   try {
     const connection = getCarvConnection();
@@ -106,14 +131,22 @@ export async function getBuyTransactionAccounts(userWalletAddress: string) {
   const programId = new PublicKey(CARV_SVM_CONFIG.contractAddress);
   const platformWallet = new PublicKey(CARV_SVM_CONFIG.platformWallet);
 
-  const userTokenAccount = await getAssociatedTokenAddress(usdtMint, userPubkey);
-  const poolTokenAccount = await getAssociatedTokenAddress(usdtMint, programId);
-  const platformTokenAccount = await getAssociatedTokenAddress(usdtMint, platformWallet);
+  // Derive pool authority PDA using correct seed from contract
+  const [poolAuthority] = PublicKey.findProgramAddressSync(
+    [Buffer.from('pool-authority')],
+    programId
+  );
 
-  // Check which ATAs exist
-  const [userAccountInfo, poolAccountInfo, platformAccountInfo] = await Promise.all([
+  const userTokenAccount = await getAssociatedTokenAddress(usdtMint, userPubkey);
+  const platformTokenAccount = await getAssociatedTokenAddress(usdtMint, platformWallet);
+  
+  // Find pool token account by searching for token accounts owned by the program
+  // that have the pool_authority as authority and USDT as mint
+  const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+
+  // Check which ATAs exist (pool is not an ATA, so we only check user and platform)
+  const [userAccountInfo, platformAccountInfo] = await Promise.all([
     connection.getAccountInfo(userTokenAccount),
-    connection.getAccountInfo(poolTokenAccount),
     connection.getAccountInfo(platformTokenAccount),
   ]);
 
@@ -125,18 +158,6 @@ export async function getBuyTransactionAccounts(userWalletAddress: string) {
       userPubkey,  // payer
       userTokenAccount,  // ata
       userPubkey,  // owner
-      usdtMint,  // mint
-      TOKEN_PROGRAM_ID,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
-    createInstructions.push(serializeInstruction(createIx));
-  }
-  
-  if (!poolAccountInfo) {
-    const createIx = createAssociatedTokenAccountInstruction(
-      userPubkey,  // payer (user pays for pool ATA creation)
-      poolTokenAccount,  // ata
-      programId,  // owner
       usdtMint,  // mint
       TOKEN_PROGRAM_ID,
       ASSOCIATED_TOKEN_PROGRAM_ID
@@ -172,20 +193,19 @@ export async function getSellTransactionAccounts(userWalletAddress: string) {
   const usdtMint = new PublicKey(CARV_SVM_CONFIG.usdtTokenAddress);
   const programId = new PublicKey(CARV_SVM_CONFIG.contractAddress);
 
-  const userTokenAccount = await getAssociatedTokenAddress(usdtMint, userPubkey);
-  const poolTokenAccount = await getAssociatedTokenAddress(usdtMint, programId);
-  
-  // Derive pool authority PDA
+  // Derive pool authority PDA using correct seed from contract
   const [poolAuthority] = PublicKey.findProgramAddressSync(
-    [Buffer.from('pool_authority')],
+    [Buffer.from('pool-authority')],
     programId
   );
 
-  // Check which ATAs exist
-  const [userAccountInfo, poolAccountInfo] = await Promise.all([
-    connection.getAccountInfo(userTokenAccount),
-    connection.getAccountInfo(poolTokenAccount),
-  ]);
+  const userTokenAccount = await getAssociatedTokenAddress(usdtMint, userPubkey);
+  
+  // Find pool token account by searching for token accounts owned by pool_authority
+  const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+
+  // Check which ATAs exist (pool is not an ATA)
+  const userAccountInfo = await connection.getAccountInfo(userTokenAccount);
 
   // Create instructions for missing ATAs
   const createInstructions: any[] = [];
@@ -195,18 +215,6 @@ export async function getSellTransactionAccounts(userWalletAddress: string) {
       userPubkey,  // payer
       userTokenAccount,  // ata
       userPubkey,  // owner
-      usdtMint,  // mint
-      TOKEN_PROGRAM_ID,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
-    createInstructions.push(serializeInstruction(createIx));
-  }
-  
-  if (!poolAccountInfo) {
-    const createIx = createAssociatedTokenAccountInstruction(
-      userPubkey,  // payer (user pays for pool ATA creation)
-      poolTokenAccount,  // ata
-      programId,  // owner
       usdtMint,  // mint
       TOKEN_PROGRAM_ID,
       ASSOCIATED_TOKEN_PROGRAM_ID
