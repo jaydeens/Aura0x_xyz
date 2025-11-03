@@ -2,24 +2,20 @@
  * CARV SVM Integration Module
  * 
  * Simple SPL Token transfer-based integration for SLP trading
- * Uses raw @solana/web3.js without Anchor
+ * Uses raw @solana/web3.js without @solana/spl-token to avoid Buffer dependency
  */
 
 import { 
   Connection, 
   PublicKey, 
   Transaction,
+  TransactionInstruction,
   SystemProgram,
-  SYSVAR_RENT_PUBKEY,
 } from '@solana/web3.js';
-import {
-  createInitializeAccountInstruction,
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-  createAssociatedTokenAccountInstruction,
-  TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-} from '@solana/spl-token';
+
+// SPL Token Program ID
+const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
 
 // Configuration
 export const CONFIG = {
@@ -27,7 +23,6 @@ export const CONFIG = {
   rpcUrl: 'https://rpc.testnet.carv.io/rpc',
   usdtMint: new PublicKey('7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF'),
   platformWallet: new PublicKey('HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat'),
-  poolAuthoritySeed: 'pool-authority',
 };
 
 export const RATES = {
@@ -45,8 +40,77 @@ export function getConnection(): Connection {
 }
 
 /**
+ * Find associated token address for an owner
+ */
+export async function findAssociatedTokenAddress(
+  owner: PublicKey,
+  mint: PublicKey
+): Promise<PublicKey> {
+  const [address] = await PublicKey.findProgramAddress(
+    [
+      owner.toBytes(),
+      TOKEN_PROGRAM_ID.toBytes(),
+      mint.toBytes(),
+    ],
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+  return address;
+}
+
+/**
+ * Create instruction to create associated token account
+ */
+function createAssociatedTokenAccountInstruction(
+  payer: PublicKey,
+  associatedToken: PublicKey,
+  owner: PublicKey,
+  mint: PublicKey
+): TransactionInstruction {
+  return new TransactionInstruction({
+    keys: [
+      { pubkey: payer, isSigner: true, isWritable: true },
+      { pubkey: associatedToken, isSigner: false, isWritable: true },
+      { pubkey: owner, isSigner: false, isWritable: false },
+      { pubkey: mint, isSigner: false, isWritable: false },
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    ],
+    programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+    data: new Uint8Array(0) as any,
+  });
+}
+
+/**
+ * Create instruction to transfer SPL tokens
+ */
+function createTransferInstruction(
+  source: PublicKey,
+  destination: PublicKey,
+  owner: PublicKey,
+  amount: number
+): TransactionInstruction {
+  const data = new Uint8Array(9);
+  data[0] = 3; // Transfer instruction
+  
+  // Write amount as little-endian 64-bit unsigned integer
+  const amountBigInt = BigInt(amount);
+  for (let i = 0; i < 8; i++) {
+    data[1 + i] = Number((amountBigInt >> BigInt(i * 8)) & BigInt(0xff));
+  }
+  
+  return new TransactionInstruction({
+    keys: [
+      { pubkey: source, isSigner: false, isWritable: true },
+      { pubkey: destination, isSigner: false, isWritable: true },
+      { pubkey: owner, isSigner: true, isWritable: false },
+    ],
+    programId: TOKEN_PROGRAM_ID,
+    data: data as any,
+  });
+}
+
+/**
  * Get pool public key from backend
- * The pool is controlled by a backend keypair for security
  */
 async function getPoolPublicKey(): Promise<PublicKey> {
   const response = await fetch('/api/slp/pool-status');
@@ -61,38 +125,7 @@ async function getPoolPublicKey(): Promise<PublicKey> {
 }
 
 /**
- * Get or create an associated token account
- */
-async function getOrCreateATA(
-  connection: Connection,
-  payer: PublicKey,
-  mint: PublicKey,
-  owner: PublicKey,
-  transaction: Transaction
-): Promise<PublicKey> {
-  const ata = await getAssociatedTokenAddress(mint, owner);
-  
-  // Check if account exists
-  const accountInfo = await connection.getAccountInfo(ata);
-  
-  if (!accountInfo) {
-    // Create ATA instruction
-    const createATAIx = createAssociatedTokenAccountInstruction(
-      payer,
-      ata,
-      owner,
-      mint
-    );
-    transaction.add(createATAIx);
-  }
-  
-  return ata;
-}
-
-/**
  * Initialize the pool token account
- * This only needs to be called once to set up the liquidity pool
- * The pool is owned by a backend-controlled keypair
  */
 export async function initializePool(
   userWallet: any,
@@ -105,39 +138,30 @@ export async function initializePool(
     console.log('[Init Pool] User:', userPublicKey.toBase58());
     console.log('[Init Pool] Pool:', poolPubkey.toBase58());
     
-    // Get the pool's associated token account address
-    const poolTokenAccount = await getAssociatedTokenAddress(
-      CONFIG.usdtMint,
-      poolPubkey
-    );
+    const poolTokenAccount = await findAssociatedTokenAddress(poolPubkey, CONFIG.usdtMint);
     
     console.log('[Init Pool] Pool Token Account:', poolTokenAccount.toBase58());
     
-    // Check if pool token account already exists
     const accountInfo = await connection.getAccountInfo(poolTokenAccount);
     if (accountInfo) {
       throw new Error('Pool already initialized');
     }
     
-    // Create transaction
     const transaction = new Transaction();
     
-    // Add instruction to create the pool's ATA
     const createPoolATAIx = createAssociatedTokenAccountInstruction(
-      userPublicKey, // Payer
-      poolTokenAccount, // ATA address
-      poolPubkey, // Owner (backend keypair)
-      CONFIG.usdtMint // Mint
+      userPublicKey,
+      poolTokenAccount,
+      poolPubkey,
+      CONFIG.usdtMint
     );
     
     transaction.add(createPoolATAIx);
     
-    // Get recent blockhash and set fee payer
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = userPublicKey;
     
-    // Sign and send
     const signed = await userWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(signature, 'confirmed');
@@ -152,7 +176,6 @@ export async function initializePool(
 
 /**
  * Buy SLP by depositing USDT
- * Transfers 70% to pool, 30% to platform
  */
 export async function buySLP(
   userWallet: any,
@@ -167,7 +190,6 @@ export async function buySLP(
     const connection = getConnection();
     const poolPubkey = await getPoolPublicKey();
     
-    // Calculate amounts (USDT has 6 decimals)
     const totalLamports = Math.floor(usdtAmount * 1_000_000);
     const poolAmount = Math.floor(totalLamports * RATES.poolRetention);
     const platformAmount = Math.floor(totalLamports * RATES.platformFee);
@@ -176,30 +198,35 @@ export async function buySLP(
     console.log('[Buy SLP] Pool amount:', poolAmount / 1_000_000, 'USDT');
     console.log('[Buy SLP] Platform amount:', platformAmount / 1_000_000, 'USDT');
     
-    // Create transaction
     const transaction = new Transaction();
     
-    // Get all token accounts
-    const userTokenAccount = await getOrCreateATA(
-      connection,
-      userPublicKey,
-      CONFIG.usdtMint,
-      userPublicKey,
-      transaction
-    );
+    const userTokenAccount = await findAssociatedTokenAddress(userPublicKey, CONFIG.usdtMint);
+    const poolTokenAccount = await findAssociatedTokenAddress(poolPubkey, CONFIG.usdtMint);
+    const platformTokenAccount = await findAssociatedTokenAddress(CONFIG.platformWallet, CONFIG.usdtMint);
     
-    const poolTokenAccount = await getAssociatedTokenAddress(
-      CONFIG.usdtMint,
-      poolPubkey
-    );
+    // Check if user's token account exists
+    const userAccountInfo = await connection.getAccountInfo(userTokenAccount);
+    if (!userAccountInfo) {
+      const createUserATAIx = createAssociatedTokenAccountInstruction(
+        userPublicKey,
+        userTokenAccount,
+        userPublicKey,
+        CONFIG.usdtMint
+      );
+      transaction.add(createUserATAIx);
+    }
     
-    const platformTokenAccount = await getOrCreateATA(
-      connection,
-      userPublicKey,
-      CONFIG.usdtMint,
-      CONFIG.platformWallet,
-      transaction
-    );
+    // Check if platform's token account exists
+    const platformAccountInfo = await connection.getAccountInfo(platformTokenAccount);
+    if (!platformAccountInfo) {
+      const createPlatformATAIx = createAssociatedTokenAccountInstruction(
+        userPublicKey,
+        platformTokenAccount,
+        CONFIG.platformWallet,
+        CONFIG.usdtMint
+      );
+      transaction.add(createPlatformATAIx);
+    }
     
     // Transfer to pool (70%)
     const transferToPoolIx = createTransferInstruction(
@@ -219,12 +246,10 @@ export async function buySLP(
     );
     transaction.add(transferToPlatformIx);
     
-    // Get recent blockhash and set fee payer
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = userPublicKey;
     
-    // Sign and send
     const signed = await userWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(signature, 'confirmed');
@@ -239,8 +264,6 @@ export async function buySLP(
 
 /**
  * Sell SLP to receive USDT
- * Transfers USDT from pool to user
- * Note: Backend validates SLP balance and calculates USDT amount server-side for security
  */
 export async function sellSLP(
   userWallet: any,
@@ -255,11 +278,6 @@ export async function sellSLP(
     console.log('[Sell SLP] SLP amount:', slpAmount);
     console.log('[Sell SLP] Wallet:', userPublicKey.toBase58());
     
-    // Backend will:
-    // 1. Validate user has sufficient SLP balance
-    // 2. Calculate USDT amount server-side using fixed rate
-    // 3. Deduct SLP from user's balance
-    // 4. Sign transaction with pool keypair
     const response = await fetch('/api/slp/prepare-sell', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -280,13 +298,10 @@ export async function sellSLP(
     
     const connection = getConnection();
     
-    // Deserialize the partially signed transaction from backend
     const transaction = Transaction.from(Uint8Array.from(txBytes));
     
-    // User signs the transaction
     const signed = await userWallet.signTransaction(transaction);
     
-    // Send the fully signed transaction
     const signature = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(signature, 'confirmed');
     
@@ -306,10 +321,7 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
   try {
     const connection = getConnection();
     const walletPubkey = new PublicKey(walletAddress);
-    const tokenAccount = await getAssociatedTokenAddress(
-      CONFIG.usdtMint,
-      walletPubkey
-    );
+    const tokenAccount = await findAssociatedTokenAddress(walletPubkey, CONFIG.usdtMint);
     
     const balance = await connection.getTokenAccountBalance(tokenAccount);
     return balance.value.uiAmount || 0;
