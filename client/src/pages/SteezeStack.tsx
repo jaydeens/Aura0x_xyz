@@ -245,26 +245,48 @@ export default function SteezeStack() {
       
       // Ensure wallet is connected before signing
       if (!wallet.publicKey) {
-        console.log("Wallet needs connection for signing, requesting approval...");
+        console.log("Wallet publicKey not found");
         
-        try {
-          const response = await wallet.connect();
-          const pubkey = response?.publicKey || wallet.publicKey;
-          
-          if (!pubkey) {
-            throw new Error("Failed to connect wallet");
+        // Check if wallet is already connected (Backpack/Phantom)
+        const isAlreadyConnected = wallet.isConnected || wallet.connected;
+        console.log("Wallet connection status:", isAlreadyConnected);
+        
+        if (!isAlreadyConnected) {
+          // Only call connect if not already connected
+          try {
+            console.log("Requesting wallet connection...");
+            const response = await wallet.connect();
+            const pubkey = response?.publicKey || wallet.publicKey;
+            
+            if (!pubkey) {
+              throw new Error("Failed to get wallet address");
+            }
+            
+            console.log("Wallet connected successfully:", pubkey.toString());
+          } catch (error: any) {
+            console.error("Wallet connect error:", error);
+            
+            if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
+              throw new Error("You cancelled the wallet connection. Please approve to continue.");
+            } else if (error.code === -32603) {
+              // Backpack wallet internal error - wallet might already be connected
+              console.log("Wallet connection error -32603, checking if publicKey is now available...");
+              if (!wallet.publicKey) {
+                throw new Error("Please refresh the page and try again.");
+              }
+            } else {
+              throw new Error(`Connection failed: ${error.message || "Please try again"}`);
+            }
           }
+        } else {
+          // Wallet says it's connected but publicKey is missing - this is a wallet state issue
+          console.log("Wallet reports connected but publicKey missing, waiting for state sync...");
           
-          console.log("Wallet connected for signing:", pubkey.toString());
-        } catch (error: any) {
-          console.error("Wallet connect error:", error);
+          // Give the wallet a moment to sync state
+          await new Promise(resolve => setTimeout(resolve, 500));
           
-          if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
-            throw new Error("You need to approve the wallet connection to sign the transaction.");
-          } else if (error.message?.includes("already pending")) {
-            throw new Error("Please check your wallet - there's a pending connection request.");
-          } else {
-            throw new Error(`Wallet connection failed: ${error.message || "Please try again"}`);
+          if (!wallet.publicKey) {
+            throw new Error("Wallet state error. Please refresh the page and reconnect your wallet.");
           }
         }
       }
@@ -340,26 +362,48 @@ export default function SteezeStack() {
       
       // Ensure wallet is connected before signing
       if (!wallet.publicKey) {
-        console.log("Wallet needs connection for signing, requesting approval...");
+        console.log("Wallet publicKey not found");
         
-        try {
-          const response = await wallet.connect();
-          const pubkey = response?.publicKey || wallet.publicKey;
-          
-          if (!pubkey) {
-            throw new Error("Failed to connect wallet");
+        // Check if wallet is already connected (Backpack/Phantom)
+        const isAlreadyConnected = wallet.isConnected || wallet.connected;
+        console.log("Wallet connection status:", isAlreadyConnected);
+        
+        if (!isAlreadyConnected) {
+          // Only call connect if not already connected
+          try {
+            console.log("Requesting wallet connection...");
+            const response = await wallet.connect();
+            const pubkey = response?.publicKey || wallet.publicKey;
+            
+            if (!pubkey) {
+              throw new Error("Failed to get wallet address");
+            }
+            
+            console.log("Wallet connected successfully:", pubkey.toString());
+          } catch (error: any) {
+            console.error("Wallet connect error:", error);
+            
+            if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
+              throw new Error("You cancelled the wallet connection. Please approve to continue.");
+            } else if (error.code === -32603) {
+              // Backpack wallet internal error - wallet might already be connected
+              console.log("Wallet connection error -32603, checking if publicKey is now available...");
+              if (!wallet.publicKey) {
+                throw new Error("Please refresh the page and try again.");
+              }
+            } else {
+              throw new Error(`Connection failed: ${error.message || "Please try again"}`);
+            }
           }
+        } else {
+          // Wallet says it's connected but publicKey is missing - this is a wallet state issue
+          console.log("Wallet reports connected but publicKey missing, waiting for state sync...");
           
-          console.log("Wallet connected for signing:", pubkey.toString());
-        } catch (error: any) {
-          console.error("Wallet connect error:", error);
+          // Give the wallet a moment to sync state
+          await new Promise(resolve => setTimeout(resolve, 500));
           
-          if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
-            throw new Error("You need to approve the wallet connection to sign the transaction.");
-          } else if (error.message?.includes("already pending")) {
-            throw new Error("Please check your wallet - there's a pending connection request.");
-          } else {
-            throw new Error(`Wallet connection failed: ${error.message || "Please try again"}`);
+          if (!wallet.publicKey) {
+            throw new Error("Wallet state error. Please refresh the page and reconnect your wallet.");
           }
         }
       }
