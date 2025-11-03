@@ -163,7 +163,7 @@ export default function Dashboard() {
                     <span className="text-gray-400 text-xs font-mono uppercase">Yield</span>
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-white mb-1" data-testid="text-earnings">{Number((user as any)?.totalUsdtEarned || 0).toFixed(2)}</div>
-                  <div className="text-cyan-300 text-xs font-mono">USDT harvested</div>
+                  <div className="text-cyan-300 text-xs font-mono">Earned Vouches USDT</div>
                 </div>
               </div>
 
