@@ -612,33 +612,50 @@ export default function Potions() {
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {transactions.slice(0, 5).map((tx: any) => (
-                      <div
-                        key={tx.id}
-                        className="p-3 bg-black/30 rounded-lg border border-cyan-500/10 hover:border-cyan-500/30 transition-colors"
-                        data-testid={`ledger-tx-${tx.id}`}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className={`w-2 h-2 rounded-full ${
-                            (tx.type === 'purchase' || tx.type === 'buy') ? 'bg-green-500' : 'bg-red-500'
-                          }`} />
-                          <span className="text-white text-xs font-bold uppercase">
-                            {tx.type === 'purchase' || tx.type === 'buy' ? 'Acquire' : 'Liquidate'}
-                          </span>
+                    {transactions.slice(0, 5).map((tx: any) => {
+                      const solscanUrl = tx.transactionHash 
+                        ? `https://solscan.io/tx/${tx.transactionHash}?cluster=custom&customUrl=https://rpc.carv.testnet.soo.network/rpc/carv-McPrlbfMcW0ggpkvr07Tjs2YfviwpHaI`
+                        : null;
+                      
+                      return (
+                        <div
+                          key={tx.id}
+                          className="p-3 bg-black/30 rounded-lg border border-cyan-500/10 hover:border-cyan-500/30 transition-colors"
+                          data-testid={`ledger-tx-${tx.id}`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={`w-2 h-2 rounded-full ${
+                              (tx.type === 'purchase' || tx.type === 'buy') ? 'bg-green-500' : 'bg-red-500'
+                            }`} />
+                            <span className="text-white text-xs font-bold uppercase">
+                              {tx.type === 'purchase' || tx.type === 'buy' ? 'Acquire' : 'Liquidate'}
+                            </span>
+                            {solscanUrl && (
+                              <a
+                                href={solscanUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-auto"
+                                data-testid={`link-tx-${tx.id}`}
+                              >
+                                <ExternalLink className="w-3 h-3 text-cyan-400 hover:text-cyan-300 transition-colors" />
+                              </a>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-cyan-400" data-testid={`text-ledger-amount-${tx.id}`}>
+                              {(tx.type === 'purchase' || tx.type === 'buy') 
+                                ? `+${tx.amount?.toLocaleString() || 0} SLP`
+                                : `-${tx.amount?.toLocaleString() || 0} SLP`
+                              }
+                            </span>
+                            <span className="text-gray-400">
+                              {new Date(tx.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-cyan-400" data-testid={`text-ledger-amount-${tx.id}`}>
-                            {(tx.type === 'purchase' || tx.type === 'buy') 
-                              ? `+${tx.potionsAmount?.toLocaleString() || 0} SLP`
-                              : `-${tx.potionsAmount?.toLocaleString() || 0} SLP`
-                            }
-                          </span>
-                          <span className="text-gray-400">
-                            {new Date(tx.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
