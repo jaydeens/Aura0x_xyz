@@ -1,6 +1,7 @@
 import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Buffer } from 'buffer';
+import { createHash } from 'crypto';
 
 export const CARV_SVM_CONFIG = {
   rpcUrl: 'https://rpc.testnet.carv.io/rpc',
@@ -46,11 +47,10 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
 
 // Create instruction data for buy transaction (uses Buffer - backend only)
 export function createBuyInstructionData(usdtAmount: number): { data: number[], amountLamports: number } {
-  const crypto = require('crypto');
   const amountLamports = Math.floor(usdtAmount * 1_000_000);
   
   // Calculate Anchor instruction discriminator for "buySlp"
-  const discriminator = crypto.createHash('sha256')
+  const discriminator = createHash('sha256')
     .update('global:buySlp')
     .digest()
     .slice(0, 8);
@@ -67,11 +67,10 @@ export function createBuyInstructionData(usdtAmount: number): { data: number[], 
 
 // Create instruction data for sell transaction (uses Buffer - backend only)
 export function createSellInstructionData(slpAmount: number): { data: number[], slpAmountRaw: number } {
-  const crypto = require('crypto');
   const slpAmountRaw = Math.floor(slpAmount);
   
   // Calculate Anchor instruction discriminator for "sellSlp"
-  const discriminator = crypto.createHash('sha256')
+  const discriminator = createHash('sha256')
     .update('global:sellSlp')
     .digest()
     .slice(0, 8);
