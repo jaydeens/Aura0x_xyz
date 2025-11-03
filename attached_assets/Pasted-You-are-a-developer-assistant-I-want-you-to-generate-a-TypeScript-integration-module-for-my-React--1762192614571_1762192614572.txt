@@ -1,0 +1,41 @@
+You are a developer assistant. I want you to generate a TypeScript integration module for my React + Vite front-end that allows users to interact with my CARV SVM Solana program. Use raw @solana/web3.js only (do not use Anchor JS). The functions should be ready to call from our existing UI and wallet setup (assume wallet connections and publicKey/signing are already handled). Use TanStack Query patterns if needed, but the primary focus is on building and sending transactions. 
+
+Details of the Solana program:
+
+- Program ID: Bjj32BCTb6jvuNh4PF3dCP81cSqBVEts9K5pdxJw9RcA
+- RPC: https://rpc.testnet.carv.io/rpc
+- On-chain token: USDT (mint address: 7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF)
+- Platform wallet: HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat
+- PDA for pool authority: seeds = ["pool-authority"]
+- SLP is **off-chain**; users deposit USDT and the off-chain system handles SLP allocation.
+
+Required functions to generate:
+
+1. `initializePool`  
+   - Should create the pool token account if it does not exist.
+   - Use the pool authority PDA as the authority.
+   - Only needs to be called once.
+
+2. `buySLP(amount: number)`  
+   - Transfers the specified USDT amount from the user's wallet to the pool account (70%) and the platform account (30%).  
+   - Calculate amounts correctly and handle decimals (USDT has 6 decimals).  
+   - Build, sign, and send the transaction using the connected wallet.  
+   - Emit events are handled on-chain; no need to process off-chain here.
+
+3. `sellSLP(slpAmount: number)`  
+   - Transfers USDT from the pool account to the user based on the hardcoded rate (1 SLP = 0.007 USDT).  
+   - Use the pool authority PDA to sign the transaction.  
+   - Ensure sufficient USDT in the pool account.  
+
+Additional Requirements:
+
+- Use `PublicKey.findProgramAddress` to derive the pool authority PDA.  
+- Use proper `TransactionInstruction` objects for each instruction.  
+- Handle all accounts: `user_token_account`, `pool_token_account`, `platform_token_account`, `pool_authority`.  
+- Include comments explaining each step and which accounts are required.  
+- Ensure the functions can be called multiple times (for buy/sell) but initialize only once.  
+- Provide helper functions if needed to find associated token accounts (e.g., `getOrCreateAssociatedTokenAccount`).  
+- Include proper error handling for insufficient funds, missing accounts, or failed transactions.  
+
+Return a **single TypeScript module** ready to import into the front-end.
+
