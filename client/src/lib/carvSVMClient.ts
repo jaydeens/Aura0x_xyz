@@ -110,17 +110,33 @@ export async function buySlp({ userWallet, walletAddress, usdtAmount }: BuySlpPa
     transaction.add(instruction);
     transaction.feePayer = userPubkey;
     
+    console.log('Getting latest blockhash...');
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
+    console.log('Blockhash set:', blockhash);
+    
+    console.log('Requesting wallet signature...');
+    console.log('Wallet object:', userWallet);
+    console.log('Transaction:', transaction);
     
     const signedTx = await userWallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(signedTx.serialize());
+    console.log('Transaction signed successfully');
     
+    console.log('Sending transaction...');
+    const signature = await connection.sendRawTransaction(signedTx.serialize());
+    console.log('Transaction sent, signature:', signature);
+    
+    console.log('Confirming transaction...');
     await connection.confirmTransaction(signature, 'confirmed');
+    console.log('Transaction confirmed');
     
     return signature;
   } catch (error: any) {
-    console.error('Error buying SLP:', error);
+    console.error('Error buying SLP - Full error:', error);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
     throw new Error(error.message || 'Failed to buy SLP');
   }
 }
