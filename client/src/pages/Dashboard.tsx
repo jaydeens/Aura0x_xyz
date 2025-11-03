@@ -182,7 +182,7 @@ export default function Dashboard() {
                       </div>
                       <div data-testid="card-purchased-potions">
                         <div className="text-xl sm:text-2xl font-black text-white mb-1" data-testid="text-purchased-potions">{(potionsBalance?.purchasedSteeze || 0).toLocaleString()}</div>
-                        <div className="text-blue-300 text-xs font-mono">Staked Assets</div>
+                        <div className="text-blue-300 text-xs font-mono">Purchased SLP</div>
                       </div>
                     </div>
                   </div>
