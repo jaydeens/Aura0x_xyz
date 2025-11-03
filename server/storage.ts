@@ -835,12 +835,27 @@ class PgStorage implements IStorage {
     const now = new Date();
     
     if (existingUser) {
-      // Update existing user
+      // Update existing user - only set fields that are actually provided (not undefined)
+      // This prevents wiping out existing data when partial updates are made
+      const updateData: any = { updatedAt: now };
+      
+      // Only include fields that are explicitly provided (not undefined)
+      if (userData.email !== undefined) updateData.email = userData.email;
+      if (userData.firstName !== undefined) updateData.firstName = userData.firstName;
+      if (userData.lastName !== undefined) updateData.lastName = userData.lastName;
+      if (userData.profileImageUrl !== undefined) updateData.profileImageUrl = userData.profileImageUrl;
+      if (userData.username !== undefined) updateData.username = userData.username;
+      if (userData.walletAddress !== undefined) updateData.walletAddress = userData.walletAddress;
+      if (userData.twitterId !== undefined) updateData.twitterId = userData.twitterId;
+      if (userData.twitterUsername !== undefined) updateData.twitterUsername = userData.twitterUsername;
+      if (userData.twitterDisplayName !== undefined) updateData.twitterDisplayName = userData.twitterDisplayName;
+      if (userData.twitterAccessToken !== undefined) updateData.twitterAccessToken = userData.twitterAccessToken;
+      if (userData.twitterRefreshToken !== undefined) updateData.twitterRefreshToken = userData.twitterRefreshToken;
+      if (userData.isVerified !== undefined) updateData.isVerified = userData.isVerified;
+      if (userData.ipAddress !== undefined) updateData.ipAddress = userData.ipAddress;
+      
       const updated = await db.update(users)
-        .set({
-          ...userData,
-          updatedAt: now,
-        })
+        .set(updateData)
         .where(eq(users.id, userId))
         .returning();
       return updated[0];
