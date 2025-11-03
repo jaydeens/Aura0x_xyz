@@ -1,4 +1,4 @@
-import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
+import { Connection, PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 import { createHash } from 'crypto';
@@ -27,7 +27,7 @@ async function findPoolTokenAccount(
   programId: PublicKey,
   mint: PublicKey,
   poolAuthority: PublicKey
-): Promise<PublicKey> {
+): Promise<PublicKey | null> {
   try {
     // First, try to find by owner (pool_authority)
     const accountsByOwner = await connection.getTokenAccountsByOwner(poolAuthority, {
@@ -68,11 +68,88 @@ async function findPoolTokenAccount(
       }
     }
     
-    throw new Error('Pool token account not found. Pool may need to be initialized.');
+    console.log('[Pool] Pool token account not found - needs initialization');
+    return null;
   } catch (error: any) {
     console.error('[Pool] Error finding pool token account:', error.message);
-    throw new Error('Pool not initialized. Please contact the contract deployer to initialize the liquidity pool.');
+    return null;
   }
+}
+
+// Check if pool is initialized
+export async function checkPoolStatus(): Promise<{ initialized: boolean; poolTokenAccount?: string }> {
+  try {
+    const connection = getCarvConnection();
+    const programId = new PublicKey(CARV_SVM_CONFIG.contractAddress);
+    const usdtMint = new PublicKey(CARV_SVM_CONFIG.usdtTokenAddress);
+    
+    const [poolAuthority] = PublicKey.findProgramAddressSync(
+      [Buffer.from('pool-authority')],
+      programId
+    );
+    
+    const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+    
+    if (poolTokenAccount) {
+      return {
+        initialized: true,
+        poolTokenAccount: poolTokenAccount.toBase58(),
+      };
+    }
+    
+    return { initialized: false };
+  } catch (error) {
+    console.error('[Pool] Error checking pool status:', error);
+    return { initialized: false };
+  }
+}
+
+// Create instruction data for initialize_pool transaction
+export function createInitializePoolInstructionData(): { data: number[] } {
+  // Calculate Anchor instruction discriminator for "initialize_pool" (snake_case)
+  const discriminator = createHash('sha256')
+    .update('global:initialize_pool')
+    .digest()
+    .slice(0, 8);
+  
+  // initialize_pool takes no arguments, just discriminator
+  const instructionData = Buffer.from(discriminator);
+  
+  return {
+    data: Array.from(instructionData),
+  };
+}
+
+// Get accounts for initialize_pool instruction
+export async function getInitializePoolAccounts(payerAddress: string) {
+  const connection = getCarvConnection();
+  const payerPubkey = new PublicKey(payerAddress);
+  const programId = new PublicKey(CARV_SVM_CONFIG.contractAddress);
+  const usdtMint = new PublicKey(CARV_SVM_CONFIG.usdtTokenAddress);
+  
+  // Derive pool authority PDA
+  const [poolAuthority, bump] = PublicKey.findProgramAddressSync(
+    [Buffer.from('pool-authority')],
+    programId
+  );
+  
+  // Derive a new pool token account address using a PDA
+  // This will be created by the init constraint in Anchor
+  const [poolTokenAccount] = PublicKey.findProgramAddressSync(
+    [Buffer.from('pool-token-account')],
+    programId
+  );
+  
+  return {
+    payer: payerPubkey.toBase58(),
+    poolTokenAccount: poolTokenAccount.toBase58(),
+    poolAuthority: poolAuthority.toBase58(),
+    usdtMint: usdtMint.toBase58(),
+    tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
+    rent: SYSVAR_RENT_PUBKEY.toBase58(),
+    systemProgram: SystemProgram.programId.toBase58(),
+    programId: programId.toBase58(),
+  };
 }
 
 export async function getUSDTBalance(walletAddress: string): Promise<number> {
@@ -172,6 +249,10 @@ export async function getBuyTransactionAccounts(userWalletAddress: string) {
   // Find pool token account by searching for token accounts owned by the program
   // that have the pool_authority as authority and USDT as mint
   const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+  
+  if (!poolTokenAccount) {
+    throw new Error('Pool not initialized. Please initialize the pool first.');
+  }
 
   // Check which ATAs exist (pool is not an ATA, so we only check user and platform)
   const [userAccountInfo, platformAccountInfo] = await Promise.all([
@@ -232,6 +313,10 @@ export async function getSellTransactionAccounts(userWalletAddress: string) {
   
   // Find pool token account by searching for token accounts owned by pool_authority
   const poolTokenAccount = await findPoolTokenAccount(connection, programId, usdtMint, poolAuthority);
+  
+  if (!poolTokenAccount) {
+    throw new Error('Pool not initialized. Please initialize the pool first.');
+  }
 
   // Check which ATAs exist (pool is not an ATA)
   const userAccountInfo = await connection.getAccountInfo(userTokenAccount);

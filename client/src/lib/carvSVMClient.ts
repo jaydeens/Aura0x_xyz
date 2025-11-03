@@ -36,6 +36,88 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
   }
 }
 
+// Check if pool is initialized
+export async function checkPoolStatus(): Promise<{ initialized: boolean; poolTokenAccount?: string }> {
+  try {
+    const response = await fetch('/api/slp/pool-status');
+    if (!response.ok) {
+      throw new Error('Failed to check pool status');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error checking pool status:', error);
+    return { initialized: false };
+  }
+}
+
+// Initialize pool using backend API to prepare transaction
+export async function initializePool({ userWallet, walletAddress }: { userWallet: any; walletAddress: string }): Promise<string> {
+  try {
+    if (!userWallet) {
+      throw new Error('Wallet not connected');
+    }
+
+    if (!walletAddress) {
+      throw new Error('Wallet address not found');
+    }
+    
+    const response = await fetch('/api/slp/prepare-initialize-pool', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to prepare initialize pool transaction');
+    }
+
+    const { instructionData, accounts } = await response.json();
+    
+    const connection = getCarvConnection();
+    const payerPubkey = new PublicKey(walletAddress);
+    const programId = new PublicKey(accounts.programId);
+    
+    const transaction = new Transaction();
+    
+    // Build initialize pool instruction
+    const keys = [
+      { pubkey: payerPubkey, isSigner: true, isWritable: true },
+      { pubkey: new PublicKey(accounts.poolTokenAccount), isSigner: false, isWritable: true },
+      { pubkey: new PublicKey(accounts.poolAuthority), isSigner: false, isWritable: false },
+      { pubkey: new PublicKey(accounts.usdtMint), isSigner: false, isWritable: false },
+      { pubkey: new PublicKey(accounts.tokenProgram), isSigner: false, isWritable: false },
+      { pubkey: new PublicKey(accounts.rent), isSigner: false, isWritable: false },
+      { pubkey: new PublicKey(accounts.systemProgram), isSigner: false, isWritable: false },
+    ];
+    
+    const instruction = new TransactionInstruction({
+      keys,
+      programId,
+      data: Uint8Array.from(instructionData),
+    });
+    
+    transaction.add(instruction);
+    
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = payerPubkey;
+    
+    const signedTx = await userWallet.signTransaction(transaction);
+    
+    const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+      skipPreflight: false,
+      preflightCommitment: 'confirmed',
+    });
+    
+    await connection.confirmTransaction(signature, 'confirmed');
+    
+    return signature;
+  } catch (error: any) {
+    console.error('Error initializing pool:', error);
+    throw new Error(error.message || 'Failed to initialize pool');
+  }
+}
+
 interface BuySlpParams {
   userWallet: any;
   walletAddress: string;

@@ -30,7 +30,7 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance } from "@/lib/carvSVMClient";
+import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance, checkPoolStatus, initializePool } from "@/lib/carvSVMClient";
 
 declare global {
   interface Window {
@@ -53,6 +53,7 @@ export default function Potions() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
+  const [isInitializingPool, setIsInitializingPool] = useState(false);
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
@@ -181,6 +182,17 @@ export default function Potions() {
     staleTime: 10000,
   });
 
+  // Check pool initialization status
+  const { data: poolStatus, refetch: refetchPoolStatus } = useQuery({
+    queryKey: ['pool-status'],
+    queryFn: checkPoolStatus,
+    enabled: connectedWithSolana,
+    refetchInterval: false, // Only check once on load
+    staleTime: Infinity,
+  });
+  
+  const isPoolInitialized = poolStatus?.initialized || false;
+
   const purchasedPotions = (balanceData as any)?.purchasedSteeze || 0;
   const earnedPotions = (balanceData as any)?.battleEarnedSteeze || 0;
   const totalBalance = purchasedPotions + earnedPotions;
@@ -221,6 +233,55 @@ export default function Potions() {
     });
   };
 
+  const initializePoolMutation = useMutation({
+    mutationFn: async () => {
+      if (!isConnected) {
+        throw new Error("Please connect your wallet first");
+      }
+      
+      if (!connectedWithSolana) {
+        throw new Error("Please connect a Solana wallet (Phantom or Backpack)");
+      }
+      
+      const wallet = getSolanaWallet();
+      if (!wallet) {
+        throw new Error("Solana wallet not found. Please install Phantom or Backpack wallet.");
+      }
+      
+      setIsInitializingPool(true);
+      
+      toast({
+        title: "Initializing Pool",
+        description: "Preparing initialization transaction...",
+      });
+      
+      const signature = await initializePool({
+        userWallet: wallet,
+        walletAddress: effectiveAddress,
+      });
+      
+      console.log("✓ Pool initialized successfully! Transaction:", signature);
+      
+      return signature;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Pool Initialized!",
+        description: "Liquidity pool is now ready for trading",
+      });
+      setIsInitializingPool(false);
+      // Refetch pool status to update UI
+      refetchPoolStatus();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Initialization Failed",
+        description: error.message || "Failed to initialize pool",
+        variant: "destructive",
+      });
+      setIsInitializingPool(false);
+    },
+  });
 
   const purchaseMutation = useMutation({
     mutationFn: async ({ usdtValue, potionsAmount }: { usdtValue: number; potionsAmount: number }) => {
@@ -639,6 +700,37 @@ export default function Potions() {
                       </div>
                     )}
 
+                    {/* Pool Initialization Section */}
+                    {connectedWithSolana && !isPoolInitialized && (
+                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Database className="w-5 h-5 text-blue-400" />
+                          <h4 className="text-blue-300 font-medium">Pool Initialization Required</h4>
+                        </div>
+                        <p className="text-blue-200 text-sm mb-4">
+                          The liquidity pool needs to be initialized before trading can begin. This is a one-time setup.
+                        </p>
+                        <Button
+                          onClick={() => initializePoolMutation.mutate()}
+                          disabled={isInitializingPool}
+                          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30"
+                          data-testid="button-initialize-pool"
+                        >
+                          {isInitializingPool ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Initializing Pool...
+                            </>
+                          ) : (
+                            <>
+                              <Database className="w-4 h-4 mr-2" />
+                              Initialize Pool
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor="usdt-acquire" className="text-green-300 font-medium flex items-center gap-2">
                         <Binary className="w-4 h-4" />
@@ -678,7 +770,7 @@ export default function Potions() {
 
                     <Button
                       onClick={handlePurchase}
-                      disabled={!usdtAmount || isPurchasing || parseFloat(usdtAmount || "0") > currentUsdtBalance}
+                      disabled={!usdtAmount || isPurchasing || parseFloat(usdtAmount || "0") > currentUsdtBalance || !isPoolInitialized}
                       className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 shadow-lg shadow-green-500/30"
                       data-testid="button-execute-acquire"
                     >

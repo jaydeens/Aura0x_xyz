@@ -2849,6 +2849,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CARV SVM / SLP Endpoints
+  // Check pool initialization status
+  app.get("/api/slp/pool-status", async (req, res) => {
+    try {
+      const status = await carvSVM.checkPoolStatus();
+      res.json(status);
+    } catch (error: any) {
+      console.error("Error checking pool status:", error);
+      res.status(500).json({ message: "Failed to check pool status" });
+    }
+  });
+  
+  // Prepare initialize pool transaction
+  app.post("/api/slp/prepare-initialize-pool", async (req: any, res) => {
+    try {
+      const { walletAddress } = req.body;
+      
+      if (!walletAddress) {
+        return res.status(400).json({ message: "Missing wallet address" });
+      }
+      
+      const instructionData = carvSVM.createInitializePoolInstructionData();
+      const accounts = await carvSVM.getInitializePoolAccounts(walletAddress);
+      
+      console.log('[Initialize Pool] Preparing initialization transaction for payer:', walletAddress);
+      
+      res.json({
+        instructionData: instructionData.data,
+        accounts,
+        config: carvSVM.CARV_SVM_CONFIG
+      });
+    } catch (error: any) {
+      console.error("Error preparing initialize pool transaction:", error);
+      res.status(500).json({ message: "Failed to prepare initialize pool transaction" });
+    }
+  });
+  
   // Get USDT balance for a Solana wallet
   app.get("/api/slp/balance/:address", async (req, res) => {
     try {
