@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionInstruction, Keypair } from '@solana/web3.js';
 
 // TOKEN_PROGRAM_ID constant (avoiding @solana/spl-token import which has Buffer dependency)
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
@@ -50,7 +50,7 @@ export async function checkPoolStatus(): Promise<{ initialized: boolean; poolTok
   }
 }
 
-// Initialize pool using backend API to prepare transaction
+// Initialize pool using backend API (backend signs with pool keypair server-side)
 export async function initializePool({ userWallet, walletAddress }: { userWallet: any; walletAddress: string }): Promise<string> {
   try {
     if (!userWallet) {
@@ -61,6 +61,7 @@ export async function initializePool({ userWallet, walletAddress }: { userWallet
       throw new Error('Wallet address not found');
     }
     
+    // Request partially signed transaction from backend
     const response = await fetch('/api/slp/prepare-initialize-pool', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -71,45 +72,31 @@ export async function initializePool({ userWallet, walletAddress }: { userWallet
       throw new Error('Failed to prepare initialize pool transaction');
     }
 
-    const { instructionData, accounts } = await response.json();
+    const { transaction: txBytes, poolTokenAccount } = await response.json();
+    
+    console.log('[Initialize Pool] Received partially signed transaction');
+    console.log('[Initialize Pool] Pool token account:', poolTokenAccount);
     
     const connection = getCarvConnection();
-    const payerPubkey = new PublicKey(walletAddress);
-    const programId = new PublicKey(accounts.programId);
     
-    const transaction = new Transaction();
+    // Deserialize the partially signed transaction (already signed by pool keypair server-side)
+    const transaction = Transaction.from(Uint8Array.from(txBytes));
     
-    // Build initialize pool instruction
-    const keys = [
-      { pubkey: payerPubkey, isSigner: true, isWritable: true },
-      { pubkey: new PublicKey(accounts.poolTokenAccount), isSigner: false, isWritable: true },
-      { pubkey: new PublicKey(accounts.poolAuthority), isSigner: false, isWritable: false },
-      { pubkey: new PublicKey(accounts.usdtMint), isSigner: false, isWritable: false },
-      { pubkey: new PublicKey(accounts.tokenProgram), isSigner: false, isWritable: false },
-      { pubkey: new PublicKey(accounts.rent), isSigner: false, isWritable: false },
-      { pubkey: new PublicKey(accounts.systemProgram), isSigner: false, isWritable: false },
-    ];
-    
-    const instruction = new TransactionInstruction({
-      keys,
-      programId,
-      data: Uint8Array.from(instructionData),
-    });
-    
-    transaction.add(instruction);
-    
-    const { blockhash } = await connection.getLatestBlockhash();
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = payerPubkey;
-    
+    // User signs the transaction with their wallet
     const signedTx = await userWallet.signTransaction(transaction);
     
+    // Send the fully signed transaction
     const signature = await connection.sendRawTransaction(signedTx.serialize(), {
       skipPreflight: false,
       preflightCommitment: 'confirmed',
     });
     
+    console.log('[Initialize Pool] Transaction sent:', signature);
+    
+    // Wait for confirmation
     await connection.confirmTransaction(signature, 'confirmed');
+    
+    console.log('[Initialize Pool] Transaction confirmed!');
     
     return signature;
   } catch (error: any) {

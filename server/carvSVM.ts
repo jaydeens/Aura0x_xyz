@@ -131,8 +131,8 @@ export function createInitializePoolInstructionData(): { data: number[] } {
   };
 }
 
-// Get accounts for initialize_pool instruction
-export async function getInitializePoolAccounts(payerAddress: string) {
+// Create and sign initialize pool transaction server-side
+export async function createInitializePoolTransaction(payerAddress: string) {
   const connection = getCarvConnection();
   const payerPubkey = new PublicKey(payerAddress);
   const programId = new PublicKey(CARV_SVM_CONFIG.contractAddress);
@@ -144,21 +144,44 @@ export async function getInitializePoolAccounts(payerAddress: string) {
     programId
   );
   
-  // Use the pool token account keypair from secrets
+  // Use the pool token account keypair from secrets (NEVER send to frontend!)
   const poolTokenAccountKeypair = getPoolTokenAccountKeypair();
   const poolTokenAccount = poolTokenAccountKeypair.publicKey;
   
-  // Return the keypair secret key so the frontend can sign with it
+  // Create instruction data
+  const instructionData = createInitializePoolInstructionData();
+  
+  // Build initialize pool instruction according to IDL
+  const keys = [
+    { pubkey: payerPubkey, isSigner: true, isWritable: true },
+    { pubkey: poolTokenAccount, isSigner: true, isWritable: true },
+    { pubkey: poolAuthority, isSigner: false, isWritable: false },
+    { pubkey: usdtMint, isSigner: false, isWritable: false },
+    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+  ];
+  
+  const instruction = new TransactionInstruction({
+    keys,
+    programId,
+    data: Buffer.from(instructionData.data),
+  });
+  
+  const transaction = new Transaction().add(instruction);
+  
+  // Get recent blockhash
+  const { blockhash } = await connection.getLatestBlockhash();
+  transaction.recentBlockhash = blockhash;
+  transaction.feePayer = payerPubkey;
+  
+  // Sign with pool token account keypair SERVER-SIDE
+  transaction.partialSign(poolTokenAccountKeypair);
+  
+  // Serialize and return the partially signed transaction
   return {
-    payer: payerPubkey.toBase58(),
+    transaction: Array.from(transaction.serialize({ requireAllSignatures: false })),
     poolTokenAccount: poolTokenAccount.toBase58(),
-    poolTokenAccountSecretKey: Array.from(poolTokenAccountKeypair.secretKey), // Send as array for frontend
-    poolAuthority: poolAuthority.toBase58(),
-    usdtMint: usdtMint.toBase58(),
-    tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
-    rent: SYSVAR_RENT_PUBKEY.toBase58(),
-    systemProgram: SystemProgram.programId.toBase58(),
-    programId: programId.toBase58(),
   };
 }
 

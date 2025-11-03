@@ -2860,7 +2860,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Prepare initialize pool transaction
+  // Prepare initialize pool transaction (server-side signing for security)
   app.post("/api/slp/prepare-initialize-pool", async (req: any, res) => {
     try {
       const { walletAddress } = req.body;
@@ -2869,15 +2869,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Missing wallet address" });
       }
       
-      const instructionData = carvSVM.createInitializePoolInstructionData();
-      const accounts = await carvSVM.getInitializePoolAccounts(walletAddress);
+      // Create and partially sign transaction server-side (secure - never exposes pool keypair)
+      const result = await carvSVM.createInitializePoolTransaction(walletAddress);
       
-      console.log('[Initialize Pool] Preparing initialization transaction for payer:', walletAddress);
+      console.log('[Initialize Pool] Created partially signed transaction for payer:', walletAddress);
+      console.log('[Initialize Pool] Pool token account:', result.poolTokenAccount);
       
       res.json({
-        instructionData: instructionData.data,
-        accounts,
-        config: carvSVM.CARV_SVM_CONFIG
+        transaction: result.transaction,
+        poolTokenAccount: result.poolTokenAccount,
       });
     } catch (error: any) {
       console.error("Error preparing initialize pool transaction:", error);
