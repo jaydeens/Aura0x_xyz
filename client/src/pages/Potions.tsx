@@ -30,7 +30,8 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { buySlp, sellSlp, getUSDTBalance as getSolanaUSDTBalance, checkPoolStatus, initializePool } from "@/lib/carvSVMClient";
+import { buySLP, sellSLP, getUSDTBalance as getSolanaUSDTBalance, checkPoolStatus, initializePool } from "@/lib/carvSVMSimple";
+import { PublicKey } from "@solana/web3.js";
 
 declare global {
   interface Window {
@@ -255,10 +256,8 @@ export default function Potions() {
         description: "Preparing initialization transaction...",
       });
       
-      const signature = await initializePool({
-        userWallet: wallet,
-        walletAddress: effectiveAddress,
-      });
+      const userPublicKey = new PublicKey(effectiveAddress);
+      const signature = await initializePool(wallet, userPublicKey);
       
       console.log("✓ Pool initialized successfully! Transaction:", signature);
       
@@ -303,11 +302,8 @@ export default function Potions() {
         description: "Building transaction for CARV SVM Chain...",
       });
       
-      const signature = await buySlp({
-        userWallet: wallet,
-        walletAddress: effectiveAddress,
-        usdtAmount: usdtValue,
-      });
+      const userPublicKey = new PublicKey(effectiveAddress);
+      const signature = await buySLP(wallet, userPublicKey, usdtValue);
       
       console.log("✓ SLP purchase successful! Transaction:", signature);
       
@@ -373,11 +369,8 @@ export default function Potions() {
         description: "Please approve the transaction in your wallet...",
       });
       
-      const signature = await sellSlp({
-        userWallet: wallet,
-        walletAddress: effectiveAddress,
-        slpAmount: potionsAmount,
-      });
+      const userPublicKey = new PublicKey(effectiveAddress);
+      const signature = await sellSLP(wallet, userPublicKey, potionsAmount);
       
       console.log("✓ SLP liquidation successful! Transaction:", signature);
       

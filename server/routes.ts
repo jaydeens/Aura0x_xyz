@@ -53,7 +53,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import * as carvSVM from "./carvSVM";
+import * as carvSVM from "./carvSVMSimple";
 
 // Helper function to validate both Ethereum and Solana wallet addresses
 function isValidWalletAddress(address: string): boolean {
@@ -2853,35 +2853,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/slp/pool-status", async (req, res) => {
     try {
       const status = await carvSVM.checkPoolStatus();
-      res.json(status);
+      
+      // Add pool public key to response
+      const poolKeypairSecret = process.env.POOL_TOKEN_ACCOUNT_KEYPAIR;
+      if (poolKeypairSecret) {
+        const secretKey = Buffer.from(poolKeypairSecret, 'base64');
+        const { Keypair } = await import('@solana/web3.js');
+        const poolKeypair = Keypair.fromSecretKey(secretKey);
+        
+        res.json({
+          ...status,
+          poolPublicKey: poolKeypair.publicKey.toBase58(),
+        });
+      } else {
+        res.json(status);
+      }
     } catch (error: any) {
       console.error("Error checking pool status:", error);
       res.status(500).json({ message: "Failed to check pool status" });
-    }
-  });
-  
-  // Prepare initialize pool transaction (server-side signing for security)
-  app.post("/api/slp/prepare-initialize-pool", async (req: any, res) => {
-    try {
-      const { walletAddress } = req.body;
-      
-      if (!walletAddress) {
-        return res.status(400).json({ message: "Missing wallet address" });
-      }
-      
-      // Create and partially sign transaction server-side (secure - never exposes pool keypair)
-      const result = await carvSVM.createInitializePoolTransaction(walletAddress);
-      
-      console.log('[Initialize Pool] Created partially signed transaction for payer:', walletAddress);
-      console.log('[Initialize Pool] Pool token account:', result.poolTokenAccount);
-      
-      res.json({
-        transaction: result.transaction,
-        poolTokenAccount: result.poolTokenAccount,
-      });
-    } catch (error: any) {
-      console.error("Error preparing initialize pool transaction:", error);
-      res.status(500).json({ message: "Failed to prepare initialize pool transaction" });
     }
   });
   
@@ -2897,33 +2886,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Prepare buy SLP transaction (returns instruction data that frontend will use)
-  app.post("/api/slp/prepare-buy", async (req: any, res) => {
-    try {
-      const { walletAddress, usdtAmount } = req.body;
-      
-      if (!walletAddress || !usdtAmount) {
-        return res.status(400).json({ message: "Missing required parameters" });
-      }
-
-      const instructionData = carvSVM.createBuyInstructionData(usdtAmount);
-      const accounts = await carvSVM.getBuyTransactionAccounts(walletAddress);
-      
-      console.log('[Buy SLP] Pool Token Account:', accounts.poolTokenAccount);
-      console.log('[Buy SLP] Create Instructions:', accounts.createInstructions.length, 'instructions');
-      
-      res.json({
-        instructionData: instructionData.data,
-        accounts,
-        config: carvSVM.CARV_SVM_CONFIG
-      });
-    } catch (error: any) {
-      console.error("Error preparing buy transaction:", error);
-      res.status(500).json({ message: "Failed to prepare buy transaction" });
-    }
-  });
-
-  // Prepare sell SLP transaction (returns instruction data that frontend will use)
+  // Prepare sell SLP transaction (server signs with pool keypair)
   app.post("/api/slp/prepare-sell", async (req: any, res) => {
     try {
       const { walletAddress, slpAmount } = req.body;
@@ -2931,18 +2894,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!walletAddress || !slpAmount) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-
-      const instructionData = carvSVM.createSellInstructionData(slpAmount);
-      const accounts = await carvSVM.getSellTransactionAccounts(walletAddress);
       
-      res.json({
-        instructionData: instructionData.data,
-        accounts,
-        config: carvSVM.CARV_SVM_CONFIG
-      });
+      // SECURITY: Get user ID from session
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized - please log in" });
+      }
+      
+      // SECURITY: Validate user has sufficient SLP balance off-chain
+      const user = await storage.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const currentSLP = user.dreamzPoints || 0;
+      
+      if (currentSLP < slpAmount) {
+        return res.status(400).json({ 
+          message: `Insufficient SLP balance. You have ${currentSLP} SLP but trying to sell ${slpAmount} SLP` 
+        });
+      }
+      
+      console.log('[Sell SLP] User ID:', userId);
+      console.log('[Sell SLP] Current SLP Balance:', currentSLP);
+      console.log('[Sell SLP] SLP to Sell:', slpAmount);
+      
+      // SECURITY: Calculate USDT amount server-side (never trust client)
+      // This is done inside prepareSellTransaction
+      const result = await carvSVM.prepareSellTransaction(walletAddress, slpAmount);
+      
+      console.log('[Sell SLP] Server-calculated USDT amount:', result.usdtAmount);
+      
+      // SECURITY: Deduct SLP from user's balance BEFORE returning transaction
+      // This prevents race conditions where user could call this endpoint multiple times
+      const newSLPBalance = currentSLP - slpAmount;
+      await storage.updateUserDreamzPoints(userId, newSLPBalance);
+      
+      console.log('[Sell SLP] Updated SLP balance from', currentSLP, 'to', newSLPBalance);
+      
+      res.json(result);
     } catch (error: any) {
       console.error("Error preparing sell transaction:", error);
-      res.status(500).json({ message: "Failed to prepare sell transaction" });
+      res.status(500).json({ message: error.message || "Failed to prepare sell transaction" });
     }
   });
 
