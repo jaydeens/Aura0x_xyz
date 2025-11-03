@@ -2307,11 +2307,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/potions/purchase", transactionRateLimit, secureAuth, validateTransaction, async (req: any, res) => {
     try {
-      const { usdcAmount } = req.body;
+      const { usdcAmount, usdtAmount, potionsAmount, txHash, walletAddress } = req.body;
       const userId = req.session?.user?.id;
       const userWallet = req.session?.user?.wallet_address;
       
-      // Input validation for amount-based requests
+      // Handle CARV SVM purchase (new system)
+      if (txHash && usdtAmount && potionsAmount) {
+        if (!userId) {
+          return res.status(401).json({ error: 'User not authenticated' });
+        }
+        
+        console.log('[SLP Purchase] Recording transaction:', {
+          userId,
+          walletAddress,
+          usdtAmount,
+          potionsAmount,
+          txHash
+        });
+        
+        // Create transaction record
+        await storage.createPotionsTransaction({
+          userId,
+          type: 'purchase',
+          amount: potionsAmount,
+          usdtAmount: usdtAmount.toString(),
+          rate: (potionsAmount / usdtAmount).toString(),
+          status: 'completed',
+          transactionHash: txHash
+        });
+        
+        // Update user's SLP balance
+        await storage.updateUserPotionsBalance(userId, potionsAmount);
+        
+        console.log('[SLP Purchase] Successfully recorded. Balance updated.');
+        
+        return res.json({
+          success: true,
+          slpAmount: potionsAmount,
+          transactionHash: txHash
+        });
+      }
+      
+      // Legacy Ethereum system handling
       if (usdcAmount) {
         if (usdcAmount <= 0 || usdcAmount > 1000) {
           return res.status(400).json({ error: 'USDC amount must be between 0 and 1000' });
@@ -2348,8 +2385,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         networkName: "Base Mainnet"
       });
     } catch (error: any) {
-      console.error("Error getting purchase info:", error);
-      res.status(500).json({ message: "Failed to get purchase information" });
+      console.error("Error in purchase endpoint:", error);
+      res.status(500).json({ message: "Failed to process purchase" });
     }
   });
 

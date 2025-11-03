@@ -715,7 +715,7 @@ class MemStorage implements IStorage {
     if (user) {
       const updated: User = {
         ...user,
-        potionsBalance: amount,
+        purchasedSteeze: (user.purchasedSteeze || 0) + amount,
         updatedAt: new Date()
       };
       this.store.users.set(userId, updated);

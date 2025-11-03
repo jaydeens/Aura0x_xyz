@@ -59,6 +59,9 @@ Preferred communication style: Simple, everyday language.
 ### November 3, 2025 - CARV SVM SLP Trading Integration
 - **Simplified Architecture**: Replaced buggy Anchor contract with pure SPL Token transfers
 - **Client Module** (`client/src/lib/carvSVMSimple.ts`): Raw @solana/web3.js implementation for buy/sell/init operations
+  - **CRITICAL FIX**: CARV SVM USDT uses 9 decimals (not 6!) - amounts multiplied by 1e9 before on-chain transfer
+  - Removed `@solana/spl-token` dependency to avoid Browser Buffer compatibility issues
+  - Manual SPL Token instruction construction using Uint8Array (browser-safe)
 - **Server Module** (`server/carvSVMSimple.ts`): Backend keypair signing for secure pool management
 - **Security Model**: SLP is completely OFF-CHAIN (database-only), USDT transfers are ON-CHAIN
   - Buy: User sends USDT on-chain (70% pool, 30% platform) → receives off-chain SLP in database
@@ -69,7 +72,12 @@ Preferred communication style: Simple, everyday language.
 - **Transaction Flow**:
   1. initializePool(): Creates pool's associated token account (one-time)
   2. buySLP(): Pure client-side SPL transfers, no backend signing needed
-  3. sellSLP(): Backend validates SLP, deducts from database, signs partial transaction, user completes
+  3. Backend records transaction and updates user's purchasedSteeze balance
+  4. sellSLP(): Backend validates SLP, deducts from database, signs partial transaction, user completes
+- **Database Integration**: 
+  - Updated `/api/potions/purchase` endpoint to handle CARV SVM transactions (txHash, usdtAmount, potionsAmount)
+  - Fixed `updateUserPotionsBalance()` to increment balance instead of replacing it
+  - Transaction history recorded in `potionsTransactions` table with CARV SVM signatures
 
 ### October 26, 2025 - Database Setup & Dreamz Rebrand
 - **Fresh PostgreSQL Database**: Created all 11 tables with proper schema (users, battles, vouches, potionsTransactions, dreamzLevels, lessons, userLessons, battleVotes, notifications, sessions, walletWhitelist)
