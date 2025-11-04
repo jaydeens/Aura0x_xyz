@@ -111,9 +111,13 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
         title: "Vouch Successful! 🎉",
         description: `You vouched for ${recipient.username || recipient.walletAddress?.slice(0, 8)} with ${usdtAmount} USDT. They earned ${data.dreamzPoints} Dreamz Points!`,
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/vouch/stats'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${recipient.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/vouch/stats/${recipient.id}`] });
+      if (user?.id) {
+        queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/vouch/stats/${user.id}`] });
+      }
       onOpenChange(false);
       setUsdtAmount("10");
     },

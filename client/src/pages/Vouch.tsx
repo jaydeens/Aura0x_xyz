@@ -199,7 +199,7 @@ export default function Vouch() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white">Base Conversion</h4>
-                      <p className="text-sm text-gray-400">1 USDT = 10 Aura Points base rate</p>
+                      <p className="text-sm text-gray-400">1 USDT = 10 Dreamz Points base rate</p>
                     </div>
                   </div>
 
