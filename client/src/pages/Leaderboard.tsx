@@ -287,7 +287,7 @@ export default function Leaderboard() {
           <div className="mb-10">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-black text-[#00D9FF] uppercase tracking-wider" data-testid="heading-top-miners">
-                ⚡ Top Miners
+                ⚡ Top Dreamers
               </h2>
               <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 font-mono" data-testid="badge-total-nodes">
                 {leaderboard?.length || 0} Nodes
