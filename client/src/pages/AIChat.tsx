@@ -19,7 +19,10 @@ export default function AIChat() {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [typingMessage, setTypingMessage] = useState<string>("");
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -33,7 +36,40 @@ export default function AIChat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, typingMessage]);
+
+  // Typing animation effect
+  const startTypingAnimation = (fullMessage: string) => {
+    setIsTyping(true);
+    setTypingMessage("");
+    
+    let currentIndex = 0;
+    const typingSpeed = 20; // milliseconds per character
+    
+    typingIntervalRef.current = setInterval(() => {
+      if (currentIndex < fullMessage.length) {
+        setTypingMessage(fullMessage.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        // Typing complete
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+        }
+        setIsTyping(false);
+        setMessages(prev => [...prev, { role: 'assistant', content: fullMessage }]);
+        setTypingMessage("");
+      }
+    }, typingSpeed);
+  };
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
+  }, []);
 
   const chatMutation = useMutation({
     mutationFn: async (userMessage: string) => {
@@ -43,7 +79,7 @@ export default function AIChat() {
       return data.message;
     },
     onSuccess: (aiMessage) => {
-      setMessages(prev => [...prev, aiMessage]);
+      startTypingAnimation(aiMessage.content);
     },
     onError: (error: any) => {
       toast({
@@ -57,7 +93,7 @@ export default function AIChat() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!input.trim() || chatMutation.isPending) return;
+    if (!input.trim() || chatMutation.isPending || isTyping) return;
 
     const userMessage = input.trim();
     setInput("");
@@ -201,7 +237,7 @@ export default function AIChat() {
                         )}
                       </div>
                     ))}
-                    {chatMutation.isPending && (
+                    {chatMutation.isPending && !isTyping && (
                       <div className="flex gap-3 justify-start">
                         <div className="flex-shrink-0">
                           <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full flex items-center justify-center border border-cyan-500/30">
@@ -214,6 +250,21 @@ export default function AIChat() {
                             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                           </div>
+                        </div>
+                      </div>
+                    )}
+                    {isTyping && typingMessage && (
+                      <div className="flex gap-3 justify-start" data-testid="message-typing">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full flex items-center justify-center border border-cyan-500/30">
+                            <Brain className="w-5 h-5 text-cyan-400" />
+                          </div>
+                        </div>
+                        <div className="max-w-[80%] px-4 py-3 rounded-2xl bg-cyan-900/40 border border-cyan-500/20 text-cyan-100">
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {typingMessage}
+                            <span className="inline-block w-1 h-4 bg-cyan-400 ml-0.5 animate-pulse"></span>
+                          </p>
                         </div>
                       </div>
                     )}
@@ -230,7 +281,7 @@ export default function AIChat() {
                   placeholder="Ask Dreamz AI anything..."
                   className="flex-1 bg-cyan-900/30 border-cyan-500/30 text-white placeholder:text-cyan-300/50 focus:border-cyan-500/50 resize-none font-mono"
                   rows={2}
-                  disabled={chatMutation.isPending}
+                  disabled={chatMutation.isPending || isTyping}
                   data-testid="input-chat-message"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -241,7 +292,7 @@ export default function AIChat() {
                 />
                 <Button
                   type="submit"
-                  disabled={!input.trim() || chatMutation.isPending}
+                  disabled={!input.trim() || chatMutation.isPending || isTyping}
                   className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold px-6"
                   data-testid="button-send-message"
                 >
