@@ -759,7 +759,7 @@ export default function Battles() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-cyan-400 font-bold font-mono">{user.auraPoints || 0} DRZ</p>
+                            <p className="text-cyan-400 font-bold font-mono">{user.auraPoints || 0} DRMZ</p>
                             <p className="text-cyan-400/60 text-sm font-mono">Streak: {user.currentStreak || 0}</p>
                           </div>
                         </div>
@@ -844,7 +844,7 @@ export default function Battles() {
                   data-testid="input-ritual-pledge"
                 />
                 <p className="text-cyan-400/50 text-sm mt-1 font-mono">
-                  Available: {user?.auraPoints || 0} DRZ • Both dreamers must pledge equal amounts
+                  Available: {user?.auraPoints || 0} DRMZ • Both dreamers must pledge equal amounts
                 </p>
               </div>
 

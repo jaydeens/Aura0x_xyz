@@ -194,7 +194,7 @@ export default function VouchingHistory() {
                                 </div>
                                 <div className="flex flex-wrap items-center gap-3 text-sm">
                                   <span className="text-pink-400 font-bold" data-testid={`text-usdt-${vouch.id}`}>{parseFloat(vouch.usdtAmount).toFixed(2)} USDT</span>
-                                  <span className="text-cyan-400" data-testid={`text-dreamz-${vouch.id}`}>{vouch.auraPoints} DRZ</span>
+                                  <span className="text-cyan-400" data-testid={`text-dreamz-${vouch.id}`}>{vouch.auraPoints} DRMZ</span>
                                   <span className="text-gray-500" data-testid={`text-date-${vouch.id}`}>
                                     {new Date(vouch.createdAt).toLocaleDateString()}
                                   </span>
