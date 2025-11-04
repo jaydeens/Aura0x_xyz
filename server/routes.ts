@@ -102,6 +102,16 @@ const vouchSchema = z.object({
   transactionHash: z.string(),
 });
 
+// AI Chat validation schema
+const chatMessageSchema = z.object({
+  role: z.enum(['user', 'assistant']),
+  content: z.string().min(1).max(2000), // Limit message length to 2000 chars
+});
+
+const chatRequestSchema = z.object({
+  messages: z.array(chatMessageSchema).min(1).max(20), // Limit conversation history to 20 messages
+});
+
 
 
 // Battle presence tracking
@@ -218,6 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const authRateLimit = createRateLimit(15 * 60 * 1000, 10); // 10 auth attempts per 15 minutes
   const transactionRateLimit = createRateLimit(60 * 1000, 5); // 5 transactions per minute
   const walletRateLimit = createRateLimit(5 * 60 * 1000, 20); // 20 wallet operations per 5 minutes
+  const chatRateLimit = createRateLimit(60 * 1000, 10); // 10 chat messages per minute to prevent API abuse
 
   // Session middleware for Twitter auth
   app.set("trust proxy", 1);
@@ -1460,6 +1471,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error(`Error completing battle ${battle.id}:`, error);
     }
   };
+
+  // AI Chat routes
+  app.post('/api/chat', chatRateLimit, requireAuth, async (req: any, res) => {
+    try {
+      // Validate request with Zod schema
+      const validatedData = chatRequestSchema.parse(req.body);
+      const { messages } = validatedData;
+
+      // Get user info for personalization and logging
+      let userId: string | null = null;
+      if (req.session?.user?.id) {
+        userId = req.session.user.id;
+      } else if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+
+      const user = userId ? await storage.getUser(userId) : null;
+      const username = user?.username || user?.twitterUsername || 'there';
+
+      // Log chat request for monitoring/abuse prevention
+      console.log(`[AI Chat] User: ${userId || 'unknown'}, Message count: ${messages.length}, Last message length: ${messages[messages.length - 1].content.length}`);
+
+      // Import OpenAI dynamically
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      // System message to set the AI's personality and knowledge
+      const systemMessage = {
+        role: 'system',
+        content: `You are Dreamz AI, a helpful and knowledgeable AI assistant for the Dreamz platform - an AI-powered Web3 social platform. You help users learn about crypto, Web3, and how to use the platform.
+
+Key platform features you should know about:
+- Daily AI-generated Web3 lessons with quizzes (earn 10 Dreamz Points per completion)
+- 1v1 knowledge battles where users compete and community votes
+- Vouching system where users stake USDC to vouch for others, building reputation
+- SLP (Steeze Liquidity Points) trading on CARV SVM Chain (Solana-based)
+- Multi-chain wallet support (Solana + Ethereum)
+- Twitter/X authentication and social features
+- Reputation system based on learning, battles, and community vouching
+
+You should:
+- Be friendly, encouraging, and helpful
+- Explain Web3/crypto concepts clearly for beginners
+- Help users navigate the platform features
+- Provide actionable advice about building reputation in Web3
+- Keep responses concise but informative
+- Use a slightly futuristic, tech-savvy tone matching the AI-crypto aesthetic
+
+Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
+      };
+
+      // Call OpenAI Chat API
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [systemMessage, ...messages],
+        temperature: 0.7,
+        max_tokens: 500,
+      });
+
+      const aiResponse = completion.choices[0].message;
+      
+      // Log successful completion
+      console.log(`[AI Chat] Response sent to user: ${userId || 'unknown'}`);
+      
+      res.json({ message: aiResponse });
+    } catch (error) {
+      // Enhanced error logging for monitoring
+      const clientIP = getClientIP(req);
+      console.error(`[AI Chat Error] User: ${req.session?.user?.id || 'unknown'}, IP: ${clientIP}, Error:`, error);
+      
+      // Handle Zod validation errors specifically
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid chat request format",
+          errors: error.errors 
+        });
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to get AI response",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // Battle routes
   app.get('/api/battles', async (req, res) => {

@@ -15,6 +15,7 @@ import UserProfilePage from "@/pages/UserProfilePage";
 import Potions from "@/pages/Potions";
 import Settings from "@/pages/Settings";
 import WhitelistAdmin from "@/pages/WhitelistAdmin";
+import AIChat from "@/pages/AIChat";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -124,6 +125,7 @@ function Router() {
       <Route path="/profile/:userId" component={UserProfilePage} />
       <Route path="/user/:userId" component={UserProfilePage} />
       <Route path="/potions" component={Potions} />
+      <Route path="/chat" component={AIChat} />
       <Route path="/settings" component={Settings} />
       <Route path="/admin/whitelist" component={WhitelistAdmin} />
       <Route path="*" component={NotFound} />
