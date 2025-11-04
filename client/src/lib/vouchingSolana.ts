@@ -200,7 +200,9 @@ export async function depositVouch(
     }
     
     // Parse token account data to get balance (amount is at offset 64, 8 bytes little-endian)
-    const voucherBalance = Buffer.from(voucherAccountInfo.data).readBigUInt64LE(64);
+    // Use browser-compatible DataView instead of Buffer
+    const dataView = new DataView(voucherAccountInfo.data.buffer, voucherAccountInfo.data.byteOffset, voucherAccountInfo.data.byteLength);
+    const voucherBalance = dataView.getBigUint64(64, true); // true = little-endian
     console.log('[Vouching] Voucher USDT balance:', voucherBalance.toString());
     
     if (Number(voucherBalance) < amountInSmallestUnit) {
@@ -316,8 +318,10 @@ export async function getUSDTBalance(walletAddress: string): Promise<number> {
       return 0;
     }
     
-    // Parse token account data to get balance
-    const balance = Buffer.from(accountInfo.data).readBigUInt64LE(64);
+    // Parse token account data to get balance (amount is at offset 64, 8 bytes little-endian)
+    // Use browser-compatible DataView instead of Buffer
+    const dataView = new DataView(accountInfo.data.buffer, accountInfo.data.byteOffset, accountInfo.data.byteLength);
+    const balance = dataView.getBigUint64(64, true); // true = little-endian
     return Number(balance) / Math.pow(10, VOUCHING_CONFIG.usdtDecimals);
   } catch (error) {
     console.error('[Vouching] Error getting USDT balance:', error);
