@@ -228,7 +228,7 @@ export default function Leaderboard() {
               <div className="text-center" data-testid="stat-nodes-online">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Cpu className="w-5 h-5 text-cyan-400" />
-                  <span className="text-cyan-400/70 text-xs font-mono uppercase">Nodes</span>
+                  <span className="text-cyan-400/70 text-xs font-mono uppercase">DREAMERS</span>
                 </div>
                 <div className="text-3xl font-black text-white">{stats?.totalUsers || 0}</div>
                 <div className="text-xs text-cyan-400/60 font-mono">Online</div>
