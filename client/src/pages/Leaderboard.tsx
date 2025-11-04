@@ -539,45 +539,7 @@ export default function Leaderboard() {
             </Card>
           )}
 
-          {/* Network Operations CTA */}
-          <Card className="bg-gradient-to-r from-[#0A1929] to-black border-[#00D9FF]/40 shadow-[0_0_25px_#00D9FF]/30 overflow-hidden" data-testid="card-operations-cta">
-            <div className="absolute inset-0 opacity-[0.03]">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `
-                  linear-gradient(#00D9FF 1px, transparent 1px),
-                  linear-gradient(90deg, #00D9FF 1px, transparent 1px)
-                `,
-                backgroundSize: '40px 40px'
-              }}></div>
-            </div>
-            <CardContent className="p-8 text-center relative">
-              <h3 className="text-2xl sm:text-3xl font-black text-[#00D9FF] mb-4" data-testid="heading-ready-mine">
-                Ready to Mine the Network?
-              </h3>
-              <p className="text-gray-300 mb-6 max-w-2xl mx-auto" data-testid="text-mine-description">
-                Execute smart contracts, decode blockchain mysteries, and harvest Dreamz Points to dominate the neural rankings
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  className="bg-gradient-to-r from-[#00D9FF] to-[#0099FF] hover:from-[#00B8E6] hover:to-[#0080E6] text-black font-black shadow-[0_0_20px_#00D9FF] hover:shadow-[0_0_30px_#00D9FF] transition-all"
-                  onClick={() => window.location.href = "/"}
-                  data-testid="button-start-mining-cta"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Start Mining
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-black"
-                  onClick={() => window.location.href = "/battles"}
-                  data-testid="button-enter-arena-cta"
-                >
-                  <Trophy className="w-4 h-4 mr-2" />
-                  Enter Battle Arena
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          
         </div>
       </main>
       <Footer />
