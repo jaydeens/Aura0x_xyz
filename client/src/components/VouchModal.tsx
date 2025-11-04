@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { depositVouch, getUSDTBalance } from "@/lib/vouchingSolana";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Wallet, Heart, Loader2, ExternalLink } from "lucide-react";
 import type { User } from "@shared/schema";
+import { useAuth } from "@/hooks/useAuth";
+
+declare global {
+  interface Window {
+    solana?: any;
+    phantom?: any;
+    backpack?: any;
+  }
+}
 
 interface VouchModalProps {
   open: boolean;
@@ -26,17 +34,35 @@ interface VouchModalProps {
 export default function VouchModal({ open, onOpenChange, recipient }: VouchModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { publicKey, signTransaction } = useWallet();
+  const { user } = useAuth();
   const [usdtAmount, setUsdtAmount] = useState("10");
   const [usdtBalance, setUsdtBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
+  // Get Solana wallet object
+  const getSolanaWallet = () => {
+    if (window.backpack?.isBackpack) {
+      return window.backpack;
+    }
+    if (window.phantom?.solana?.isPhantom) {
+      return window.phantom.solana;
+    }
+    if (window.solana?.isPhantom) {
+      return window.solana;
+    }
+    if (window.solana) {
+      return window.solana;
+    }
+    return null;
+  };
+
   // Load USDT balance when modal opens
   const loadBalance = async () => {
-    if (!publicKey) return;
+    const wallet = getSolanaWallet();
+    if (!wallet || !wallet.publicKey) return;
     setIsLoadingBalance(true);
     try {
-      const balance = await getUSDTBalance(publicKey.toBase58());
+      const balance = await getUSDTBalance(wallet.publicKey.toString());
       setUsdtBalance(balance);
     } catch (error) {
       console.error("Error loading USDT balance:", error);
@@ -46,15 +72,16 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
   };
 
   // Load balance when modal opens
-  useState(() => {
-    if (open && publicKey) {
+  useEffect(() => {
+    if (open) {
       loadBalance();
     }
-  });
+  }, [open]);
 
   const vouchMutation = useMutation({
     mutationFn: async (amount: number) => {
-      if (!publicKey || !signTransaction) {
+      const wallet = getSolanaWallet();
+      if (!wallet || !wallet.publicKey) {
         throw new Error("Please connect your Solana wallet first");
       }
 
@@ -66,8 +93,8 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
       const signature = await depositVouch(
         recipient.walletAddress,
         amount,
-        publicKey,
-        signTransaction
+        wallet.publicKey,
+        wallet.signTransaction || wallet.signAllTransactions
       );
 
       // Confirm vouch on backend
@@ -173,7 +200,7 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
           </div>
 
           {/* USDT Balance */}
-          {publicKey && (
+          {getSolanaWallet()?.publicKey && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-cyan-300">Your USDT Balance:</span>
               {isLoadingBalance ? (

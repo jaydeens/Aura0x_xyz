@@ -1,7 +1,7 @@
 import { Connection, PublicKey, ParsedTransactionWithMeta } from '@solana/web3.js';
 
 const CARV_SVM_RPC = 'https://rpc.testnet.carv.io/rpc';
-const USDT_MINT = new PublicKey('BrZJPTML5PkYBDMGLZB4rvN9jbwKfmVLW6b9C9zBPZha');
+const USDT_MINT = new PublicKey('7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF');
 const PLATFORM_WALLET = new PublicKey('HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat');
 const VOUCH_PROGRAM = new PublicKey('Afn4YEKXFismTcsRt4dJkdXZHrreXm42Fqi1HDg99ocV');
 
