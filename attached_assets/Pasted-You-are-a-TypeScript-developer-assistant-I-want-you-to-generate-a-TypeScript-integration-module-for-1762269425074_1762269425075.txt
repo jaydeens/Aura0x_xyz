@@ -1,0 +1,47 @@
+You are a TypeScript developer assistant. I want you to generate a TypeScript integration module for my React + Vite + TanStack Query front-end that allows users to interact with my Solana program using @solana/web3.js. The wallet connection logic already exists, so skip that part. Focus only on building and sending the transactions.
+
+Program details:
+- Program ID: Afn4YEKXFismTcsRt4dJkdXZHrreXm42Fqi1HDg99ocV
+- RPC endpoint: https://rpc.testnet.carv.io/rpc
+- Platform wallet: HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat
+- The program has only one instruction: `deposit_vouch`
+
+Function to generate:
+### `depositVouch(recipient: string, mint: string, amount: number, wallet: WalletContextState)`
+This function should:
+1. Use the connected wallet as `voucher`.
+2. Transfer 70% of the amount to the recipient’s token account.
+3. Transfer 30% of the amount to the platform wallet’s associated token account.
+4. If the platform’s ATA does not exist, create it automatically.
+5. Work with standard SPL tokens (assume USDT with 6 decimals).
+6. Use @solana/web3.js and @solana/spl-token to:
+   - Derive and create ATAs for both recipient and platform if they don’t exist.
+   - Construct and send the transaction to the program.
+7. Build the transaction instruction using the correct account metas:
+   - `voucher`
+   - `voucher_token_account`
+   - `recipient_token_account`
+   - `mint`
+   - `platform_wallet_ata`
+   - `platform_wallet`
+   - `token_program`
+   - `associated_token_program`
+   - `system_program`
+8. Include inline comments describing each step for clarity.
+9. Use the correct encoding for 64-bit integers (amounts) in instruction data.
+10. Return the transaction signature after confirmation.
+11. Handle and log potential errors (e.g., insufficient balance, invalid recipient, missing accounts).
+
+Technical details:
+- Use only raw web3.js; do not use Anchor JS.
+- Use `TransactionInstruction` and `Transaction` objects directly.
+- Assume `wallet` has `publicKey` and `signTransaction` properties from Solana wallet adapter.
+- Add helper utilities for:
+   - Getting or creating ATAs
+   - Converting amount to smallest unit (e.g., `amount * 10 ** 6` for USDT)
+- The module should be ready to import and call inside a React component or a TanStack Query mutation.
+
+Expected output:
+- A single TypeScript file exporting `depositVouch()`
+- Properly typed, fully commented, and compatible with the CARV SVM testnet RPC
+
