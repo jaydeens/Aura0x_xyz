@@ -16,6 +16,7 @@ import Potions from "@/pages/Potions";
 import Settings from "@/pages/Settings";
 import WhitelistAdmin from "@/pages/WhitelistAdmin";
 import AIChat from "@/pages/AIChat";
+import VouchingHistory from "@/pages/VouchingHistory";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -125,6 +126,7 @@ function Router() {
       <Route path="/profile/:userId" component={UserProfilePage} />
       <Route path="/user/:userId" component={UserProfilePage} />
       <Route path="/potions" component={Potions} />
+      <Route path="/vouching" component={VouchingHistory} />
       <Route path="/chat" component={AIChat} />
       <Route path="/settings" component={Settings} />
       <Route path="/admin/whitelist" component={WhitelistAdmin} />

@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "wouter";
-import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings, Brain, MessageSquare } from "lucide-react";
+import { Zap, Home, Sword, Trophy, Coins, User, LogOut, Menu, X, Settings, Brain, MessageSquare, Heart } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -55,6 +55,7 @@ export default function Navigation() {
     { path: "/battles", label: "Battles", icon: Sword },
     { path: "/leaderboard", label: "Rankings", icon: Trophy },
     { path: "/potions", label: "Potions", icon: Coins },
+    { path: "/vouching", label: "Vouching", icon: Heart },
     { path: "/chat", label: "AI Chat", icon: MessageSquare },
   ];
 
