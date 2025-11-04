@@ -44,7 +44,7 @@ export default function AIChat() {
     setTypingMessage("");
     
     let currentIndex = 0;
-    const typingSpeed = 20; // milliseconds per character
+    const typingSpeed = 10; // milliseconds per character (faster typing)
     
     typingIntervalRef.current = setInterval(() => {
       if (currentIndex < fullMessage.length) {
