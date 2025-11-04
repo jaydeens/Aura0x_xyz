@@ -38,7 +38,7 @@ export default function AIChat() {
   const chatMutation = useMutation({
     mutationFn: async (userMessage: string) => {
       const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
-      const response = await apiRequest('/api/chat', 'POST', { messages: newMessages });
+      const response = await apiRequest('POST', '/api/chat', { messages: newMessages });
       return response.message;
     },
     onSuccess: (aiMessage) => {
