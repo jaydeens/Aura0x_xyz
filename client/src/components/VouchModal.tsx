@@ -165,6 +165,9 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
   const recipientAmount = parseFloat(usdtAmount || "0") * 0.7;
   const platformAmount = parseFloat(usdtAmount || "0") * 0.3;
   const dreamzPoints = Math.floor(parseFloat(usdtAmount || "0") * 10); // 1 USDT = 10 Dreamz Points
+  
+  const wallet = getSolanaWallet();
+  const publicKey = wallet?.publicKey;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
