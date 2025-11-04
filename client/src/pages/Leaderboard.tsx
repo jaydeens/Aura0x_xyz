@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trophy, Crown, Users, Zap, Target, Flame, Search, User, Cpu, BrainCircuit, Database, Heart } from "lucide-react";
+import { Trophy, Crown, Users, Zap, Target, Flame, Search, User, Cpu, BrainCircuit, Database, Heart, Sparkles } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 import VouchModal from "@/components/VouchModal";
@@ -472,20 +472,20 @@ export default function Leaderboard() {
             <Card className="bg-[#0A1929] border-[#00D9FF]/30 mb-10 shadow-[0_0_20px_#00D9FF]/20" data-testid="card-tier-system">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-[#00D9FF]" data-testid="heading-tier-protocol">
-                  ⚡ Neural Tier Protocol
+                  ✨ Dream Tier System
                 </CardTitle>
                 <p className="text-gray-400">
-                  Advance through neural tiers via daily mining operations. Unlock exponential vouch multipliers.
+                  Ascend through dream tiers via daily learning journeys. Unlock exponential vouch multipliers.
                 </p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                   {[
-                    { name: 'Genesis Node', minStreak: 0, color: '#64748B', multiplier: 'Standard' },
-                    { name: 'Token Trader', minStreak: 5, color: '#3B82F6', multiplier: '1.3x' },
-                    { name: 'Smart Contract Dev', minStreak: 10, color: '#00CCFF', multiplier: '1.5x' },
-                    { name: 'Quantum Miner', minStreak: 15, color: '#0099FF', multiplier: '2.0x' },
-                    { name: 'Neural Master', minStreak: 30, color: '#00D9FF', multiplier: '3.0x' }
+                    { name: 'Dream Seeker', minStreak: 0, color: '#64748B', multiplier: 'Standard' },
+                    { name: 'Lucid Dreamer', minStreak: 5, color: '#3B82F6', multiplier: '1.2x' },
+                    { name: 'Dream Weaver', minStreak: 10, color: '#00CCFF', multiplier: '1.5x' },
+                    { name: 'Dream Oracle', minStreak: 15, color: '#0099FF', multiplier: '1.8x' },
+                    { name: 'Dream Sovereign', minStreak: 30, color: '#00D9FF', multiplier: '2.0x' }
                   ].map((tier) => (
                     <div 
                       key={tier.name} 
@@ -500,10 +500,10 @@ export default function Leaderboard() {
                         className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center"
                         style={{
                           backgroundColor: `${tier.color}20`,
-                          boxShadow: tier.name === 'Neural Master' ? `0 0 20px ${tier.color}` : 'none'
+                          boxShadow: tier.name === 'Dream Sovereign' ? `0 0 20px ${tier.color}` : 'none'
                         }}
                       >
-                        <BrainCircuit 
+                        <Sparkles 
                           className="w-6 h-6"
                           style={{ color: tier.color }}
                         />
