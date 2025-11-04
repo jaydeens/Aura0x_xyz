@@ -1522,12 +1522,12 @@ You should:
 Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
       };
 
-      // Call OpenAI Chat API
+      // Call OpenAI Chat API with optimized settings for speed
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini', // Faster, cheaper model while maintaining quality
         messages: [systemMessage, ...messages],
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 200, // Reduced for faster responses
       });
 
       const aiResponse = completion.choices[0].message;
