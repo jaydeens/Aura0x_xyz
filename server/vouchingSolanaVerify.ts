@@ -1,9 +1,10 @@
 import { Connection, PublicKey, ParsedTransactionWithMeta } from '@solana/web3.js';
+import { CARV_SVM } from '../shared/constants';
 
-const CARV_SVM_RPC = 'https://rpc.testnet.carv.io/rpc';
-const USDT_MINT = new PublicKey('7J6YALZGY2MhAYF9veEapTRbszWVTVPYHSfWeK2LuaQF');
-const PLATFORM_WALLET = new PublicKey('HiyDHAyvc9TDNm1M8rbAsY7yeyRvJXN5TpBFT6nKZSat');
-const VOUCH_PROGRAM = new PublicKey('Afn4YEKXFismTcsRt4dJkdXZHrreXm42Fqi1HDg99ocV');
+const CARV_SVM_RPC = CARV_SVM.RPC_URL;
+const USDT_MINT = new PublicKey(CARV_SVM.USDT_MINT);
+const PLATFORM_WALLET = new PublicKey(CARV_SVM.PLATFORM_WALLET);
+const VOUCH_PROGRAM = new PublicKey(CARV_SVM.VOUCHING_PROGRAM_ID);
 
 interface VouchVerification {
   isValid: boolean;

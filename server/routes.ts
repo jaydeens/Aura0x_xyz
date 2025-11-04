@@ -1968,6 +1968,12 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
         return res.status(400).json({ message: "Transaction not from authenticated wallet" });
       }
 
+      // Prevent vouching for platform wallet (backend validation)
+      const { CARV_SVM } = await import('../shared/constants');
+      if (verification.vouchedUser === CARV_SVM.PLATFORM_WALLET) {
+        return res.status(400).json({ message: "Cannot vouch for platform wallet address" });
+      }
+
       // Find or create the vouched user based on wallet address
       let vouchedUser = await storage.getUserByWallet(verification.vouchedUser!);
       if (!vouchedUser) {

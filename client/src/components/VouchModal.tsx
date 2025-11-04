@@ -16,6 +16,7 @@ import { depositVouch, getUSDTBalance } from "@/lib/vouchingSolana";
 import { Wallet, Heart, Loader2, ExternalLink } from "lucide-react";
 import type { User } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
+import { CARV_SVM } from "@shared/constants";
 
 declare global {
   interface Window {
@@ -131,6 +132,16 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
   });
 
   const handleVouch = () => {
+    // Check if trying to vouch for platform wallet (not allowed)
+    if (recipient.walletAddress === CARV_SVM.PLATFORM_WALLET) {
+      toast({
+        variant: "destructive",
+        title: "Cannot Vouch",
+        description: "You cannot vouch for the platform wallet address",
+      });
+      return;
+    }
+
     const amount = parseFloat(usdtAmount);
     if (isNaN(amount) || amount <= 0) {
       toast({
