@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trophy, Crown, Users, Zap, Target, Flame, Search, User, Cpu, BrainCircuit, Database } from "lucide-react";
+import { Trophy, Crown, Users, Zap, Target, Flame, Search, User, Cpu, BrainCircuit, Database, Heart } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
+import VouchModal from "@/components/VouchModal";
 
 export default function Leaderboard() {
   const { toast } = useToast();
@@ -19,6 +20,8 @@ export default function Leaderboard() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedTab, setSelectedTab] = useState("all-time");
+  const [vouchModalOpen, setVouchModalOpen] = useState(false);
+  const [selectedUserToVouch, setSelectedUserToVouch] = useState<any>(null);
 
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery({
     queryKey: ["/api/leaderboard", selectedTab],
@@ -310,60 +313,79 @@ export default function Leaderboard() {
                 {/* REDESIGNED: Top 3 as Large Feature Cards */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                   {leaderboard.slice(0, 3).map((user: any, index: number) => (
-                    <Link key={user.id} href={`/user/${user.id}`}>
-                      <Card className={cn(
-                        "h-full transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden",
-                        index === 0 ? 'bg-gradient-to-br from-[#FFD700]/20 to-[#FFA500]/20 border-2 border-[#FFD700] shadow-[0_0_30px_#FFD700]' :
-                        index === 1 ? 'bg-gradient-to-br from-[#C0C0C0]/20 to-[#808080]/20 border-2 border-[#C0C0C0] shadow-[0_0_25px_#C0C0C0]' :
-                        'bg-gradient-to-br from-[#CD7F32]/20 to-[#8B4513]/20 border-2 border-[#CD7F32] shadow-[0_0_25px_#CD7F32]'
-                      )} data-testid={`card-top-${index + 1}`}>
-                        <CardContent className="p-8 text-center">
-                          {/* Rank Badge */}
-                          <div className="mb-4 flex justify-center">
-                            <div className={cn(
-                              "w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black",
-                              index === 0 ? 'bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-black shadow-[0_0_20px_#FFD700]' :
-                              index === 1 ? 'bg-gradient-to-br from-[#C0C0C0] to-[#808080] text-black shadow-[0_0_15px_#C0C0C0]' :
-                              'bg-gradient-to-br from-[#CD7F32] to-[#8B4513] text-white shadow-[0_0_15px_#CD7F32]'
-                            )} data-testid={`badge-top-rank-${index + 1}`}>
-                              {index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}
+                    <div key={user.id} className="relative">
+                      <Link href={`/user/${user.id}`}>
+                        <Card className={cn(
+                          "h-full transition-all duration-300 hover:scale-105 cursor-pointer overflow-hidden",
+                          index === 0 ? 'bg-gradient-to-br from-[#FFD700]/20 to-[#FFA500]/20 border-2 border-[#FFD700] shadow-[0_0_30px_#FFD700]' :
+                          index === 1 ? 'bg-gradient-to-br from-[#C0C0C0]/20 to-[#808080]/20 border-2 border-[#C0C0C0] shadow-[0_0_25px_#C0C0C0]' :
+                          'bg-gradient-to-br from-[#CD7F32]/20 to-[#8B4513]/20 border-2 border-[#CD7F32] shadow-[0_0_25px_#CD7F32]'
+                        )} data-testid={`card-top-${index + 1}`}>
+                          <CardContent className="p-8 text-center">
+                            {/* Rank Badge */}
+                            <div className="mb-4 flex justify-center">
+                              <div className={cn(
+                                "w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black",
+                                index === 0 ? 'bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-black shadow-[0_0_20px_#FFD700]' :
+                                index === 1 ? 'bg-gradient-to-br from-[#C0C0C0] to-[#808080] text-black shadow-[0_0_15px_#C0C0C0]' :
+                                'bg-gradient-to-br from-[#CD7F32] to-[#8B4513] text-white shadow-[0_0_15px_#CD7F32]'
+                              )} data-testid={`badge-top-rank-${index + 1}`}>
+                                {index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}
+                              </div>
                             </div>
-                          </div>
-                          
-                          {/* Username */}
-                          <h3 className="text-2xl font-black text-white mb-2" data-testid={`text-top-name-${user.id}`}>
-                            {user.username?.substring(0, 15) || 'Anonymous'}
-                            {index === 0 && ' 👑'}
-                          </h3>
-                          
-                          {/* Dreamz Count */}
-                          <div className="mb-4">
-                            <div className="text-4xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent" data-testid={`text-top-dreamz-${user.id}`}>
-                              {user.auraPoints?.toLocaleString() || 0}
+                            
+                            {/* Username */}
+                            <h3 className="text-2xl font-black text-white mb-2" data-testid={`text-top-name-${user.id}`}>
+                              {user.username?.substring(0, 15) || 'Anonymous'}
+                              {index === 0 && ' 👑'}
+                            </h3>
+                            
+                            {/* Dreamz Count */}
+                            <div className="mb-4">
+                              <div className="text-4xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent" data-testid={`text-top-dreamz-${user.id}`}>
+                                {user.auraPoints?.toLocaleString() || 0}
+                              </div>
+                              <div className="text-sm text-cyan-400 font-mono uppercase">DRZ Tokens</div>
                             </div>
-                            <div className="text-sm text-cyan-400 font-mono uppercase">DRZ Tokens</div>
-                          </div>
-                          
-                          {/* Streak */}
-                          {user.currentStreak > 0 && (
-                            <div className="flex items-center justify-center gap-2 mb-4">
-                              <Flame className="w-5 h-5 text-cyan-400" />
-                              <span className="text-cyan-400 font-bold" data-testid={`text-top-streak-${user.id}`}>{user.currentStreak} day streak</span>
-                            </div>
-                          )}
-                          
-                          {/* Level Badge */}
-                          {(() => {
-                            const dreamzLevel = getDreamzLevel(user.currentStreak || 0);
-                            return (
-                              <Badge className={`${dreamzLevel.bg} ${dreamzLevel.color} border border-current/30 ${dreamzLevel.glow} font-bold`} data-testid={`badge-top-level-${user.id}`}>
-                                {dreamzLevel.name.toUpperCase()}
-                              </Badge>
-                            );
-                          })()}
-                        </CardContent>
-                      </Card>
-                    </Link>
+                            
+                            {/* Streak */}
+                            {user.currentStreak > 0 && (
+                              <div className="flex items-center justify-center gap-2 mb-4">
+                                <Flame className="w-5 h-5 text-cyan-400" />
+                                <span className="text-cyan-400 font-bold" data-testid={`text-top-streak-${user.id}`}>{user.currentStreak} day streak</span>
+                              </div>
+                            )}
+                            
+                            {/* Level Badge */}
+                            {(() => {
+                              const dreamzLevel = getDreamzLevel(user.currentStreak || 0);
+                              return (
+                                <Badge className={`${dreamzLevel.bg} ${dreamzLevel.color} border border-current/30 ${dreamzLevel.glow} font-bold`} data-testid={`badge-top-level-${user.id}`}>
+                                  {dreamzLevel.name.toUpperCase()}
+                                </Badge>
+                              );
+                            })()}
+                          </CardContent>
+                        </Card>
+                      </Link>
+                      
+                      {/* Vouch Button */}
+                      {user.id !== user?.id && user.walletAddress && (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedUserToVouch(user);
+                            setVouchModalOpen(true);
+                          }}
+                          className="absolute bottom-4 right-4 bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-500 hover:to-red-500 text-white shadow-lg z-10"
+                          size="sm"
+                          data-testid={`button-vouch-${user.id}`}
+                        >
+                          <Heart className="w-4 h-4 mr-2" />
+                          Vouch
+                        </Button>
+                      )}
+                    </div>
                   ))}
                 </div>
 
@@ -374,46 +396,64 @@ export default function Leaderboard() {
                     const dreamzLevel = getDreamzLevel(user.currentStreak || 0);
                     
                     return (
-                      <Link key={user.id} href={`/user/${user.id}`}>
-                        <Card className="bg-black/40 border-[#00D9FF]/30 hover:border-[#00D9FF]/60 hover:shadow-[0_0_15px_#00D9FF]/30 transition-all hover:scale-105 cursor-pointer h-full" data-testid={`card-rank-${actualIndex + 1}`}>
-                          <CardContent className="p-5">
-                            {/* Rank & Username */}
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-lg flex items-center justify-center font-black text-black flex-shrink-0" data-testid={`badge-grid-rank-${actualIndex + 1}`}>
-                                #{actualIndex + 1}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="text-white font-bold truncate text-sm" data-testid={`text-grid-name-${user.id}`}>
-                                  {user.username?.substring(0, 12) || 'Anonymous'}
-                                </h3>
-                              </div>
-                            </div>
-                            
-                            {/* Dreamz Count */}
-                            <div className="mb-3">
-                              <div className="text-2xl font-black text-[#00D9FF]" data-testid={`text-grid-dreamz-${user.id}`}>
-                                {user.auraPoints?.toLocaleString() || 0}
-                              </div>
-                              <div className="text-xs text-cyan-400/60 font-mono">DRZ</div>
-                            </div>
-                            
-                            {/* Streak & Level */}
-                            <div className="flex items-center justify-between gap-2">
-                              {user.currentStreak > 0 ? (
-                                <div className="flex items-center gap-1">
-                                  <Flame className="w-3 h-3 text-cyan-400" />
-                                  <span className="text-xs text-cyan-400" data-testid={`text-grid-streak-${user.id}`}>{user.currentStreak}d</span>
+                      <div key={user.id} className="relative">
+                        <Link href={`/user/${user.id}`}>
+                          <Card className="bg-black/40 border-[#00D9FF]/30 hover:border-[#00D9FF]/60 hover:shadow-[0_0_15px_#00D9FF]/30 transition-all hover:scale-105 cursor-pointer h-full" data-testid={`card-rank-${actualIndex + 1}`}>
+                            <CardContent className="p-5">
+                              {/* Rank & Username */}
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-lg flex items-center justify-center font-black text-black flex-shrink-0" data-testid={`badge-grid-rank-${actualIndex + 1}`}>
+                                  #{actualIndex + 1}
                                 </div>
-                              ) : (
-                                <div></div>
-                              )}
-                              <Badge className={`${dreamzLevel.bg} ${dreamzLevel.color} border border-current/30 text-xs px-2 py-0.5`} data-testid={`badge-grid-level-${user.id}`}>
-                                {dreamzLevel.name.split(' ')[0]}
-                              </Badge>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-white font-bold truncate text-sm" data-testid={`text-grid-name-${user.id}`}>
+                                    {user.username?.substring(0, 12) || 'Anonymous'}
+                                  </h3>
+                                </div>
+                              </div>
+                              
+                              {/* Dreamz Count */}
+                              <div className="mb-3">
+                                <div className="text-2xl font-black text-[#00D9FF]" data-testid={`text-grid-dreamz-${user.id}`}>
+                                  {user.auraPoints?.toLocaleString() || 0}
+                                </div>
+                                <div className="text-xs text-cyan-400/60 font-mono">DRZ</div>
+                              </div>
+                              
+                              {/* Streak & Level */}
+                              <div className="flex items-center justify-between gap-2">
+                                {user.currentStreak > 0 ? (
+                                  <div className="flex items-center gap-1">
+                                    <Flame className="w-3 h-3 text-cyan-400" />
+                                    <span className="text-xs text-cyan-400" data-testid={`text-grid-streak-${user.id}`}>{user.currentStreak}d</span>
+                                  </div>
+                                ) : (
+                                  <div></div>
+                                )}
+                                <Badge className={`${dreamzLevel.bg} ${dreamzLevel.color} border border-current/30 text-xs px-2 py-0.5`} data-testid={`badge-grid-level-${user.id}`}>
+                                  {dreamzLevel.name.split(' ')[0]}
+                                </Badge>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                        
+                        {/* Vouch Button */}
+                        {user.id !== user?.id && user.walletAddress && (
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedUserToVouch(user);
+                              setVouchModalOpen(true);
+                            }}
+                            className="absolute bottom-2 right-2 bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-500 hover:to-red-500 text-white shadow-lg z-10 h-7 px-2"
+                            size="sm"
+                            data-testid={`button-vouch-grid-${user.id}`}
+                          >
+                            <Heart className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -541,6 +581,15 @@ export default function Leaderboard() {
         </div>
       </main>
       <Footer />
+      
+      {/* Vouch Modal */}
+      {selectedUserToVouch && (
+        <VouchModal
+          open={vouchModalOpen}
+          onOpenChange={setVouchModalOpen}
+          recipient={selectedUserToVouch}
+        />
+      )}
     </div>
   );
 }
