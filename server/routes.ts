@@ -54,6 +54,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import * as carvSVM from "./carvSVMSimple";
+import { verifyVouchTransaction } from "./vouchingSolanaVerify";
 
 // Helper function to validate both Ethereum and Solana wallet addresses
 function isValidWalletAddress(address: string): boolean {
@@ -1954,8 +1955,8 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
         return res.status(400).json({ message: "Transaction hash is required" });
       }
       
-      // Verify vouching transaction on Base Sepolia
-      const verification = await web3Service.verifyVouchTransaction(transactionHash);
+      // Verify vouching transaction on CARV SVM
+      const verification = await verifyVouchTransaction(transactionHash);
       
       if (!verification.isValid) {
         return res.status(400).json({ message: "Invalid vouching transaction" });
@@ -1963,7 +1964,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
 
       // Ensure the voucher matches the authenticated user's wallet
       const user = await storage.getUser(userId);
-      if (!user?.walletAddress || user.walletAddress.toLowerCase() !== verification.voucher?.toLowerCase()) {
+      if (!user?.walletAddress || user.walletAddress !== verification.voucher) {
         return res.status(400).json({ message: "Transaction not from authenticated wallet" });
       }
 
@@ -1972,7 +1973,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
       if (!vouchedUser) {
         // Auto-create user for vouched wallet
         vouchedUser = await storage.upsertUser({
-          id: `wallet_${verification.vouchedUser!.toLowerCase()}`,
+          id: `wallet_${verification.vouchedUser!}`,
           walletAddress: verification.vouchedUser!,
           username: verification.vouchedUser!.slice(0, 6) + '...' + verification.vouchedUser!.slice(-4),
           currentStreak: 0,
@@ -1984,7 +1985,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
       const vouch = await storage.createVouch({
         fromUserId: userId,
         toUserId: vouchedUser.id,
-        usdtAmount: verification.usdcAmount!.toString(),
+        usdtAmount: verification.usdtAmount!.toString(),
         dreamzPoints: verification.dreamzPoints!,
         multiplier: "1.0",
         transactionHash,
@@ -1993,9 +1994,9 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
       // Award dreamz points to recipient
       await storage.updateUserDreamz(vouchedUser.id, verification.dreamzPoints!, 'vouching');
       
-      // Track USDC earnings (70% goes to vouched user as per contract)
-      const usdcEarnings = verification.usdcAmount! * 0.7;
-      await storage.updateUserUsdtEarnings(vouchedUser.id, usdcEarnings);
+      // Track USDT earnings (70% goes to vouched user)
+      const usdtEarnings = verification.usdtAmount! * 0.7;
+      await storage.updateUserUsdtEarnings(vouchedUser.id, usdtEarnings);
       
       // Create notification for vouched user
       const voucherName = user.username || user.walletAddress?.slice(0, 6) + '...' + user.walletAddress?.slice(-4) || 'Someone';
@@ -2004,7 +2005,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
         userId: vouchedUser.id,
         type: 'vouch_received',
         title: 'You received a vouch!',
-        message: `${voucherName} vouched for you with ${verification.usdcAmount} USDC and awarded ${verification.dreamzPoints} dreamz points!`,
+        message: `${voucherName} vouched for you with ${verification.usdtAmount} USDT and awarded ${verification.dreamzPoints} dreamz points!`,
         isRead: false
       });
       
@@ -2012,7 +2013,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
         success: true,
         vouch,
         dreamzAwarded: verification.dreamzPoints,
-        usdcAmount: verification.usdcAmount,
+        usdtAmount: verification.usdtAmount,
         vouchedUser: vouchedUser.walletAddress
       });
     } catch (error: any) {
