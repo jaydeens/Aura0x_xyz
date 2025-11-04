@@ -1507,7 +1507,7 @@ Key platform features you should know about:
 - Daily AI-generated Web3 lessons with quizzes (earn 10 Dreamz Points per completion)
 - 1v1 knowledge battles where users compete and community votes
 - Vouching system where users stake USDC to vouch for others, building reputation
-- SLP (Steeze Liquidity Points) trading on CARV SVM Chain (Solana-based)
+- SLP (Sleep Points) trading on CARV SVM Chain (Solana-based)
 - Multi-chain wallet support (Solana + Ethereum)
 - Twitter/X authentication and social features
 - Reputation system based on learning, battles, and community vouching

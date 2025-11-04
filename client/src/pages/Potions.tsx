@@ -148,6 +148,9 @@ export default function Potions() {
   const { data: balanceData } = useQuery({
     queryKey: ["/api/potions/balance"],
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10000,
+    staleTime: 5000,
   });
 
   const { data: purchaseInfo } = useQuery({
