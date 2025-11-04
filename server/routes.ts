@@ -2333,7 +2333,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
       }
 
       const user = await storage.getUser(userId);
-      const purchasedSteeze = user?.purchasedSteeze || 0;
+      const purchasedSteeze = user?.potionsBalance || 0;
       const battleEarnedSteeze = user?.battleEarnedSteeze || 0;
       const totalBalance = purchasedSteeze + battleEarnedSteeze;
       
