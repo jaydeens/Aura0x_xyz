@@ -138,16 +138,13 @@ export default function Leaderboard() {
           opacity: 0.1
         }}></div>
       </div>
-
       {/* Animated Cyber Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-[#00D9FF]/20 to-[#0099FF]/20 rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-[#0066FF]/15 to-[#00D9FF]/15 rounded-full blur-2xl animate-float"></div>
         <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-full blur-3xl animate-pulse-slow delay-1000"></div>
       </div>
-
       <Navigation />
-      
       {/* REDESIGNED LAYOUT: Add sidebar spacing + floating search */}
       <main className="relative md:pt-0 pt-16 pb-12 px-4 sm:px-6 lg:px-8">
         {/* Floating Search - TOP RIGHT */}
@@ -240,7 +237,8 @@ export default function Leaderboard() {
               <div className="text-center border-l border-r border-cyan-500/20" data-testid="stat-total-supply">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <BrainCircuit className="w-5 h-5 text-blue-400" />
-                  <span className="text-blue-400/70 text-xs font-mono uppercase">Supply</span>
+                  <span className="text-blue-400/70 text-xs font-mono uppercase">TOTAL SLP
+</span>
                 </div>
                 <div className="text-3xl font-black bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
                   {formatNumber(stats?.totalAura || 0)}
@@ -543,7 +541,6 @@ export default function Leaderboard() {
         </div>
       </main>
       <Footer />
-      
       {/* Vouch Modal */}
       {selectedUserToVouch && (
         <VouchModal
