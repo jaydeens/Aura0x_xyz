@@ -481,7 +481,7 @@ export default function UserProfile({ userId }: UserProfileProps) {
         </div>
 
         {/* User Stats - Gradient Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {/* Total Dreamz - Purple/Blue Gradient */}
           <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-purple-800/20 border border-purple-500/30 backdrop-blur-sm">
             <div className="text-center">
@@ -512,10 +512,37 @@ export default function UserProfile({ userId }: UserProfileProps) {
           {/* USDT Received - Gold/Yellow Gradient */}
           <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-yellow-600/20 via-amber-600/20 to-yellow-800/20 border border-yellow-500/30 backdrop-blur-sm">
             <div className="text-center">
-              <div className="text-white text-4xl font-bold mb-2">{Number((vouchStats as any)?.totalUsdtReceived || 0).toFixed(2)}</div>
+              <div className="text-white text-4xl font-bold mb-2">{Number((vouchStats as any)?.totalUsdcReceived || 0).toFixed(2)}</div>
               <div className="text-yellow-200 text-sm font-medium">USDT Received</div>
             </div>
             <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          {/* Vouches Given - Pink/Rose Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-pink-600/20 via-rose-600/20 to-pink-800/20 border border-pink-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{vouchStats?.vouchesGiven || 0}</div>
+              <div className="text-pink-200 text-sm font-medium">Vouches Given</div>
+            </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-pink-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          {/* USDT Given - Orange Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-orange-600/20 via-amber-600/20 to-orange-800/20 border border-orange-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{Number((vouchStats as any)?.totalUsdcGiven || 0).toFixed(2)}</div>
+              <div className="text-orange-200 text-sm font-medium">USDT Given</div>
+            </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          {/* Dreamz from Vouching - Cyan Gradient */}
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-cyan-600/20 via-teal-600/20 to-cyan-800/20 border border-cyan-500/30 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-white text-4xl font-bold mb-2">{vouchStats?.totalDreamzReceived || 0}</div>
+              <div className="text-cyan-200 text-sm font-medium">Dreamz from Vouches</div>
+            </div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-500/10 rounded-full blur-2xl"></div>
           </div>
         </div>
       </div>
