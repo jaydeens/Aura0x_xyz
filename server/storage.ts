@@ -1387,6 +1387,33 @@ class PgStorage implements IStorage {
       .where(eq(users.id, userId));
   }
 
+  async checkAndResetStreak(userId: string): Promise<number> {
+    const user = await this.getUser(userId);
+    if (!user || !user.lastLessonDate) {
+      return 0;
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const lastDate = new Date(user.lastLessonDate);
+    lastDate.setHours(0, 0, 0, 0);
+
+    // If last lesson was more than 1 day ago, reset streak to 0
+    if (lastDate.getTime() < yesterday.getTime()) {
+      await db.update(users)
+        .set({
+          currentStreak: 0,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+      return 0;
+    }
+
+    return user.currentStreak;
+  }
+
   // Wallet whitelist operations
   async isWalletWhitelisted(walletAddress: string): Promise<boolean> {
     const result = await db.select()
