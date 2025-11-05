@@ -2275,7 +2275,7 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
       
       const totalUsdcGiven = vouchesGiven.reduce((sum, v) => sum + parseFloat(v.usdtAmount), 0);
       const totalUsdcReceived = vouchesReceived.reduce((sum, v) => sum + (parseFloat(v.usdtAmount) * 0.7), 0); // 70% to user
-      const totalDreamzReceived = vouchesReceived.reduce((sum, v) => sum + v.auraPoints, 0);
+      const totalDreamzReceived = vouchesReceived.reduce((sum, v) => sum + v.dreamzPoints, 0);
 
       res.json({
         vouchesGiven: vouchesGiven.length,
@@ -3598,8 +3598,8 @@ Building my Web3 empire one achievement at a time! 🚀
       const allUsers = await storage.getLeaderboard(1000); // Get all users
       const totalUsers = allUsers.length;
       
-      // Get total aura points across all users
-      const totalDreamz = allUsers.reduce((sum, user: any) => sum + (user.auraPoints || 0), 0);
+      // Get total dreamz points across all users
+      const totalDreamz = allUsers.reduce((sum, user: any) => sum + (user.dreamzPoints || 0), 0);
       
       // Get battles data
       const allBattles = await storage.getBattles();

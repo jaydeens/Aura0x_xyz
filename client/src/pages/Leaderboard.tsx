@@ -187,7 +187,7 @@ export default function Leaderboard() {
                                 {searchUser.username || 'Anonymous'}
                               </h3>
                               <div className="flex items-center gap-2 text-xs text-gray-400">
-                                <span data-testid={`text-scan-dreamz-${searchUser.id}`}>{searchUser.auraPoints?.toLocaleString() || 0} DRMZ</span>
+                                <span data-testid={`text-scan-dreamz-${searchUser.id}`}>{searchUser.dreamzPoints?.toLocaleString() || 0} DRMZ</span>
                                 {searchUser.currentStreak > 0 && (
                                   <span className="text-[#00D9FF]" data-testid={`text-scan-streak-${searchUser.id}`}>🔥{searchUser.currentStreak}</span>
                                 )}
@@ -269,7 +269,7 @@ export default function Leaderboard() {
                     <div>
                       <h3 className="text-xl font-bold text-[#00D9FF]" data-testid="heading-your-position">Your Neural Rank</h3>
                       <p className="text-gray-300">
-                        Position #{userRank} • {user?.auraPoints?.toLocaleString() || "0"} DRMZ
+                        Position #{userRank} • {user?.dreamzPoints?.toLocaleString() || "0"} DRMZ
                       </p>
                     </div>
                   </div>
@@ -341,7 +341,7 @@ export default function Leaderboard() {
                             {/* Dreamz Count */}
                             <div className="mb-4">
                               <div className="text-4xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent" data-testid={`text-top-dreamz-${user.id}`}>
-                                {user.auraPoints?.toLocaleString() || 0}
+                                {user.dreamzPoints?.toLocaleString() || 0}
                               </div>
                               <div className="text-sm text-cyan-400 font-mono uppercase">DRMZ Tokens</div>
                             </div>
@@ -413,7 +413,7 @@ export default function Leaderboard() {
                               {/* Dreamz Count */}
                               <div className="mb-3">
                                 <div className="text-2xl font-black text-[#00D9FF]" data-testid={`text-grid-dreamz-${user.id}`}>
-                                  {user.auraPoints?.toLocaleString() || 0}
+                                  {user.dreamzPoints?.toLocaleString() || 0}
                                 </div>
                                 <div className="text-xs text-cyan-400/60 font-mono">DRMZ</div>
                               </div>
