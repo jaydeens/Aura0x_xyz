@@ -30,7 +30,7 @@ export async function verifyVouchTransaction(txHash: string): Promise<VouchVerif
     }
 
     const parsed = tx as ParsedTransactionWithMeta;
-    const meta = parsed.meta;
+    const meta = parsed.meta!;
     const accountKeys = parsed.transaction.message.accountKeys;
     
     let voucher: string | undefined;
@@ -56,23 +56,45 @@ export async function verifyVouchTransaction(txHash: string): Promise<VouchVerif
 
       if (change < 0) {
         voucher = preBal.owner;
-        totalUsdtAmount = Math.abs(change);
       }
 
       if (change > 0) {
         const owner = postBal.owner;
         
         if (owner === PLATFORM_WALLET.toBase58()) {
-          platformFee = change;
+          platformFee += change;
         } else {
           vouchedUser = owner;
-          recipientAmount = change;
+          recipientAmount += change;
         }
       }
     }
 
-    if (!voucher || !vouchedUser || totalUsdtAmount === 0) {
-      console.error('Invalid vouch transaction structure');
+    if (!voucher || !vouchedUser) {
+      console.error('Invalid vouch transaction structure - missing voucher or vouchedUser');
+      return { isValid: false };
+    }
+
+    const isVoucherPlatformWallet = voucher === PLATFORM_WALLET.toBase58();
+    
+    if (isVoucherPlatformWallet) {
+      totalUsdtAmount = recipientAmount / 0.7;
+      const expectedPlatformFee = totalUsdtAmount * 0.3;
+      platformFee = expectedPlatformFee;
+      
+      console.log('Platform wallet vouching - calculated from recipient amount:', {
+        recipientAmount,
+        calculatedTotal: totalUsdtAmount,
+        calculatedPlatformFee: platformFee
+      });
+    } else {
+      const netDecrease = Math.abs(preBalances.find(p => p.owner === voucher)?.uiTokenAmount.uiAmount || 0) - 
+                          Math.abs(postBalances.find(p => p.owner === voucher)?.uiTokenAmount.uiAmount || 0);
+      totalUsdtAmount = netDecrease;
+    }
+
+    if (totalUsdtAmount === 0 || recipientAmount === 0) {
+      console.error('Invalid vouch amounts - zero values detected');
       return { isValid: false };
     }
 
@@ -83,7 +105,13 @@ export async function verifyVouchTransaction(txHash: string): Promise<VouchVerif
     const recipientAmountMatches = Math.abs(recipientAmount - expectedRecipientAmount) < 0.01;
 
     if (!platformFeeMatches || !recipientAmountMatches) {
-      console.error('Split amounts do not match expected 70/30 split');
+      console.error('Split amounts do not match expected 70/30 split', {
+        platformFee,
+        expectedPlatformFee,
+        recipientAmount,
+        expectedRecipientAmount,
+        totalUsdtAmount
+      });
       return { isValid: false };
     }
 
