@@ -167,8 +167,8 @@ export default function Battles() {
     }
 
     const stakeAmountNum = parseFloat(stakeAmount);
-    const userBalance = user?.auraPoints || 0;
-    const opponentBalance = selectedOpponent.auraPoints || 0;
+    const userBalance = user?.dreamzPoints || 0;
+    const opponentBalance = selectedOpponent.dreamzPoints || 0;
 
     if (stakeAmountNum > userBalance) {
       setBalanceErrorMessage("Insufficient Dreamz balance to execute this ritual!");
@@ -759,7 +759,7 @@ export default function Battles() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-cyan-400 font-bold font-mono">{user.auraPoints || 0} DRMZ</p>
+                            <p className="text-cyan-400 font-bold font-mono">{user.dreamzPoints || 0} DRMZ</p>
                             <p className="text-cyan-400/60 text-sm font-mono">Streak: {user.currentStreak || 0}</p>
                           </div>
                         </div>
@@ -836,7 +836,7 @@ export default function Battles() {
                 <Input
                   type="number"
                   min="1"
-                  max={user?.auraPoints || 0}
+                  max={user?.dreamzPoints || 0}
                   placeholder="Enter pledge amount"
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
@@ -844,7 +844,7 @@ export default function Battles() {
                   data-testid="input-ritual-pledge"
                 />
                 <p className="text-cyan-400/50 text-sm mt-1 font-mono">
-                  Available: {user?.auraPoints || 0} DRMZ • Both dreamers must pledge equal amounts
+                  Available: {user?.dreamzPoints || 0} DRMZ • Both dreamers must pledge equal amounts
                 </p>
               </div>
 
