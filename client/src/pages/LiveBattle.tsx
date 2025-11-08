@@ -37,8 +37,9 @@ import {
 } from "lucide-react";
 
 export default function LiveBattle() {
-  const [, params] = useRoute("/battles/:id");
-  const battleId = params?.id;
+  const [matchPlural, paramsPlural] = useRoute("/battles/:id");
+  const [matchSingular, paramsSingular] = useRoute("/battle/:id");
+  const battleId = paramsPlural?.id || paramsSingular?.id;
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();

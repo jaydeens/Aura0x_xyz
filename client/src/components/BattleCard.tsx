@@ -279,7 +279,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
 
   const handleCardClick = () => {
     if (battle.status === 'active') {
-      window.location.href = `/battle/${battle.id}`;
+      window.location.href = `/battles/${battle.id}`;
     }
   };
 
