@@ -54,7 +54,8 @@ export default function LiveBattle() {
   const [giftAnimations, setGiftAnimations] = useState<Array<{id: number, type: string, participant: string}>>([]);
   const [showTopGifters, setShowTopGifters] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationData, setCelebrationData] = useState<{ amount: number; type: 'slp' | 'vouch' }>({ amount: 0, type: 'slp' });
+  const [celebrationType, setCelebrationType] = useState<'slp' | 'vouch'>('slp');
+  const [celebrationData, setCelebrationData] = useState<{ slpAmount?: number }>({});
 
   // Fetch battle votes/gifts data
   const { data: battleVotes } = useQuery({
@@ -112,7 +113,8 @@ export default function LiveBattle() {
     },
     onSuccess: () => {
       const amount = parseInt(giftAmount);
-      setCelebrationData({ amount, type: 'slp' });
+      setCelebrationData({ slpAmount: amount });
+      setCelebrationType('slp');
       setShowCelebration(true);
       setShowGiftDialog(false);
       setGiftAmount("");
@@ -697,8 +699,8 @@ export default function LiveBattle() {
           <CelebrationDialog
             open={showCelebration}
             onOpenChange={setShowCelebration}
-            amount={celebrationData.amount}
-            type={celebrationData.type}
+            type={celebrationType}
+            data={celebrationData}
           />
         </div>
       </div>
