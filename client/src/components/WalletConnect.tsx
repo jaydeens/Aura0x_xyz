@@ -101,88 +101,18 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
     setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
   };
 
-  const connectMobileWallet = async (walletType: string) => {
-    setIsConnecting(true);
-    try {
-      if (walletType === 'metamask' && !window.ethereum) {
-        window.open(`https://metamask.app.link/dapp/${window.location.host}`, '_blank');
-        toast({
-          title: "Opening MetaMask",
-          description: "Please connect your wallet in the MetaMask app",
-        });
-        return;
-      }
-      
-      if (walletType === 'trust' && !window.ethereum) {
-        window.open(`https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(window.location.href)}`, '_blank');
-        toast({
-          title: "Opening Trust Wallet",
-          description: "Please connect your wallet in the Trust Wallet app",
-        });
-        return;
-      }
-      
-      if (walletType === 'coinbase' && !window.ethereum) {
-        window.open(`https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(window.location.href)}`, '_blank');
-        toast({
-          title: "Opening Coinbase Wallet",
-          description: "Please connect your wallet in the Coinbase Wallet app",
-        });
-        return;
-      }
-
-      // If wallet provider is available, proceed with connection
-      await connectWallet();
-    } catch (error: any) {
-      console.error("Mobile wallet connection error:", error);
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Failed to connect to wallet",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
   useEffect(() => {
     checkConnection();
     detectMobile();
   }, []);
 
   const checkConnection = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-          setIsConnected(true);
-          if (showBalance) {
-            await fetchBalance(accounts[0]);
-          }
-          onConnect?.(accounts[0]);
-          // Auto-authenticate if wallet is already connected (but not in link mode)
-          if (!linkMode) {
-            authenticateWallet.mutate(accounts[0]);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking wallet connection:", error);
-      }
-    }
+    // Check for Solana wallet connections only
+    const phantomWallet = window.phantom?.solana || window.solana;
+    const backpackWallet = window.backpack;
+    
+    // Note: Auto-connection removed - users must explicitly connect Solana wallets
   };
-
-  const fetchBalance = async (walletAddress: string) => {
-    try {
-      const response = await fetch(`/api/web3/balance/${walletAddress}`);
-      const data = await response.json();
-      setBalance(data.balance);
-    } catch (error) {
-      console.error("Error fetching balance:", error);
-    }
-  };
-
-
 
   const connectSolanaWallet = async (provider: 'phantom' | 'backpack') => {
     setIsConnecting(true);
@@ -240,68 +170,6 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       toast({
         title: "Connection Failed",
         description: error.message || `Failed to connect ${provider} wallet. Please try again.`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const connectWallet = async () => {
-    // Mobile-specific wallet detection
-    if (isMobile && !window.ethereum) {
-      toast({
-        title: "Mobile Wallet Required",
-        description: "Please use a mobile wallet app or browser with wallet support.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!window.ethereum) {
-      toast({
-        title: "Wallet Not Found",
-        description: "Please install MetaMask or another Web3 wallet to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsConnecting(true);
-    try {
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-
-      if (accounts.length > 0) {
-        const walletAddress = accounts[0];
-        setAddress(walletAddress);
-        setIsConnected(true);
-        setWalletType('ethereum');
-        
-        // Show CARV network info
-        await switchToCARVNetwork();
-        
-        if (showBalance) {
-          await fetchBalance(walletAddress);
-        }
-        
-        onConnect?.(walletAddress);
-        
-        // Authenticate with backend
-        authenticateWallet.mutate(walletAddress);
-        
-        toast({
-          title: "Wallet Connected",
-          description: `Connected to ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`,
-        });
-      }
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
-      toast({
-        title: "Connection Failed",
-        description: "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -381,21 +249,15 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {showBalance && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">USDT Balance:</span>
-              <Badge variant="secondary">{balance} USDT</Badge>
-            </div>
-          )}
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open(`https://polygonscan.com/address/${address}`, '_blank')}
+              onClick={() => window.open(`https://explorer.testnet.carv.io/address/${address}`, '_blank')}
               className="flex-1"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              View on Explorer
+              View on CARV Explorer
             </Button>
             <Button
               variant="ghost"
