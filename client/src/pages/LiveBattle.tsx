@@ -450,7 +450,7 @@ export default function LiveBattle() {
                             disabled={!isAuthenticated}
                           >
                             <Gift className="w-4 h-4" />
-                            <span>Gift Potions</span>
+                            <span>Gift SLP</span>
                           </Button>
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
@@ -552,7 +552,7 @@ export default function LiveBattle() {
                             disabled={!isAuthenticated}
                           >
                             <Gift className="w-4 h-4" />
-                            <span>Gift Potions</span>
+                            <span>Gift SLP</span>
                           </Button>
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
@@ -628,25 +628,25 @@ export default function LiveBattle() {
           <Dialog open={showGiftDialog} onOpenChange={setShowGiftDialog}>
             <DialogContent className="bg-[#1A1A1B] border-primary/20">
               <DialogHeader>
-                <DialogTitle className="text-white">Gift Potions Tokens</DialogTitle>
+                <DialogTitle className="text-white">Gift SLP</DialogTitle>
                 <DialogDescription className="text-gray-400">
-                  Support your favorite participant by gifting Potions tokens
+                  Support your favorite participant by gifting SLP
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-[#8000FF]/10 rounded-lg border border-[#8000FF]/20">
                   <div className="flex items-center gap-2">
                     <Coins className="w-5 h-5 text-[#8000FF]" />
-                    <span className="text-white font-medium">Your Potions Balance</span>
+                    <span className="text-white font-medium">Your SLP Balance</span>
                   </div>
                   <div className="text-[#8000FF] font-bold text-lg">
-                    {(user as any)?.potionsBalance || 0} POTIONS
+                    {(user as any)?.potionsBalance || 0} SLP
                   </div>
                 </div>
                 
                 <div>
                   <label className="text-sm font-medium text-white mb-2 block">
-                    Amount (Potions Tokens)
+                    Amount (SLP)
                   </label>
                   <Input
                     type="number"
@@ -658,7 +658,7 @@ export default function LiveBattle() {
                     max={(user as any)?.potionsBalance || 0}
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Maximum: {(user as any)?.potionsBalance || 0} POTIONS
+                    Maximum: {(user as any)?.potionsBalance || 0} SLP
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -675,7 +675,7 @@ export default function LiveBattle() {
                     ) : (
                       <>
                         <Gift className="w-4 h-4 mr-2" />
-                        Gift Potions
+                        Gift SLP
                       </>
                     )}
                   </Button>

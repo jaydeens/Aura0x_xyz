@@ -1782,10 +1782,10 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
         return res.status(400).json({ message: "Invalid participant" });
       }
 
-      // Get user and check Steeze balance
+      // Get user and check SLP balance
       const user = await storage.getUser(userId);
-      if (!user || (user.steezeBalance || 0) < amount) {
-        return res.status(400).json({ message: "Insufficient Steeze balance" });
+      if (!user || (user.potionsBalance || 0) < amount) {
+        return res.status(400).json({ message: "Insufficient SLP balance" });
       }
 
       // Create gift transaction (using battle vote structure for now)
