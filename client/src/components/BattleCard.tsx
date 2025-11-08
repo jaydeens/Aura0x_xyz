@@ -468,7 +468,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
           <div className="mt-4">
             <Button 
               className="w-full bg-gradient-to-r from-[#8000FF] to-[#FF6B00] hover:from-[#8000FF]/90 hover:to-[#FF6B00]/90 text-white font-semibold py-3 rounded-lg border border-[#8000FF]/30 shadow-lg"
-              onClick={() => window.location.href = `/battle/${battle.id}`}
+              onClick={() => window.location.href = `/battles/${battle.id}`}
             >
               <Target className="w-4 h-4 mr-2" />
               Join Battle & Gift SLP
@@ -548,7 +548,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
         {(battle.status === "active" || battle.status === "completed") && (
           <div className="mt-4">
             <Button 
-              onClick={() => window.location.href = `/battle/${battle.id}`}
+              onClick={() => window.location.href = `/battles/${battle.id}`}
               className="w-full bg-accent hover:bg-accent/80 text-white"
             >
               {battle.status === "active" ? "Join Battle & Gift SLP" : "View Battle Details"}
