@@ -35,7 +35,7 @@ export default function VouchingHistory() {
   const [selectedTab, setSelectedTab] = useState<"all" | "given" | "received">("all");
 
   const { data: stats, isLoading } = useQuery<VouchStats>({
-    queryKey: ["/api/vouch/stats", user?.id],
+    queryKey: [`/api/vouch/stats/${user?.id}`],
     enabled: !!user?.id,
   });
 
