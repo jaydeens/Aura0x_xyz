@@ -226,9 +226,9 @@ export default function LiveBattle() {
   // Show loading state while fetching data
   if (isLoading || !battle) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A1929] via-[#0D1F2D] to-black flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D9FF] mx-auto mb-4"></div>
           <p className="text-white/80">Loading battle details...</p>
         </div>
       </div>
@@ -238,15 +238,15 @@ export default function LiveBattle() {
   // Only show error if we explicitly have an error or confirmed empty response
   if (error || (battle && !(battle as any).id)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black flex items-center justify-center">
-        <Card className="bg-black/40 backdrop-blur-sm border-purple-500/30 shadow-xl">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A1929] via-[#0D1F2D] to-black flex items-center justify-center">
+        <Card className="bg-black/40 backdrop-blur-sm border-cyan-500/30 shadow-xl">
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-bold text-white mb-2">Battle Not Found</h2>
             <p className="text-white/70">The battle you're looking for doesn't exist.</p>
             <Button 
               variant="outline" 
               onClick={() => window.history.back()}
-              className="mt-4 border-purple-500/50 text-purple-400 hover:bg-purple-500/20"
+              className="mt-4 border-cyan-500/50 text-[#00D9FF] hover:bg-cyan-500/20"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
@@ -262,12 +262,17 @@ export default function LiveBattle() {
   const opponent = (battle as any).opponent;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A1929] via-[#0D1F2D] to-black relative overflow-hidden">
+      {/* Circuit Board Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,217,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,217,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      </div>
+      
       {/* Floating Gradient Orbs Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-[#00D9FF]/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       <div className="relative z-10 p-4">
@@ -300,13 +305,13 @@ export default function LiveBattle() {
 
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 mb-4">
+            <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] via-cyan-300 to-blue-400 mb-4">
               SHOWDOWN
             </h1>
             
             {/* Battle Status */}
             {(battle as any).status === 'completed' && (battle as any).winnerId && (
-              <div className="flex items-center justify-center gap-2 text-orange-400 text-xl font-bold mb-4">
+              <div className="flex items-center justify-center gap-2 text-[#FFD700] text-xl font-bold mb-4">
                 <span>🥇 {(battle as any).winnerId === (battle as any).challengerId 
                   ? `${challenger?.username || 'Challenger'} Wins!`
                   : `${opponent?.username || 'Opponent'} Wins!`}
@@ -315,33 +320,33 @@ export default function LiveBattle() {
             )}
             
             {(battle as any).status === 'completed' && !(battle as any).winnerId && (
-              <div className="flex items-center justify-center gap-2 text-orange-400 text-xl font-bold mb-4">
+              <div className="flex items-center justify-center gap-2 text-[#FFD700] text-xl font-bold mb-4">
                 <span>🤝 Dreamz Draw - No Winner</span>
               </div>
             )}
           </div>
 
           {/* Live Dreamz Radar */}
-          <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-3xl p-6 mb-8">
+          <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg border border-cyan-400/30 rounded-3xl p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Radio className="w-5 h-5 text-purple-400 animate-pulse" />
+                <Radio className="w-5 h-5 text-[#00D9FF] animate-pulse" />
                 Live Dreamz Radar
               </h3>
               <div className="text-white/60 text-sm">Real-time Dreamz intensity</div>
             </div>
             
-            <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full overflow-hidden border border-white/10">
+            <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 rounded-full overflow-hidden border border-cyan-400/20">
               <div 
-                className="absolute top-0 h-full w-2 bg-purple-400 rounded-full transition-all duration-1000 ease-out"
+                className="absolute top-0 h-full w-2 bg-[#00D9FF] rounded-full transition-all duration-1000 ease-out"
                 style={{ left: `${radarPosition}%` }}
               >
-                <div className="absolute -top-2 -left-1 w-4 h-4 bg-purple-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-2 -left-1 w-4 h-4 bg-[#00D9FF] rounded-full animate-ping"></div>
               </div>
               <div className="absolute top-1/2 left-0 transform -translate-y-1/2 text-xs font-bold text-blue-400 ml-2">
                 Challenger
               </div>
-              <div className="absolute top-1/2 right-0 transform -translate-y-1/2 text-xs font-bold text-pink-400 mr-2">
+              <div className="absolute top-1/2 right-0 transform -translate-y-1/2 text-xs font-bold text-cyan-400 mr-2">
                 Opponent
               </div>
             </div>
@@ -349,10 +354,10 @@ export default function LiveBattle() {
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Top Gifters - Challenger */}
-            <div className="bg-black/20 backdrop-blur-sm border border-blue-500/30 rounded-3xl p-6">
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg border border-cyan-400/30 rounded-3xl p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Crown className="w-5 h-5 text-blue-400" />
-                <h3 className="text-blue-400 font-bold">Top Gifters - Challenger</h3>
+                <Crown className="w-5 h-5 text-[#00D9FF]" />
+                <h3 className="text-[#00D9FF] font-bold">Top Gifters - Challenger</h3>
               </div>
               <div className="space-y-3">
                 {battleVotes && Array.isArray(battleVotes) ? (
@@ -384,8 +389,8 @@ export default function LiveBattle() {
             {/* Main Battle Arena */}
             <div className="space-y-6">
               {/* VS Battle Display */}
-              <div className="bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-3xl p-6 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+              <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg border border-cyan-400/30 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-blue-500/5"></div>
                 <div className="relative z-10">
                   <div className="grid grid-cols-3 gap-6 items-center">
                     {/* Challenger */}
@@ -468,7 +473,7 @@ export default function LiveBattle() {
 
                     {/* VS Center */}
                     <div className="text-center">
-                      <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#8000FF] to-[#FF00FF] animate-pulse mb-4">
+                      <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] to-blue-400 animate-pulse mb-4">
                         VS
                       </div>
                       <div className="space-y-2 text-white/60">
@@ -476,7 +481,7 @@ export default function LiveBattle() {
                           <Target className="w-4 h-4" />
                           <span className="text-sm">Total Stakes</span>
                         </div>
-                        <div className="text-xl font-bold text-[#8000FF]">
+                        <div className="text-xl font-bold text-[#00D9FF]">
                           {((battle as any)?.challengerStake || 0) + ((battle as any)?.opponentStake || 0)} AP
                         </div>
                         <div className="flex items-center justify-center gap-2">
@@ -572,9 +577,9 @@ export default function LiveBattle() {
               </div>
 
               {/* Battle Information */}
-              <div className="bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-3xl p-6">
+              <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg border border-cyan-400/30 rounded-3xl p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Trophy className="w-5 h-5 text-purple-400" />
+                  <Trophy className="w-5 h-5 text-[#00D9FF]" />
                   <h3 className="text-white font-bold">Battle Information</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
@@ -596,10 +601,10 @@ export default function LiveBattle() {
             </div>
 
             {/* Top Gifters - Opponent */}
-            <div className="bg-black/20 backdrop-blur-sm border border-pink-500/30 rounded-3xl p-6">
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg border border-cyan-400/30 rounded-3xl p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Crown className="w-5 h-5 text-pink-400" />
-                <h3 className="text-pink-400 font-bold">Top Gifters - Opponent</h3>
+                <Crown className="w-5 h-5 text-cyan-400" />
+                <h3 className="text-cyan-400 font-bold">Top Gifters - Opponent</h3>
               </div>
               <div className="space-y-3">
                 {battleVotes && Array.isArray(battleVotes) ? (
@@ -608,15 +613,15 @@ export default function LiveBattle() {
                     .sort((a: any, b: any) => b.amount - a.amount)
                     .slice(0, 10)
                     .map((vote: any, index: number) => (
-                      <div key={vote.id || index} className="flex items-center justify-between p-3 bg-pink-500/10 rounded-xl border border-pink-500/20">
+                      <div key={vote.id || index} className="flex items-center justify-between p-3 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
                         <div className="flex items-center gap-2">
-                          <div className="text-sm font-bold text-pink-400">#{index + 1}</div>
-                          <div className="w-8 h-8 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 text-xs font-bold">
+                          <div className="text-sm font-bold text-cyan-400">#{index + 1}</div>
+                          <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 text-xs font-bold">
                             {(vote.voterUsername || 'U').charAt(0).toUpperCase()}
                           </div>
                           <span className="text-white text-sm">{vote.voterUsername || 'Anonymous'}</span>
                         </div>
-                        <div className="text-pink-400 font-bold">{vote.amount || 0}</div>
+                        <div className="text-cyan-400 font-bold">{vote.amount || 0}</div>
                       </div>
                     ))
                 ) : (
@@ -639,12 +644,12 @@ export default function LiveBattle() {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-[#8000FF]/10 rounded-lg border border-[#8000FF]/20">
+                <div className="flex items-center justify-between p-3 bg-[#00D9FF]/10 rounded-lg border border-[#00D9FF]/20">
                   <div className="flex items-center gap-2">
-                    <Coins className="w-5 h-5 text-[#8000FF]" />
+                    <Coins className="w-5 h-5 text-[#00D9FF]" />
                     <span className="text-white font-medium">Your SLP Balance</span>
                   </div>
-                  <div className="text-[#8000FF] font-bold text-lg">
+                  <div className="text-[#00D9FF] font-bold text-lg">
                     {(user as any)?.potionsBalance || 0} SLP
                   </div>
                 </div>
