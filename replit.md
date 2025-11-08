@@ -2,7 +2,7 @@
 
 ## Overview
 
-Dreamz is an AI-powered Web3 social platform focused on learning, reputation building, and community engagement with an AI-crypto aesthetic. Users earn "Dreamz Points" through daily crypto lessons, 1v1 protocol battles, and a vouching system where community members stake USDC to vouch for others. The platform integrates Twitter/X authentication and multi-chain wallet connectivity (Solana + Ethereum), with future plans for CARV SVM Chain integration. Dreamz aims to foster a vibrant community while enabling users to learn about and participate in the Web3 space.
+Dreamz is an AI-powered Web3 social platform focused on learning, reputation building, and community engagement with an AI-crypto aesthetic. Users earn "Dreamz Points" through daily crypto lessons, 1v1 protocol battles, and a vouching system where community members stake USDC to vouch for others. The platform integrates Twitter/X authentication and Solana wallet connectivity (Phantom and Backpack) for CARV SVM Chain interactions. Dreamz aims to foster a vibrant community while enabling users to learn about and participate in the Web3 space.
 
 ## User Preferences
 
@@ -19,7 +19,7 @@ Preferred communication style: Simple, everyday language.
 ### Technical Implementations
 - **Frontend**: React 18, TypeScript, Wouter for routing, TanStack Query for server state.
 - **Backend**: Express.js, TypeScript, PostgreSQL with Drizzle ORM.
-- **Authentication**: Twitter OAuth 2.0 and multi-chain wallet (MetaMask, WalletConnect, Phantom, Backpack).
+- **Authentication**: Twitter OAuth 2.0 and Solana wallet authentication (Phantom and Backpack for CARV SVM Chain).
 - **AI Integration**: OpenAI API for generating daily Web3 lessons and quizzes.
 - **Smart Contracts**: Currently on Base Mainnet, migrating to CARV SVM Chain.
 - **Security**: Steeze Security System for backend-controlled transactions, off-chain balance management, blockchain event monitoring, and access control.
@@ -28,7 +28,7 @@ Preferred communication style: Simple, everyday language.
 - **Learning Platform**: AI-generated lessons, interactive quizzes, progress tracking, and streak system.
 - **Battle System**: 1v1 knowledge battles with community voting and real-time updates.
 - **Vouching Mechanism**: On-chain vouching with variable USDC amounts (1-100 USDC), reputation-based Dreamz Points distribution (1 USDC = 10 APs), and platform fees.
-- **Web3 Integration**: Supports various Solana and Ethereum wallets, Ethers.js for Ethereum interactions, and Solana Web3.js for SVM.
+- **Web3 Integration**: Supports Solana wallets (Phantom and Backpack) for CARV SVM Chain, using Solana Web3.js for blockchain interactions.
 
 ### System Design Choices
 - **Database**: PostgreSQL with Drizzle ORM for user profiles, lessons, battles, vouches, and notifications.
@@ -48,6 +48,21 @@ Preferred communication style: Simple, everyday language.
 - **Passport.js**: For authentication strategies.
 
 ## Recent Updates
+
+### November 8, 2025 - Removed EVM/MetaMask Integration
+- **Solana-Only Platform**: Removed all Ethereum/MetaMask wallet integration from authentication flow
+- **WalletConnect Component Cleanup**: 
+  - Removed MetaMask/Ethereum wallet buttons from desktop and mobile login UI
+  - Removed all Ethereum-specific connection functions (connectWallet, connectMobileWallet, fetchBalance)
+  - Removed window.ethereum auto-detection and auto-authentication logic
+  - Updated explorer links from Polygonscan to CARV SVM Explorer
+  - Removed Polygon balance fetching functionality
+- **Settings Page Update**: 
+  - Removed Ethereum wallet fallback from wallet connection handler
+  - Updated to Solana-only wallet connection (Phantom and Backpack)
+  - Updated error messages to specify CARV SVM wallet requirements
+- **Platform Focus**: Platform now exclusively uses Solana wallets (Phantom and Backpack) for CARV SVM Chain
+- **Consistent Messaging**: All wallet-related UI now clearly indicates Solana/CARV SVM Chain requirements
 
 ### October 30, 2025 - X (Twitter) API Integration Update
 - **New X Developer App**: Migrated from old Aura configuration to new Dreamz X Developer App credentials
