@@ -221,11 +221,10 @@ export default function Settings() {
 
   const handleWalletConnect = async () => {
     try {
-      // Try Solana wallets first (Phantom or Backpack)
+      // Try Phantom wallet first
       let wallet: any = (window as any).phantom?.solana || (window as any).solana;
       
-      if (wallet?.isPhantom || wallet?.isBackpack) {
-        // Connect to Solana wallet
+      if (wallet?.isPhantom) {
         const response = await wallet.connect();
         const publicKey = response.publicKey.toString();
         connectWalletMutation.mutate(publicKey);
@@ -241,23 +240,10 @@ export default function Settings() {
         return;
       }
 
-      // Fall back to MetaMask/Ethereum
-      if (typeof (window as any).ethereum !== 'undefined') {
-        const accounts = await (window as any).ethereum.request({ 
-          method: 'eth_requestAccounts' 
-        });
-        
-        if (accounts.length > 0) {
-          const walletAddress = accounts[0];
-          connectWalletMutation.mutate(walletAddress);
-        }
-        return;
-      }
-
       // No wallet found
       toast({ 
-        title: "No Wallet Found", 
-        description: "Please install MetaMask, Phantom, or Backpack wallet to connect", 
+        title: "Solana Wallet Not Found", 
+        description: "Please install Phantom or Backpack wallet to connect to CARV SVM", 
         variant: "destructive" 
       });
       

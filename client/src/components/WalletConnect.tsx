@@ -425,66 +425,42 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
       <CardContent className="space-y-4">
         {/* Desktop wallet options */}
         {!isMobile && (
-          <>
-            <div className="space-y-3">
-              <div className="text-sm font-semibold text-cyan-400">Solana Wallets (Recommended for CARV SVM)</div>
-              
-              <Button 
-                onClick={() => connectSolanaWallet('backpack')} 
-                disabled={isConnecting}
-                className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
-                data-testid="button-connect-backpack"
-              >
-                <Wallet className="h-5 w-5" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold">Backpack</div>
-                  <div className="text-xs opacity-80">xNFT-enabled wallet for CARV SVM</div>
-                </div>
-              </Button>
-              
-              <Button 
-                onClick={() => connectSolanaWallet('phantom')} 
-                disabled={isConnecting}
-                variant="outline"
-                className="w-full flex items-center gap-3 h-12 border-cyan-500/30 hover:bg-cyan-500/10"
-                data-testid="button-connect-phantom"
-              >
-                <Wallet className="h-5 w-5" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold">Phantom</div>
-                  <div className="text-xs opacity-70">Solana wallet</div>
-                </div>
-              </Button>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-700" />
+          <div className="space-y-3">
+            <div className="text-sm font-semibold text-cyan-400">Solana Wallets for CARV SVM</div>
+            
+            <Button 
+              onClick={() => connectSolanaWallet('backpack')} 
+              disabled={isConnecting}
+              className="w-full flex items-center gap-3 h-12 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600"
+              data-testid="button-connect-backpack"
+            >
+              <Wallet className="h-5 w-5" />
+              <div className="flex-1 text-left">
+                <div className="font-semibold">Backpack</div>
+                <div className="text-xs opacity-80">xNFT-enabled wallet for CARV SVM</div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or use Ethereum wallet</span>
+            </Button>
+            
+            <Button 
+              onClick={() => connectSolanaWallet('phantom')} 
+              disabled={isConnecting}
+              variant="outline"
+              className="w-full flex items-center gap-3 h-12 border-cyan-500/30 hover:bg-cyan-500/10"
+              data-testid="button-connect-phantom"
+            >
+              <Wallet className="h-5 w-5" />
+              <div className="flex-1 text-left">
+                <div className="font-semibold">Phantom</div>
+                <div className="text-xs opacity-70">Solana wallet</div>
               </div>
-            </div>
-
-            <div className="space-y-3">
-              <Button 
-                onClick={connectWallet} 
-                disabled={isConnecting}
-                variant="outline"
-                className="w-full h-12 border-orange-500/30 hover:bg-orange-500/10"
-                data-testid="button-connect-metamask"
-              >
-                <Wallet className="h-5 w-5 mr-2" />
-                {isConnecting ? "Connecting..." : "MetaMask / Ethereum Wallet"}
-              </Button>
-            </div>
-          </>
+            </Button>
+          </div>
         )}
 
         {/* Mobile wallet options */}
         {isMobile && (
           <div className="space-y-3">
-            <div className="text-sm font-semibold text-cyan-400 mb-2">Solana Wallets (CARV SVM)</div>
+            <div className="text-sm font-semibold text-cyan-400 mb-2">Solana Wallets for CARV SVM</div>
             
             <Button 
               onClick={() => connectSolanaWallet('backpack')} 
@@ -508,21 +484,6 @@ export default function WalletConnect({ onConnect, showBalance = true, linkMode 
               <div>
                 <div className="font-semibold">Phantom</div>
                 <div className="text-xs opacity-70">Solana wallet</div>
-              </div>
-            </Button>
-
-            <div className="text-xs text-center text-muted-foreground my-2">Ethereum Wallets</div>
-            
-            <Button 
-              onClick={() => connectMobileWallet('metamask')} 
-              disabled={isConnecting}
-              variant="outline"
-              className="w-full flex items-center gap-3 h-12"
-            >
-              <Smartphone className="h-5 w-5" />
-              <div>
-                <div className="font-semibold">MetaMask</div>
-                <div className="text-xs opacity-70">Ethereum wallet</div>
               </div>
             </Button>
           </div>
