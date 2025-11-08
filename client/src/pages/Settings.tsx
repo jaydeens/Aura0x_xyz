@@ -221,25 +221,46 @@ export default function Settings() {
 
   const handleWalletConnect = async () => {
     try {
-      // Check if MetaMask is installed
-      if (typeof window.ethereum === 'undefined') {
-        toast({ 
-          title: "MetaMask not found", 
-          description: "Please install MetaMask to connect your wallet", 
-          variant: "destructive" 
-        });
+      // Try Solana wallets first (Phantom or Backpack)
+      let wallet: any = (window as any).phantom?.solana || (window as any).solana;
+      
+      if (wallet?.isPhantom || wallet?.isBackpack) {
+        // Connect to Solana wallet
+        const response = await wallet.connect();
+        const publicKey = response.publicKey.toString();
+        connectWalletMutation.mutate(publicKey);
+        return;
+      }
+      
+      // Try Backpack wallet
+      wallet = (window as any).backpack;
+      if (wallet) {
+        const response = await wallet.connect();
+        const publicKey = response.publicKey.toString();
+        connectWalletMutation.mutate(publicKey);
         return;
       }
 
-      // Request account access
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
+      // Fall back to MetaMask/Ethereum
+      if (typeof (window as any).ethereum !== 'undefined') {
+        const accounts = await (window as any).ethereum.request({ 
+          method: 'eth_requestAccounts' 
+        });
+        
+        if (accounts.length > 0) {
+          const walletAddress = accounts[0];
+          connectWalletMutation.mutate(walletAddress);
+        }
+        return;
+      }
+
+      // No wallet found
+      toast({ 
+        title: "No Wallet Found", 
+        description: "Please install MetaMask, Phantom, or Backpack wallet to connect", 
+        variant: "destructive" 
       });
       
-      if (accounts.length > 0) {
-        const walletAddress = accounts[0];
-        connectWalletMutation.mutate(walletAddress);
-      }
     } catch (error: any) {
       toast({ 
         title: "Error connecting wallet", 
@@ -460,7 +481,7 @@ export default function Settings() {
                       <Wallet className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-white">Ethereum Wallet</h3>
+                      <h3 className="text-xl font-black text-white">Web3 Wallet</h3>
                       <p className="text-white/60">
                         {currentUser?.walletAddress 
                           ? `Connected: ${currentUser.walletAddress.slice(0, 6)}...${currentUser.walletAddress.slice(-4)}` 
@@ -508,16 +529,16 @@ export default function Settings() {
                     <div className="bg-black/20 rounded-xl p-4 border border-[#00D9FF]/20">
                       <div className="flex items-center gap-3 mb-2">
                         <Trophy className="w-5 h-5 text-[#00D9FF]" />
-                        <span className="text-white font-semibold">Battle Rewards</span>
+                        <span className="text-white font-semibold">SLP Trading</span>
                       </div>
-                      <p className="text-white/60 text-sm">Receive ETH rewards directly to your wallet from battle wins</p>
+                      <p className="text-white/60 text-sm">Buy and sell SLP tokens with USDT on CARV SVM Chain</p>
                     </div>
                     <div className="bg-black/20 rounded-xl p-4 border border-[#00D9FF]/20">
                       <div className="flex items-center gap-3 mb-2">
                         <Heart className="w-5 h-5 text-[#00D9FF]" />
                         <span className="text-white font-semibold">Vouch Payments</span>
                       </div>
-                      <p className="text-white/60 text-sm">Send and receive vouches in ETH to build reputation</p>
+                      <p className="text-white/60 text-sm">Send and receive vouches in USDT to build reputation</p>
                     </div>
                   </div>
                 </div>
