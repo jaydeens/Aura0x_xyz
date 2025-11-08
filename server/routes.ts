@@ -1616,6 +1616,33 @@ Current user: ${username}${user ? ` (${user.dreamzPoints} Dreamz Points)` : ''}`
     }
   });
 
+  // Get battle votes/gifts with voter usernames
+  app.get('/api/battles/:battleId/votes', async (req, res) => {
+    try {
+      const { battleId } = req.params;
+      const votes = await storage.getBattleVotes(battleId);
+      
+      // Enrich votes with voter usernames
+      const enrichedVotes = await Promise.all(
+        votes.map(async (vote) => {
+          const voter = await storage.getUser(vote.voterId);
+          return {
+            id: vote.id,
+            participantId: vote.votedForId,
+            amount: parseFloat(vote.vouchAmount),
+            voterUsername: voter?.username || 'Anonymous',
+            createdAt: vote.createdAt,
+          };
+        })
+      );
+      
+      res.json(enrichedVotes);
+    } catch (error) {
+      console.error("Error fetching battle votes:", error);
+      res.status(500).json({ message: "Failed to fetch battle votes" });
+    }
+  });
+
   // Join battle as viewer
   app.post('/api/battles/:id/join', async (req: any, res) => {
     try {

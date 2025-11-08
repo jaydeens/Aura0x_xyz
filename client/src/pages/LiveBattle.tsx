@@ -35,6 +35,7 @@ import {
   TrendingUp,
   Radio
 } from "lucide-react";
+import CelebrationDialog from "@/components/CelebrationDialog";
 
 export default function LiveBattle() {
   const [matchPlural, paramsPlural] = useRoute("/battles/:id");
@@ -52,6 +53,8 @@ export default function LiveBattle() {
   const [radarPosition, setRadarPosition] = useState(50); // 0-100, 50 is center
   const [giftAnimations, setGiftAnimations] = useState<Array<{id: number, type: string, participant: string}>>([]);
   const [showTopGifters, setShowTopGifters] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<{ amount: number; type: string }>({ amount: 0, type: '' });
 
   // Fetch battle votes/gifts data
   const { data: battleVotes } = useQuery({
@@ -108,13 +111,13 @@ export default function LiveBattle() {
       return response.json();
     },
     onSuccess: () => {
-      toast({
-        title: "SLP Gifted!",
-        description: `Successfully gifted ${giftAmount} SLP`,
-      });
+      const amount = parseInt(giftAmount);
+      setCelebrationData({ amount, type: 'gift' });
+      setShowCelebration(true);
       setShowGiftDialog(false);
       setGiftAmount("");
       queryClient.invalidateQueries({ queryKey: [`/api/battles/${battleId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/battles/${battleId}/votes`] });
     },
     onError: (error: any) => {
       toast({
@@ -690,6 +693,13 @@ export default function LiveBattle() {
               </div>
             </DialogContent>
           </Dialog>
+
+          <CelebrationDialog
+            open={showCelebration}
+            onOpenChange={setShowCelebration}
+            amount={celebrationData.amount}
+            type={celebrationData.type}
+          />
         </div>
       </div>
     </div>
