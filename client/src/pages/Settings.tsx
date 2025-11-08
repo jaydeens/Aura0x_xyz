@@ -254,12 +254,12 @@ export default function Settings() {
   const isOverLimit = characterCount > maxCharacters;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 relative overflow-hidden">
+    <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-full blur-2xl animate-float"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-full blur-xl animate-bounce-slow"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-[#00D9FF]/10 to-[#0099FF]/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-[#0099FF]/10 to-[#00D9FF]/10 rounded-full blur-2xl animate-float"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-gradient-to-br from-[#00D9FF]/10 to-[#0099FF]/10 rounded-full blur-xl animate-bounce-slow"></div>
       </div>
       
       <Navigation />
@@ -268,24 +268,24 @@ export default function Settings() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl flex items-center justify-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-3xl flex items-center justify-center shadow-[0_0_20px_#00D9FF]">
                 <Settings2 className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h1 className="text-5xl font-black bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent mb-2">
+            <h1 className="text-5xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">
               Account Settings
             </h1>
-            <p className="text-white/60 text-lg">Manage your profile and account preferences</p>
+            <p className="text-gray-300 text-lg">Manage your profile and account preferences</p>
           </div>
 
           <div className="space-y-8">
             {/* Profile Information */}
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+            <div className="bg-black/40 backdrop-blur-xl rounded-3xl p-8 border border-[#00D9FF]/30 shadow-[0_0_30px_rgba(0,217,255,0.2)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-2xl flex items-center justify-center shadow-[0_0_15px_#00D9FF]">
                   <User className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-black text-white">Profile Information</h2>
+                <h2 className="text-2xl font-black text-[#00D9FF]">Profile Information</h2>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -293,7 +293,7 @@ export default function Settings() {
                 <div className="space-y-6">
                   <div className="flex flex-col items-center space-y-4">
                     <div className="relative">
-                      <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-gradient-to-br from-purple-500 to-pink-600 shadow-2xl">
+                      <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-[#00D9FF] shadow-[0_0_20px_#00D9FF]">
                         <img
                           src={currentUser?.profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.username}`}
                           alt="Profile"
@@ -303,7 +303,7 @@ export default function Settings() {
                       <Button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadProfileImageMutation.isPending}
-                        className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 border-4 border-black/20"
+                        className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r from-[#00D9FF] to-[#0099FF] hover:shadow-[0_0_15px_#00D9FF] border-4 border-black/20"
                         size="sm"
                       >
                         <Camera className="w-4 h-4" />
@@ -336,7 +336,7 @@ export default function Settings() {
                               setNewUsername(e.target.value);
                               checkUsernameAvailability(e.target.value);
                             }}
-                            className="bg-black/50 border-purple-500/30 text-white placeholder-white/50"
+                            className="bg-black/50 border-[#00D9FF]/30 text-white placeholder-white/50"
                             placeholder="Enter new username"
                           />
                           {usernameMessage && (
@@ -357,7 +357,7 @@ export default function Settings() {
                               onClick={() => setIsEditingUsername(false)}
                               variant="outline"
                               size="sm"
-                              className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                              className="border-[#00D9FF]/30 text-white hover:bg-[#00D9FF]/10"
                             >
                               <X className="w-4 h-4" />
                             </Button>
@@ -365,14 +365,14 @@ export default function Settings() {
                         </div>
                       ) : (
                         <>
-                          <div className="flex-1 bg-black/50 border border-purple-500/30 rounded-lg px-4 py-3">
+                          <div className="flex-1 bg-black/50 border border-[#00D9FF]/30 rounded-lg px-4 py-3">
                             <p className="text-white font-medium">{currentUser?.username || 'Not set'}</p>
                           </div>
                           <Button
                             onClick={handleUsernameEdit}
                             variant="outline"
                             size="sm"
-                            className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                            className="border-[#00D9FF]/30 text-white hover:bg-[#00D9FF]/10"
                           >
                             <Edit3 className="w-4 h-4" />
                           </Button>
@@ -387,18 +387,18 @@ export default function Settings() {
             </div>
 
             {/* Social Connections */}
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+            <div className="bg-black/40 backdrop-blur-xl rounded-3xl p-8 border border-[#00D9FF]/30 shadow-[0_0_30px_rgba(0,217,255,0.2)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-2xl flex items-center justify-center shadow-[0_0_15px_#00D9FF]">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-black text-white">Social Connections</h2>
+                <h2 className="text-2xl font-black text-[#00D9FF]">Social Connections</h2>
               </div>
 
-              <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-blue-500/20">
+              <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-[#00D9FF]/20">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-2xl flex items-center justify-center shadow-[0_0_15px_#00D9FF]">
                       <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                       </svg>
@@ -423,7 +423,7 @@ export default function Settings() {
                           onClick={() => disconnectTwitterMutation.mutate()}
                           disabled={disconnectTwitterMutation.isPending}
                           variant="outline"
-                          className="border-blue-500/30 text-white hover:bg-blue-500/10"
+                          className="border-[#00D9FF]/30 text-white hover:bg-[#00D9FF]/10"
                         >
                           Disconnect
                         </Button>
@@ -432,7 +432,7 @@ export default function Settings() {
                       <Button
                         onClick={handleTwitterConnect}
                         disabled={isConnecting}
-                        className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold"
+                        className="bg-gradient-to-r from-[#00D9FF] to-[#0099FF] hover:shadow-[0_0_15px_#00D9FF] text-white font-bold"
                       >
                         {isConnecting ? "Connecting..." : "Connect X Account"}
                       </Button>
@@ -445,18 +445,18 @@ export default function Settings() {
             </div>
 
             {/* Wallet Connections */}
-            <div className="bg-gradient-to-br from-purple-800/30 to-pink-900/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/20 shadow-2xl">
+            <div className="bg-black/40 backdrop-blur-xl rounded-3xl p-8 border border-[#00D9FF]/30 shadow-[0_0_30px_rgba(0,217,255,0.2)]">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-2xl flex items-center justify-center shadow-[0_0_15px_#00D9FF]">
                   <Wallet className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-black text-white">Wallet Connections</h2>
+                <h2 className="text-2xl font-black text-[#00D9FF]">Wallet Connections</h2>
               </div>
 
-              <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20">
+              <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-[#00D9FF]/20">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#00D9FF] to-[#0099FF] rounded-2xl flex items-center justify-center shadow-[0_0_15px_#00D9FF]">
                       <Wallet className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -484,7 +484,7 @@ export default function Settings() {
                             });
                           }}
                           variant="outline"
-                          className="border-purple-500/30 text-white hover:bg-purple-500/10"
+                          className="border-[#00D9FF]/30 text-white hover:bg-[#00D9FF]/10"
                         >
                           Disconnect
                         </Button>
@@ -493,7 +493,7 @@ export default function Settings() {
                       <Button
                         onClick={handleWalletConnect}
                         disabled={connectWalletMutation.isPending}
-                        className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold"
+                        className="bg-gradient-to-r from-[#00D9FF] to-[#0099FF] hover:shadow-[0_0_15px_#00D9FF] text-white font-bold"
                       >
                         {connectWalletMutation.isPending ? "Connecting..." : "Connect Wallet"}
                       </Button>
@@ -503,18 +503,18 @@ export default function Settings() {
 
                 {/* Wallet Benefits */}
                 <div className="space-y-4 border-t border-white/10 pt-6">
-                  <h4 className="text-lg font-bold text-white">Wallet Benefits</h4>
+                  <h4 className="text-lg font-bold text-[#00D9FF]">Wallet Benefits</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-black/20 rounded-xl p-4 border border-purple-500/20">
+                    <div className="bg-black/20 rounded-xl p-4 border border-[#00D9FF]/20">
                       <div className="flex items-center gap-3 mb-2">
-                        <Trophy className="w-5 h-5 text-purple-400" />
+                        <Trophy className="w-5 h-5 text-[#00D9FF]" />
                         <span className="text-white font-semibold">Battle Rewards</span>
                       </div>
                       <p className="text-white/60 text-sm">Receive ETH rewards directly to your wallet from battle wins</p>
                     </div>
-                    <div className="bg-black/20 rounded-xl p-4 border border-purple-500/20">
+                    <div className="bg-black/20 rounded-xl p-4 border border-[#00D9FF]/20">
                       <div className="flex items-center gap-3 mb-2">
-                        <Heart className="w-5 h-5 text-pink-400" />
+                        <Heart className="w-5 h-5 text-[#00D9FF]" />
                         <span className="text-white font-semibold">Vouch Payments</span>
                       </div>
                       <p className="text-white/60 text-sm">Send and receive vouches in ETH to build reputation</p>
