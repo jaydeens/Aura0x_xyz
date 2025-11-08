@@ -2,21 +2,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import TwitterConnect from "@/components/TwitterConnect";
 import WalletConnect from "@/components/WalletConnect";
-import { Zap, Users, Trophy, TrendingUp } from "lucide-react";
+import { Brain, Users, Trophy, TrendingUp } from "lucide-react";
 
 export default function Auth() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A1929] via-[#0D1F2D] to-black relative overflow-hidden">
+      {/* Circuit Board Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,217,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,217,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16 relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative">
-              <Zap className="h-12 w-12 text-yellow-400" fill="currentColor" />
-              <div className="absolute inset-0 blur-lg bg-yellow-400 opacity-50"></div>
+              <Brain className="h-12 w-12 text-[#00D9FF]" />
+              <div className="absolute inset-0 blur-lg bg-[#00D9FF] opacity-50 animate-pulse"></div>
             </div>
-            <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-400 bg-clip-text text-transparent">
-              AURA
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-[#00D9FF] via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+              DREAMZ
             </h1>
           </div>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
@@ -26,18 +31,18 @@ export default function Auth() {
           
           {/* Features Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 border border-white/20">
-              <Users className="h-8 w-8 text-blue-400 mx-auto mb-3" />
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg rounded-lg p-6 border border-cyan-400/30 hover:border-cyan-400/50 transition-all">
+              <Users className="h-8 w-8 text-[#00D9FF] mx-auto mb-3" />
               <h3 className="text-lg font-semibold text-white mb-2">Community Vouching</h3>
-              <p className="text-gray-300 text-sm">Stake USDT to vouch for your favorite KOLs and earn Aura Points</p>
+              <p className="text-gray-300 text-sm">Stake USDT to vouch for your favorite KOLs and earn Dreamz Points</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 border border-white/20">
-              <Trophy className="h-8 w-8 text-yellow-400 mx-auto mb-3" />
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg rounded-lg p-6 border border-cyan-400/30 hover:border-cyan-400/50 transition-all">
+              <Trophy className="h-8 w-8 text-[#FFD700] mx-auto mb-3" />
               <h3 className="text-lg font-semibold text-white mb-2">Epic Battles</h3>
               <p className="text-gray-300 text-sm">Challenge others to 1v1 battles and let the community vote</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 border border-white/20">
-              <TrendingUp className="h-8 w-8 text-green-400 mx-auto mb-3" />
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg rounded-lg p-6 border border-cyan-400/30 hover:border-cyan-400/50 transition-all">
+              <TrendingUp className="h-8 w-8 text-emerald-400 mx-auto mb-3" />
               <h3 className="text-lg font-semibold text-white mb-2">Daily Learning</h3>
               <p className="text-gray-300 text-sm">Complete AI-generated Web3 lessons to build your knowledge</p>
             </div>
@@ -46,11 +51,11 @@ export default function Auth() {
 
         {/* Authentication Section */}
         <div className="max-w-4xl mx-auto">
-          <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+          <Card className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-lg border border-cyan-400/30">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-white">Join the Aura Community</CardTitle>
+              <CardTitle className="text-2xl text-white">Join the Dreamz Community</CardTitle>
               <CardDescription className="text-gray-300">
-                Connect your Twitter and wallet to start building your Web3 reputation
+                Connect your Twitter and CARV SVM wallet to start building your Web3 reputation
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
@@ -90,15 +95,15 @@ export default function Auth() {
 
         {/* Progress System Preview */}
         <div className="mt-16 text-center">
-          <h2 className="text-3xl font-bold text-white mb-8">Your Journey to Aura Vader</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-[#00D9FF] to-cyan-300 bg-clip-text text-transparent mb-8">Your Journey to Neural Master</h2>
           <div className="flex justify-center items-center gap-4 flex-wrap">
-            {["Clout Chaser", "Meme Lord", "Degen King", "Alpha Chad", "Aura Vader"].map((level, index) => (
+            {["Dream Seeker", "Sleep Chaser", "Dream Weaver", "Neural Architect", "Neural Master"].map((level, index) => (
               <div key={level} className="flex items-center">
-                <div className="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20">
+                <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 backdrop-blur-lg rounded-lg px-4 py-2 border border-cyan-400/30 hover:border-cyan-400/50 transition-all">
                   <span className="text-white font-medium">{level}</span>
                 </div>
                 {index < 4 && (
-                  <div className="w-8 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 mx-2"></div>
+                  <div className="w-8 h-0.5 bg-gradient-to-r from-[#00D9FF] to-cyan-300 mx-2"></div>
                 )}
               </div>
             ))}

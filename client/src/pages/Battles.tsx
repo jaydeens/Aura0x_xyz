@@ -275,20 +275,23 @@ export default function Battles() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A1929] via-[#0D1F2D] to-black relative overflow-hidden flex items-center justify-center">
         {/* Circuit Board Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(0,217,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,217,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
         </div>
         
+        {/* Neural Network Glow */}
+        <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-[#00D9FF]/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        
         <div className="relative z-10 text-center px-4">
-          {/* Rotating Diamond Grid */}
+          {/* Hexagonal Spinner */}
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-2 animate-pulse">
               {[...Array(9)].map((_, i) => (
                 <div 
                   key={i} 
-                  className={`w-full h-full border border-cyan-400/30 ${i === 4 ? 'bg-cyan-400/20' : 'bg-cyan-400/5'}`}
+                  className={`w-full h-full border border-[#00D9FF]/30 ${i === 4 ? 'bg-[#00D9FF]/20' : 'bg-[#00D9FF]/5'}`}
                   style={{ 
                     animationDelay: `${i * 0.1}s`,
                     transform: 'rotate(45deg)'
@@ -299,16 +302,16 @@ export default function Battles() {
           </div>
           
           <div className="space-y-2">
-            <div className="text-3xl font-black font-mono tracking-wider bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
-              &lt; LOADING COMBAT ARENA /&gt;
+            <div className="text-3xl font-black font-mono tracking-wider bg-gradient-to-r from-[#00D9FF] to-cyan-300 bg-clip-text text-transparent">
+              &lt; INITIALIZING DREAMZ /&gt;
             </div>
-            <div className="flex items-center justify-center gap-1 text-cyan-400/60 font-mono text-xs">
+            <div className="flex items-center justify-center gap-1 text-[#00D9FF]/60 font-mono text-xs">
               <span className="animate-pulse">[</span>
               <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>■</span>
               <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>■</span>
               <span className="animate-pulse" style={{ animationDelay: '0.6s' }}>■</span>
               <span className="animate-pulse">]</span>
-              <span className="ml-2">RITUAL SYNC</span>
+              <span className="ml-2">NEURAL SYNC</span>
             </div>
           </div>
         </div>
