@@ -323,7 +323,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
             </h4>
             <p className="text-xs text-muted-foreground font-medium">Challenger</p>
             <p className="text-sm text-muted-foreground">
-              {battle.challenger?.auraPoints?.toLocaleString() || "0"} Aura
+              {battle.challenger?.dreamzPoints?.toLocaleString() || "0"} DRMZ
             </p>
             <Badge variant="outline" className="mt-1">
               Staked: {battle.challengerStake}
@@ -337,11 +337,11 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               <CardContent className="p-3">
                 <div className="text-sm text-muted-foreground mb-1">Total Stakes</div>
                 <div className="text-xl font-bold text-foreground">
-                  {battle.challengerStake + battle.opponentStake} Aura
+                  {battle.challengerStake + battle.opponentStake} DRMZ
                 </div>
                 <div className="text-xs text-muted-foreground flex items-center justify-center mb-2">
                   <Users className="w-3 h-3 mr-1" />
-                  {battle.totalVotes} Steeze
+                  {battle.totalVotes} SLP
                 </div>
                 
                 {/* Winner/Result Display for Completed Battles */}
@@ -394,7 +394,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
             </h4>
             <p className="text-xs text-accent font-medium">Opponent</p>
             <p className="text-sm text-gray-400">
-              {battle.opponent?.auraPoints?.toLocaleString() || "0"} Aura
+              {battle.opponent?.dreamzPoints?.toLocaleString() || "0"} DRMZ
             </p>
             <Badge variant="outline" className="mt-1 border-accent text-accent">
               Staked: {battle.opponentStake}
@@ -406,8 +406,8 @@ export default function BattleCard({ battle, featured = false, showResult = fals
         {battle.status === "active" && (battle.challengerVotes > 0 || battle.opponentVotes > 0) && (
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Steeze Distribution</span>
-              <span className="text-gray-400">{battle.totalVotes} total Steeze</span>
+              <span className="text-gray-400">SLP Distribution</span>
+              <span className="text-gray-400">{battle.totalVotes} total SLP</span>
             </div>
             
             <div className="space-y-2">
@@ -416,7 +416,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   {battle.challenger?.firstName || "Challenger"}
                 </span>
                 <span className="text-sm font-medium text-primary">
-                  {battle.challengerVotes} Steeze ({challengerPercentage.toFixed(1)}%)
+                  {battle.challengerVotes} SLP ({challengerPercentage.toFixed(1)}%)
                 </span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
@@ -433,7 +433,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
                   {battle.opponent?.firstName || "Opponent"}
                 </span>
                 <span className="text-sm font-medium text-accent">
-                  {battle.opponentVotes} Steeze ({opponentPercentage.toFixed(1)}%)
+                  {battle.opponentVotes} SLP ({opponentPercentage.toFixed(1)}%)
                 </span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
@@ -458,7 +458,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               } won the battle
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Winner received {battle.challengerStake + battle.opponentStake} Aura Points
+              Winner received {battle.challengerStake + battle.opponentStake} DRMZ
             </p>
           </div>
         )}
@@ -471,7 +471,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               onClick={() => window.location.href = `/battle/${battle.id}`}
             >
               <Target className="w-4 h-4 mr-2" />
-              Join Aura Clash & Gift Steeze
+              Join Battle & Gift SLP
             </Button>
           </div>
         )}
@@ -551,7 +551,7 @@ export default function BattleCard({ battle, featured = false, showResult = fals
               onClick={() => window.location.href = `/battle/${battle.id}`}
               className="w-full bg-accent hover:bg-accent/80 text-white"
             >
-              {battle.status === "active" ? "Join Aura Clash & Gift Steeze" : "View Aura Clash Details"}
+              {battle.status === "active" ? "Join Battle & Gift SLP" : "View Battle Details"}
             </Button>
           </div>
         )}

@@ -322,7 +322,7 @@ export interface VouchTransaction {
   amount: string;
   platformFee: string;
   transactionHash: string;
-  auraPoints: number;
+  dreamzPoints: number;
 }
 
 export class Web3Service {
@@ -531,28 +531,28 @@ export class Web3Service {
   calculateVouchDistribution(usdcAmount: number): {
     kolAmount: number;
     platformAmount: number;
-    auraPoints: number;
+    dreamzPoints: number;
   } {
     const kolAmount = usdcAmount * 0.7;
     const platformAmount = usdcAmount * 0.3;
-    const auraPoints = Math.floor(usdcAmount * 10); // 1 USDC = 10 Aura Points
+    const dreamzPoints = Math.floor(usdcAmount * 10); // 1 USDC = 10 DRMZ
 
     return {
       kolAmount,
       platformAmount,
-      auraPoints
+      dreamzPoints
     };
   }
 
   /**
-   * Apply streak multiplier to aura points
+   * Apply streak multiplier to dreamz points
    */
-  applyStreakMultiplier(baseAuraPoints: number, streakDays: number): {
-    finalAuraPoints: number;
+  applyStreakMultiplier(baseDreamzPoints: number, streakDays: number): {
+    finalDreamzPoints: number;
     multiplier: number;
     level: string;
   } {
-    let multiplier = 1.0; // Levels don't affect aura multiplier
+    let multiplier = 1.0; // Levels don't affect dreamz multiplier
     let level = "Clout Chaser";
 
     if (streakDays >= 30) {
@@ -567,7 +567,7 @@ export class Web3Service {
     }
 
     return {
-      finalAuraPoints: Math.floor(baseAuraPoints * multiplier),
+      finalDreamzPoints: Math.floor(baseDreamzPoints * multiplier),
       multiplier,
       level
     };
@@ -581,7 +581,7 @@ export class Web3Service {
     voucher?: string;
     vouchedUser?: string;
     usdcAmount?: number;
-    auraPoints?: number;
+    dreamzPoints?: number;
     vouchId?: number;
     blockNumber?: number;
   }> {
@@ -607,7 +607,7 @@ export class Web3Service {
                 voucher: parsedLog.args.voucher,
                 vouchedUser: parsedLog.args.vouchedUser,
                 usdcAmount: parseFloat(ethers.formatUnits(parsedLog.args.amount, 6)), // USDC has 6 decimals
-                auraPoints: parseInt(parsedLog.args.auraPoints.toString()),
+                dreamzPoints: parseInt(parsedLog.args.auraPoints.toString()),
                 vouchId: parseInt(parsedLog.args.vouchId.toString()),
                 blockNumber: receipt.blockNumber
               };
@@ -1185,9 +1185,9 @@ export class Web3Service {
   }
 
   /**
-   * Vouch for a user with USDC payment and aura points
+   * Vouch for a user with USDC payment and dreamz points
    */
-  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, usdcAmount: number, auraPoints: number): Promise<{
+  async vouchForUser(voucherAddress: string, vouchedUserAddress: string, usdcAmount: number, dreamzPoints: number): Promise<{
     success: boolean;
     transactionHash?: string;
     error?: string;

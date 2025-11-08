@@ -335,7 +335,7 @@ export default function Vouch() {
                                 {user.firstName || user.username || `User ${user.id.slice(0, 6)}`}
                               </div>
                               <div className="text-xs text-gray-400">
-                                {user.auraPoints?.toLocaleString()} Aura
+                                {user.dreamzPoints?.toLocaleString()} DRMZ
                               </div>
                             </div>
                           </div>

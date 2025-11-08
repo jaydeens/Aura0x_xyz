@@ -19,7 +19,7 @@ interface LeaderboardUser {
   lastName?: string;
   username?: string;
   profileImageUrl?: string;
-  auraPoints: number;
+  dreamzPoints: number;
   currentStreak: number;
   totalBattlesWon: number;
   totalBattlesLost: number;
@@ -63,7 +63,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
         <Card className="bg-gradient-to-r from-card to-primary/5 border-primary/20">
           <CardContent className="p-8">
             <h3 className="text-2xl font-bold text-center text-white mb-8">
-              Top Aura Warriors
+              Top DRMZ Warriors
             </h3>
             
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -86,7 +86,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                       {getUserDisplayName(topThree[1])}
                     </h4>
                     <p className="text-orange-400 font-semibold text-xl">
-                      {topThree[1].auraPoints.toLocaleString()}
+                      {topThree[1].dreamzPoints.toLocaleString()}
                     </p>
                     <div className="text-sm text-gray-400">
                       {topThree[1].totalBattlesWon} battles won
@@ -114,7 +114,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                       {getUserDisplayName(topThree[0])}
                     </h4>
                     <p className="text-primary font-bold text-2xl">
-                      {topThree[0].auraPoints.toLocaleString()}
+                      {topThree[0].dreamzPoints.toLocaleString()}
                     </p>
                     <div className="text-sm text-gray-300">
                       {topThree[0].totalBattlesWon} battles won
@@ -145,7 +145,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                       {getUserDisplayName(topThree[2])}
                     </h4>
                     <p className="text-gray-400 font-semibold text-xl">
-                      {topThree[2].auraPoints.toLocaleString()}
+                      {topThree[2].dreamzPoints.toLocaleString()}
                     </p>
                     <div className="text-sm text-gray-400">
                       {topThree[2].totalBattlesWon} battles won
@@ -168,7 +168,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                   <TableRow className="border-primary/20 hover:bg-transparent">
                     <TableHead className="text-gray-400 font-medium">Rank</TableHead>
                     <TableHead className="text-gray-400 font-medium">User</TableHead>
-                    <TableHead className="text-right text-gray-400 font-medium">Aura Points</TableHead>
+                    <TableHead className="text-right text-gray-400 font-medium">DRMZ</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Win Rate</TableHead>
                     <TableHead className="text-right text-gray-400 font-medium">Streak</TableHead>
 
@@ -223,7 +223,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
                         
                         <TableCell className="text-right">
                           <span className="font-semibold text-primary text-lg">
-                            {user.auraPoints.toLocaleString()}
+                            {user.dreamzPoints.toLocaleString()}
                           </span>
                         </TableCell>
                         
@@ -280,7 +280,7 @@ export default function LeaderboardTable({ users, showTopPodium = true }: Leader
               No Rankings Available
             </h3>
             <p className="text-gray-500">
-              The leaderboard will populate as users earn Aura Points
+              The leaderboard will populate as users earn DRMZ
             </p>
           </CardContent>
         </Card>
