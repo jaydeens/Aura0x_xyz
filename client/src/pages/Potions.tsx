@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Navigation from "@/components/Navigation";
 import { useCelebration } from "@/components/CelebrationAnimation";
+import CelebrationDialog from "@/components/CelebrationDialog";
 import { 
   Brain,
   Cpu, 
@@ -55,6 +56,8 @@ export default function Potions() {
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [usdtBalance, setUsdtBalance] = useState<number>(0);
   const [isInitializingPool, setIsInitializingPool] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<any>(null);
 
   const currentUser = user as any;
   const userWalletAddress = currentUser?.walletAddress;
@@ -320,17 +323,18 @@ export default function Potions() {
       
       return await response.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "SLP Acquired!",
-        description: "Neural tokens successfully added to your vault",
+    onSuccess: (data, variables) => {
+      setCelebrationData({
+        slpAmount: variables.potionsAmount,
+        usdtAmount: variables.usdtValue,
+        txHash: data.txHash,
       });
+      setShowCelebration(true);
       queryClient.invalidateQueries({ queryKey: ["/api/potions/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/potions/transactions"] });
       setUsdtAmount("");
       refetchUsdtBalance();
       setIsPurchasing(false);
-      triggerSteezeCelebration();
     },
     onError: (error: Error) => {
       toast({
@@ -907,6 +911,14 @@ export default function Potions() {
           </div>
         </div>
       </div>
+
+      {/* Celebration Dialog */}
+      <CelebrationDialog
+        open={showCelebration}
+        onOpenChange={setShowCelebration}
+        type="slp"
+        data={celebrationData || {}}
+      />
     </div>
   );
 }

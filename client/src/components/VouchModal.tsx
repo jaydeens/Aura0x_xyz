@@ -17,6 +17,7 @@ import { Wallet, Heart, Loader2, ExternalLink } from "lucide-react";
 import type { User } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { CARV_SVM } from "@shared/constants";
+import CelebrationDialog from "@/components/CelebrationDialog";
 
 declare global {
   interface Window {
@@ -39,6 +40,8 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
   const [usdtAmount, setUsdtAmount] = useState("10");
   const [usdtBalance, setUsdtBalance] = useState<number | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<any>(null);
 
   // Get Solana wallet object
   const getSolanaWallet = () => {
@@ -108,10 +111,14 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
       return await response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Vouch Successful! 🎉",
-        description: `You vouched for ${recipient.username || recipient.walletAddress?.slice(0, 8)} with ${usdtAmount} USDT. They earned ${data.dreamzPoints} Dreamz Points!`,
+      setCelebrationData({
+        recipientName: recipient.username || recipient.walletAddress?.slice(0, 8),
+        dreamzAwarded: data.dreamzPoints,
+        vouchAmount: parseFloat(usdtAmount),
+        multiplier: data.multiplier || 1,
+        txHash: data.txHash,
       });
+      setShowCelebration(true);
       queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'] });
       queryClient.invalidateQueries({ queryKey: [`/api/users/${recipient.id}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/vouch/stats/${recipient.id}`] });
@@ -333,6 +340,14 @@ export default function VouchModal({ open, onOpenChange, recipient }: VouchModal
           </p>
         </div>
       </DialogContent>
+      
+      {/* Celebration Dialog */}
+      <CelebrationDialog
+        open={showCelebration}
+        onOpenChange={setShowCelebration}
+        type="vouch"
+        data={celebrationData || {}}
+      />
     </Dialog>
   );
 }
