@@ -109,8 +109,8 @@ export default function LiveBattle() {
     },
     onSuccess: () => {
       toast({
-        title: "Potions Gifted!",
-        description: `Successfully gifted ${giftAmount} Potions tokens`,
+        title: "SLP Gifted!",
+        description: `Successfully gifted ${giftAmount} SLP`,
       });
       setShowGiftDialog(false);
       setGiftAmount("");
@@ -119,7 +119,7 @@ export default function LiveBattle() {
     onError: (error: any) => {
       toast({
         title: "Gift Failed",
-        description: error.message || "Failed to gift Potions tokens",
+        description: error.message || "Failed to gift SLP",
         variant: "destructive",
       });
     },
@@ -154,7 +154,7 @@ export default function LiveBattle() {
     if (!user || !isAuthenticated) {
       toast({
         title: "Authentication Required",
-        description: "Please log in to gift Potions tokens",
+        description: "Please log in to gift SLP",
         variant: "destructive",
       });
       return;
@@ -311,19 +311,19 @@ export default function LiveBattle() {
             
             {(battle as any).status === 'completed' && !(battle as any).winnerId && (
               <div className="flex items-center justify-center gap-2 text-orange-400 text-xl font-bold mb-4">
-                <span>🤝 Aura Draw - No Winner</span>
+                <span>🤝 Dreamz Draw - No Winner</span>
               </div>
             )}
           </div>
 
-          {/* Live Aura Radar */}
+          {/* Live Dreamz Radar */}
           <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-3xl p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Radio className="w-5 h-5 text-purple-400 animate-pulse" />
-                Live Aura Radar
+                Live Dreamz Radar
               </h3>
-              <div className="text-white/60 text-sm">Real-time Aura intensity</div>
+              <div className="text-white/60 text-sm">Real-time Dreamz intensity</div>
             </div>
             
             <div className="relative h-8 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full overflow-hidden border border-white/10">
@@ -455,7 +455,7 @@ export default function LiveBattle() {
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
                             <Trophy className="w-4 h-4" />
-                            <span>Final Potions: {(battle as any).challengerVotes || 0}</span>
+                            <span>Final SLP: {(battle as any).challengerVotes || 0}</span>
                           </div>
                         )}
                       </div>
@@ -557,7 +557,7 @@ export default function LiveBattle() {
                         ) : (
                           <div className="w-full bg-gray-700 text-gray-400 font-medium py-3 px-4 mt-3 rounded-lg text-sm flex items-center justify-center gap-1.5">
                             <Trophy className="w-4 h-4" />
-                            <span>Final Potions: {(battle as any).opponentVotes || 0}</span>
+                            <span>Final SLP: {(battle as any).opponentVotes || 0}</span>
                           </div>
                         )}
                       </div>
@@ -566,11 +566,11 @@ export default function LiveBattle() {
                 </div>
               </div>
 
-              {/* Aura Information */}
+              {/* Battle Information */}
               <div className="bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-3xl p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Trophy className="w-5 h-5 text-purple-400" />
-                  <h3 className="text-white font-bold">Aura Information</h3>
+                  <h3 className="text-white font-bold">Battle Information</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
