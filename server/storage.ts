@@ -398,11 +398,22 @@ class MemStorage implements IStorage {
   }
 
   async getUserVouches(userId: string): Promise<Vouch[]> {
-    return Array.from(this.store.vouches.values())
+    const vouchList = Array.from(this.store.vouches.values())
       .filter(vouch => 
         vouch.fromUserId === userId || vouch.toUserId === userId
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    // Enrich with usernames
+    return vouchList.map(vouch => {
+      const fromUser = this.store.users.get(vouch.fromUserId);
+      const toUser = this.store.users.get(vouch.toUserId);
+      return {
+        ...vouch,
+        fromUsername: fromUser?.username,
+        toUsername: toUser?.username,
+      } as any;
+    });
   }
 
   // Leaderboard operations
@@ -1215,7 +1226,18 @@ class PgStorage implements IStorage {
   }
 
   async getUserVouches(userId: string): Promise<Vouch[]> {
-    const result = await db.select()
+    const result = await db.select({
+      id: vouches.id,
+      fromUserId: vouches.fromUserId,
+      toUserId: vouches.toUserId,
+      usdtAmount: vouches.usdtAmount,
+      dreamzPoints: vouches.dreamzPoints,
+      multiplier: vouches.multiplier,
+      transactionHash: vouches.transactionHash,
+      createdAt: vouches.createdAt,
+      fromUsername: sql<string>`(SELECT username FROM ${users} WHERE id = ${vouches.fromUserId})`.as('fromUsername'),
+      toUsername: sql<string>`(SELECT username FROM ${users} WHERE id = ${vouches.toUserId})`.as('toUsername'),
+    })
       .from(vouches)
       .where(
         or(
@@ -1224,7 +1246,7 @@ class PgStorage implements IStorage {
         )
       )
       .orderBy(desc(vouches.createdAt));
-    return result;
+    return result as any;
   }
 
   // Leaderboard operations
